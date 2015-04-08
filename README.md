@@ -5,7 +5,7 @@
 ```shell
 $ git clone git@github.com:bigcommerce/paperclip.git
 $ cd paperclip
-$ npm install && npm link
+$ npm install
 ```
 
 ### Install from NPM Registry (When we open source this library)

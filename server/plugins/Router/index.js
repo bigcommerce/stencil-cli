@@ -122,7 +122,6 @@ internals.fetchData = function (request, config, callback) {
         }
 
         Wreck.read(response, {json: true}, function (err, data) {
-
             if (err) {
                 return callback(err);
             }
