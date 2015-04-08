@@ -17,9 +17,9 @@ manifest = {
         // Third Party Plugins
         'good': config.get('/good'),
         // First Party Plugins
-        './plugins/Router': {},
         './plugins/Proxy': {},
-        './plugins/Assembler': {}
+        './plugins/Renderer': {},
+        './plugins/Router': {}
     }
 };
 

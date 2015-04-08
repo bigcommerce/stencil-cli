@@ -3,48 +3,24 @@ var _ = require('lodash'),
     Hoek = require('hoek'),
     Url = require('url'),
     internals = {
-        options: {
-            storeUrl: '',
-            apiKey: ''
-        }
+        options: {}
     };
 
 module.exports.register = function(server, options, next) {
-    var proxyPath = '/__proxy__/{url*}';
-
     internals.options = Hoek.applyToDefaults(internals.options, options);
 
-    server.route({
-        method: ['POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        path: proxyPath,
-        config: {
-            cors: true,
-            payload: {
-                parse: false
-            }
-        },
-        handler: internals.implementation
-    });
-
-    server.route({
-        method: 'GET',
-        path: proxyPath,
-        config: {
-            cors: true
-        },
-        handler: internals.implementation
-    });
+    server.expose('implementation', internals.implementation);
 
     next();
 };
 
 module.exports.register.attributes = {
-    name: 'proxy',
+    name: 'Proxy',
     version: '0.0.1'
 };
 
 internals.implementation = function(request, reply) {
-    var proxyUrl = Url.resolve(internals.options.storeUrl + '/', request.params.url),
+    var proxyUrl = Url.resolve(request.app.storeUrl, request.params.url),
         proxyConfiguration = {
             passThrough: true,
             localStatePassThrough: true,

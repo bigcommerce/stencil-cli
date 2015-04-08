@@ -10,18 +10,7 @@ var Async = require('async'),
         }
     };
 
-module.exports.register = function(server, options, next) {
-    internals.options = Hoek.applyToDefaults(internals.options, options);
-
-    server.method('assembler', internals.implementation);
-
-    next();
-};
-
-module.exports.register.attributes = {
-    name: 'Assembler',
-    version: '0.0.1'
-};
+module.exports.assemble = assemble;
 
 /**
  * Parses the main template and resolves all of it's partials as well as parses it's front-matter
@@ -32,7 +21,7 @@ module.exports.register.attributes = {
  * @param mainTemplate
  * @param callback
  */
-internals.implementation = function(mainTemplate, callback) {
+function assemble(mainTemplate, callback) {
     var templates = {},
         templatesMissing = [];
 
@@ -93,5 +82,5 @@ internals.implementation = function(mainTemplate, callback) {
             });
         });
     }
-};
+}
 

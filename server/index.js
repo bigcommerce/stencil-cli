@@ -4,7 +4,7 @@ var _ = require('lodash'),
 
     manifest = require('./manifest'),
     config = require('./config'),
-    logo = require('./lib/ShowLogo');
+    logo = require('./lib/showLogo');
 
 module.exports = function(dotPaperclipFile) {
     var config = manifest.get('/');
@@ -12,8 +12,6 @@ module.exports = function(dotPaperclipFile) {
     config.connections[0].port = dotPaperclipFile.port;
     config.plugins['./plugins/Router'].storeUrl = dotPaperclipFile.storeUrl;
     config.plugins['./plugins/Router'].apiKey = dotPaperclipFile.apiKey;
-    config.plugins['./plugins/Proxy'].storeUrl = dotPaperclipFile.storeUrl;
-    config.plugins['./plugins/Proxy'].apiKey = dotPaperclipFile.apiKey;
 
     Glue.compose(config, {relativeTo: __dirname}, function (err, server) {
         server.start(function () {
