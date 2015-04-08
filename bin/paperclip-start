@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+
+var Fs = require('fs'),
+    Program = require('commander'),
+    Pkg = require('../package.json'),
+    exec = require('child_process').exec,
+    Path = require('path'),
+    Server = require('../server'),
+    dotPaperclipFilePath = './.paperclip',
+    dotPaperclipFileExists = Fs.existsSync(dotPaperclipFilePath),
+    dotPaperclipFile;
+
+Program
+    .version(Pkg.version)
+    .parse(process.argv);
+
+if (! dotPaperclipFileExists) {
+    console.log('Please run "paperclip init" first.');
+} else {
+
+    dotPaperclipFile = Fs.readFileSync(dotPaperclipFilePath, {encoding: 'utf-8'});
+    dotPaperclipFile = JSON.parse(dotPaperclipFile);
+
+    Server(dotPaperclipFile);
+}
+

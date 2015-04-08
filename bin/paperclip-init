@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+
+var Fs = require('fs'),
+    Inquirer = require('inquirer'),
+    Program = require('commander'),
+    pkg = require('../package.json'),
+    dotPaperclipFilePath = './.paperclip',
+    dotPaperclipFileExists = Fs.existsSync(dotPaperclipFilePath),
+    dotPaperclipFile;
+
+Program
+    .version(pkg.version)
+    .parse(process.argv);
+
+if (dotPaperclipFileExists) {
+    dotPaperclipFile = Fs.readFileSync(dotPaperclipFilePath, {encoding: 'utf-8'});
+    dotPaperclipFile = JSON.parse(dotPaperclipFile);
+}
+
+var questions = [
+    {
+        type: 'input',
+        name: 'storeUrl',
+        message: 'What is your secure (https://) test store URL?',
+        validate: function(val) {
+            if (/^https:\/\//.test(val)) {
+                return true;
+            } else {
+                return 'You must enter a URL that starts with "https://"';
+            }
+        },
+        default: dotPaperclipFile && dotPaperclipFile.storeUrl || undefined
+    },
+    {
+        type: 'input',
+        name: 'apiKey',
+        message: 'What is your test store\'s API Key?',
+        default: dotPaperclipFile && dotPaperclipFile.apiKey || undefined
+    },
+    {
+        type: 'input',
+        name: 'port',
+        message: 'What port would you like to run the server on?',
+        default: dotPaperclipFile && dotPaperclipFile.port || 3000,
+        validate: function(val) {
+            if (isNaN(val)) {
+                return 'You must enter an integer';
+            } else if (val < 1024 || val > 65535) {
+                return 'The port number must be between 1025 and 65535';
+            } else {
+                return true;
+            }
+        }
+    }
+];
+
+Inquirer.prompt(questions, function(answers) {
+    Fs.writeFile(dotPaperclipFilePath, JSON.stringify(answers, null, 2), function(err) {
+        if (err) {
+            throw err;
+        }
+
+        console.log('You are now ready to go! To start developing, run $ paperclip start');
+    });
+});
