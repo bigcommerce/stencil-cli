@@ -22,8 +22,16 @@ module.exports.register.attributes = {
     version: '0.0.1'
 };
 
+/**
+ * Renderer Route Handler
+ *
+ * @param request
+ * @param reply
+ */
 internals.implementation = function (request, reply) {
-    FetchData.fetch(request, {get_template_file: true}, function (err, response) {
+    var options = {get_template_file: true};
+
+    FetchData.fetch(request, {options: options}, function (err, response) {
         var redirectPath,
             redirectUrl,
             templateName,
@@ -45,20 +53,20 @@ internals.implementation = function (request, reply) {
 
             replyResponse = reply.redirect(redirectUrl);
 
-            cookies = internals.fixCookies(replyResponse, response.headers['set-cookie']);
+            cookies = internals.fixCookies(response.headers['set-cookie']);
             replyResponse.header('set-cookie', cookies);
             replyResponse.statusCode = response.statusCode;
 
         } else if (response.rawData) {
             replyResponse = reply(response.rawData);
 
-            cookies = internals.fixCookies(replyResponse, response.headers['set-cookie']);
+            cookies = internals.fixCookies(response.headers['set-cookie']);
             replyResponse.header('set-cookie', cookies);
         } else {
             templateName = response.template_file;
 
             Assembler.assemble(templateName, function(err, templateData) {
-                FetchData.fetch(request, templateData.config, function (err, bcAppData) {
+                FetchData.fetch(request, {config: templateData.config}, function (err, bcAppData) {
                     var content;
 
                     if (err) {
@@ -66,11 +74,11 @@ internals.implementation = function (request, reply) {
                     }
 
                     content = Paper.compile(templateName, templateData.templates, bcAppData.context);
-
                     content = internals.decorateOutput(content, request, bcAppData);
+
                     replyResponse = reply(content);
 
-                    cookies = internals.fixCookies(replyResponse, bcAppData.headers['set-cookie']);
+                    cookies = internals.fixCookies(bcAppData.headers['set-cookie']);
                     replyResponse.header('set-cookie', cookies);
 
                     return replyResponse;
@@ -84,10 +92,9 @@ internals.implementation = function (request, reply) {
 /**
  * Strip domain from cookies so they will work locally
  *
- * @param replyResponse
  * @param cookies
  */
-internals.fixCookies = function(replyResponse, cookies) {
+internals.fixCookies = function(cookies) {
     var fixedCookies = [];
 
     _.each(cookies, function(cookie) {
@@ -107,11 +114,11 @@ internals.fixCookies = function(replyResponse, cookies) {
 internals.decorateOutput = function (content, request, data) {
     var regex;
 
-        regex = new RegExp(internals.escapeRegex(data.context.settings.base_url), 'g');
-        content = content.replace(regex, '');
+    regex = new RegExp(internals.escapeRegex(data.context.settings.base_url), 'g');
+    content = content.replace(regex, '');
 
-        regex = new RegExp(internals.escapeRegex(data.context.settings.secure_base_url), 'g');
-        content = content.replace(regex, '');
+    regex = new RegExp(internals.escapeRegex(data.context.settings.secure_base_url), 'g');
+    content = content.replace(regex, '');
 
     if (request.query.debug === 'bar') {
         var debugBar = '<pre><p><b>Context:</b></p>' + JSON.stringify(data.context, null, 2) + '</pre>';

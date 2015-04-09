@@ -8,18 +8,30 @@ module.exports.fetch = fetch;
  * Fetches data from Stapler
  *
  * @param request
- * @param config
+ * @param params
  * @param callback
  */
-function fetch(request, config, callback) {
-    var url = Url.resolve(request.app.storeUrl, request.url),
+function fetch(request, params, callback) {
+    var url = Url.resolve(request.app.staplerUrl, request.url),
         httpOpts = {
             rejectUnauthorized: false,
-            headers: {
-                'SFP-THEME-ENGINE': '2.0',
-                'SFP-THEME-CONFIG': JSON.stringify(config)
-            }
+            headers: {}
         };
+
+    if (typeof params === 'function') {
+        callback = params;
+        params = {
+            config: {},
+            options: {}
+        };
+    }
+
+    httpOpts.headers = {
+        'stencil-version': '2.0',
+        'stencil-config': JSON.stringify(params.config || {}),
+        'stencil-options': JSON.stringify(params.options || {}),
+        'stencil-store-url': request.app.storeUrl
+    };
 
     if (request.headers.cookie) {
         httpOpts.headers.cookie = request.headers.cookie;
