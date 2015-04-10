@@ -1,5 +1,4 @@
 var Hoek = require('hoek'),
-    Wreck = require('wreck'),
     internals = {
         options: {
             storeUrl: '',
