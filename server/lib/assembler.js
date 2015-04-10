@@ -3,7 +3,6 @@ var Async = require('async'),
     Fs = require('fs'),
     _ =require('lodash'),
     Hoek = require('hoek'),
-    Path = require('path'),
     internals = {
         options: {
             extension: '.html',

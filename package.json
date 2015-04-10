@@ -4,7 +4,8 @@
   "description": "CLI tool to run Bigcommerce Stores locally for theme development.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "lab -t 90 -e 'development'",
+    "test-cov-html": "lab -r html -o coverage.html"
   },
   "bin": {
     "paperclip": "./bin/paperclip",
@@ -39,5 +40,8 @@
     "npm": "^2.7.5",
     "stencil-paper": "git+ssh://git@github.com:bigcommerce/paper",
     "wreck": "^5.4.0"
+  },
+  "devDependencies": {
+    "sinon": "^1.14.1"
   }
 }

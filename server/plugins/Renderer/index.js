@@ -1,10 +1,8 @@
-var _ = require('lodash'),
-    Assembler = require('../../lib/assembler'),
+var Assembler = require('../../lib/assembler'),
     Boom = require('boom'),
     FetchData = require('../../lib/fetchData'),
     Hoek = require('hoek'),
     Paper = require('stencil-paper'),
-    Url = require('url'),
     internals = {
         options: {}
     };
@@ -32,48 +30,42 @@ internals.implementation = function (request, reply) {
     var options = {get_template_file: true};
 
     FetchData.fetch(request, {options: options}, function (err, response) {
-        var redirectPath,
-            redirectUrl,
-            templateName,
-            replyResponse,
-            cookies;
+        var templateName,
+            replyResponse;
 
         if (err) {
             return reply(Boom.wrap(err));
         }
 
-        if (response.redirect) {
-            redirectPath = Url.parse(response.redirect).path;
+        if (response.headers.location) {
+            replyResponse = reply.redirect(response.headers.location);
 
-            if (redirectPath.charAt(0) !== '/') {
-                redirectPath = '/' + redirectPath;
+            if (response.headers['set-cookie']) {
+                replyResponse.header('set-cookie', response.headers['set-cookie']);
             }
 
-            redirectUrl = request.server.info.uri + redirectPath;
-
-            replyResponse = reply.redirect(redirectUrl);
-
-            cookies = internals.fixCookies(response.headers['set-cookie']);
-            replyResponse.header('set-cookie', cookies);
-            replyResponse.statusCode = response.statusCode;
+            replyResponse.code(response.statusCode);
         } else if (response.rawData) {
             replyResponse = reply(response.rawData);
 
-            cookies = internals.fixCookies(response.headers['set-cookie']);
-            replyResponse.header('set-cookie', cookies);
-            replyResponse.statusCode = response.statusCode;
+            if (response.headers['set-cookie']) {
+                replyResponse.header('set-cookie', response.headers['set-cookie']);
+            }
+
+            if (response.headers['content-type']) {
+                replyResponse.type(response.headers['content-type']);
+            }
+
+            replyResponse.code(response.statusCode);
         } else {
             templateName = response.template_file;
 
             Assembler.assemble(templateName, function(err, templateData) {
-                var params = {
-                    config: templateData.config,
-                    options: {
-                        get_data_only: true
-                    }
-                };
+                if (err) {
+                    return reply(Boom.wrap(err));
+                }
 
-                FetchData.fetch(request, params, function (err, bcAppData) {
+                FetchData.fetch(request, {config: templateData.config}, function (err, bcAppData) {
                     var content;
 
                     if (err) {
@@ -89,29 +81,15 @@ internals.implementation = function (request, reply) {
 
                     replyResponse = reply(content);
 
-                    cookies = internals.fixCookies(bcAppData.headers['set-cookie']);
-                    replyResponse.header('set-cookie', cookies);
-                    replyResponse.statusCode = response.statusCode;
+                    if (response.headers['set-cookie']) {
+                        replyResponse.header('set-cookie', response.headers['set-cookie']);
+                    }
+
+                    replyResponse.code(response.statusCode);
                 });
             });
         }
     });
-};
-
-
-/**
- * Strip domain from cookies so they will work locally
- *
- * @param cookies
- */
-internals.fixCookies = function(cookies) {
-    var fixedCookies = [];
-
-    _.each(cookies, function(cookie) {
-        fixedCookies.push(cookie.replace(/domain=(.+);?/, ''));
-    });
-
-    return fixedCookies;
 };
 
 /**
