@@ -47,14 +47,16 @@ function fetch(request, config, callback) {
             if (! data.template_file) {
                 return callback(null, {
                     rawData: data,
-                    headers: response.headers
+                    headers: response.headers,
+                    statusCode: response.statusCode
                 })
             }
 
             callback(null, {
                 template_file: data.template_file,
                 headers: response.headers,
-                context: data.context
+                context: data.context,
+                statusCode: response.statusCode
             });
         });
     });

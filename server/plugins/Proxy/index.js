@@ -45,6 +45,7 @@ internals.implementation = function(request, reply) {
                 });
 
                 replyResponse.header('set-cookie', cookies);
+                replyResponse.statusCode = res.statusCode;
 
                 //if we are in development mode and redirecting, rewrite the redirect to match our referring host
                 if (res.headers.location) {

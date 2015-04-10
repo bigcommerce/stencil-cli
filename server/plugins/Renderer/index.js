@@ -48,12 +48,12 @@ internals.implementation = function (request, reply) {
             cookies = internals.fixCookies(replyResponse, response.headers['set-cookie']);
             replyResponse.header('set-cookie', cookies);
             replyResponse.statusCode = response.statusCode;
-
         } else if (response.rawData) {
             replyResponse = reply(response.rawData);
 
             cookies = internals.fixCookies(replyResponse, response.headers['set-cookie']);
             replyResponse.header('set-cookie', cookies);
+            replyResponse.statusCode = response.statusCode;
         } else {
             templateName = response.template_file;
 
@@ -72,8 +72,7 @@ internals.implementation = function (request, reply) {
 
                     cookies = internals.fixCookies(replyResponse, bcAppData.headers['set-cookie']);
                     replyResponse.header('set-cookie', cookies);
-
-                    return replyResponse;
+                    replyResponse.statusCode = response.statusCode;
                 });
             });
         }
