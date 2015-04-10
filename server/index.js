@@ -1,7 +1,4 @@
-var _ = require('lodash'),
-    Glue = require('glue'),
-    Hoek = require('hoek'),
-
+var Glue = require('glue'),
     manifest = require('./manifest'),
     config = require('./config'),
     logo = require('./lib/showLogo');
