@@ -28,6 +28,17 @@ module.exports.register = function(server, options, next) {
         reply.continue();
     });
 
+    server.dependency(['Renderer', 'Proxy'], internals.implementation);
+
+    next();
+};
+
+module.exports.register.attributes = {
+    name: 'Router',
+    version: '0.0.1'
+};
+
+internals.implementation = function(server, next) {
     server.route([
         {
             method: 'GET',
@@ -75,9 +86,4 @@ module.exports.register = function(server, options, next) {
     ]);
 
     next();
-};
-
-module.exports.register.attributes = {
-    name: 'Router',
-    version: '0.0.1'
 };
