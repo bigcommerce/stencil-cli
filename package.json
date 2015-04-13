@@ -8,19 +8,19 @@
   },
   "bin": {
     "paperclip": "./bin/paperclip",
-    "paperclip-install": "./bin/paperclip-install",
+    "paperclip-start": "./bin/paperclip-start",
     "paperclip-init": "./bin/paperclip-init"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bigcommerce-labs/paperclip"
+    "url": "https://github.com/bigcommerce/paperclip"
   },
   "author": "Bigcommerce",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/bigcommerce-labs/paperclip/issues"
+    "url": "https://github.com/bigcommerce/paperclip/issues"
   },
-  "homepage": "https://github.com/bigcommerce-labs/paperclip",
+  "homepage": "https://github.com/bigcommerce/paperclip",
   "dependencies": {
     "async": "^0.9.0",
     "boom": "^2.7.0",
