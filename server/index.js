@@ -12,6 +12,7 @@ module.exports = function(dotPaperclipFile) {
     config.connections[0].port = dotPaperclipFile.port;
     config.plugins['./plugins/Router'].storeUrl = dotPaperclipFile.storeUrl;
     config.plugins['./plugins/Router'].apiKey = dotPaperclipFile.apiKey;
+    config.plugins['./plugins/Router'].staplerUrl = dotPaperclipFile.staplerUrl || 'https://bc-stapler.herokuapp.com';
 
     Glue.compose(config, {relativeTo: __dirname}, function (err, server) {
         server.start(function () {

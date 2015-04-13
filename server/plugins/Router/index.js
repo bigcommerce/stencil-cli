@@ -2,7 +2,8 @@ var Hoek = require('hoek'),
     internals = {
         options: {
             storeUrl: '',
-            apiKey: ''
+            apiKey: '',
+            staplerUrl: ''
         },
         paths: {
             renderer: '/{url*}',
@@ -18,6 +19,7 @@ module.exports.register = function(server, options, next) {
     server.ext('onRequest', function(request, reply) {
         request.app.storeUrl = internals.options.storeUrl;
         request.app.apiKey = internals.options.apiKey;
+        request.app.staplerUrl = internals.options.staplerUrl;
 
         if (request.method !== 'get' || request.url.path.indexOf('/checkout.php') === 0) {
             request.setUrl('/__proxy__' + request.url.path);
