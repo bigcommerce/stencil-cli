@@ -2,11 +2,7 @@
 
 ### Install from Github repo
 
-```shell
-$ git clone git@github.com:bigcommerce/paperclip.git
-$ cd paperclip
-$ npm install
-```
+`$ npm install -g bigcommerce/paperclip`
 
 ### Install from NPM Registry (When we open source this library)
 
