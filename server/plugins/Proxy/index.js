@@ -30,7 +30,8 @@ internals.implementation = function(request, reply) {
                 var replyResponse,
                     referer,
                     cookies = [],
-                    rewritePath;
+                    rewritePath,
+                    protocol;
 
                 if (err) {
                     return reply(Boom.wrap(err));
@@ -41,7 +42,7 @@ internals.implementation = function(request, reply) {
                 // hack off the domain from the cookies so they are set in the browser attached wo whatever the client
                 // is using currently
                 _.each(res.headers['set-cookie'], function(cookie) {
-                    cookies.push(cookie.replace(/domain=(.+);?/, ''));
+                    cookies.push(cookie.replace(/(?:;\s)?domain=(?:.+?)(;|$)/, '$1'));
                 });
 
                 replyResponse.header('set-cookie', cookies);
@@ -49,14 +50,10 @@ internals.implementation = function(request, reply) {
 
                 //if we are in development mode and redirecting, rewrite the redirect to match our referring host
                 if (res.headers.location) {
-                    var protocol = request.headers['x-forwarded-proto'] || 'http';
+                    protocol = request.headers['x-forwarded-proto'] || 'http';
 
                     referer = Url.parse(protocol + '://' + request.headers.host);
                     rewritePath = Url.parse(res.headers.location).path;
-
-                    if (rewritePath.charAt(0) !== '/') {
-                        rewritePath = '/' + rewritePath;
-                    }
 
                     replyResponse.header('location', referer.protocol + '//' + referer.host + rewritePath);
                 }
