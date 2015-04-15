@@ -66,11 +66,22 @@ internals.implementation = function (request, reply) {
             templateName = response.template_file;
 
             Assembler.assemble(templateName, function(err, templateData) {
-                FetchData.fetch(request, {config: templateData.config}, function (err, bcAppData) {
+                var params = {
+                    config: templateData.config,
+                    options: {
+                        get_data_only: true
+                    }
+                };
+
+                FetchData.fetch(request, dataParams, function (err, bcAppData) {
                     var content;
 
                     if (err) {
                         return reply(Boom.wrap(err));
+                    }
+
+                    if (request.query.debug === 'context') {
+                        return reply(bcAppData.context);
                     }
 
                     content = Paper.compile(templateName, templateData.templates, bcAppData.context);
