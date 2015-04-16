@@ -73,7 +73,7 @@ internals.implementation = function (request, reply) {
                     }
                 };
 
-                FetchData.fetch(request, dataParams, function (err, bcAppData) {
+                FetchData.fetch(request, params, function (err, bcAppData) {
                     var content;
 
                     if (err) {
