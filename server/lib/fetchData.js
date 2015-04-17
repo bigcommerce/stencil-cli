@@ -52,11 +52,13 @@ function fetch(request, params, callback) {
             response.headers['set-cookie'] = Utils.stripDomainFromCookies(response.headers['set-cookie']);
         }
 
-        if (response.statusCode == 301 || response.statusCode == 302 || response.statusCode == 303) {
+        if (response.statusCode === 301 || response.statusCode === 302 || response.statusCode === 303) {
 
-            if (response.headers.location) {
-                response.headers.location = Utils.normalizeRedirectUrl(request, response.headers.location);
+            if (! response.headers.location) {
+                return callback('StatusCode is set to 30x but there is no location header to redirect to.');
             }
+
+            response.headers.location = Utils.normalizeRedirectUrl(request, response.headers.location);
 
             return callback(null, {
                 headers: response.headers,
