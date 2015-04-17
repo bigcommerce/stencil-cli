@@ -14,7 +14,7 @@ var Boom = require('boom'),
         }
     };
 
-describe('Router', function () {
+describe('Proxy', function () {
     var server = new Hapi.Server(),
         replyResponseMock = {
             code: function() {},
@@ -29,6 +29,9 @@ describe('Router', function () {
             },
             headers: {
                 host: 'localhost:3000'
+            },
+            url: {
+                search: ''
             }
         },
         replyMock = function() {
