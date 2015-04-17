@@ -192,7 +192,7 @@ describe('Renderer', function () {
                 templateFile = 'test.html',
                 fetchDataStub = Sinon.stub(FetchData, 'fetch'),
                 assemblerStub = Sinon.stub(Assembler, 'assemble'),
-                paperStub = Sinon.stub(Paper, 'compile');
+                paperStub = Sinon.stub(Paper, 'compileSync');
 
             fetchDataStub.onFirstCall().callsArgWith(2, null, {
                 statusCode: 200,
@@ -254,7 +254,7 @@ describe('Renderer', function () {
                 },
                 fetchDataStub = Sinon.stub(FetchData, 'fetch'),
                 assemblerStub = Sinon.stub(Assembler, 'assemble'),
-                paperStub = Sinon.stub(Paper, 'compile');
+                paperStub = Sinon.stub(Paper, 'compileSync');
 
             requestMock.query = {
                 debug: false
@@ -308,7 +308,7 @@ describe('Renderer', function () {
                 },
                 fetchDataStub = Sinon.stub(FetchData, 'fetch'),
                 assemblerStub = Sinon.stub(Assembler, 'assemble'),
-                paperStub = Sinon.stub(Paper, 'compile');
+                paperStub = Sinon.stub(Paper, 'compileSync');
 
             requestMock.query = {
                 debug: 'bar'
@@ -357,7 +357,7 @@ describe('Renderer', function () {
                 templateFile = 'test.html',
                 fetchDataStub = Sinon.stub(FetchData, 'fetch'),
                 assemblerStub = Sinon.stub(Assembler, 'assemble'),
-                paperStub = Sinon.stub(Paper, 'compile');
+                paperStub = Sinon.stub(Paper, 'compileSync');
 
             requestMock.query = {
                 debug: 'bar'
