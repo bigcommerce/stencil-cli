@@ -1,5 +1,5 @@
-var _ = require('lodash'),
-    Boom = require('boom'),
+var Boom = require('boom'),
+    Utils = require('../../lib/utils'),
     Hoek = require('hoek'),
     Url = require('url'),
     internals = {
@@ -27,40 +27,26 @@ internals.implementation = function(request, reply) {
             localStatePassThrough: true,
             redirects: false,
             rejectUnauthorized: false,
-            onResponse: function (err, res, request, reply) {
+            onResponse: function (err, response, request, reply) {
                 var replyResponse,
-                    referer,
-                    cookies = [],
-                    rewritePath;
+                    redirectUrl;
 
                 if (err) {
                     return reply(Boom.wrap(err));
                 }
 
-                replyResponse = reply(res);
-
-                // hack off the domain from the cookies so they are set in the browser attached wo whatever the client
-                // is using currently
-                _.each(res.headers['set-cookie'], function(cookie) {
-                    cookies.push(cookie.replace(/domain=(.+);?/, ''));
-                });
-
-                replyResponse.header('set-cookie', cookies);
-                replyResponse.statusCode = res.statusCode;
-
-                //if we are in development mode and redirecting, rewrite the redirect to match our referring host
-                if (res.headers.location) {
-                    var protocol = request.headers['x-forwarded-proto'] || 'http';
-
-                    referer = Url.parse(protocol + '://' + request.headers.host);
-                    rewritePath = Url.parse(res.headers.location).path;
-
-                    if (rewritePath.charAt(0) !== '/') {
-                        rewritePath = '/' + rewritePath;
-                    }
-
-                    replyResponse.header('location', referer.protocol + '//' + referer.host + rewritePath);
+                if (response.headers.location) {
+                    redirectUrl = Utils.normalizeRedirectUrl(request, response.headers.location);
+                    replyResponse = reply.redirect(redirectUrl);
+                } else {
+                    replyResponse = reply(response);
                 }
+
+                if (response.headers['set-cookie']) {
+                    replyResponse.header('set-cookie', Utils.stripDomainFromCookies(response.headers['set-cookie']));
+                }
+
+                replyResponse.code(response.statusCode);
             },
             mapUri: function(request, callback) {
                 callback(null, proxyUrl);

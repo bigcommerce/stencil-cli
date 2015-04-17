@@ -1,5 +1,6 @@
 var Hoek = require('hoek'),
     Url = require('url'),
+    Utils = require('./utils'),
     Wreck = require('wreck');
 
 module.exports.fetch = fetch;
@@ -12,7 +13,8 @@ module.exports.fetch = fetch;
  * @param callback
  */
 function fetch(request, params, callback) {
-    var url = Url.resolve(request.app.staplerUrl, request.url),
+    var options = {get_data_only: true},
+        url = Url.resolve(request.app.staplerUrl, request.url),
         httpOpts = {
             rejectUnauthorized: false,
             headers: {}
@@ -22,14 +24,16 @@ function fetch(request, params, callback) {
         callback = params;
         params = {
             config: {},
-            options: {}
+            options: options
         };
+    } else {
+        params = Hoek.applyToDefaults({options: options, config: {}}, params);
     }
 
     httpOpts.headers = {
         'stencil-version': '2.0',
-        'stencil-config': JSON.stringify(params.config || {}),
-        'stencil-options': JSON.stringify(params.options || {}),
+        'stencil-config': JSON.stringify(params.config),
+        'stencil-options': JSON.stringify(params.options),
         'stencil-store-url': request.app.storeUrl
     };
 
@@ -44,9 +48,18 @@ function fetch(request, params, callback) {
             return callback(err);
         }
 
+        if (response.headers['set-cookie']) {
+            response.headers['set-cookie'] = Utils.stripDomainFromCookies(response.headers['set-cookie']);
+        }
+
         if (response.statusCode == 301 || response.statusCode == 302 || response.statusCode == 303) {
+
+            if (response.headers.location) {
+                response.headers.location = Utils.normalizeRedirectUrl(request, response.headers.location);
+            }
+
             return callback(null, {
-                redirect: response.headers.location,
+                headers: response.headers,
                 statusCode: response.statusCode
             });
         }
@@ -61,13 +74,13 @@ function fetch(request, params, callback) {
                     rawData: data,
                     headers: response.headers,
                     statusCode: response.statusCode
-                })
+                });
             }
 
             callback(null, {
                 template_file: data.template_file,
-                headers: response.headers,
                 context: data.context,
+                headers: response.headers,
                 statusCode: response.statusCode
             });
         });
