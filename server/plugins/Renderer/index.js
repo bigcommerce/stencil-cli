@@ -76,7 +76,7 @@ internals.implementation = function (request, reply) {
                         return reply(bcAppData.context);
                     }
 
-                    content = Paper.compile(templateName, templateData.templates, bcAppData.context);
+                    content = Paper.compileSync(templateName, templateData.templates, bcAppData.context);
                     content = internals.decorateOutput(content, request, bcAppData);
 
                     replyResponse = reply(content);
