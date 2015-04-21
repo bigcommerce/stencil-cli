@@ -12,6 +12,8 @@ var Bs = require('browser-sync').create(),
     Less = require('less'),
     allowedCssCompilers = ['scss', 'less', 'css'],
     browserSyncPort,
+    cssCompilerDir,
+    cssWatchBaseDir = process.cwd() + '/assets/',
     dotStencilFilePath = './.stencil',
     dotStencilFileExists = Fs.existsSync(dotStencilFilePath),
     dotStencilFile,
@@ -38,15 +40,41 @@ if (! dotStencilFileExists) {
 
     browserSyncPort = dotStencilFile.port;
     stencilServerPort = ++dotStencilFile.port;
+    cssCompilerDir = cssWatchBaseDir + themeConfig.css_compiler;
 
     Server(dotStencilFile, function(err) {
         if (err) {
             throw err;
         }
 
-        Bs.watch(process.cwd() + '/assets/' + themeConfig.css_compiler, function(event, file) {
+        /**
+         * Watch the appropriate css directory based on which compiler was chosen.
+         * This will run on each file (and files in sub-directories) when the server starts
+         * up. We only want to run compilation on top level files as the ones in sub directories
+         * are most likely include files and pull be pulled in by the top level files.
+         *
+         * When a file in a sub directory changes, we have to recompile all top level files because
+         * more than one could have included the changed file.
+         *
+         * This behaviour is a bit different for just plain CSS files, so they will always
+         * be compiled and copied across.
+         */
+        Bs.watch(cssCompilerDir, function(event, file) {
+            var relativePath;
+
             if (event === 'add' || event === 'change') {
-                compileCss(themeConfig.css_compiler, file);
+                relativePath = Path.relative(cssCompilerDir, file);
+                // Only run it through if it's not a file in a sub directory or we are only doing plain CSS
+                if ((! relativePath.match(/\//)) || themeConfig.css_compiler === 'css') {
+                    compileCss(themeConfig.css_compiler, file);
+                // Only re-compile top level files if this is a change event and it's in a sub directory
+                } else if (event === 'change') {
+                    Fs.readdirSync(cssCompilerDir, cssCompiler).filter(function(file) {
+                        return /^(?!_).+\.(?:scss|less)$/.test(file);
+                    }).forEach(function(file) {
+                        compileCss(themeConfig.css_compiler, Path.join(cssCompilerDir, file));
+                    });
+                }
             }
         });
 
