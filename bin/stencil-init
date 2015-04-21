@@ -33,12 +33,6 @@ var questions = [
     },
     {
         type: 'input',
-        name: 'apiKey',
-        message: 'What is your test store\'s API Key?',
-        default: dotStencilFile && dotStencilFile.apiKey || undefined
-    },
-    {
-        type: 'input',
         name: 'port',
         message: 'What port would you like to run the server on?',
         default: dotStencilFile && dotStencilFile.port || 3000,

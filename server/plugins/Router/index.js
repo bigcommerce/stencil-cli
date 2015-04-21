@@ -9,6 +9,7 @@ var Hoek = require('hoek'),
             renderer: '/{url*}',
             proxy: '/__proxy__/{url*}',
             staticAssets: '/assets/{path*}',
+            cssArtifacts: '/assets/css/{path*}',
             favicon: '/favicon.ico'
         }
     };
@@ -61,7 +62,7 @@ module.exports.register = function(server, options, next) {
             path: internals.paths.staticAssets,
             handler: {
                 directory: {
-                    path: 'assets'
+                    path: './assets'
                 }
             }
         },
@@ -70,6 +71,15 @@ module.exports.register = function(server, options, next) {
             path: internals.paths.favicon,
             handler: {
                 file: './assets/favicon.ico'
+            }
+        },
+        {
+            method: 'GET',
+            path: internals.paths.cssArtifacts,
+            handler: {
+                directory: {
+                    path: './assets/css-artifacts'
+                }
             }
         }
     ]);
