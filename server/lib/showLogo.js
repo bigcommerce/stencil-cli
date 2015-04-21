@@ -22,7 +22,7 @@ logo += "   ,,,,,,,,,,,,,,,,..    \n".cyan;
 logo += "       ..,,,,..          \n".cyan;
 logo += "_________________________\n".white;
 logo += '\n';
-logo += "Bigcommerce Paperclip \n".yellow;
+logo += "Bigcommerce Stencil \n".yellow;
 logo += '_________________________\n'.white;
 
 module.exports = logo;

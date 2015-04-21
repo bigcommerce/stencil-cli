@@ -4,17 +4,17 @@ var Fs = require('fs'),
     Inquirer = require('inquirer'),
     Program = require('commander'),
     pkg = require('../package.json'),
-    dotPaperclipFilePath = './.paperclip',
-    dotPaperclipFileExists = Fs.existsSync(dotPaperclipFilePath),
-    dotPaperclipFile;
+    dotStencilFilePath = './.stencil',
+    dotStencilFileExists = Fs.existsSync(dotStencilFilePath),
+    dotStencilFile;
 
 Program
     .version(pkg.version)
     .parse(process.argv);
 
-if (dotPaperclipFileExists) {
-    dotPaperclipFile = Fs.readFileSync(dotPaperclipFilePath, {encoding: 'utf-8'});
-    dotPaperclipFile = JSON.parse(dotPaperclipFile);
+if (dotStencilFileExists) {
+    dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
+    dotStencilFile = JSON.parse(dotStencilFile);
 }
 
 var questions = [
@@ -29,19 +29,19 @@ var questions = [
                 return 'You must enter a URL that starts with "https://"';
             }
         },
-        default: dotPaperclipFile && dotPaperclipFile.storeUrl || undefined
+        default: dotStencilFile && dotStencilFile.storeUrl || undefined
     },
     {
         type: 'input',
         name: 'apiKey',
         message: 'What is your test store\'s API Key?',
-        default: dotPaperclipFile && dotPaperclipFile.apiKey || undefined
+        default: dotStencilFile && dotStencilFile.apiKey || undefined
     },
     {
         type: 'input',
         name: 'port',
         message: 'What port would you like to run the server on?',
-        default: dotPaperclipFile && dotPaperclipFile.port || 3000,
+        default: dotStencilFile && dotStencilFile.port || 3000,
         validate: function(val) {
             if (isNaN(val)) {
                 return 'You must enter an integer';
@@ -55,11 +55,11 @@ var questions = [
 ];
 
 Inquirer.prompt(questions, function(answers) {
-    Fs.writeFile(dotPaperclipFilePath, JSON.stringify(answers, null, 2), function(err) {
+    Fs.writeFile(dotStencilFilePath, JSON.stringify(answers, null, 2), function(err) {
         if (err) {
             throw err;
         }
 
-        console.log('You are now ready to go! To start developing, run $ paperclip start');
+        console.log('You are now ready to go! To start developing, run $ stencil start');
     });
 });

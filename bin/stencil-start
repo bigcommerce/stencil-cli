@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+
+var Fs = require('fs'),
+    Program = require('commander'),
+    Pkg = require('../package.json'),
+    Server = require('../server'),
+    dotStencilFilePath = './.stencil',
+    dotStencilFileExists = Fs.existsSync(dotStencilFilePath),
+    dotStencilFile;
+
+Program
+    .version(Pkg.version)
+    .parse(process.argv);
+
+if (! dotStencilFileExists) {
+    console.log('Please run "stencil init" first.');
+} else {
+
+    dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
+    dotStencilFile = JSON.parse(dotStencilFile);
+
+    Server(dotStencilFile);
+}
+
