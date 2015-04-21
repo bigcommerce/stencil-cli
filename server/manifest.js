@@ -7,7 +7,7 @@ var Confidence = require('confidence'),
     manifest;
 
 manifest = {
-    $meta: 'Paperclip',
+    $meta: 'Stencil',
     connections: [{
         host: config.get('/server/host'),
         port: config.get('/server/port'),
