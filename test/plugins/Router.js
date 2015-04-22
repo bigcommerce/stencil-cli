@@ -50,8 +50,12 @@ lab.describe('Router', function () {
             require(internals.paths.pluginsPath + '/Router')
         ], function (err) {
             expect(err).to.equal(undefined);
-            done();
+            server.start(done);
         });
+    });
+
+    lab.after(function(done) {
+        server.stop(done);
     });
 
     it('should call the proxy handler', function (done) {
