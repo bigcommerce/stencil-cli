@@ -124,16 +124,16 @@ internals.decorateOutput = function (content, request, data) {
  * @param string html
  */
 internals.escapeHtml = function (html) {
-    var fn = function(tag) {
-        var charsToReplace = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&#34;'
-        };
+    var charsToReplace = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&#34;'
+    };
+    
+    return html.replace(/[&<>"]/g, function(tag) {
         return charsToReplace[tag] || tag;
-    }
-    return html.replace(/[&<>"]/g, fn);
+    });
 }
 
 /**
