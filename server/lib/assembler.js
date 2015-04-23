@@ -28,7 +28,7 @@ function assemble(mainTemplate, callback) {
     callback = Hoek.nextTick(callback);
 
     if (!Fs.existsSync('config.json')) {
-        return callback('The file config.json is missing in the root of the theme.');
+        return callback(new Error('The file config.json is missing in the root of the theme.'));
     }
 
     Async.parallel([
@@ -67,7 +67,7 @@ function assemble(mainTemplate, callback) {
                         defaultConfig = Fs.readFileSync('config.json', {encoding: 'utf-8'});
 
                     if (templatesMissing.length > 0) {
-                        return callback( 'The following template(s) are/is missing: \n' + templatesMissing.join('\n'))
+                        return callback(new Error('The following template(s) are/is missing: \n' + templatesMissing.join('\n')));
                     }
 
                     try {
