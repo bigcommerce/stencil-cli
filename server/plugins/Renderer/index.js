@@ -34,7 +34,7 @@ internals.implementation = function (request, reply) {
             replyResponse;
 
         if (err) {
-            return reply(Boom.wrap(err));
+            return reply(Boom.badImplementation(err));
         }
 
         if (response.headers.location) {
@@ -62,14 +62,14 @@ internals.implementation = function (request, reply) {
 
             Assembler.assemble(templateName, function(err, templateData) {
                 if (err) {
-                    return reply(Boom.wrap(err));
+                    return reply(Boom.badImplementation(err));
                 }
 
                 FetchData.fetch(request, {config: templateData.config}, function (err, bcAppData) {
                     var content;
 
                     if (err) {
-                        return reply(Boom.wrap(err));
+                        return reply(Boom.badImplementation(err));
                     }
 
                     if (request.query.debug === 'context') {

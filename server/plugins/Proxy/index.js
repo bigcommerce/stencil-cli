@@ -31,7 +31,7 @@ internals.implementation = function(request, reply) {
                     redirectUrl;
 
                 if (err) {
-                    return reply(Boom.wrap(err));
+                    return reply(Boom.badImplementation(err));
                 }
 
                 if (response.headers.location) {
