@@ -20,7 +20,7 @@ module.exports.register.attributes = {
 };
 
 internals.implementation = function(request, reply) {
-    var proxyUrl = Url.resolve(request.app.storeUrl, request.params.url) + request.url.search,
+    var proxyUrl = Url.resolve(request.app.storeUrl, request.params.url) + (request.url.search || ''),
         proxyConfiguration = {
             passThrough: true,
             localStatePassThrough: true,
