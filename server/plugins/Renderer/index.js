@@ -109,13 +109,34 @@ internals.decorateOutput = function (content, request, data) {
     content = content.replace(regex, '');
 
     if (request.query.debug === 'bar') {
-        var debugBar = '<pre><p><b>Context:</b></p>' + JSON.stringify(data.context, null, 2) + '</pre>';
+        var debugBar = '<pre style="background-color:#EEE; word-wrap:break-word;">';
+        debugBar += internals.escapeHtml(JSON.stringify(data.context, null, 2)) + '</pre>';
         regex = new RegExp('</body>');
         content = content.replace(regex, debugBar + '\n</body>');
     }
 
     return content;
 };
+
+/**
+ * Scape html entities
+ *
+ * @param string html
+ */
+internals.escapeHtml = function (html) {
+    var charsToReplace = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&#34;'
+    };
+
+    return function (html) {
+        return html.replace(/[&<>"]/g, function (tag) {
+            return charsToReplace[tag] || tag;
+        });
+    }
+}();
 
 /**
  * Scape special characters for regular expression

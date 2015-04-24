@@ -48,6 +48,10 @@ function fetch(request, params, callback) {
             return callback(err);
         }
 
+        if (response.statusCode >= 500) {
+            return callback(new Error('bc-app responded with a 500 error'));
+        }
+        
         if (response.headers['set-cookie']) {
             response.headers['set-cookie'] = Utils.stripDomainFromCookies(response.headers['set-cookie']);
         }
@@ -65,6 +69,7 @@ function fetch(request, params, callback) {
                 statusCode: response.statusCode
             });
         }
+
 
         Wreck.read(response, {json: true}, function (err, data) {
             if (err) {
