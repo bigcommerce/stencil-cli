@@ -96,7 +96,7 @@ function assemble(mainTemplate, callback) {
     function resolvePartials(templateFile, callback) {
         callback = Hoek.nextTick(callback);
 
-        Fs.readFile(templateFile + internals.options.extension, {encoding: 'utf-8'}, function(err, content) {
+        Fs.readFile('templates/' + templateFile + internals.options.extension, {encoding: 'utf-8'}, function(err, content) {
             var matches = [],
                 match,
                 partialPath;
