@@ -130,11 +130,13 @@ internals.escapeHtml = function (html) {
         '>': '&gt;',
         '"': '&#34;'
     };
-    
-    return html.replace(/[&<>"]/g, function(tag) {
-        return charsToReplace[tag] || tag;
-    });
-}
+
+    return function (html) {
+        return html.replace(/[&<>"]/g, function (tag) {
+            return charsToReplace[tag] || tag;
+        });
+    }
+}();
 
 /**
  * Scape special characters for regular expression
