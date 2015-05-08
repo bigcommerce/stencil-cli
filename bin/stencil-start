@@ -2,7 +2,8 @@
 
 require('colors');
 
-var Bs = require('browser-sync').create(),
+var Autoprefixer = require('autoprefixer-core'),
+    Bs = require('browser-sync').create(),
     Fs = require('fs'),
     Path = require('path'),
     Pkg = require('../package.json'),
@@ -11,8 +12,10 @@ var Bs = require('browser-sync').create(),
     Sass = require('node-sass'),
     Less = require('less'),
     allowedCssCompilers = ['scss', 'less', 'css'],
+    autoprefixerProcessor,
     browserSyncPort,
     cssCompilerDir,
+    cssDestPath = process.cwd() + '/assets/css-artifacts/',
     cssWatchBaseDir = process.cwd() + '/assets/',
     dotStencilFilePath = './.stencil',
     dotStencilFileExists = Fs.existsSync(dotStencilFilePath),
@@ -32,6 +35,8 @@ if (! dotStencilFileExists) {
     dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
     dotStencilFile = JSON.parse(dotStencilFile);
     themeConfig.css_compiler = themeConfig.css_compiler || 'css';
+    themeConfig.autoprefixer_cascade = themeConfig.autoprefixer_cascade || true;
+    themeConfig.autoprefixer_browsers = themeConfig.autoprefixer_browsers || ['> 5% in US'];
 
     if (allowedCssCompilers.indexOf(themeConfig.css_compiler) === -1) {
         console.error('Only %s are allowed as CSS Compilers'.red, allowedCssCompilers.join(', '));
@@ -42,6 +47,10 @@ if (! dotStencilFileExists) {
     browserSyncPort = dotStencilFile.port;
     stencilServerPort = ++dotStencilFile.port;
     cssCompilerDir = cssWatchBaseDir + themeConfig.css_compiler;
+    autoprefixerProcessor = Autoprefixer({
+        browsers: themeConfig.autoprefixer_browsers,
+        cascade: themeConfig.autoprefixer_cascade
+    });
 
     Server(dotStencilFile, function(err) {
         if (err) {
@@ -123,13 +132,10 @@ if (! dotStencilFileExists) {
  * folder.  It will also copy plain CSS to the folder as well.
  *
  * @param compiler
- * @param filePath
+ * @param file
  */
-function compileCss(compiler, filePath) {
-    var cssDestPath = process.cwd() + '/assets/css-artifacts/',
-        dest;
-
-    if (! filePath.match(/\.(?:scss|less|css)$/)) {
+function compileCss(compiler, file) {
+    if (! file.match(/\.(?:scss|less|css)$/)) {
         return;
     }
 
@@ -142,56 +148,71 @@ function compileCss(compiler, filePath) {
 
     switch (compiler) {
         case 'scss':
-            dest = cssDestPath + Path.basename(filePath, '.scss') + '.css';
-            scssCompiler(filePath, dest);
+            scssCompiler(file);
             break;
         case 'less':
-            dest = cssDestPath + Path.basename(filePath, '.less') + '.css';
-            lessCompiler(filePath, dest);
+
+            lessCompiler(file);
             break;
         case 'css':
-            dest = cssDestPath + Path.basename(filePath);
-            cssCompiler(filePath, dest);
+            cssCompiler(file);
             break;
     }
+}
+
+/**
+ * Takes content, file from/to info, and a sourceMap, runs it through Autoprefixer, and then saves the file.
+ * @param content
+ * @param file
+ * @param sourceMap
+ */
+function writeCss(content, file, sourceMap) {
+    var css = autoprefixerProcessor.process(content, {
+            from: file.from,
+            to: file.to,
+            map: {
+                prev: sourceMap
+            }
+        }).css;
+
+    Fs.writeFileSync(file.to, css);
 }
 
 /**
  * Compile SCSS into artifacts folder
  *
  * @param file
- * @param dest
  */
-function scssCompiler(file, dest) {
-    var result = Sass.renderSync({
-        file: file,
-        outputStyle: 'compressed',
-        outFile: dest,
-        sourceMap: true,
-        sourceMapEmbed: true
-    });
+function scssCompiler(file) {
+    var dest = cssDestPath + Path.basename(file, '.scss') + '.css',
+        result = Sass.renderSync({
+            file: file,
+            outFile: dest,
+            sourceMap: true,
+            sourceMapEmbed: true
+        });
 
-    Fs.writeFileSync(dest, result.css);
+    writeCss(result.css, {from: file, to: dest}, result.map);
 }
 
 /**
  * Compile LESS into artifacts folder
  *
  * @param file
- * @param dest
  */
-function lessCompiler(file, dest) {
+function lessCompiler(file) {
     var content = Fs.readFileSync(file, {encoding: 'utf-8'}),
+        dest = cssDestPath + Path.basename(file, '.less') + '.css',
         option = {
             filename: file,
-            compress: true,
+            compress: false,
             sourceMap: {
                 sourceMapFileInline: true
             }
         };
 
     Less.render(content, option).then(function(result) {
-        Fs.writeFileSync(dest, result.css);
+        writeCss(result.css, {from: file, to: dest}, result.map);
     });
 }
 
@@ -199,8 +220,9 @@ function lessCompiler(file, dest) {
  * Copy CSS to artifacts folder
  *
  * @param file
- * @param dest
  */
-function cssCompiler(file, dest) {
-    Fs.writeFileSync(dest, Fs.readFileSync(file, {encoding: 'utf-8'}));
+function cssCompiler(file) {
+    var dest = cssDestPath + Path.basename(file);
+
+    writeCss(Fs.readFileSync(file, {encoding: 'utf-8'}), {from: file, to: dest}, false);
 }
