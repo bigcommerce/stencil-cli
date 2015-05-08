@@ -22,6 +22,7 @@ var Bs = require('browser-sync').create(),
 
 Program
     .version(Pkg.version)
+    .option('-o, --open', 'Automatically open default browser')
     .parse(process.argv);
 
 if (! dotStencilFileExists) {
@@ -60,17 +61,18 @@ if (! dotStencilFileExists) {
          * be compiled and copied across.
          */
         Bs.watch(cssCompilerDir, function(event, file) {
-            var relativePath;
+            var relativePath,
+                shouldCompileRegex = /^(?!_).+\.(?:scss|less)$/;
 
             if (event === 'add' || event === 'change') {
                 relativePath = Path.relative(cssCompilerDir, file);
                 // Only run it through if it's not a file in a sub directory or we are only doing plain CSS
-                if ((! relativePath.match(/\//)) || themeConfig.css_compiler === 'css') {
+                if ((! relativePath.match(/\//) && shouldCompileRegex.test(relativePath)) || themeConfig.css_compiler === 'css') {
                     compileCss(themeConfig.css_compiler, file);
                 // Only re-compile top level files if this is a change event and it's in a sub directory
                 } else if (event === 'change') {
                     Fs.readdirSync(cssCompilerDir, cssCompiler).filter(function(file) {
-                        return /^(?!_).+\.(?:scss|less)$/.test(file);
+                        return shouldCompileRegex.test(file);
                     }).forEach(function(file) {
                         compileCss(themeConfig.css_compiler, Path.join(cssCompilerDir, file));
                     });
@@ -79,12 +81,11 @@ if (! dotStencilFileExists) {
         });
 
         Bs.init({
+            open: !! Program.open,
             port: browserSyncPort,
             files: [
                 '/assets',
-                '/components',
-                '/pages',
-                '/layout'
+                '/templates'
             ].map(function(val) {
                 return process.cwd() + val;
             }),
@@ -100,6 +101,19 @@ if (! dotStencilFileExists) {
                 })
             },
             proxy: "localhost:" + stencilServerPort
+        });
+
+        // Handle manual reloading of browsers by typing 'rs';
+        // Borrowed from https://github.com/remy/nodemon
+        process.stdin.resume();
+        process.stdin.setEncoding('utf8');
+        process.stdin.on('data', function (data) {
+            data = (data + '').trim().toLowerCase();
+
+            // if the keys entered match the restartable value, then restart!
+            if (data === 'rs') {
+                Bs.reload();
+            }
         });
     });
 }
