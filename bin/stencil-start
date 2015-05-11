@@ -148,59 +148,76 @@ function compileCss(compiler, file) {
 
     switch (compiler) {
         case 'scss':
-            scssCompiler(file);
+            scssCompiler(file, writeCss);
             break;
         case 'less':
 
-            lessCompiler(file);
+            lessCompiler(file, writeCss);
             break;
         case 'css':
-            cssCompiler(file);
+            cssCompiler(file, writeCss);
             break;
     }
 }
 
 /**
- * Takes content, file from/to info, and a sourceMap, runs it through Autoprefixer, and then saves the file.
- * @param content
- * @param file
- * @param sourceMap
+ * Takes content, file source/dest info, and a sourceMap, runs it through Autoprefixer, and then saves the file.
+ * @param err
+ * @param data
  */
-function writeCss(content, file, sourceMap) {
-    var css = autoprefixerProcessor.process(content, {
-            from: file.from,
-            to: file.to,
+function writeCss(err, data) {
+    var css;
+
+    if (err) {
+        return console.error(err);
+    }
+
+    css = autoprefixerProcessor.process(data.content, {
+            from: data.source,
+            to: data.dest,
             map: {
-                prev: sourceMap
+                prev: data.sourceMap
             }
         }).css;
 
-    Fs.writeFileSync(file.to, css);
+    Fs.writeFileSync(data.dest, css);
 }
 
 /**
  * Compile SCSS into artifacts folder
  *
  * @param file
+ * @param callback
  */
-function scssCompiler(file) {
-    var dest = cssDestPath + Path.basename(file, '.scss') + '.css',
-        result = Sass.renderSync({
-            file: file,
-            outFile: dest,
-            sourceMap: true,
-            sourceMapEmbed: true
-        });
+function scssCompiler(file, callback) {
+    var dest = cssDestPath + Path.basename(file, '.scss') + '.css';
 
-    writeCss(result.css, {from: file, to: dest}, result.map);
+    Sass.render({
+        file: file,
+        outFile: dest,
+        sourceMap: true,
+        sourceMapEmbed: true
+    }, function (err, result) {
+        if (err) {
+            return callback('SASS Error: '.red + err.message + ' at ' + (err.file + '@' + err.line + ':' + err.column).cyan);
+        }
+
+        callback(null, {
+            content: result.css,
+            source: file,
+            dest: dest,
+            sourceMap: result.map.mappings
+        });
+    });
 }
 
 /**
  * Compile LESS into artifacts folder
  *
  * @param file
+ * @param callback
  */
-function lessCompiler(file) {
+function lessCompiler(file, callback) {
     var content = Fs.readFileSync(file, {encoding: 'utf-8'}),
         dest = cssDestPath + Path.basename(file, '.less') + '.css',
         option = {
@@ -212,7 +229,14 @@ function lessCompiler(file) {
         };
 
     Less.render(content, option).then(function(result) {
-        writeCss(result.css, {from: file, to: dest}, result.map);
+        callback(null, {
+            content: result.css,
+            source: file,
+            dest: dest,
+            sourceMap: result.map
+        });
+    }, function(err) {
+        callback('LESS Error: '.red + err.message + ' at ' + (err.filename + '@' + err.line + ':' + err.column).cyan);
     });
 }
 
@@ -220,9 +244,15 @@ function lessCompiler(file) {
  * Copy CSS to artifacts folder
  *
  * @param file
+ * @param callback
  */
-function cssCompiler(file) {
+function cssCompiler(file, callback) {
     var dest = cssDestPath + Path.basename(file);
 
-    writeCss(Fs.readFileSync(file, {encoding: 'utf-8'}), {from: file, to: dest}, false);
+    callback(null, {
+        content: Fs.readFileSync(file, {encoding: 'utf-8'}),
+        source: file,
+        dest: dest,
+        sourceMap: null
+    });
 }
