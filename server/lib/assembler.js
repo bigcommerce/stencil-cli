@@ -1,7 +1,6 @@
 var Async = require('async'),
     Frontmatter = require('front-matter'),
     Fs = require('fs'),
-    _ =require('lodash'),
     Hoek = require('hoek'),
     internals = {
         options: {
@@ -91,7 +90,7 @@ function assemble(mainTemplate, callback) {
                 templates: templates
             });
         }
-    )
+    );
 
     function resolvePartials(templateFile, callback) {
         callback = Hoek.nextTick(callback);
@@ -109,7 +108,9 @@ function assemble(mainTemplate, callback) {
 
                 while (match != null) {
                     partialPath = match[1];
-                    matches.push(partialPath);
+                    if (! templates[partialPath]) {
+                        matches.push(partialPath);
+                    }
                     match = internals.options.partialRegex.exec(content);
                 }
             }
