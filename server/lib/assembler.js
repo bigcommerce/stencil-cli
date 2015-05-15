@@ -49,7 +49,17 @@ function assemble(mainTemplate, callback) {
                         'components/products/customizations/checkbox',
                         'components/products/customizations/file',
                         'components/products/customizations/select',
-                        'components/products/customizations/textarea'
+                        'components/products/customizations/textarea',
+
+                        'components/common/forms/text',
+                        'components/common/forms/password',
+                        'components/common/forms/select',
+                        'components/common/forms/checkbox',
+                        'components/common/forms/selectortext',
+                        'components/common/forms/date',
+                        'components/common/forms/number',
+                        'components/common/forms/radio',
+                        'components/common/forms/multiline'
                     ],
                     function(val, doneCallback) {
                         resolvePartials(val, doneCallback);
