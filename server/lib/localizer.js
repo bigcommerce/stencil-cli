@@ -1,7 +1,6 @@
 var _ = require('lodash'),
     Fs = require('fs'),
     Hoek = require('hoek'),
-    MessageFormat = require('messageformat'),
     parser = require('accept-language-parser');
 
 
