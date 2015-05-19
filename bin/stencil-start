@@ -94,7 +94,8 @@ if (! dotStencilFileExists) {
             port: browserSyncPort,
             files: [
                 '/assets',
-                '/templates'
+                '/templates',
+                '/lang'
             ].map(function(val) {
                 return process.cwd() + val;
             }),

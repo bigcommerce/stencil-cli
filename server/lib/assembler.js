@@ -1,6 +1,7 @@
 var Async = require('async'),
     Frontmatter = require('front-matter'),
     Fs = require('fs'),
+    _ = require('lodash'),
     Hoek = require('hoek'),
     internals = {
         options: {
@@ -10,6 +11,44 @@ var Async = require('async'),
     };
 
 module.exports.assemble = assemble;
+
+/**
+ * This function simply loads the files from the lang directory and puts them in an object where locale name is the key
+ * and locale data is the value
+ * @param callback
+ */
+function loadTranslations(callback) {
+    var localeDirectory = 'lang';
+
+    Fs.readdir(localeDirectory, function (err, localeFiles) {
+        var localesToLoad = {};
+
+        if (err) {
+            return callback(null, null);
+        }
+
+        _.each(localeFiles, function (localeFile) {
+            var localeName = localeFile.replace('.json', '');
+
+            localesToLoad[localeName] = function (callback) {
+                var localeFilePath = localeDirectory + '/' + localeFile;
+
+                Fs.readFile(localeFilePath, 'utf-8', function (err, localeData) {
+
+                    if (err) {
+                        return callback(new Error('failed to load ' + localeFilePath));
+                    }
+
+                    callback(null, localeData);
+                });
+            };
+        });
+
+        Async.parallel(localesToLoad, function (err, loadedLocales){
+            callback(null, loadedLocales);
+        });
+    });
+}
 
 /**
  * Parses the main template and resolves all of it's partials as well as parses it's front-matter
@@ -22,6 +61,7 @@ module.exports.assemble = assemble;
  */
 function assemble(mainTemplate, callback) {
     var templates = {},
+        translations = {},
         templatesMissing = [];
 
     callback = Hoek.nextTick(callback);
@@ -89,7 +129,10 @@ function assemble(mainTemplate, callback) {
                     // Replace main template content with just the body of frontmatter.
                     templates[mainTemplate] = frontmatter.body;
 
-                    cb(null, config);
+                    loadTranslations(function(err, compiledLocales) {
+                        translations = compiledLocales;
+                        cb(null, config);
+                    });
                 });
             }
         ],
@@ -97,7 +140,8 @@ function assemble(mainTemplate, callback) {
             var config = results[1];
             callback(null, {
                 config: config,
-                templates: templates
+                templates: templates,
+                translations: translations
             });
         }
     );

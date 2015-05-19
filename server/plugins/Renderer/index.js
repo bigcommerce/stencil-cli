@@ -1,7 +1,9 @@
 var Assembler = require('../../lib/assembler'),
     Boom = require('boom'),
+    Localizer = require('../../lib/localizer'),
     FetchData = require('../../lib/fetchData'),
     Hoek = require('hoek'),
+    parser = require('accept-language-parser'),
     Paper = require('stencil-paper'),
     internals = {
         options: {}
@@ -27,7 +29,9 @@ module.exports.register.attributes = {
  * @param reply
  */
 internals.implementation = function (request, reply) {
-    var options = {get_template_file: true};
+    var options = {
+        get_template_file: true
+    };
 
     FetchData.fetch(request, {options: options}, function (err, response) {
         var templateName,
@@ -66,7 +70,12 @@ internals.implementation = function (request, reply) {
                 }
 
                 FetchData.fetch(request, {config: templateData.config}, function (err, bcAppData) {
-                    var content;
+                    var baseLocale = 'en',
+                        translations = Paper.compileTranslations(baseLocale, templateData.translations),
+                        preferredTranslation = Localizer.getPreferredTranslation(
+                            request.headers['accept-language'],
+                            translations
+                        );
 
                     if (err) {
                         return reply(Boom.badImplementation(err));
@@ -76,16 +85,23 @@ internals.implementation = function (request, reply) {
                         return reply(bcAppData.context);
                     }
 
-                    content = Paper.compileSync(templateName, templateData.templates, bcAppData.context);
-                    content = internals.decorateOutput(content, request, bcAppData);
+                    Paper.compile(
+                        templateName,
+                        templateData.templates,
+                        bcAppData.context,
+                        preferredTranslation,
+                        function (err, content) {
+                            content = internals.decorateOutput(content, request, bcAppData);
 
-                    replyResponse = reply(content);
+                            replyResponse = reply(content);
 
-                    if (response.headers['set-cookie']) {
-                        replyResponse.header('set-cookie', response.headers['set-cookie']);
-                    }
+                            if (response.headers['set-cookie']) {
+                                replyResponse.header('set-cookie', response.headers['set-cookie']);
+                            }
 
-                    replyResponse.code(response.statusCode);
+                            replyResponse.code(response.statusCode);
+                        }
+                    );
                 });
             });
         }
