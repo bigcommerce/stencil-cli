@@ -91,6 +91,10 @@ internals.implementation = function (request, reply) {
                         bcAppData.context,
                         preferredTranslation,
                         function (err, content) {
+                            if (err) {
+                                throw err;
+                            }
+
                             content = internals.decorateOutput(content, request, bcAppData);
 
                             replyResponse = reply(content);
