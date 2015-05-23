@@ -99,7 +99,12 @@ function assemble(mainTemplate, callback) {
                         'components/common/forms/date',
                         'components/common/forms/number',
                         'components/common/forms/radio',
-                        'components/common/forms/multiline'
+                        'components/common/forms/multiline',
+
+                        'components/faceted-search/facets/hierarchy',
+                        'components/faceted-search/facets/multi',
+                        'components/faceted-search/facets/range',
+                        'components/faceted-search/facets/rating'
                     ],
                     function(val, doneCallback) {
                         resolvePartials(val, doneCallback);
