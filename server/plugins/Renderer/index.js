@@ -91,6 +91,10 @@ internals.implementation = function (request, reply) {
                         bcAppData.context,
                         preferredTranslation,
                         function (err, content) {
+                            if (err) {
+                                throw err;
+                            }
+
                             content = internals.decorateOutput(content, request, bcAppData);
 
                             replyResponse = reply(content);
@@ -136,10 +140,8 @@ internals.decorateOutput = function (content, request, data) {
 
 /**
  * Scape html entities
- *
- * @param string html
  */
-internals.escapeHtml = function (html) {
+internals.escapeHtml = function () {
     var charsToReplace = {
         '&': '&amp;',
         '<': '&lt;',

@@ -1,4 +1,5 @@
-var Hoek = require('hoek'),
+var _ = require('lodash'),
+    Hoek = require('hoek'),
     Url = require('url'),
     Utils = require('./utils'),
     Wreck = require('wreck');
@@ -14,11 +15,29 @@ module.exports.fetch = fetch;
  */
 function fetch(request, params, callback) {
     var options = {get_data_only: true},
-        url = Url.resolve(request.app.staplerUrl, request.url),
+        staplerUrlObject = Url.parse(request.app.staplerUrl),
+        urlObject = _.clone(request.url, true),
+        url,
         httpOpts = {
             rejectUnauthorized: false,
             headers: {}
         };
+
+    // Convert QueryParams with array values to php compatible names (brackets [])
+    urlObject.query = _.mapKeys(urlObject.query, function(value, key) {
+        if (_.isArray(value)) {
+            return key + '[]'
+        }
+
+        return key;
+    });
+
+    url = Url.format({
+        protocol: staplerUrlObject.protocol,
+        host: staplerUrlObject.host,
+        pathname: urlObject.pathname,
+        query: urlObject.query
+    });
 
     if (typeof params === 'function') {
         callback = params;
@@ -51,7 +70,7 @@ function fetch(request, params, callback) {
         if (response.statusCode >= 500) {
             return callback(new Error('bc-app responded with a 500 error'));
         }
-        
+
         if (response.headers['set-cookie']) {
             response.headers['set-cookie'] = Utils.stripDomainFromCookies(response.headers['set-cookie']);
         }
