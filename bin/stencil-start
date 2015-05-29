@@ -11,6 +11,7 @@ var Autoprefixer = require('autoprefixer-core'),
     Server = require('../server'),
     Sass = require('node-sass'),
     Less = require('less'),
+    Wreck = require('wreck'),
     allowedCssCompilers = ['scss', 'less', 'css'],
     autoprefixerProcessor,
     browserSyncPort,
@@ -29,29 +30,67 @@ Program
     .parse(process.argv);
 
 if (! dotStencilFileExists) {
-    console.log('Please run "stencil init" first.');
-} else {
+    return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
+}
 
-    dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
-    dotStencilFile = JSON.parse(dotStencilFile);
-    themeConfig.css_compiler = themeConfig.css_compiler || 'css';
-    themeConfig.autoprefixer_cascade = themeConfig.autoprefixer_cascade || true;
-    themeConfig.autoprefixer_browsers = themeConfig.autoprefixer_browsers || ['> 5% in US'];
+dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
+dotStencilFile = JSON.parse(dotStencilFile);
+themeConfig.css_compiler = themeConfig.css_compiler || 'css';
+themeConfig.autoprefixer_cascade = themeConfig.autoprefixer_cascade || true;
 
-    if (allowedCssCompilers.indexOf(themeConfig.css_compiler) === -1) {
-        console.error('Only %s are allowed as CSS Compilers'.red, allowedCssCompilers.join(', '));
+themeConfig.autoprefixer_browsers = themeConfig.autoprefixer_browsers || ['> 5% in US'];
+if (allowedCssCompilers.indexOf(themeConfig.css_compiler) === -1) {
 
-        return;
+    console.error('Error: Only %s are allowed as CSS Compilers'.red, allowedCssCompilers.join(', '));
+    return;
+}
+
+browserSyncPort = dotStencilFile.port;
+stencilServerPort = ++dotStencilFile.port;
+cssCompilerDir = cssWatchBaseDir + themeConfig.css_compiler;
+
+autoprefixerProcessor = Autoprefixer({
+    browsers: themeConfig.autoprefixer_browsers,
+    cascade: themeConfig.autoprefixer_cascade
+});
+
+// Once stapler is in the production environment, we change this line to point to
+// dotStencilFile.staplerUrl if it exists or fallback to dotStencilFile.storeUrl
+dotStencilFile.staplerUrl = dotStencilFile.staplerUrl || 'https://bc-stapler.herokuapp.com';
+
+Wreck.post(
+    dotStencilFile.staplerUrl + '/stencil-version-check',
+    {
+        payload: JSON.stringify({v: Pkg.version}),
+        headers: {
+            'stencil-version': Pkg.config.stencil_version
+        }
+    },
+    function(err, res, payload) {
+        var retError = err !== null;
+
+        try {
+            payload = JSON.parse(payload);
+        } catch (e) {
+            retError = true;
+        }
+
+        if (retError) {
+            console.error(
+                'The Bigcommerce Store you are pointing to either does\'t exist or is not available at this time.'.red
+            );
+        } else if (payload.status !== 'ok') {
+            console.error(
+                'Error: You are using an outdated version of stencil-cli, please run '.red +
+                '$ npm install -g bigcommerce/stencil-cli'.cyan
+            );
+        } else {
+            startServer();
+        }
     }
+);
 
-    browserSyncPort = dotStencilFile.port;
-    stencilServerPort = ++dotStencilFile.port;
-    cssCompilerDir = cssWatchBaseDir + themeConfig.css_compiler;
-    autoprefixerProcessor = Autoprefixer({
-        browsers: themeConfig.autoprefixer_browsers,
-        cascade: themeConfig.autoprefixer_cascade
-    });
-
+function startServer() {
     Server(dotStencilFile, function(err) {
         if (err) {
             throw err;
@@ -76,7 +115,10 @@ if (! dotStencilFileExists) {
             if (event === 'add' || event === 'change') {
                 relativePath = Path.relative(cssCompilerDir, file);
                 // Only run it through if it's not a file in a sub directory or we are only doing plain CSS
-                if ((! relativePath.match(/\//) && shouldCompileRegex.test(relativePath)) || themeConfig.css_compiler === 'css') {
+                if (
+                    (! relativePath.match(/\//) && shouldCompileRegex.test(relativePath)) ||
+                    themeConfig.css_compiler === 'css'
+                ) {
                     compileCss(themeConfig.css_compiler, file);
                 // Only re-compile top level files if this is a change event and it's in a sub directory
                 } else if (event === 'change') {

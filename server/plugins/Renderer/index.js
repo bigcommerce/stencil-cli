@@ -3,6 +3,7 @@ var _ = require('lodash'),
     Boom = require('boom'),
     Utils = require('../../lib/utils'),
     Hoek = require('hoek'),
+    Pkg = require('../../../package.json'),
     Url = require('url'),
     Wreck = require('wreck'),
     Responses = require('./responses'),
@@ -200,7 +201,7 @@ internals.getHeaders = function (request, options, config) {
     }
 
     return Hoek.applyToDefaults(request.headers, {
-        'stencil-version': '1.0',
+        'stencil-version': Pkg.config.stencil_version,
         'stencil-options': JSON.stringify(Hoek.applyToDefaults(options, currentOptions)),
         'stencil-store-url': request.app.storeUrl
     });
