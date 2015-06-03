@@ -18,16 +18,24 @@ module.exports.stripDomainFromCookies = function(cookies) {
 };
 
 /**
- * Change passed in redirectUrl host to the one inside the require.headers object
+ * Strip domain from redirectUrl if it matches the current storeUrl, if not, leave it.
  *
  * @param request
  * @param redirectUrl
  * @returns {string}
  */
 module.exports.normalizeRedirectUrl = function(request, redirectUrl) {
-    var protocol = request.headers['x-forwarded-proto'] || 'http',
-        referer = Url.parse(protocol + '://' + request.headers.host),
-        redirectPath = Url.parse(redirectUrl).path;
+    var storeHost = Url.parse(request.app.storeUrl).host,
+        redirectUrlObj = Url.parse(redirectUrl),
+        stripHost = false;
 
-    return referer.protocol + '//' + referer.host + redirectPath;
+    if (! redirectUrlObj.host || redirectUrlObj.host === storeHost) {
+        stripHost = true;
+    }
+
+    if (stripHost) {
+        return redirectUrlObj.path;
+    } else {
+        return redirectUrl;
+    }
 };
