@@ -1,8 +1,5 @@
 var _ = require('lodash'),
-    Fs = require('fs'),
-    Hoek = require('hoek'),
     parser = require('accept-language-parser');
-
 
 module.exports.getPreferredTranslation = function(acceptLanguageHeader, translations) {
     // default the preferred translation
@@ -23,4 +20,14 @@ module.exports.getPreferredTranslation = function(acceptLanguageHeader, translat
     });
 
     return preferredTranslation;
+};
+
+module.exports.translateErrors = function (errors, translations) {
+    return errors.reduce(function(table, errorKey) {
+        var translate = translations['errors.' + errorKey];
+
+        table[errorKey] = (typeof translate === 'function') ? translate() : errorKey;
+
+        return table;
+    }, {});
 };

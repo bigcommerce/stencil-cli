@@ -1,7 +1,6 @@
 'use strict';
 
 var Confidence = require('confidence'),
-    Path = require('path'),
     criteria,
     store,
     config;
@@ -9,8 +8,8 @@ var Confidence = require('confidence'),
 config = {
     $meta: 'Config file',
     server: {
-        host: process.env.HOST || 'localhost',
-        port: process.env.PORT || 3000
+        host: 'localhost',
+        port: 3000
     },
     good: {
         opsInterval: 1000,

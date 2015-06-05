@@ -110,7 +110,15 @@ if (! dotStencilFileExists) {
                     return process.cwd() + val;
                 })
             },
-            proxy: "localhost:" + stencilServerPort
+            proxy: {
+                target: "localhost:" + stencilServerPort,
+                reqHeaders: function () {
+                    return {
+                        "host": "localhost:" + browserSyncPort,
+                        "accept-encoding": "identity"
+                    }
+                }
+            }
         });
 
         // Handle manual reloading of browsers by typing 'rs';

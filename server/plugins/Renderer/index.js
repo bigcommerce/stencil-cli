@@ -1,10 +1,11 @@
-var Assembler = require('../../lib/assembler'),
+var _ = require('lodash'),
+    Assembler = require('../../lib/assembler'),
     Boom = require('boom'),
-    Localizer = require('../../lib/localizer'),
-    FetchData = require('../../lib/fetchData'),
+    Utils = require('../../lib/utils'),
     Hoek = require('hoek'),
-    parser = require('accept-language-parser'),
-    Paper = require('stencil-paper'),
+    Url = require('url'),
+    Wreck = require('wreck'),
+    Responses = require('./responses'),
     internals = {
         options: {}
     };
@@ -29,138 +30,178 @@ module.exports.register.attributes = {
  * @param reply
  */
 internals.implementation = function (request, reply) {
-    var options = {
-        get_template_file: true
-    };
-
-    FetchData.fetch(request, {options: options}, function (err, response) {
-        var templateName,
-            replyResponse;
-
+    internals.getResponse(request, function (err, response) {
         if (err) {
             return reply(Boom.badImplementation(err));
         }
 
-        if (response.headers.location) {
-            replyResponse = reply.redirect(response.headers.location);
-
-            if (response.headers['set-cookie']) {
-                replyResponse.header('set-cookie', response.headers['set-cookie']);
-            }
-
-            replyResponse.code(response.statusCode);
-        } else if (response.rawData) {
-            replyResponse = reply(response.rawData);
-
-            if (response.headers['set-cookie']) {
-                replyResponse.header('set-cookie', response.headers['set-cookie']);
-            }
-
-            if (response.headers['content-type']) {
-                replyResponse.type(response.headers['content-type']);
-            }
-
-            replyResponse.code(response.statusCode);
-        } else {
-            templateName = response.template_file;
-
-            Assembler.assemble(templateName, function(err, templateData) {
-                if (err) {
-                    return reply(Boom.badImplementation(err));
-                }
-
-                FetchData.fetch(request, {config: templateData.config}, function (err, bcAppData) {
-                    var baseLocale = 'en',
-                        translations = Paper.compileTranslations(baseLocale, templateData.translations),
-                        preferredTranslation = Localizer.getPreferredTranslation(
-                            request.headers['accept-language'],
-                            translations
-                        );
-
-                    if (err) {
-                        return reply(Boom.badImplementation(err));
-                    }
-
-                    if (request.query.debug === 'context') {
-                        return reply(bcAppData.context);
-                    }
-
-                    Paper.compile(
-                        templateName,
-                        templateData.templates,
-                        bcAppData.context,
-                        preferredTranslation,
-                        function (err, content) {
-                            if (err) {
-                                throw err;
-                            }
-
-                            content = internals.decorateOutput(content, request, bcAppData);
-
-                            replyResponse = reply(content);
-
-                            if (response.headers['set-cookie']) {
-                                replyResponse.header('set-cookie', response.headers['set-cookie']);
-                            }
-
-                            replyResponse.code(response.statusCode);
-                        }
-                    );
-                });
-            });
-        }
+        response.respond(request, reply);
     });
 };
 
 /**
- * Output post-processing
+ * Fetches data from Stapler
  *
- * @param content
  * @param request
- * @param data
+ * @param callback
  */
-internals.decorateOutput = function (content, request, data) {
-    var regex;
+internals.getResponse = function (request, callback) {
+    var staplerUrlObject = Url.parse(request.app.staplerUrl),
+        urlObject = _.clone(request.url, true),
+        url,
+        httpOpts = {
+            rejectUnauthorized: false,
+            headers: internals.getHeaders(request, {get_template_file: true, get_data_only: true}),
+            payload: request.payload
+        };
 
-    regex = new RegExp(internals.escapeRegex(data.context.settings.base_url), 'g');
-    content = content.replace(regex, '');
+    // Convert QueryParams with array values to php compatible names (brackets [])
+    urlObject.query = _.mapKeys(urlObject.query, function(value, key) {
+        if (_.isArray(value)) {
+            return key + '[]'
+        }
 
-    regex = new RegExp(internals.escapeRegex(data.context.settings.secure_base_url), 'g');
-    content = content.replace(regex, '');
+        return key;
+    });
 
-    if (request.query.debug === 'bar') {
-        var debugBar = '<pre style="background-color:#EEE; word-wrap:break-word;">';
-        debugBar += internals.escapeHtml(JSON.stringify(data.context, null, 2)) + '</pre>';
-        regex = new RegExp('</body>');
-        content = content.replace(regex, debugBar + '\n</body>');
-    }
+    url = Url.format({
+        protocol: staplerUrlObject.protocol,
+        host: staplerUrlObject.host,
+        pathname: urlObject.pathname,
+        query: urlObject.query
+    });
 
-    return content;
+    Wreck.request(request.method, url, httpOpts, function (err, response) {
+        if (err) {
+            return callback(err);
+        }
+
+        if (response.statusCode >= 500) {
+            return callback(new Error('bc-app responded with a 500 error'));
+        }
+
+        if (response.headers['set-cookie']) {
+            response.headers['set-cookie'] = Utils.stripDomainFromCookies(response.headers['set-cookie']);
+        }
+
+        if (response.statusCode >= 301 && response.statusCode <= 303) {
+            if (! response.headers.location) {
+                return callback(new Error('StatusCode is set to 30x but there is no location header to redirect to.'));
+            }
+
+            response.headers.location = Utils.normalizeRedirectUrl(request, response.headers.location);
+
+            // return an redirect response
+            return callback(null, new Responses.RedirectResponse(
+                response.headers.location,
+                response.headers,
+                response.statusCode
+            ));
+        }
+
+        Wreck.read(response, {json: true}, function (err, bcAppData) {
+            var templates = [];
+
+            if (err) {
+                return callback(err);
+            }
+
+            if (!bcAppData.content_type) {
+                // this is a raw response not emitted by TemplateEngine
+                return callback(null, new Responses.RawResponse(
+                    bcAppData,
+                    response.headers,
+                    response.statusCode
+                ));
+            }
+
+            if (bcAppData.template_file) {
+                templates = bcAppData.template_file;
+                if (! _.isArray(templates)) {
+                    templates = [templates];
+                }
+            }
+
+            Assembler.assemble(request, templates, function(err, templateData) {
+                if (err) {
+                    return callback(err);
+                }
+
+                // If a remote call, no need to do a second call to get the data, it has already come back
+                if (bcAppData.remote) {
+                    bcAppData.templates = templateData.templates;
+                    bcAppData.translations = templateData.translations;
+                    callback(null, internals.getPencilResponse(bcAppData, request, response));
+                } else {
+                    httpOpts.headers = internals.getHeaders(request, {get_data_only: true}, templateData.config);
+                    Wreck.get(url, httpOpts, function (err, response, data) {
+                        try {
+                            data = JSON.parse(data);
+                        } catch (e) {
+                            return callback(e);
+                        }
+                        data.templates = templateData.templates;
+                        data.translations = templateData.translations;
+                        callback(null, internals.getPencilResponse(data, request, response));
+                    });
+                }
+            });
+        });
+    });
 };
 
 /**
- * Scape html entities
+ * Creates a new Pencil Response object and returns it.
+ *
+ * @param data
+ * @param request
+ * @param response
+ * @returns {*}
  */
-internals.escapeHtml = function () {
-    var charsToReplace = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&#34;'
-    };
-
-    return function (html) {
-        return html.replace(/[&<>"]/g, function (tag) {
-            return charsToReplace[tag] || tag;
-        });
-    }
-}();
+internals.getPencilResponse = function(data, request, response) {
+   return new Responses.PencilResponse({
+       content_type: data.content_type,
+       template_file: data.template_file,
+       templates: data.templates,
+       remote: data.remote,
+       context: data.context,
+       translations: data.translations,
+       method: request.method,
+       acceptLanguage: request.headers['accept-language'],
+       headers: response.headers,
+       statusCode: response.statusCode
+   });
+};
 
 /**
- * Scape special characters for regular expression
+ * Generate and return headers
  *
- * @param string
+ * @param request
+ * @param options
+ * @param config
  */
-internals.escapeRegex = function (string) {
-    return string.replace(/[-\\^$*+?.()|[\]{}]/g, "\\$&");
+internals.getHeaders = function (request, options, config) {
+    var currentOptions = {};
+
+    options = options || {};
+
+    // If stencil-config header already set, we don't want to overwrite it
+    if (! request.headers['stencil-config'] && config) {
+        request.headers['stencil-config'] = JSON.stringify(config);
+    }
+
+    // Merge in current stencil-options with passed in options
+    if (request.headers['stencil-options']) {
+        try {
+            currentOptions = JSON.parse(request.headers['stencil-options']);
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    return Hoek.applyToDefaults(request.headers, {
+        'stencil-version': '1.0',
+        'stencil-options': JSON.stringify(Hoek.applyToDefaults(options, currentOptions)),
+        'stencil-store-url': request.app.storeUrl
+    });
 };
