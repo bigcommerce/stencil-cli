@@ -38,10 +38,6 @@ module.exports.register = function(server, options, next) {
             }));
         }
 
-        if (request.url.path.indexOf('/checkout.php') === 0) {
-            request.setUrl('/__proxy__' + request.url.path);
-        }
-
         reply.continue();
     });
 
