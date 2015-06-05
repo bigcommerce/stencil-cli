@@ -1,6 +1,6 @@
 {
   "name": "stencil-cli",
-  "version": "0.3.1",
+  "version": "1.0.0",
   "description": "CLI tool to run Bigcommerce Stores locally for theme development.",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,9 @@
     "stencil": "./bin/stencil",
     "stencil-start": "./bin/stencil-start",
     "stencil-init": "./bin/stencil-init"
+  },
+  "config": {
+    "stencil_version": "1.0"
   },
   "repository": {
     "type": "git",
