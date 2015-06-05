@@ -167,7 +167,7 @@ function loadTranslations(callback) {
         }
 
         _.each(localeFiles, function (localeFile) {
-            var localeName = Path.basename(localeFile, 'json');
+            var localeName = Path.basename(localeFile, '.json');
 
             localesToLoad[localeName] = function (callback) {
                 var localeFilePath = localeDirectory + '/' + localeFile;
