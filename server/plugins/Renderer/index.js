@@ -56,6 +56,9 @@ internals.getResponse = function (request, callback) {
             payload: request.payload
         };
 
+    // Set host to stapler host
+    httpOpts.headers.host = staplerUrlObject.host;
+
     // Convert QueryParams with array values to php compatible names (brackets [])
     urlObject.query = _.mapKeys(urlObject.query, function(value, key) {
         if (_.isArray(value)) {
@@ -135,6 +138,8 @@ internals.getResponse = function (request, callback) {
                     callback(null, internals.getPencilResponse(bcAppData, request, response));
                 } else {
                     httpOpts.headers = internals.getHeaders(request, {get_data_only: true}, templateData.config);
+                    // Set host to stapler host
+                    httpOpts.headers.host = staplerUrlObject.host;
                     Wreck.get(url, httpOpts, function (err, response, data) {
                         try {
                             data = JSON.parse(data);
