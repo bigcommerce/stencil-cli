@@ -2,7 +2,8 @@
 
 require('colors');
 
-var Autoprefixer = require('autoprefixer-core'),
+var _ = require('lodash'),
+    Autoprefixer = require('autoprefixer-core'),
     Bs = require('browser-sync').create(),
     Fs = require('fs'),
     Path = require('path'),
@@ -11,54 +12,68 @@ var Autoprefixer = require('autoprefixer-core'),
     Server = require('../server'),
     Sass = require('node-sass'),
     Less = require('less'),
-    Wreck = require('wreck'),
+    ThemeConfig = require('./lib/themeConfig'),
     Url = require('url'),
-    allowedCssCompilers = ['scss', 'less', 'css'],
+    Wreck = require('wreck'),
+    themePath = process.cwd(),
+    allowedCssCompilers = ['scss', 'less'],
     autoprefixerProcessor,
     browserSyncPort,
     cssCompilerDir,
-    cssDestPath = process.cwd() + '/assets/css-artifacts/',
-    cssWatchBaseDir = process.cwd() + '/assets/',
-    dotStencilFilePath = './.stencil',
+    cssDestPath = Path.join(themePath, 'assets/css-artifacts/'),
+    cssWatchBaseDir = Path.join(themePath, 'assets/'),
+    dotStencilFilePath = Path.join(themePath, '.stencil'),
     dotStencilFileExists = Fs.existsSync(dotStencilFilePath),
     dotStencilFile,
-    themeConfig = require(process.cwd() + '/config.json'),
-    stencilServerPort;
+    shouldCompileRegex,
+    stencilServerPort,
+    themeConfig,
+    themeConfigPath = Path.join(themePath, 'config.json'),
+    themeConfigExists = Fs.existsSync(themeConfigPath);
 
 Program
     .version(Pkg.version)
     .option('-o, --open', 'Automatically open default browser')
+    .option('-v, --variation [name]', 'Set which theme variation to use while developing')
     .parse(process.argv);
 
 if (! dotStencilFileExists) {
     return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
 }
 
+if (! themeConfigExists) {
+    return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
+}
+
+// If the value is true it means that no variation was passed in.
+if (Program.variation === true) {
+    return console.error('Error: You have to specify a value for -v or --variation'.red);
+}
+
 dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
 dotStencilFile = JSON.parse(dotStencilFile);
-themeConfig.css_compiler = themeConfig.css_compiler || 'css';
-themeConfig.autoprefixer_cascade = themeConfig.autoprefixer_cascade || true;
 
-themeConfig.autoprefixer_browsers = themeConfig.autoprefixer_browsers || ['> 5% in US'];
-if (allowedCssCompilers.indexOf(themeConfig.css_compiler) === -1) {
+themeConfig = parseThemeConfig();
 
-    console.error('Error: Only %s are allowed as CSS Compilers'.red, allowedCssCompilers.join(', '));
-    return;
+if (allowedCssCompilers.indexOf(themeConfig.config.css_compiler) === -1) {
+    return console.error('Error: Only %s are allowed as CSS Compilers'.red, allowedCssCompilers.join(', '));
 }
 
 browserSyncPort = dotStencilFile.port;
 stencilServerPort = ++dotStencilFile.port;
-cssCompilerDir = cssWatchBaseDir + themeConfig.css_compiler;
+cssCompilerDir = cssWatchBaseDir + themeConfig.config.css_compiler;
+shouldCompileRegex = new RegExp('^(?!_).+\.(?:' + themeConfig.config.css_compiler + ')$');
 
 autoprefixerProcessor = Autoprefixer({
-    browsers: themeConfig.autoprefixer_browsers,
-    cascade: themeConfig.autoprefixer_cascade
+    browsers: themeConfig.config.autoprefixer_browsers,
+    cascade: themeConfig.config.autoprefixer_cascade
 });
 
 // Once stapler is in the production environment, we change this line to point to
 // dotStencilFile.staplerUrl if it exists or fallback to dotStencilFile.storeUrl
 dotStencilFile.staplerUrl = dotStencilFile.staplerUrl || 'https://bc-stapler.herokuapp.com';
 
+// Check to make sure we have the latest version of stencil-cli
 Wreck.post(
     Url.resolve(dotStencilFile.staplerUrl, '/stencil-version-check'),
     {
@@ -96,8 +111,11 @@ Wreck.post(
     }
 );
 
+/**
+ * Starts up the local Stencil Server as well as starts up BrowserSync and sets some watch options.
+ */
 function startServer() {
-    Server(dotStencilFile, function(err) {
+    Server({dotStencilFile: dotStencilFile, themeConfig: themeConfig}, function(err) {
         if (err) {
             throw err;
         }
@@ -106,34 +124,38 @@ function startServer() {
          * Watch the appropriate css directory based on which compiler was chosen.
          * This will run on each file (and files in sub-directories) when the server starts
          * up. We only want to run compilation on top level files as the ones in sub directories
-         * are most likely include files and pull be pulled in by the top level files.
+         * are most likely include files and will be pulled in by the top level files.
          *
          * When a file in a sub directory changes, we have to recompile all top level files because
          * more than one could have included the changed file.
-         *
-         * This behaviour is a bit different for just plain CSS files, so they will always
-         * be compiled and copied across.
          */
         Bs.watch(cssCompilerDir, function(event, file) {
-            var relativePath,
-                shouldCompileRegex = /^(?!_).+\.(?:scss|less)$/;
+            var relativePath;
 
             if (event === 'add' || event === 'change') {
                 relativePath = Path.relative(cssCompilerDir, file);
-                // Only run it through if it's not a file in a sub directory or we are only doing plain CSS
+                // Only run it through if it's a top level file
                 if (
-                    (! relativePath.match(/\//) && shouldCompileRegex.test(relativePath)) ||
-                    themeConfig.css_compiler === 'css'
+                    ! relativePath.match(/\//) && shouldCompileRegex.test(relativePath)
                 ) {
-                    compileCss(themeConfig.css_compiler, file);
+                    compileCss(themeConfig.config.css_compiler, file);
                 // Only re-compile top level files if this is a change event and it's in a sub directory
                 } else if (event === 'change') {
-                    Fs.readdirSync(cssCompilerDir, cssCompiler).filter(function(file) {
-                        return shouldCompileRegex.test(file);
-                    }).forEach(function(file) {
-                        compileCss(themeConfig.css_compiler, Path.join(cssCompilerDir, file));
-                    });
+                    compileTopLevelCss(cssCompilerDir);
                 }
+            }
+        });
+
+        Bs.watch('config.json', function(event) {
+            if (event === 'change') {
+                try {
+                    themeConfig = parseThemeConfig();
+                } catch (e) {
+                    return console.error(e);
+                }
+
+                compileTopLevelCss(cssCompilerDir);
+                Bs.reload();
             }
         });
 
@@ -145,7 +167,7 @@ function startServer() {
                 '/templates',
                 '/lang'
             ].map(function(val) {
-                return process.cwd() + val;
+                return Path.join(themePath, val);
             }),
             watchOptions: {
                 ignoreInitial: true,
@@ -155,7 +177,7 @@ function startServer() {
                     '/assets/css',
                     '/assets/jspm_packages'
                 ].map(function(val) {
-                    return process.cwd() + val;
+                    return Path.join(themePath, val);
                 })
             },
             proxy: {
@@ -185,14 +207,47 @@ function startServer() {
 }
 
 /**
+ * Convenience function to parse Theme Config and set some default values if they aren't present
+ *
+ * @return object
+ */
+function parseThemeConfig() {
+    var themeConfig;
+
+    try {
+        themeConfig = ThemeConfig.parse(themeConfigPath, Program.variation);
+        themeConfig.config.css_compiler = themeConfig.config.css_compiler || 'scss';
+        themeConfig.config.autoprefixer_cascade = themeConfig.config.autoprefixer_cascade || true;
+        themeConfig.config.autoprefixer_browsers = themeConfig.config.autoprefixer_browsers || ['> 5% in US'];
+    } catch (e) {
+        return console.error(e);
+    }
+
+    return themeConfig;
+}
+
+/**
+ * Compiles all top level scss/less files that aren't prefixed with an underscore.
+ *
+ * @param cssCompilerDir
+ */
+function compileTopLevelCss(cssCompilerDir) {
+    Fs.readdirSync(cssCompilerDir).filter(function(file) {
+        return shouldCompileRegex.test(file);
+    }).forEach(function(file) {
+        compileCss(themeConfig.config.css_compiler, Path.join(cssCompilerDir, file));
+    });
+}
+
+/**
  * Compiles SCSS, LESS and copies the artifacts to the "css-artifacts"
- * folder.  It will also copy plain CSS to the folder as well.
+ * folder.
  *
  * @param compiler
  * @param file
  */
 function compileCss(compiler, file) {
-    if (! file.match(/\.(?:scss|less|css)$/)) {
+    if (! file.match(/\.(?:scss|less)$/)) {
         return;
     }
 
@@ -208,11 +263,7 @@ function compileCss(compiler, file) {
             scssCompiler(file, writeCss);
             break;
         case 'less':
-
             lessCompiler(file, writeCss);
-            break;
-        case 'css':
-            cssCompiler(file, writeCss);
             break;
     }
 }
@@ -247,10 +298,17 @@ function writeCss(err, data) {
  * @param callback
  */
 function scssCompiler(file, callback) {
-    var dest = cssDestPath + Path.basename(file, '.scss') + '.css';
+    var content = Fs.readFileSync(file, {encoding: 'utf-8'}),
+        dest = cssDestPath + Path.basename(file, '.scss') + '.css',
+        themeVariables = '';
+
+    _.forOwn(themeConfig.settings, function(val, key) {
+        themeVariables += '$themeSetting-' + key + ': ' + val + ';\n';
+    });
 
     Sass.render({
-        file: file,
+        data: themeVariables + content,
+        includePaths: [Path.dirname(file)],
         outFile: dest,
         sourceMap: true,
         sourceMapEmbed: true
@@ -277,6 +335,7 @@ function scssCompiler(file, callback) {
 function lessCompiler(file, callback) {
     var content = Fs.readFileSync(file, {encoding: 'utf-8'}),
         dest = cssDestPath + Path.basename(file, '.less') + '.css',
+        themeVariables = '',
         option = {
             filename: file,
             compress: false,
@@ -285,7 +344,11 @@ function lessCompiler(file, callback) {
             }
         };
 
-    Less.render(content, option).then(function(result) {
+    _.forOwn(themeConfig.settings, function(val, key) {
+        themeVariables += '@themeSetting-' + key + ': ' + val + ';\n';
+    });
+
+    Less.render(themeVariables + content, option).then(function(result) {
         callback(null, {
             content: result.css,
             source: file,
@@ -294,22 +357,5 @@ function lessCompiler(file, callback) {
         });
     }, function(err) {
         callback('LESS Error: '.red + err.message + ' at ' + (err.filename + '@' + err.line + ':' + err.column).cyan);
-    });
-}
-
-/**
- * Copy CSS to artifacts folder
- *
- * @param file
- * @param callback
- */
-function cssCompiler(file, callback) {
-    var dest = cssDestPath + Path.basename(file);
-
-    callback(null, {
-        content: Fs.readFileSync(file, {encoding: 'utf-8'}),
-        source: file,
-        dest: dest,
-        sourceMap: null
     });
 }

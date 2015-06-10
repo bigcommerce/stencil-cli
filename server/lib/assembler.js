@@ -18,10 +18,10 @@ module.exports.assemble = assemble;
  * Frontmatter if it wasn't already passed in by the 'stencil-config' header.
  *
  * @param request
- * @param templates
+ * @param options
  * @param callback
  */
-function assemble(request, templates, callback) {
+function assemble(request, options, callback) {
     var ret = {
             config: {},
             templates: {},
@@ -76,8 +76,12 @@ function assemble(request, templates, callback) {
 
     Async.parallel([
         function(callback) {
-            Async.each(_.union(templates, commonTemplates), resolvePartials, function (err) {
-                var frontmatter;
+            Async.each(_.union(options.templates, commonTemplates), resolvePartials, function (err) {
+                var frontmatter,
+                    frontmatterRegex = /---\n(?:.|\s)*?\n---\n/g,
+                    frontmatterMatch,
+                    frontmatterContent,
+                    rawTemplate;
 
                 if (err) {
                     return callback(err);
@@ -88,12 +92,27 @@ function assemble(request, templates, callback) {
                 }
 
                 if (! configSetByHeader) {
-                    // Pull the frontmatter out of the very first file in the list of templates.
-                    frontmatter = Frontmatter(ret.templates[templates[0]]);
-                    // Set the config
-                    ret.config = frontmatter.attributes;
-                    // Replace the content of the first template with the content stripped of the frontmatter
-                    ret.templates[templates[0]] = frontmatter.body;
+                    // We use the very first file in the list of templates to parse the frontmatter.
+                    rawTemplate = ret.templates[options.templates[0]];
+                    if (rawTemplate) {
+                        frontmatterMatch = rawTemplate.match(frontmatterRegex);
+                        if (frontmatterMatch !== null) {
+                            frontmatterContent = frontmatterMatch[0];
+                            // Interpolate theme settings for frontmatter
+                            _.forOwn(options.themeSettings, function(val, key) {
+                                var regex = '{{\\s*?themeSettings\\.' + key + '\\s*?}}';
+                                frontmatterContent = frontmatterContent.replace(new RegExp(regex, 'g'), val);
+                            });
+
+                            rawTemplate = rawTemplate.replace(frontmatterRegex, frontmatterContent);
+                        }
+
+                        frontmatter = Frontmatter(rawTemplate);
+                        // Set the config
+                        ret.config = frontmatter.attributes;
+                        // Replace the content of the first template with the content stripped of the frontmatter
+                        ret.templates[options.templates[0]] = frontmatter.body;
+                    }
                 }
 
                 callback();
