@@ -12,6 +12,7 @@ var Autoprefixer = require('autoprefixer-core'),
     Sass = require('node-sass'),
     Less = require('less'),
     Wreck = require('wreck'),
+    Url = require('url'),
     allowedCssCompilers = ['scss', 'less', 'css'],
     autoprefixerProcessor,
     browserSyncPort,
@@ -59,12 +60,9 @@ autoprefixerProcessor = Autoprefixer({
 dotStencilFile.staplerUrl = dotStencilFile.staplerUrl || 'https://bc-stapler.herokuapp.com';
 
 Wreck.post(
-    dotStencilFile.staplerUrl + '/stencil-version-check',
+    Url.resolve(dotStencilFile.staplerUrl, '/stencil-version-check'),
     {
-        payload: JSON.stringify({v: Pkg.version}),
-        headers: {
-            'stencil-version': Pkg.config.stencil_version
-        }
+        payload: JSON.stringify({v: Pkg.version})
     },
     function(err, res, payload) {
         var retError = err !== null;
