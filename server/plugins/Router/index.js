@@ -55,7 +55,10 @@ internals.registerRoutes = function(server, next) {
             method: 'GET',
             path: internals.paths.renderer,
             config: {
-                cors: true
+                cors: true,
+                state: {
+                    failAction: 'log'
+                }
             },
             handler: server.plugins.Renderer.implementation
         },
@@ -67,6 +70,9 @@ internals.registerRoutes = function(server, next) {
                 payload: {
                     output: 'stream',
                     parse: false
+                },
+                state: {
+                    failAction: 'log'
                 }
             },
             handler: server.plugins.Renderer.implementation
@@ -78,6 +84,9 @@ internals.registerRoutes = function(server, next) {
                 cors: true,
                 payload: {
                     parse: false
+                },
+                state: {
+                    failAction: 'log'
                 }
             },
             handler: server.plugins.Proxy.implementation
@@ -86,7 +95,10 @@ internals.registerRoutes = function(server, next) {
             method: 'GET',
             path: internals.paths.proxy,
             config: {
-                cors: true
+                cors: true,
+                state: {
+                    failAction: 'log'
+                }
             },
             handler: server.plugins.Proxy.implementation
         },
@@ -97,6 +109,11 @@ internals.registerRoutes = function(server, next) {
                 directory: {
                     path: './assets'
                 }
+            },
+            config: {
+                state: {
+                    failAction: 'log'
+                }
             }
         },
         {
@@ -104,6 +121,11 @@ internals.registerRoutes = function(server, next) {
             path: internals.paths.favicon,
             handler: {
                 file: './assets/favicon.ico'
+            },
+            config: {
+                state: {
+                    failAction: 'log'
+                }
             }
         },
         {
@@ -112,6 +134,11 @@ internals.registerRoutes = function(server, next) {
             handler: {
                 directory: {
                     path: './assets/css-artifacts'
+                }
+            },
+            config: {
+                state: {
+                    failAction: 'log'
                 }
             }
         }

@@ -19,9 +19,17 @@ module.exports = function(dotStencilFile, callback) {
             return callback(err);
         }
 
+        //Event listener listening for state (cookie) validation failures.
+        server.on('request-internal', function (request, event, tags) {
+            if (tags.error && tags.state) {
+                server.log('error', event);
+            }
+        });
+
         server.start(function () {
             server.log('info', logo);
             callback(null);
         });
+
     });
 };
