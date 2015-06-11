@@ -9,7 +9,6 @@ var Url = require('url'),
         },
         paths: {
             renderer: '/{url*}',
-            proxy: '/__proxy__/{url*}',
             staticAssets: '/assets/{path*}',
             cssArtifacts: '/assets/css/{path*}',
             favicon: '/favicon.ico'
@@ -41,7 +40,7 @@ module.exports.register = function(server, options, next) {
         reply.continue();
     });
 
-    server.dependency(['Renderer', 'Proxy'], internals.registerRoutes);
+    server.dependency(['Renderer'], internals.registerRoutes);
     return next();
 };
 
@@ -72,31 +71,6 @@ internals.registerRoutes = function(server, next) {
                 }
             },
             handler: server.plugins.Renderer.implementation
-        },
-        {
-            method: ['POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-            path: internals.paths.proxy,
-            config: {
-                cors: true,
-                payload: {
-                    parse: false
-                },
-                state: {
-                    failAction: 'log'
-                }
-            },
-            handler: server.plugins.Proxy.implementation
-        },
-        {
-            method: 'GET',
-            path: internals.paths.proxy,
-            config: {
-                cors: true,
-                state: {
-                    failAction: 'log'
-                }
-            },
-            handler: server.plugins.Proxy.implementation
         },
         {
             method: 'GET',
