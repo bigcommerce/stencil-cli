@@ -25,11 +25,12 @@ module.exports.stripDomainFromCookies = function(cookies) {
  * @returns {string}
  */
 module.exports.normalizeRedirectUrl = function(request, redirectUrl) {
-    var storeHost = Url.parse(request.app.storeUrl).host,
+    var storeHost = Url.parse(request.app.normalStoreUrl).host,
+        secureStoreHost = Url.parse(request.app.storeUrl).host,
         redirectUrlObj = Url.parse(redirectUrl),
         stripHost = false;
 
-    if (! redirectUrlObj.host || redirectUrlObj.host === storeHost) {
+    if (! redirectUrlObj.host || redirectUrlObj.host === storeHost || redirectUrlObj.host === secureStoreHost) {
         stripHost = true;
     }
 
