@@ -23,6 +23,7 @@ module.exports.register = function(server, options, next) {
             browserSyncPort = internals.options.port - 1;
 
         request.app.storeUrl = internals.options.storeUrl;
+        request.app.normalStoreUrl = internals.options.normalStoreUrl;
         request.app.apiKey = internals.options.apiKey;
         request.app.staplerUrl = internals.options.staplerUrl;
 
