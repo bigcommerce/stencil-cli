@@ -131,13 +131,10 @@ internals.escapeRegex = function (string) {
  * @return {Object}
  */
 internals.translateErrors = function (errors, translations) {
-    return errors.reduce(function(table, errorKey) {
+    return errors.map(function(errorKey) {
         var translate = translations['errors.' + errorKey];
-
-        table[errorKey] = (typeof translate === 'function') ? translate() : errorKey;
-
-        return table;
-    }, {});
+        return (typeof translate === 'function') ? translate() : errorKey;
+    });
 };
 
 internals.getPreferredTranslation = function (acceptLanguage, translations) {
