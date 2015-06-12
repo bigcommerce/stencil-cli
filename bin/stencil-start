@@ -83,6 +83,14 @@ Wreck.post(
                 '$ npm install -g bigcommerce/stencil-cli'.cyan
             );
         } else {
+
+            if (!(dotStencilFile.normalStoreUrl && dotStencilFile.storeUrl)) {
+                return console.error(
+                    'Error: Your stencil config is outdated. Please run'.red +
+                    ' $ stencil init'.cyan + ' again.'.red
+                );
+            }
+
             startServer();
         }
     }

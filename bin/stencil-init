@@ -29,7 +29,7 @@ var questions = [
                 return 'You must enter a URL';
             }
         },
-        default: dotStencilFile && dotStencilFile.storeUrl || undefined
+        default: dotStencilFile && dotStencilFile.normalStoreUrl || undefined
     },
     {
         type: 'input',
