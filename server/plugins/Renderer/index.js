@@ -81,7 +81,7 @@ internals.getResponse = function (request, callback) {
         }
 
         if (response.statusCode >= 500) {
-            return callback(new Error('bc-app responded with a 500 error'));
+            return callback(new Error('The Bigcommerce server responded with a 500 error'));
         }
 
         if (response.headers['set-cookie']) {
@@ -141,11 +141,20 @@ internals.getResponse = function (request, callback) {
                     // Set host to stapler host
                     httpOpts.headers.host = staplerUrlObject.host;
                     Wreck.get(url, httpOpts, function (err, response, data) {
+                        if (err) {
+                            return callback(err);
+                        }
+
                         try {
                             data = JSON.parse(data);
                         } catch (e) {
                             return callback(e);
                         }
+
+                        if (data.statusCode && data.statusCode == 500) {
+                            return callback(new Error('The Bigcommerce server responded with a 500 error'));
+                        }
+
                         data.templates = templateData.templates;
                         data.translations = templateData.translations;
                         callback(null, internals.getPencilResponse(data, request, response));
