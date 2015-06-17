@@ -88,19 +88,9 @@ internals.getResponse = function (request, callback) {
             response.headers['set-cookie'] = Utils.stripDomainFromCookies(response.headers['set-cookie']);
         }
 
+        // Response is a redirect
         if (response.statusCode >= 301 && response.statusCode <= 303) {
-            if (! response.headers.location) {
-                return callback(new Error('StatusCode is set to 30x but there is no location header to redirect to.'));
-            }
-
-            response.headers.location = Utils.normalizeRedirectUrl(request, response.headers.location);
-
-            // return an redirect response
-            return callback(null, new Responses.RedirectResponse(
-                response.headers.location,
-                response.headers,
-                response.statusCode
-            ));
+            return internals.redirect(response, request, callback);
         }
 
         Wreck.read(response, {json: true}, function (err, bcAppData) {
@@ -145,12 +135,23 @@ internals.getResponse = function (request, callback) {
                             return callback(err);
                         }
 
+                        // Response is a redirect
+                        if (response.statusCode >= 301 && response.statusCode <= 303) {
+                            return internals.redirect(response, request, callback);
+                        }
+
+                        // Response is bad
+                        if (response.statusCode >= 500) {
+                            return callback(new Error('The Bigcommerce server responded with a 500 error'));
+                        }
+
                         try {
                             data = JSON.parse(data);
                         } catch (e) {
                             return callback(e);
                         }
 
+                        // Data response is bad
                         if (data.statusCode && data.statusCode == 500) {
                             return callback(new Error('The Bigcommerce server responded with a 500 error'));
                         }
@@ -164,6 +165,29 @@ internals.getResponse = function (request, callback) {
         });
     });
 };
+
+/**
+ * Redirects based on the response & request
+ *
+ * @param response
+ * @param request
+ * @param callback
+ * @returns {*}
+ */
+internals.redirect = function(response, request, callback) {
+    if (! response.headers.location) {
+        return callback(new Error('StatusCode is set to 30x but there is no location header to redirect to.'));
+    }
+
+    response.headers.location = Utils.normalizeRedirectUrl(request, response.headers.location);
+
+    // return a redirect response
+    return callback(null, new Responses.RedirectResponse(
+        response.headers.location,
+        response.headers,
+        response.statusCode
+    ));
+}
 
 /**
  * Creates a new Pencil Response object and returns it.
