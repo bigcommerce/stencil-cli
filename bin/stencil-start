@@ -73,11 +73,20 @@ autoprefixerProcessor = Autoprefixer({
 // dotStencilFile.staplerUrl if it exists or fallback to dotStencilFile.storeUrl
 dotStencilFile.staplerUrl = dotStencilFile.staplerUrl || 'https://bc-stapler.herokuapp.com';
 
-// Check to make sure we have the latest version of stencil-cli
-Wreck.post(
-    Url.resolve(dotStencilFile.staplerUrl, '/stencil-version-check'),
+if (!(dotStencilFile.normalStoreUrl)) {
+    return console.error(
+        'Error: Your stencil config is outdated. Please run'.red +
+        ' $ stencil init'.cyan + ' again.'.red
+    );
+}
+
+Wreck.get(
+    Url.resolve(dotStencilFile.staplerUrl, '/stencil-version-check?v=' + Pkg.version),
     {
-        payload: JSON.stringify({v: Pkg.version})
+        headers: {
+            'stencil-options': '{"get_data_only": true}',
+            'stencil-store-url': dotStencilFile.normalStoreUrl
+        }
     },
     function(err, res, payload) {
         var retError = err !== null;
@@ -99,12 +108,7 @@ Wreck.post(
             );
         } else {
 
-            if (!(dotStencilFile.normalStoreUrl && dotStencilFile.storeUrl)) {
-                return console.error(
-                    'Error: Your stencil config is outdated. Please run'.red +
-                    ' $ stencil init'.cyan + ' again.'.red
-                );
-            }
+            dotStencilFile.storeUrl = payload.sslUrl;
 
             startServer();
         }

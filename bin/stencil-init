@@ -21,7 +21,7 @@ var questions = [
     {
         type: 'input',
         name: 'normalStoreUrl',
-        message: 'What is the URL of your store\'s homepage?',
+        message: 'What is the URL of your store\'s home page?',
         validate: function(val) {
             if (/^https?:\/\//.test(val)) {
                 return true;
@@ -30,19 +30,6 @@ var questions = [
             }
         },
         default: dotStencilFile && dotStencilFile.normalStoreUrl || undefined
-    },
-    {
-        type: 'input',
-        name: 'storeUrl',
-        message: 'What is the URL to your store\'s login page?',
-        validate: function(val) {
-            if (/^https:\/\//.test(val)) {
-                return true;
-            } else {
-                return 'You must enter a URL that starts with "https://"';
-            }
-        },
-        default: dotStencilFile && dotStencilFile.storeUrl || undefined
     },
     {
         type: 'input',
