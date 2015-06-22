@@ -1,4 +1,5 @@
-var _ = require('lodash');
+var _ = require('lodash'),
+    Fs = require('fs');
 
 module.exports.parse = parse;
 
@@ -12,18 +13,18 @@ module.exports.parse = parse;
 function parse (configPath, variationName) {
     var variation,
         settings,
-        config = require(configPath),
-        configClone = _.clone(config, true);
+        rawConfig = Fs.readFileSync(configPath, {encoding: 'utf-8'}),
+        config = JSON.parse(rawConfig);
 
-    if (! _.isArray(configClone.variations) || configClone.variations.length === 0) {
+    if (! _.isArray(config.variations) || config.variations.length === 0) {
         throw new Error('Your theme must have at least one variation in the config.json file.');
     }
 
     if (! variationName) {
-        variation = configClone.variations[0];
+        variation = config.variations[0];
         settings = variation.settings || {};
     } else {
-        variation = _.find(configClone.variations, {
+        variation = _.find(config.variations, {
             name: variationName
         });
 
@@ -39,12 +40,12 @@ function parse (configPath, variationName) {
     }
 
     // No need for all of the variations as we have the one
-    delete configClone.variations;
+    delete config.variations;
     // We've already extracted the settings
     delete variation.settings;
 
     return {
-        config: configClone,
+        config: config,
         variation: variation,
         settings: settings
     };
