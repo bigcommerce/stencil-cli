@@ -94,7 +94,10 @@ internals.getResponse = function (request, callback) {
         }
 
         Wreck.read(response, {json: true}, function (err, bcAppData) {
-            var templates = [];
+            var assemblerOptions = {
+                    templates: [],
+                    themeSettings: request.app.themeSettings
+                };
 
             if (err) {
                 return callback(err);
@@ -110,13 +113,13 @@ internals.getResponse = function (request, callback) {
             }
 
             if (bcAppData.template_file) {
-                templates = bcAppData.template_file;
-                if (! _.isArray(templates)) {
-                    templates = [templates];
+                assemblerOptions.templates = bcAppData.template_file;
+                if (! _.isArray(assemblerOptions.templates)) {
+                    assemblerOptions.templates = [assemblerOptions.templates];
                 }
             }
 
-            Assembler.assemble(request, templates, function(err, templateData) {
+            Assembler.assemble(request, assemblerOptions, function(err, templateData) {
                 if (err) {
                     return callback(err);
                 }
@@ -125,6 +128,11 @@ internals.getResponse = function (request, callback) {
                 if (bcAppData.remote) {
                     bcAppData.templates = templateData.templates;
                     bcAppData.translations = templateData.translations;
+                    if (! bcAppData.context) {
+                        bcAppData.context = {};
+                    }
+
+                    bcAppData.context.themeSettings = request.app.themeSettings;
                     callback(null, internals.getPencilResponse(bcAppData, request, response));
                 } else {
                     httpOpts.headers = internals.getHeaders(request, {get_data_only: true}, templateData.config);
@@ -158,6 +166,11 @@ internals.getResponse = function (request, callback) {
 
                         data.templates = templateData.templates;
                         data.translations = templateData.translations;
+                        if (! data.context) {
+                            data.context = {};
+                        }
+
+                        data.context.themeSettings = request.app.themeSettings;
                         callback(null, internals.getPencilResponse(data, request, response));
                     });
                 }
@@ -187,7 +200,7 @@ internals.redirect = function(response, request, callback) {
         response.headers,
         response.statusCode
     ));
-}
+};
 
 /**
  * Creates a new Pencil Response object and returns it.

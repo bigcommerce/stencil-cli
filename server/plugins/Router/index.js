@@ -1,5 +1,5 @@
-var Url = require('url'),
-    Hoek = require('hoek'),
+var Hoek = require('hoek'),
+    Url = require('url'),
     internals = {
         options: {
             storeUrl: '',
@@ -26,6 +26,9 @@ module.exports.register = function(server, options, next) {
         request.app.normalStoreUrl = internals.options.normalStoreUrl;
         request.app.apiKey = internals.options.apiKey;
         request.app.staplerUrl = internals.options.staplerUrl;
+        request.app.themeConfig = internals.options.themeConfig.config;
+        request.app.themeVariation = internals.options.themeConfig.variation;
+        request.app.themeSettings = internals.options.themeConfig.settings;
 
         // Checks if using the non BrowserSync port to look at the store.
         // If so, redirect to correct port.
