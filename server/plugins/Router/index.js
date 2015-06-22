@@ -10,7 +10,7 @@ var Hoek = require('hoek'),
         paths: {
             renderer: '/{url*}',
             staticAssets: '/assets/{path*}',
-            cssArtifacts: '/assets/css/{path*}',
+            cssFiles: '/assets/css/{path*}',
             favicon: '/favicon.ico'
         }
     };
@@ -44,7 +44,7 @@ module.exports.register = function(server, options, next) {
         reply.continue();
     });
 
-    server.dependency(['Renderer'], internals.registerRoutes);
+    server.dependency(['Renderer', 'CssCompiler'], internals.registerRoutes);
     return next();
 };
 
@@ -104,12 +104,8 @@ internals.registerRoutes = function(server, next) {
         },
         {
             method: 'GET',
-            path: internals.paths.cssArtifacts,
-            handler: {
-                directory: {
-                    path: './assets/css-artifacts'
-                }
-            },
+            path: internals.paths.cssFiles,
+            handler: server.plugins.CssCompiler.implementation,
             config: {
                 state: {
                     failAction: 'log'
