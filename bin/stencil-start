@@ -9,7 +9,7 @@ var _ = require('lodash'),
     Pkg = require('../package.json'),
     Program = require('commander'),
     Server = require('../server'),
-    ThemeConfig = require('./lib/themeConfig'),
+    ThemeConfig = require('../server/lib/themeConfig'),
     Url = require('url'),
     Wreck = require('wreck'),
     themePath = process.cwd(),
@@ -105,7 +105,7 @@ Wreck.post(
  * Starts up the local Stencil Server as well as starts up BrowserSync and sets some watch options.
  */
 function startServer() {
-    Server({dotStencilFile: dotStencilFile, themeConfig: themeConfig}, function(err) {
+    Server({dotStencilFile: dotStencilFile, themeVariationName: themeConfig.variation.name}, function(err) {
         if (err) {
             throw err;
         }
@@ -210,8 +210,6 @@ function parseThemeConfig() {
     try {
         themeConfig = ThemeConfig.parse(themeConfigPath, Program.variation);
         themeConfig.config.css_compiler = themeConfig.config.css_compiler || 'scss';
-        themeConfig.config.autoprefixer_cascade = themeConfig.config.autoprefixer_cascade || true;
-        themeConfig.config.autoprefixer_browsers = themeConfig.config.autoprefixer_browsers || ['> 5% in US'];
     } catch (e) {
         return console.error(e);
     }

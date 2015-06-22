@@ -6,6 +6,7 @@ var _ = require('lodash'),
     Less = require('less'),
     Path = require('path'),
     Sass = require('node-sass'),
+    ThemeConfig = require('../../lib/themeConfig'),
     internals = {
         options: {
             cssBasePath: ''
@@ -26,7 +27,8 @@ module.exports.register = function (server, options, next) {
  * @param reply
  */
 internals.implementation = function (request, reply) {
-    var compiler = request.app.themeConfig.css_compiler,
+    var themeConfig = ThemeConfig.parse(Path.join(process.cwd(), 'config.json'), request.app.themeVariationName),
+        compiler = themeConfig.config.css_compiler,
         fileParts = Path.parse(request.params.path),
         pathToFile = Path.join(
             internals.options.cssBasePath,
@@ -35,8 +37,8 @@ internals.implementation = function (request, reply) {
             fileParts.name + '.' + compiler
         ),
         autoprefixerOptions = {
-            cascade: request.app.themeConfig.autoprefixer_cascade,
-            browsers: request.app.themeConfig.autoprefixer_browsers
+            cascade: themeConfig.config.autoprefixer_cascade || true,
+            browsers: themeConfig.config.autoprefixer_browsers || ['> 5% in US']
         },
         autoprefixerProcessor = Autoprefixer(autoprefixerOptions);
 
@@ -49,7 +51,7 @@ internals.implementation = function (request, reply) {
             file: pathToFile,
             includePaths: [Path.dirname(pathToFile)],
             dest: Path.join(internals.options.cssBasePath, 'css', request.params.path),
-            themeSettings: request.app.themeSettings
+            themeSettings: themeConfig.settings
         }, function (err, css) {
             if (err) {
                 return reply(Boom.badData(err));

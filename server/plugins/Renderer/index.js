@@ -7,6 +7,8 @@ var _ = require('lodash'),
     Url = require('url'),
     Wreck = require('wreck'),
     Responses = require('./responses'),
+    ThemeConfig = require('../../lib/themeConfig'),
+    Path = require('path'),
     internals = {
         options: {}
     };
@@ -50,6 +52,7 @@ internals.getResponse = function (request, callback) {
     var staplerUrlObject = Url.parse(request.app.staplerUrl),
         urlObject = _.clone(request.url, true),
         url,
+        themeConfig = ThemeConfig.parse(Path.join(process.cwd(), 'config.json'), request.app.themeVariationName),
         httpOpts = {
             rejectUnauthorized: false,
             headers: internals.getHeaders(request, {get_template_file: true, get_data_only: true}),
@@ -96,7 +99,7 @@ internals.getResponse = function (request, callback) {
         Wreck.read(response, {json: true}, function (err, bcAppData) {
             var assemblerOptions = {
                     templates: [],
-                    themeSettings: request.app.themeSettings
+                    themeSettings: themeConfig.settings
                 };
 
             if (err) {
@@ -132,7 +135,7 @@ internals.getResponse = function (request, callback) {
                         bcAppData.context = {};
                     }
 
-                    bcAppData.context.themeSettings = request.app.themeSettings;
+                    bcAppData.context.themeSettings = themeConfig.settings;
                     callback(null, internals.getPencilResponse(bcAppData, request, response));
                 } else {
                     httpOpts.headers = internals.getHeaders(request, {get_data_only: true}, templateData.config);
@@ -170,7 +173,7 @@ internals.getResponse = function (request, callback) {
                             data.context = {};
                         }
 
-                        data.context.themeSettings = request.app.themeSettings;
+                        data.context.themeSettings = themeConfig.settings;
                         callback(null, internals.getPencilResponse(data, request, response));
                     });
                 }
