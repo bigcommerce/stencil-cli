@@ -1,6 +1,7 @@
 'use strict';
 
 var Confidence = require('confidence'),
+    Path = require('path'),
     criteria,
     store,
     config;
@@ -17,6 +18,9 @@ config = {
             reporter: require('good-console'),
             args: [{log: '*', request: '*'}]
         }]
+    },
+    cssCompiler: {
+        cssBasePath: Path.join(process.cwd(), 'assets')
     }
 };
 

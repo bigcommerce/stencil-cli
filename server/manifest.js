@@ -18,7 +18,8 @@ manifest = {
         'good': config.get('/good'),
         // First Party Plugins
         './plugins/Renderer': {},
-        './plugins/Router': {}
+        './plugins/Router': {},
+        './plugins/CssCompiler': config.get('/cssCompiler')
     }
 };
 
