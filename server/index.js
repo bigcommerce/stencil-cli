@@ -1,5 +1,7 @@
-var Glue = require('glue'),
+var Fs = require('fs'),
+    Glue = require('glue'),
     Hoek = require('hoek'),
+    Path = require('path'),
     Url = require('url'),
     manifest = require('./manifest'),
     logo = require('./lib/showLogo');
@@ -25,8 +27,29 @@ module.exports = function(options, callback) {
         }
 
         server.start(function () {
-            server.log('info', logo);
-            callback(null);
+            var stencilEditorConfig = {
+                connections: [{
+                    host: 'localhost',
+                    port: 8181
+                }],
+                plugins: {
+                    // Third Party Plugins
+                    './plugins/StencilEditor': {
+                        themeVariationName: options.themeVariationName
+                    }
+                }
+            };
+
+            Glue.compose(stencilEditorConfig, {relativeTo: __dirname}, function (err, server) {
+                if (err) {
+                    return callback(err);
+                }
+
+                server.start(function () {
+                    server.log('info', logo);
+                    callback(null);
+                });
+            });
         });
 
     });
