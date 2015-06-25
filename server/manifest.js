@@ -11,7 +11,8 @@ manifest = {
     connections: [{
         host: config.get('/server/host'),
         port: config.get('/server/port'),
-        options: config.get('/server/options')
+        options: config.get('/server/options'),
+        tls: config.get('/server/tls')
     }],
     plugins: {
         // Third Party Plugins
