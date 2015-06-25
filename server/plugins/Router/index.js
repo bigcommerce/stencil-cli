@@ -15,8 +15,11 @@ var Hoek = require('hoek'),
             renderer: '/{url*}',
             staticAssets: '/assets/{path*}',
             cssFiles: '/assets/css/{path*}',
-            favicon: '/favicon.ico'
-        }
+            favicon: '/favicon.ico',
+            stencilEditor: '/stencil-editor',
+            updateParam: '/stencil-editor/update-param'
+        },
+        themeConfigPath: Path.join(process.cwd(), 'config.json')
     };
 
 module.exports.register = function(server, options, next) {

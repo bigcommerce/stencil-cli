@@ -1,0 +1,40 @@
+
+<!doctype html>
+<html>
+<head>
+    <title>ng-stencil-editor</title>
+    <base href="/">
+    <link rel="stylesheet" href="/public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.7.1/dist/css/bcapp-pattern-lab.css"/>
+    <link rel="stylesheet" href="/public/jspm_packages/github/bigcommerce-labs/ng-stencil-editor@master/build/css/ng-stencil-editor.css"/>
+</head>
+<body>
+<div id="micro-app-ng-stencil-editor">
+    <div data-ui-view></div>
+</div>
+
+<script src="/public/jspm_packages/system.js"></script>
+<script src="/public/config.js"></script>
+{{#each jsFiles}}
+<script src="{{this}}"></script>
+{{/each}}
+<script type="text/javascript">
+    System.import('js/globals').then(function(loaded) {
+        window.angular = loaded.globals.angular;
+        window._ = loaded.globals._;
+        window.Channel = loaded.globals.Channel;
+
+        System.import('js/app').then(function() {
+            System.import('src/app/app.module.js').then(function() {
+                angular.module('ng-common.bc-app', [])
+                    .constant('BC_APP_CONFIG', {
+                        cdnPath: '//localhost:8181'
+                    })
+                    .constant('BC_SEED_DATA', {});
+
+                angular.bootstrap(document.getElementById('micro-app-ng-stencil-editor'), ['ng-stencil-editor']);
+            });
+        });
+    });
+</script>
+</body>
+</html>
