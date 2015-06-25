@@ -29,7 +29,9 @@ var _ = require('lodash'),
     themeConfig,
     themeConfigPath = Path.join(themePath, 'config.json'),
     themeConfigExists = Fs.existsSync(themeConfigPath),
-    themeConfigHooks;
+    themeConfigHooks,
+    themeConfigSchemaPath = Path.join(themePath, 'config.schema.json'),
+    themeConfigSchemaExists = Fs.existsSync(themeConfigPath);
 
 Program
     .version(Pkg.version)
@@ -246,7 +248,14 @@ function startServer() {
  */
 function parseThemeConfig() {
     var ret = {},
-        themeConfig = new ThemeConfig(themeConfigPath, Program.variation);
+        themeConfig;
+
+    // We don't require the schema file to exist as it's only used for the Theme Editor
+    if (! themeConfigSchemaExists) {
+        themeConfigSchemaPath = '';
+    }
+
+    themeConfig = new ThemeConfig(themeConfigPath, themeConfigSchemaPath, Program.variation);
 
     try {
         ret.config = themeConfig.getConfig();
