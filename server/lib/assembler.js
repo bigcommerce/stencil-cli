@@ -100,7 +100,7 @@ function assemble(request, options, callback) {
                             frontmatterContent = frontmatterMatch[0];
                             // Interpolate theme settings for frontmatter
                             _.forOwn(options.themeSettings, function(val, key) {
-                                var regex = '{{\\s*?themeSettings\\.' + key + '\\s*?}}';
+                                var regex = '{{\\s*?theme_settings\\.' + key + '\\s*?}}';
                                 frontmatterContent = frontmatterContent.replace(new RegExp(regex, 'g'), val);
                             });
 
