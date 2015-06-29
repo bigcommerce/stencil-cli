@@ -106,7 +106,7 @@ internals.getResponse = function (request, callback) {
                 return callback(err);
             }
 
-            if (!bcAppData.content_type) {
+            if (!_.has(bcAppData, 'content_type')) {
                 // this is a raw response not emitted by TemplateEngine
                 return callback(null, new Responses.RawResponse(
                     bcAppData,
