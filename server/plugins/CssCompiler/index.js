@@ -27,8 +27,8 @@ module.exports.register = function (server, options, next) {
  * @param reply
  */
 internals.implementation = function (request, reply) {
-    var themeConfig = ThemeConfig.parse(Path.join(process.cwd(), 'config.json'), request.app.themeVariationName),
-        compiler = themeConfig.config.css_compiler,
+    var themeConfig = request.app.themeConfig.getConfig(),
+        compiler = themeConfig.css_compiler,
         fileParts = Path.parse(request.params.path),
         pathToFile = Path.join(
             internals.options.cssBasePath,
@@ -37,8 +37,8 @@ internals.implementation = function (request, reply) {
             fileParts.name + '.' + compiler
         ),
         autoprefixerOptions = {
-            cascade: themeConfig.config.autoprefixer_cascade || true,
-            browsers: themeConfig.config.autoprefixer_browsers || ['> 5% in US']
+            cascade: themeConfig.autoprefixer_cascade,
+            browsers: themeConfig.autoprefixer_browsers
         },
         autoprefixerProcessor = Autoprefixer(autoprefixerOptions);
 
@@ -94,19 +94,64 @@ internals.compileCss = function (compiler, options, callback) {
  * @param callback
  */
 internals.scssCompiler = function (options, callback) {
-    var themeVariables = '';
+    var themeVariables = '',
+        sassFunctions = {};
 
     Fs.readFile(options.file, {encoding: 'utf-8'}, function (err, content) {
         if (err) {
             return callback(err);
         }
 
-        _.forOwn(options.themeSettings, function(val, key) {
-            themeVariables += '$themeSetting-' + key + ': ' + val + ';\n';
-        });
+        sassFunctions['stencilNumber($name, $unit: px)'] = function(nameObj, unitObj) {
+            var name = nameObj.getValue(),
+                unit = unitObj.getValue(),
+                ret;
+
+            if (options.themeSettings[name]) {
+                ret = new Sass.types.Number(options.themeSettings[name], unit);
+            } else {
+                ret = Sass.NULL;
+            }
+
+            return ret;
+        };
+
+        sassFunctions['stencilColor($name)'] = function(nameObj) {
+            var name = nameObj.getValue(),
+                val,
+                ret;
+
+            if (options.themeSettings[name]) {
+                val = options.themeSettings[name];
+
+                if (val[0] === '#') {
+                    val = val.substr(1);
+                }
+
+                ret = new Sass.types.Color(parseInt('0xff' + val, 16));
+            } else {
+                ret = Sass.NULL;
+            }
+
+            return ret;
+        };
+
+        sassFunctions['stencilString($name)'] = function(nameObj) {
+            var name = nameObj.getValue(),
+                ret;
+
+            if (options.themeSettings[name]) {
+                ret = new Sass.types.String(options.themeSettings[name]);
+            } else {
+                ret = Sass.NULL;
+            }
+
+            return ret;
+        };
 
         Sass.render({
             file: options.file,
+            functions: sassFunctions,
             data: themeVariables + content,
             includePaths: [options.includePaths],
             outFile: options.dest,

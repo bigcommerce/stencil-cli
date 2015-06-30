@@ -109,7 +109,7 @@ Wreck.get(
  * Starts up the local Stencil Server as well as starts up BrowserSync and sets some watch options.
  */
 function startServer() {
-    Server({dotStencilFile: dotStencilFile, themeVariationName: themeConfig.variation.name}, function(err) {
+    Server({dotStencilFile: dotStencilFile, themeVariationName: themeConfig.variationName}, function(err) {
         if (err) {
             throw err;
         }
@@ -209,16 +209,16 @@ function startServer() {
  * @return object
  */
 function parseThemeConfig() {
-    var themeConfig;
+    var ret = {},
+        themeConfig = new ThemeConfig(themeConfigPath, Program.variation);
 
     try {
-        themeConfig = ThemeConfig.parse(themeConfigPath, Program.variation);
-        themeConfig.config.css_compiler = themeConfig.config.css_compiler || 'scss';
+        ret.config = themeConfig.getConfig();
     } catch (e) {
         return console.error(e);
     }
 
-    return themeConfig;
+    return ret;
 }
 
 /**

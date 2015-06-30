@@ -7,8 +7,6 @@ var _ = require('lodash'),
     Url = require('url'),
     Wreck = require('wreck'),
     Responses = require('./responses'),
-    ThemeConfig = require('../../lib/themeConfig'),
-    Path = require('path'),
     internals = {
         options: {}
     };
@@ -52,7 +50,7 @@ internals.getResponse = function (request, callback) {
     var staplerUrlObject = Url.parse(request.app.staplerUrl),
         urlObject = _.clone(request.url, true),
         url,
-        themeConfig = ThemeConfig.parse(Path.join(process.cwd(), 'config.json'), request.app.themeVariationName),
+        themeConfig = request.app.themeConfig.getConfig(),
         httpOpts = {
             rejectUnauthorized: false,
             headers: internals.getHeaders(request, {get_template_file: true, get_data_only: true}),
@@ -135,7 +133,8 @@ internals.getResponse = function (request, callback) {
                         bcAppData.context = {};
                     }
 
-                    bcAppData.context.themeSettings = themeConfig.settings;
+                    bcAppData.context.theme_settings = themeConfig.settings;
+                    bcAppData.context.theme_images = themeConfig.images;
                     callback(null, internals.getPencilResponse(bcAppData, request, response));
                 } else {
                     httpOpts.headers = internals.getHeaders(request, {get_data_only: true}, templateData.config);
@@ -173,7 +172,9 @@ internals.getResponse = function (request, callback) {
                             data.context = {};
                         }
 
-                        data.context.themeSettings = themeConfig.settings;
+                        data.context.theme_settings = themeConfig.settings;
+                        data.context.theme_images = themeConfig.images;
+
                         callback(null, internals.getPencilResponse(data, request, response));
                     });
                 }

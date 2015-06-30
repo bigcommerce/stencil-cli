@@ -1,20 +1,58 @@
 var _ = require('lodash'),
-    Fs = require('fs');
+    Fs = require('fs'),
+    Hoek = require('hoek'),
+    Path = require('path');
 
-module.exports.parse = parse;
+module.exports = ThemeConfig;
+
+function ThemeConfig (configPath, variationName) {
+    this.configPath = configPath;
+    this.variationName = variationName;
+}
 
 /**
- * Parses a theme config.json and pulls out the correct theme variation and settings based on the passed in name.
+ * Returns the full Theme Config.
+ *
+ * @returns {object}
+ */
+ThemeConfig.prototype.getConfig = function () {
+    return getConfig(this.configPath);
+};
+
+/**
+ * Grab the config JSON string, parse it into an object, grab the current variation,
+ * and then merge it into the top level settings.
  *
  * @param configPath
- * @param variationName
- * @returns {{config: *, variation: *, settings: *}}
+ * @return {object}
  */
-function parse (configPath, variationName) {
-    var variation,
-        settings,
-        rawConfig = Fs.readFileSync(configPath, {encoding: 'utf-8'}),
-        config = JSON.parse(rawConfig);
+function getConfig (configPath) {
+    var rawConfig = Fs.readFileSync(configPath, {encoding: 'utf-8'}),
+        config = JSON.parse(rawConfig),
+        variation = getVariation(config, this.variationName);
+
+    // Set some defaults
+    config.css_compiler = config.css_compiler || 'scss';
+    config.autoprefixer_cascade = config.autoprefixer_cascade || true;
+    config.autoprefixer_browsers = config.autoprefixer_browsers || ['> 5% in US'];
+    // Add in actual variation name since the one passed in to the constructor could have been blank
+    config.variationName = variation.name;
+    // Merge in the variation settings and images objecs
+    config.settings = Hoek.applyToDefaults(config.settings || {}, variation.settings || {});
+    config.images = Hoek.applyToDefaults(config.images || {}, variation.images || {});
+
+    return config;
+}
+
+/**
+ * Grabs out a variation based on a name. Or if the name is not passed in, the very first one in the list.
+ *
+ * @param config
+ * @param variationName
+ * @return {object}
+ */
+function getVariation(config, variationName) {
+    var variation;
 
     if (! _.isArray(config.variations) || config.variations.length === 0) {
         throw new Error('Your theme must have at least one variation in the config.json file.');
@@ -22,7 +60,6 @@ function parse (configPath, variationName) {
 
     if (! variationName) {
         variation = config.variations[0];
-        settings = variation.settings || {};
     } else {
         variation = _.find(config.variations, {
             name: variationName
@@ -35,18 +72,7 @@ function parse (configPath, variationName) {
                 ' is not defined in the theme\'s config.json'
             );
         }
-
-        settings = variation.settings || {};
     }
 
-    // No need for all of the variations as we have the one
-    delete config.variations;
-    // We've already extracted the settings
-    delete variation.settings;
-
-    return {
-        config: config,
-        variation: variation,
-        settings: settings
-    };
+    return variation;
 }
