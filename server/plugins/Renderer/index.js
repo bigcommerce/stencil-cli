@@ -1,17 +1,21 @@
 var _ = require('lodash'),
-    Assembler = require('../../lib/assembler'),
+    Async = require('async'),
     Boom = require('boom'),
-    Utils = require('../../lib/utils'),
+    Frontmatter = require('front-matter'),
     Hoek = require('hoek'),
+    LangAssembler = require('../../../lib/langAssembler'),
     Pkg = require('../../../package.json'),
-    Url = require('url'),
-    Wreck = require('wreck'),
     Responses = require('./responses'),
+    TemplateAssembler = require('../../../lib/templateAssembler'),
+    Url = require('url'),
+    Utils = require('../../lib/utils'),
+    Wreck = require('wreck'),
+    commonTemplates = require('./commonTemplates.json'),
     internals = {
         options: {}
     };
 
-module.exports.register = function(server, options, next) {
+module.exports.register = function (server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);
 
     server.expose('implementation', internals.implementation);
@@ -61,7 +65,7 @@ internals.getResponse = function (request, callback) {
     httpOpts.headers.host = staplerUrlObject.host;
 
     // Convert QueryParams with array values to php compatible names (brackets [])
-    urlObject.query = _.mapKeys(urlObject.query, function(value, key) {
+    urlObject.query = _.mapKeys(urlObject.query, function (value, key) {
         if (_.isArray(value)) {
             return key + '[]'
         }
@@ -95,10 +99,7 @@ internals.getResponse = function (request, callback) {
         }
 
         Wreck.read(response, {json: true}, function (err, bcAppData) {
-            var assemblerOptions = {
-                    templates: [],
-                    themeSettings: themeConfig.settings
-                };
+            var template;
 
             if (err) {
                 return callback(err);
@@ -114,21 +115,74 @@ internals.getResponse = function (request, callback) {
             }
 
             if (bcAppData.template_file) {
-                assemblerOptions.templates = bcAppData.template_file;
-                if (! _.isArray(assemblerOptions.templates)) {
-                    assemblerOptions.templates = [assemblerOptions.templates];
+                template = bcAppData.template_file;
+                if (_.isArray(template)) {
+                    commonTemplates = _.union(template, commonTemplates);
+                } else {
+                    commonTemplates.push(template);
                 }
             }
 
-            Assembler.assemble(request, assemblerOptions, function(err, templateData) {
+            Async.parallel({
+                templates: function (callback) {
+                    TemplateAssembler.assemble(commonTemplates, callback);
+                },
+                translations: function (callback) {
+                    LangAssembler.assemble(callback);
+                }
+            },
+            function (err, assembledData) {
+                var frontmatter,
+                    frontmatterRegex = /---\n(?:.|\s)*?\n---\n/g,
+                    missingThemeSettingsRegex = /{{\\s*?theme_settings\\..+?\\s*?}}/g,
+                    frontmatterMatch,
+                    frontmatterContent,
+                    rawTemplate,
+                    resourcesConfig = {};
+
                 if (err) {
                     return callback(err);
                 }
 
+                // If the requested template is not an array, we parse the Frontmatter
+                // If it is an array, then it's an ajax request using `render_with` with multiple components
+                // which don't have Frontmatter and needs to get it's config from the `stencil-config` header.
+                if (template !== undefined && ! _.isArray(template)) {
+                    rawTemplate = assembledData.templates[template];
+
+                    frontmatterMatch = rawTemplate.match(frontmatterRegex);
+                    if (frontmatterMatch !== null) {
+                        frontmatterContent = frontmatterMatch[0];
+                        // Interpolate theme settings for frontmatter
+                        _.forOwn(themeConfig.settings, function (val, key) {
+                            var regex = '{{\\s*?theme_settings\\.' + key + '\\s*?}}';
+
+                            frontmatterContent = frontmatterContent.replace(new RegExp(regex, 'g'), val);
+                        });
+
+                        // Remove any handlebars tags that weren't interpolated because there was no setting for it
+                        frontmatterContent = frontmatterContent.replace(missingThemeSettingsRegex, '');
+                        // Replace the frontmatter with the newly interpolated version
+                        rawTemplate = rawTemplate.replace(frontmatterRegex, frontmatterContent);
+                    }
+
+                    frontmatter = Frontmatter(rawTemplate);
+                    // Set the config
+                    resourcesConfig = frontmatter.attributes;
+                    // Replace the content template with the content stripped of frontmatter
+                    assembledData.templates[template] = frontmatter.body;
+                } else if (request.headers['stencil-config']) {
+                    try {
+                        resourcesConfig = JSON.parse(request.headers['stencil-config']);
+                    } catch (e) {
+                        return callback(e);
+                    }
+                }
+
                 // If a remote call, no need to do a second call to get the data, it has already come back
                 if (bcAppData.remote) {
-                    bcAppData.templates = templateData.templates;
-                    bcAppData.translations = templateData.translations;
+                    bcAppData.templates = assembledData.templates;
+                    bcAppData.translations = assembledData.translations;
                     if (! bcAppData.context) {
                         bcAppData.context = {};
                     }
@@ -137,7 +191,7 @@ internals.getResponse = function (request, callback) {
                     bcAppData.context.theme_images = themeConfig.images;
                     callback(null, internals.getPencilResponse(bcAppData, request, response));
                 } else {
-                    httpOpts.headers = internals.getHeaders(request, {get_data_only: true}, templateData.config);
+                    httpOpts.headers = internals.getHeaders(request, {get_data_only: true}, resourcesConfig);
                     // Set host to stapler host
                     httpOpts.headers.host = staplerUrlObject.host;
                     Wreck.get(url, httpOpts, function (err, response, data) {
@@ -166,8 +220,8 @@ internals.getResponse = function (request, callback) {
                             return callback(new Error('The Bigcommerce server responded with a 500 error'));
                         }
 
-                        data.templates = templateData.templates;
-                        data.translations = templateData.translations;
+                        data.templates = assembledData.templates;
+                        data.translations = assembledData.translations;
                         if (! data.context) {
                             data.context = {};
                         }
@@ -191,7 +245,7 @@ internals.getResponse = function (request, callback) {
  * @param callback
  * @returns {*}
  */
-internals.redirect = function(response, request, callback) {
+internals.redirect = function (response, request, callback) {
     if (! response.headers.location) {
         return callback(new Error('StatusCode is set to 30x but there is no location header to redirect to.'));
     }
@@ -214,7 +268,7 @@ internals.redirect = function(response, request, callback) {
  * @param response
  * @returns {*}
  */
-internals.getPencilResponse = function(data, request, response) {
+internals.getPencilResponse = function (data, request, response) {
    return new Responses.PencilResponse({
        content_type: data.content_type,
        template_file: data.template_file,
