@@ -16,6 +16,7 @@ manifest = {
     plugins: {
         // Third Party Plugins
         'good': config.get('/good'),
+        'stencil-styles': {},
         // First Party Plugins
         './plugins/Renderer': {},
         './plugins/Router': {},
