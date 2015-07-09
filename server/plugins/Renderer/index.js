@@ -169,6 +169,10 @@ internals.getResponse = function (request, callback) {
                     frontmatter = Frontmatter(rawTemplate);
                     // Set the config
                     resourcesConfig = frontmatter.attributes;
+                    // Merge the frontmatter config  with the global resource config
+                    if (_.isObject(themeConfig.resources)) {
+                        resourcesConfig = _.extend({}, themeConfig.resources, resourcesConfig);
+                    }
                     // Replace the content template with the content stripped of frontmatter
                     assembledData.templates[template] = frontmatter.body;
                 } else if (request.headers['stencil-config']) {
