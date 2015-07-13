@@ -10,7 +10,6 @@ var _ = require('lodash'),
     Url = require('url'),
     Utils = require('../../lib/utils'),
     Wreck = require('wreck'),
-    commonTemplates = require('./commonTemplates.json'),
     internals = {
         options: {}
     };
@@ -116,16 +115,11 @@ internals.getResponse = function (request, callback) {
 
             if (bcAppData.template_file) {
                 template = bcAppData.template_file;
-                if (_.isArray(template)) {
-                    commonTemplates = _.union(template, commonTemplates);
-                } else {
-                    commonTemplates.push(template);
-                }
             }
 
             Async.parallel({
                 templates: function (callback) {
-                    TemplateAssembler.assemble(commonTemplates, callback);
+                    TemplateAssembler.assemble(template, callback);
                 },
                 translations: function (callback) {
                     LangAssembler.assemble(callback);
