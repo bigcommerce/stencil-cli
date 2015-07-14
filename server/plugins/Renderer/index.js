@@ -84,7 +84,7 @@ internals.getResponse = function (request, callback) {
             return callback(err);
         }
 
-        if (response.statusCode >= 500) {
+        if (response.statusCode === 500) {
             return callback(new Error('The Bigcommerce server responded with a 500 error'));
         }
 
@@ -203,7 +203,7 @@ internals.getResponse = function (request, callback) {
                         }
 
                         // Response is bad
-                        if (response.statusCode >= 500) {
+                        if (response.statusCode === 500) {
                             return callback(new Error('The Bigcommerce server responded with a 500 error'));
                         }
 
@@ -214,7 +214,7 @@ internals.getResponse = function (request, callback) {
                         }
 
                         // Data response is bad
-                        if (data.statusCode && data.statusCode == 500) {
+                        if (data.statusCode && data.statusCode === 500) {
                             return callback(new Error('The Bigcommerce server responded with a 500 error'));
                         }
 
