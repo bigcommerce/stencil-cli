@@ -69,6 +69,10 @@ Async.parallel(tasks, function(err, assembledData) {
         output = Fs.createWriteStream(Path.join(outputFolder, outputName)),
         archive = Archiver('zip');
 
+    if (err) {
+        return console.error(err);
+    }
+
     console.log('Zipping Files Started...');
 
     output.on('close', function() {
