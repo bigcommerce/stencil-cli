@@ -109,7 +109,7 @@ Wreck.get(
  * Starts up the local Stencil Server as well as starts up BrowserSync and sets some watch options.
  */
 function startServer() {
-    Server({dotStencilFile: dotStencilFile, themeVariationName: themeConfig.variationName}, function(err) {
+    Server({dotStencilFile: dotStencilFile, themeVariationName: themeConfig.config.variationName}, function(err) {
         if (err) {
             throw err;
         }
