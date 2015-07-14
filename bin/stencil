@@ -7,4 +7,5 @@ program
     .version(pkg.version)
     .command('init', 'Interactively create a .stencil file which configures how to run a Bigcommerce store locally.')
     .command('start', 'Starts up Bigcommerce store using theme files in the current directory.')
+    .command('bundle', 'Bundles up the theme into a zip file which can be uploaded to Bigcommerce.')
     .parse(process.argv);

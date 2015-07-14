@@ -1,0 +1,222 @@
+#!/usr/bin/env node
+
+require('colors');
+
+var _ = require('lodash'),
+    Archiver = require('archiver'),
+    Async = require('async'),
+    Crypto = require('crypto'),
+    Fs = require('fs'),
+    Jspm = require('jspm'),
+    Path = require('path'),
+    Program = require('commander'),
+    CssAssembler = require('../lib/cssAssembler'),
+    LangAssembler = require('../lib/langAssembler'),
+    TemplateAssembler = require('../lib/templateAssembler'),
+    ThemeConfig = require('../lib/themeConfig'),
+    Tmp = require('tmp'),
+    pkg = require('../package.json'),
+    themePath = process.cwd(),
+    tasks = {},
+    templatesBasePath = Path.join(themePath, 'templates'),
+    themeConfig,
+    themeConfigPath = Path.join(themePath, 'config.json'),
+    themeConfigExists = Fs.existsSync(themeConfigPath);
+
+Program
+    .version(pkg.version)
+    .option('-d, --dest [dest]', 'Where to save the zip file. It defaults to the current directory you are in when bundling')
+    .option('-n, --name  [filename]', 'What do you want to call the zip file. It defaults to stencil-bundle.zip')
+    .parse(process.argv);
+
+if (Program.dest === true) {
+    return console.error('Error: You have to specify a value for -d or --dest'.red);
+}
+
+if (Program.name === true) {
+    return console.error('Error: You have to specify a value for -n or --name'.red);
+}
+
+if (! themeConfigExists) {
+    return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
+}
+
+themeConfig = new ThemeConfig(themeConfigPath).getConfig();
+
+tasks.css = getCssAssembleTask(themeConfig.css_compiler);
+tasks.templates = assembleTemplatesTask;
+tasks.lang = assembleLangTask;
+
+if (themeConfig.jspm) {
+    if (! Fs.existsSync(Path.join(themePath, themeConfig.jspm.jspm_packages_path))) {
+        console.log('Error: The path you specified for your "jspm_packages" folder does not exist.'.red);
+        return console.log(
+            'Please check your '.red +
+            'jspm.jspm_packages_path'.cyan +
+            ' setting in your theme\'s '.red +
+            'config.json'.cyan +
+            ' file to make sure it\'s correct.'.red
+        );
+    }
+
+    themeConfig.jspm.tmpBundleFile = Tmp.fileSync().name;
+    tasks.jspmBundle = getJspmBundleTask(themeConfig.jspm);
+}
+
+Async.parallel(tasks, function(err, assembledData) {
+    var outputFolder = Program.dest ? Program.dest : themePath,
+        outputName = Program.filename ? Program.filename : 'stencil-bundle.zip',
+        output = Fs.createWriteStream(Path.join(outputFolder, outputName)),
+        archive = Archiver('zip');
+
+    console.log('Zipping Files Started...');
+
+    output.on('close', function() {
+        console.log('ok'.green + ' -- Zipping Files Finished');
+        console.log('Bundled saved to: ' + Path.join(outputFolder, outputName).cyan);
+    });
+
+    archive.pipe(output);
+
+    archive.bulk({
+        src: [
+            'assets/**/*',
+            '!assets/jspm_packages/**', // Don't want jspm_packages if it's there
+            'templates/**/*',
+            'lang/*',
+            'README.md',
+            'config.json',
+            'package.json'
+        ],
+        cwd: themePath,
+        expand: true
+    });
+
+    if (themeConfig.jspm) {
+        archive.bulk({
+            src: themeConfig.jspm.jspm_packages_path + '/system.js',
+            cwd: themePath,
+            expand: true
+        });
+
+        archive.append(
+            Fs.createReadStream(themeConfig.jspm.tmpBundleFile),
+            {name: themeConfig.jspm.bundle_location}
+        );
+    }
+
+    Async.forEachOf(assembledData, function(data, type, callback) {
+        if (type === 'css' || type === 'templates') {
+            Async.forEachOf(data, function(val, filename, forEachOfCallback) {
+                if (type === 'templates') {
+                    filename = Crypto.createHash('md5').update(filename).digest('hex');
+                    filename = Path.join('parsed', 'templates', filename + '.json');
+                } else {
+                    filename = Path.join('parsed', 'scss', filename + '.json');
+                }
+                archive.append(JSON.stringify(val), {name: filename});
+                forEachOfCallback();
+            }, callback);
+        } else {
+            if (type === 'lang') {
+                archive.append(JSON.stringify(data), {name: 'parsed/lang.json'});
+            }
+
+            callback();
+        }
+    }, function(err) {
+        if (err) {
+            return console.log(err);
+        }
+
+        archive.finalize();
+    });
+});
+
+function getCssAssembleTask(compiler) {
+    return function (callback) {
+        var basePath = Path.join(themePath, 'assets', compiler);
+        console.log('%s Parsing Started...', compiler.toUpperCase());
+        Fs.readdir(basePath, function(err, files) {
+            files = files.filter(function(file) {
+                return file.substr(-(compiler.length + 1)) === '.' + compiler;
+            });
+
+            Async.map(files, function(file, mapCallback) {
+                CssAssembler.assemble(file, basePath, compiler, mapCallback);
+            }, function(err, results) {
+                var ret = {};
+
+                if (err) {
+                    return callback(err);
+                }
+
+                _.each(files, function(file, index) {
+                    ret[file] = results[index];
+                });
+
+                console.log('ok'.green + ' -- %s Parsing Finished', compiler.toUpperCase());
+                callback(null, ret);
+            });
+        });
+    }
+}
+
+function assembleTemplatesTask(callback) {
+    console.log('Template Parsing Started...');
+    require('recursive-readdir')(templatesBasePath, function(err, files) {
+        var replaceRegex = new RegExp('^' + templatesBasePath + '/(.*?)\.html$');
+        files = _.invoke(files, 'replace', replaceRegex, '$1');
+        Async.map(files, TemplateAssembler.assemble, function(err, results) {
+            var ret = {};
+
+            if (err) {
+                return callback(err);
+            }
+
+            _.each(files, function(file, index) {
+                ret[file] = results[index];
+            });
+
+            console.log('ok'.green + ' -- Template Parsing Finished');
+            callback(null, ret);
+        });
+    });
+}
+
+function assembleLangTask(callback) {
+    console.log('Language Files Parsing Started...');
+    LangAssembler.assemble(function(err, results) {
+        if (err) {
+            return callback(err);
+        }
+
+        console.log('ok'.green + ' -- Language Files Parsing Finished');
+        callback(null, results);
+    });
+}
+
+function getJspmBundleTask(jspmConfig) {
+    return function (callback) {
+        var oldConsoleError = console.error;
+
+        console.log('JavasScript Bundling Started...');
+
+        // Need to suppress annoying errors from Babel.
+        // They will be gone in the next minor version of JSPM (0.16.0).
+        // Until then, this will stay in place
+        console.error = function(error) {
+            if (! /Deprecated option metadataUsedHelpers/.test(error)) {
+                oldConsoleError(error);
+            }
+        };
+
+        Jspm.setPackagePath(themePath);
+        Jspm.bundle(jspmConfig.bootstrap, jspmConfig.tmpBundleFile, {minify: true}).then(function() {
+            console.log('ok'.green + ' -- JavasScript Bundling Finished');
+            console.error = oldConsoleError;
+            callback(null, true);
+        });
+    }
+}
+

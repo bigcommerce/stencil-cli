@@ -1,6 +1,6 @@
 var Hoek = require('hoek'),
     Path = require('path'),
-    ThemeConfig = require('../../lib/themeConfig'),
+    ThemeConfig = require('../../../lib/themeConfig'),
     Url = require('url'),
     internals = {
         options: {
