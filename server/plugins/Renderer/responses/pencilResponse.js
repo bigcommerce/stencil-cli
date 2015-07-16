@@ -1,6 +1,7 @@
 var _ = require('lodash'),
     Paper = require('stencil-paper'),
     LangParser = require('accept-language-parser'),
+    Url = require('url'),
     internals = {};
 
 module.exports = function (data) {
@@ -81,10 +82,11 @@ internals.decorateOutput = function (content, request, data) {
 
     if (data.context.settings) {
         regex = new RegExp(internals.escapeRegex(data.context.settings.base_url), 'g');
-        content = content.replace(regex, '');
+        content = content.replace(regex, 'http://' + request.info.host);
 
         regex = new RegExp(internals.escapeRegex(data.context.settings.secure_base_url), 'g');
-        content = content.replace(regex, '');
+        content = content.replace(regex, 'http://' + request.info.host);
+
     }
 
     if (request.query.debug === 'bar') {
