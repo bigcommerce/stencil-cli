@@ -11,6 +11,13 @@ module.exports = function (data) {
             html,
             preferredTranslation;
 
+        // Remove the CDN prefixes in development
+        data.context.cdn_url = '';
+        data.context.cdn_url_with_settings_hash = '';
+        // Set the environment to dev
+        data.context.in_development = true;
+        data.context.in_production = false;
+
         if (request.query.debug === 'context') {
             return reply(data.context);
         }
