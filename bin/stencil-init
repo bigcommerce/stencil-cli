@@ -1,12 +1,20 @@
 #!/usr/bin/env node
 
+require('colors');
+
 var Fs = require('fs'),
     Inquirer = require('inquirer'),
+    Jspm = require('jspm'),
+    Path = require('path'),
     Program = require('commander'),
+    ThemeConfig = require('../lib/themeConfig'),
     pkg = require('../package.json'),
     dotStencilFilePath = './.stencil',
     dotStencilFileExists = Fs.existsSync(dotStencilFilePath),
-    dotStencilFile;
+    dotStencilFile,
+    themePath = process.cwd(),
+    themeConfigPath = Path.join(themePath, 'config.json'),
+    themeConfig;
 
 Program
     .version(pkg.version)
@@ -50,10 +58,59 @@ var questions = [
 
 Inquirer.prompt(questions, function(answers) {
     Fs.writeFile(dotStencilFilePath, JSON.stringify(answers, null, 2), function(err) {
+        var ready = 'You are now ready to go! To start developing, run $ stencil start';
+
         if (err) {
             throw err;
         }
 
-        console.log('You are now ready to go! To start developing, run $ stencil start');
+        // bundle dev dependencies
+        themeConfig = new ThemeConfig(themeConfigPath).getConfig();
+        if (themeConfig.jspm) {
+            if (! Fs.existsSync(Path.join(themePath, themeConfig.jspm.jspm_packages_path))) {
+                console.log('Error: The path you specified for your "jspm_packages" folder does not exist.'.red);
+                return console.log(
+                    'Please check your '.red +
+                    'jspm.jspm_packages_path'.cyan +
+                    ' setting in your theme\'s '.red +
+                    'config.json'.cyan +
+                    ' file to make sure it\'s correct.'.red
+                );
+            }
+
+            getJspmBundleTask(themeConfig.jspm, function() {
+                console.log(ready);
+            });
+        } else {
+            console.log(ready);
+        }
     });
 });
+
+function getJspmBundleTask(jspmConfig, callback) {
+    var oldConsoleError = console.error,
+        depLocation = Path.join(themePath, jspmConfig.dev.dep_location);
+
+    console.log('JavasScript Bundling Started...');
+
+    // Need to suppress annoying errors from Babel.
+    // They will be gone in the next minor version of JSPM (0.16.0).
+    // Until then, this will stay in place
+    console.error = function(error) {
+        if (! /Deprecated option metadataUsedHelpers/.test(error)) {
+            oldConsoleError(error);
+        }
+    };
+
+    // Delete old dependency file if it exists
+    if (Fs.existsSync(depLocation)) {
+        Fs.unlinkSync(depLocation);
+    }
+
+    Jspm.setPackagePath(themePath);
+    Jspm.bundle(jspmConfig.dev.bootstrap, depLocation, {minify: true, sourceMaps: true}).then(function() {
+        console.log('ok'.green + ' -- JavasScript Bundling Finished');
+        console.error = oldConsoleError;
+        callback(null, true);
+    });
+}
