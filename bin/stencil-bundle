@@ -27,6 +27,7 @@ Program
     .version(pkg.version)
     .option('-d, --dest [dest]', 'Where to save the zip file. It defaults to the current directory you are in when bundling')
     .option('-n, --name  [filename]', 'What do you want to call the zip file. It defaults to stencil-bundle.zip')
+    .option('-l, --lite', 'Only include the files necessary to run the theme on Bigcommerce. Do not include any templates, js, or scss source files.')
     .parse(process.argv);
 
 if (Program.dest === true) {
@@ -67,6 +68,15 @@ Async.parallel(tasks, function(err, assembledData) {
     var outputFolder = Program.dest ? Program.dest : themePath,
         outputName = Program.filename ? Program.filename : 'stencil-bundle.zip',
         output = Fs.createWriteStream(Path.join(outputFolder, outputName)),
+        pathsToZip = [
+            'assets/**/*',
+            '!assets/jspm_packages/**', // Don't want jspm_packages if it's there
+            'templates/**/*',
+            'lang/*',
+            'README.md',
+            'config.json',
+            'package.json'
+        ],
         archive = Archiver('zip');
 
     if (err) {
@@ -80,34 +90,37 @@ Async.parallel(tasks, function(err, assembledData) {
         console.log('Bundled saved to: ' + Path.join(outputFolder, outputName).cyan);
     });
 
+
+    if (Program.lite) {
+        pathsToZip = pathsToZip.concat([
+            '!assets/js/**',
+            '!assets/scss/**',
+            '!templates/**',
+            '!lang/**'
+        ])
+    }
+
     archive.pipe(output);
 
-    archive.bulk({
-        src: [
-            'assets/**/*',
-            '!assets/jspm_packages/**', // Don't want jspm_packages if it's there
-            'templates/**/*',
-            'lang/*',
-            'README.md',
-            'config.json',
-            'package.json'
-        ],
-        cwd: themePath,
-        expand: true
-    });
-
     if (themeConfig.jspm) {
-        archive.bulk({
-            src: themeConfig.jspm.jspm_packages_path + '/system.js',
-            cwd: themePath,
-            expand: true
-        });
+        pathsToZip = pathsToZip.concat([
+            // We want the top level jspm_packages files
+            themeConfig.jspm.jspm_packages_path + '/*',
+            // But not the npm/github folders
+            '!' + themeConfig.jspm.jspm_packages_path + '/{npm,github}'
+        ]);
 
         archive.append(
             Fs.createReadStream(themeConfig.jspm.tmpBundleFile),
             {name: themeConfig.jspm.bundle_location}
         );
     }
+
+    archive.bulk({
+        src: pathsToZip,
+        cwd: themePath,
+        expand: true
+    });
 
     Async.forEachOf(assembledData, function(data, type, callback) {
         if (type === 'css' || type === 'templates') {
