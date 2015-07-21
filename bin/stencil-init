@@ -57,6 +57,11 @@ var questions = [
 ];
 
 Inquirer.prompt(questions, function(answers) {
+    // preserve the staplerUrl
+    if (dotStencilFile.staplerUrl) {
+        answers.staplerUrl = dotStencilFile.staplerUrl;
+    }
+
     Fs.writeFile(dotStencilFilePath, JSON.stringify(answers, null, 2), function(err) {
         var ready = 'You are now ready to go! To start developing, run $ stencil start';
 
@@ -89,7 +94,17 @@ Inquirer.prompt(questions, function(answers) {
 
 function getJspmBundleTask(jspmConfig, callback) {
     var oldConsoleError = console.error,
-        depLocation = Path.join(themePath, jspmConfig.dev.dep_location);
+        jspmDepLocation,
+        depLocation;
+
+    // Look for development configuration
+    if (jspmConfig.dev && jspmConfig.dev.dep_location) {
+        jspmDepLocation = jspmConfig.dev.dep_location;
+    } else {
+        jspmDepLocation = 'assets/js/dependency-bundle.js';
+    }
+
+    depLocation = Path.join(themePath, jspmDepLocation);
 
     console.log('JavasScript Bundling Started...');
 
