@@ -70,6 +70,7 @@ Async.parallel(tasks, function(err, assembledData) {
         output = Fs.createWriteStream(Path.join(outputFolder, outputName)),
         pathsToZip = [
             'assets/**/*',
+            'meta/**/*',
             '!assets/jspm_packages/**', // Don't want jspm_packages if it's there
             'templates/**/*',
             'lang/*',
@@ -93,6 +94,7 @@ Async.parallel(tasks, function(err, assembledData) {
 
     if (Program.lite) {
         pathsToZip = pathsToZip.concat([
+            '!meta/**',
             '!assets/js/**',
             '!assets/scss/**',
             '!templates/**',
