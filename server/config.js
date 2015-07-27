@@ -16,7 +16,7 @@ config = {
         opsInterval: 1000,
         reporters: [{
             reporter: require('good-console'),
-            args: [{log: '*', request: '*'}]
+            events: [{log: '*', request: '*'}]
         }]
     },
     cssCompiler: {
