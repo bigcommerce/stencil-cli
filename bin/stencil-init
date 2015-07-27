@@ -58,7 +58,7 @@ var questions = [
 
 Inquirer.prompt(questions, function(answers) {
     // preserve the staplerUrl
-    if (dotStencilFile.staplerUrl) {
+    if (dotStencilFile && dotStencilFile.staplerUrl) {
         answers.staplerUrl = dotStencilFile.staplerUrl;
     }
 
