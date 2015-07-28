@@ -99,6 +99,7 @@ Wreck.get(
         } else {
 
             dotStencilFile.storeUrl = payload.sslUrl;
+            dotStencilFile.normalStoreUrl = payload.baseUrl;
 
             startServer();
         }
