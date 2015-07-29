@@ -272,6 +272,7 @@ internals.getPencilResponse = function (data, request, response) {
        template_file: data.template_file,
        templates: data.templates,
        remote: data.remote,
+       remote_data: data.remote_data,
        context: data.context,
        translations: data.translations,
        method: request.method,
