@@ -28,6 +28,11 @@ module.exports = function (data) {
         );
 
         if (data.content_type === 'application/json') {
+            
+            if (data.remote) {
+                data.context = _.extend({}, data.context, data.remote_data);
+            }
+
             // Translate errors
             if (data.method === 'post' && _.isArray(data.context.errors)) {
                 data.context.errors = internals.translateErrors(data.context.errors, preferredTranslation);
@@ -52,7 +57,7 @@ module.exports = function (data) {
                 if (data.remote) {
                     // combine the context & rendered html
                     output = {
-                        data: data.context,
+                        data: data.remote_data,
                         content: html
                     };
                 } else {
@@ -60,7 +65,7 @@ module.exports = function (data) {
                 }
             } else {
                 output = {
-                    data: data.context
+                    data: data.remote_data
                 };
             }
         } else {
