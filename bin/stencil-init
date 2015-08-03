@@ -5,6 +5,7 @@ require('colors');
 var Fs = require('fs'),
     Inquirer = require('inquirer'),
     Jspm = require('jspm'),
+    JspmAssembler = require('../lib/jspmAssembler'),
     Path = require('path'),
     Program = require('commander'),
     ThemeConfig = require('../lib/themeConfig'),
@@ -63,7 +64,8 @@ Inquirer.prompt(questions, function(answers) {
     }
 
     Fs.writeFile(dotStencilFilePath, JSON.stringify(answers, null, 2), function(err) {
-        var ready = 'You are now ready to go! To start developing, run $ stencil start';
+        var ready = 'You are now ready to go! To start developing, run $ stencil start',
+            bundleTask;
 
         if (err) {
             throw err;
@@ -83,49 +85,19 @@ Inquirer.prompt(questions, function(answers) {
                 );
             }
 
-            getJspmBundleTask(themeConfig.jspm, function() {
+            bundleTask = JspmAssembler.assemble(
+                {
+                    bootstrap: themeConfig.jspm.dev.bootstrap
+                },
+                themePath
+            );
+
+            bundleTask(function() {
                 console.log(ready);
             });
+
         } else {
             console.log(ready);
         }
     });
 });
-
-function getJspmBundleTask(jspmConfig, callback) {
-    var oldConsoleError = console.error,
-        jspmDepLocation,
-        depLocation;
-
-    // Look for development configuration
-    if (jspmConfig.dev && jspmConfig.dev.dep_location) {
-        jspmDepLocation = jspmConfig.dev.dep_location;
-    } else {
-        jspmDepLocation = 'assets/js/dependency-bundle.js';
-    }
-
-    depLocation = Path.join(themePath, jspmDepLocation);
-
-    console.log('JavasScript Bundling Started...');
-
-    // Need to suppress annoying errors from Babel.
-    // They will be gone in the next minor version of JSPM (0.16.0).
-    // Until then, this will stay in place
-    console.error = function(error) {
-        if (! /Deprecated option metadataUsedHelpers/.test(error)) {
-            oldConsoleError(error);
-        }
-    };
-
-    // Delete old dependency file if it exists
-    if (Fs.existsSync(depLocation)) {
-        Fs.unlinkSync(depLocation);
-    }
-
-    Jspm.setPackagePath(themePath);
-    Jspm.bundle(jspmConfig.dev.bootstrap, depLocation, {minify: true, sourceMaps: true}).then(function() {
-        console.log('ok'.green + ' -- JavasScript Bundling Finished');
-        console.error = oldConsoleError;
-        callback(null, true);
-    });
-}

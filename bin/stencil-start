@@ -5,6 +5,8 @@ require('colors');
 var _ = require('lodash'),
     Bs = require('browser-sync').create(),
     Fs = require('fs'),
+    Jspm = require('jspm'),
+    JspmAssembler = require('../lib/jspmAssembler'),
     Path = require('path'),
     Pkg = require('../package.json'),
     Program = require('commander'),
@@ -30,6 +32,7 @@ Program
     .version(Pkg.version)
     .option('-o, --open', 'Automatically open default browser')
     .option('-v, --variation [name]', 'Set which theme variation to use while developing')
+    .option('-t, --test', 'Enable QA mode which will bundle all javascript for speed to test locally')
     .parse(process.argv);
 
 if (! dotStencilFileExists) {
@@ -79,7 +82,8 @@ Wreck.get(
         }
     },
     function(err, res, payload) {
-        var retError = err !== null;
+        var retError = err !== null,
+            bundleTask;
 
         try {
             payload = JSON.parse(payload);
@@ -101,7 +105,20 @@ Wreck.get(
             dotStencilFile.storeUrl = payload.sslUrl;
             dotStencilFile.normalStoreUrl = payload.baseUrl;
 
-            startServer();
+            if (themeConfig.config.jspm && Program.test) {
+                bundleTask = JspmAssembler.assemble(
+                    {
+                        bootstrap: themeConfig.config.jspm.bootstrap
+                    },
+                    themePath
+                );
+
+                bundleTask(function(result) {
+                    startServer();
+                });
+            } else {
+                startServer();
+            }
         }
     }
 );
