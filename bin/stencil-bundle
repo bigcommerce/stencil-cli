@@ -219,7 +219,7 @@ function getJspmBundleTask(jspmConfig) {
     return function (callback) {
         var oldConsoleError = console.error;
 
-        console.log('JavasScript Bundling Started...');
+        console.log('JavaScript Bundling Started...');
 
         // Need to suppress annoying errors from Babel.
         // They will be gone in the next minor version of JSPM (0.16.0).
@@ -232,7 +232,7 @@ function getJspmBundleTask(jspmConfig) {
 
         Jspm.setPackagePath(themePath);
         Jspm.bundle(jspmConfig.bootstrap, jspmConfig.tmpBundleFile, {minify: true}).then(function() {
-            console.log('ok'.green + ' -- JavasScript Bundling Finished');
+            console.log('ok'.green + ' -- JavaScript Bundling Finished');
             console.error = oldConsoleError;
             callback(null, true);
         });
