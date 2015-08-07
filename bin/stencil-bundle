@@ -105,13 +105,6 @@ Async.parallel(tasks, function(err, assembledData) {
     archive.pipe(output);
 
     if (themeConfig.jspm) {
-        pathsToZip = pathsToZip.concat([
-            // We want the top level jspm_packages files
-            themeConfig.jspm.jspm_packages_path + '/*',
-            // But not the npm/github folders
-            '!' + themeConfig.jspm.jspm_packages_path + '/{npm,github}'
-        ]);
-
         archive.append(
             Fs.createReadStream(themeConfig.jspm.tmpBundleFile),
             {name: themeConfig.jspm.bundle_location}
@@ -231,7 +224,7 @@ function getJspmBundleTask(jspmConfig) {
         };
 
         Jspm.setPackagePath(themePath);
-        Jspm.bundle(jspmConfig.bootstrap, jspmConfig.tmpBundleFile, {minify: true}).then(function() {
+        Jspm.bundleSFX(jspmConfig.bootstrap, jspmConfig.tmpBundleFile, {minify: true, mangle: true}).then(function() {
             console.log('ok'.green + ' -- JavaScript Bundling Finished');
             console.error = oldConsoleError;
             callback(null, true);
