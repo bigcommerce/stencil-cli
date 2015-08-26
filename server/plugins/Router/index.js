@@ -23,9 +23,6 @@ module.exports.register = function(server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);
 
     server.ext('onRequest', function(request, reply) {
-        var hostParts = request.headers.host.split(':'),
-            browserSyncPort = internals.options.port - 1;
-
         request.app.storeUrl = internals.options.storeUrl;
         request.app.normalStoreUrl = internals.options.normalStoreUrl;
         request.app.apiKey = internals.options.apiKey;
@@ -34,17 +31,6 @@ module.exports.register = function(server, options, next) {
             internals.options.themeConfigPath,
             internals.options.themeVariationName
         );
-
-        // Checks if using the non BrowserSync port to look at the store.
-        // If so, redirect to correct port.
-        if (hostParts[1] != browserSyncPort) {
-            return reply.redirect(Url.format({
-                protocol: 'http',
-                hostname: hostParts[0],
-                port: browserSyncPort,
-                pathname: request.url.pathname
-            }));
-        }
 
         reply.continue();
     });
