@@ -14,11 +14,13 @@ var _ = require('lodash'),
     ThemeConfig = require('../lib/themeConfig'),
     Url = require('url'),
     Wreck = require('wreck'),
+    Shell = require('../lib/utils/shell'),
     themePath = process.cwd(),
     allowedCssCompilers = ['scss', 'less'],
     browserSyncPort,
     cssCompilerDir,
     cssWatchBaseDir = Path.join(themePath, 'assets/'),
+    jsCompilerDir = Path.join(themePath, 'assets/js'),
     dotStencilFilePath = Path.join(themePath, '.stencil'),
     dotStencilFileExists = Fs.existsSync(dotStencilFilePath),
     dotStencilFile,
@@ -26,7 +28,8 @@ var _ = require('lodash'),
     stencilServerPort,
     themeConfig,
     themeConfigPath = Path.join(themePath, 'config.json'),
-    themeConfigExists = Fs.existsSync(themeConfigPath);
+    themeConfigExists = Fs.existsSync(themeConfigPath),
+    themeConfigHooks;
 
 Program
     .version(Pkg.version)
@@ -53,6 +56,7 @@ dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
 dotStencilFile = JSON.parse(dotStencilFile);
 
 themeConfig = parseThemeConfig();
+themeConfigHooks = themeConfig.config.hooks || {};
 
 if (allowedCssCompilers.indexOf(themeConfig.config.css_compiler) === -1) {
     return console.error('Error: Only %s are allowed as CSS Compilers'.red, allowedCssCompilers.join(', '));
@@ -128,6 +132,10 @@ Wreck.get(
  * Starts up the local Stencil Server as well as starts up BrowserSync and sets some watch options.
  */
 function startServer() {
+    if (themeConfigHooks.start && Shell.execSync(themeConfigHooks.start).status > 0) {
+        return;
+    }
+
     Server({dotStencilFile: dotStencilFile, themeVariationName: themeConfig.config.variationName}, function(err) {
         if (err) {
             throw err;
@@ -162,6 +170,22 @@ function startServer() {
                 }
             }
         });
+
+        if (themeConfigHooks.change_js) {
+            Bs.watch(jsCompilerDir, { ignoreInitial: true }, function(event) {
+                if (event === 'add' || event === 'change') {
+                    Shell.exec(themeConfigHooks.change_js);
+                }
+            });
+        }
+
+        if (themeConfigHooks.change_css) {
+            Bs.watch(cssCompilerDir, { ignoreInitial: true }, function(event) {
+                if (event === 'add' || event === 'change') {
+                    Shell.exec(themeConfigHooks.change_css);
+                }
+            });
+        }
 
         Bs.watch('config.json', function(event) {
             if (event === 'change') {
