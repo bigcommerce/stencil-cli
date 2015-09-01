@@ -309,6 +309,7 @@ internals.getHeaders = function (request, options, config) {
     }
 
     return Hoek.applyToDefaults(request.headers, {
+        'stencil-cli': Pkg.version,
         'stencil-version': Pkg.config.stencil_version,
         'stencil-options': JSON.stringify(Hoek.applyToDefaults(options, currentOptions)),
         'stencil-store-url': request.app.storeUrl,
