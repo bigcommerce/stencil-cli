@@ -14,12 +14,14 @@ var _ = require('lodash'),
     LangAssembler = require('../lib/langAssembler'),
     TemplateAssembler = require('../lib/templateAssembler'),
     ThemeConfig = require('../lib/themeConfig'),
+    Shell = require('../lib/utils/shell'),
     Tmp = require('tmp'),
     pkg = require('../package.json'),
     themePath = process.cwd(),
     tasks = {},
     templatesBasePath = Path.join(themePath, 'templates'),
     themeConfig,
+    themeConfigHooks,
     themeConfigPath = Path.join(themePath, 'config.json'),
     themeConfigExists = Fs.existsSync(themeConfigPath);
 
@@ -43,6 +45,12 @@ if (! themeConfigExists) {
 }
 
 themeConfig = new ThemeConfig(themeConfigPath).getConfig();
+themeConfigHooks = themeConfig.hooks || {};
+
+// Execute hook before bundling
+if (themeConfigHooks.bundle && Shell.execSync(themeConfigHooks.bundle).status > 0) {
+    return;
+}
 
 tasks.css = getCssAssembleTask(themeConfig.css_compiler);
 tasks.templates = assembleTemplatesTask;
