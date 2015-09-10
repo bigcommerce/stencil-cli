@@ -220,7 +220,15 @@ function startServer() {
                     return Path.join(themePath, val);
                 })
             },
-            proxy: "localhost:" + stencilServerPort,
+            proxy: {
+                target: "localhost:" + stencilServerPort,
+                reqHeaders: function () {
+                    return {
+                        "host": "localhost:" + browserSyncPort,
+                        "accept-encoding": "identity"
+                    }
+                }
+            },
             tunnel: !! Program.tunnel
         });
 
