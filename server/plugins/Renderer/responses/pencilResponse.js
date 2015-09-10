@@ -28,7 +28,6 @@ module.exports = function (data) {
         );
 
         if (data.content_type === 'application/json') {
-            
             if (data.remote) {
                 data.context = _.extend({}, data.context, data.remote_data);
             }
@@ -94,10 +93,10 @@ internals.decorateOutput = function (content, request, data) {
 
     if (data.context.settings) {
         regex = new RegExp(internals.escapeRegex(data.context.settings.base_url), 'g');
-        content = content.replace(regex, 'http://' + request.info.host);
+        content = content.replace(regex, '');
 
         regex = new RegExp(internals.escapeRegex(data.context.settings.secure_base_url), 'g');
-        content = content.replace(regex, 'http://' + request.info.host);
+        content = content.replace(regex, '');
 
     }
 
