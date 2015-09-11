@@ -17,60 +17,62 @@ module.exports = function (data) {
         data.context.in_development = true;
         data.context.in_production = false;
 
-        theme = Paper.make(data.templates);
+        theme = Paper.make(1);
 
         theme.loadTranslations(data.acceptLanguage, data.translations);
-
         theme.addDecorator(internals.makeDecorator(request, data.context));
 
+        theme.loadTemplates(data.templates, function() {
 
-        if (request.query.debug === 'context') {
-            return reply(data.context);
-        }
-
-        if (data.content_type === 'application/json') {
-            if (data.remote) {
-                data.context = _.extend({}, data.context, data.remote_data);
+            if (request.query.debug === 'context') {
+                return reply(data.context);
             }
 
-            if (data.template_file) {
-                // if multiple render_with
-                if (_.isArray(data.template_file)) {
-                    // if data.template_file is an array ( multiple templates using render_with option)
-                    // compile all the template required files into a hash table
-                    html = data.template_file.reduce(function(table, file) {
-                        table[file] = theme.render(file, data.context);
-
-                        return table;
-                    }, {});
-                } else {
-                    html = theme.render(data.template_file, data.context);
+            if (data.content_type === 'application/json') {
+                
+                if (data.remote) {
+                    data.context = _.extend({}, data.context, data.remote_data);
                 }
 
-                if (data.remote) {
-                    // combine the context & rendered html
-                    output = {
-                        data: data.remote_data,
-                        content: html
-                    };
+                if (data.template_file) {
+                    // if multiple render_with
+                    if (_.isArray(data.template_file)) {
+                        // if data.template_file is an array ( multiple templates using render_with option)
+                        // compile all the template required files into a hash table
+                        html = data.template_file.reduce(function(table, file) {
+                            table[file] = theme.render(file, data.context);
+
+                            return table;
+                        }, {});
+                    } else {
+                        html = theme.render(data.template_file, data.context);
+                    }
+
+                    if (data.remote) {
+                        // combine the context & rendered html
+                        output = {
+                            data: data.remote_data,
+                            content: html
+                        };
+                    } else {
+                        output = html;
+                    }
                 } else {
-                    output = html;
+                    output = {
+                        data: data.remote_data
+                    };
                 }
             } else {
-                output = {
-                    data: data.remote_data
-                };
+                output = theme.render(data.template_file, data.context);
             }
-        } else {
-            output = theme.render(data.template_file, data.context);
-        }
 
-        response = reply(output);
-        response.code(data.statusCode);
+            response = reply(output);
+            response.code(data.statusCode);
 
-        if (data.headers['set-cookie']) {
-            response.header('set-cookie', data.headers['set-cookie']);
-        }
+            if (data.headers['set-cookie']) {
+                response.header('set-cookie', data.headers['set-cookie']);
+            }
+        });
     };
 };
 
