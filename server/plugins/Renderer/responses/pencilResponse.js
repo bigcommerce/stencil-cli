@@ -1,6 +1,5 @@
 var _ = require('lodash'),
-    Paper = require('stencil-paper'),
-    LangParser = require('accept-language-parser'),
+    Paper = require('stencil-paper')(),
     Url = require('url'),
     internals = {};
 
@@ -9,7 +8,7 @@ module.exports = function (data) {
         var response,
             output,
             html,
-            preferredTranslation;
+            theme;
 
         // Remove the CDN prefixes in development
         data.context.cdn_url = '';
@@ -18,23 +17,20 @@ module.exports = function (data) {
         data.context.in_development = true;
         data.context.in_production = false;
 
+        theme = Paper.make(1);
+
+        theme.loadTranslations(data.acceptLanguage, data.translations);
+        theme.addDecorator(internals.makeDecorator(request, data.context));
+        theme.loadTemplatesSync(data.templates);
+
         if (request.query.debug === 'context') {
             return reply(data.context);
         }
 
-        preferredTranslation = internals.getPreferredTranslation(
-            data.acceptLanguage,
-            data.translations
-        );
-
         if (data.content_type === 'application/json') {
+            
             if (data.remote) {
                 data.context = _.extend({}, data.context, data.remote_data);
-            }
-
-            // Translate errors
-            if (data.method === 'post' && _.isArray(data.context.errors)) {
-                data.context.errors = internals.translateErrors(data.context.errors, preferredTranslation);
             }
 
             if (data.template_file) {
@@ -43,14 +39,12 @@ module.exports = function (data) {
                     // if data.template_file is an array ( multiple templates using render_with option)
                     // compile all the template required files into a hash table
                     html = data.template_file.reduce(function(table, file) {
-                        table[file] = Paper.compile(file, data.templates, data.context, preferredTranslation);
-                        table[file] = internals.decorateOutput(table[file], request, data);
+                        table[file] = theme.render(file, data.context);
 
                         return table;
                     }, {});
                 } else {
-                    html = Paper.compile(data.template_file, data.templates, data.context, preferredTranslation);
-                    html = internals.decorateOutput(html, request, data);
+                    html = theme.render(data.template_file, data.context);
                 }
 
                 if (data.remote) {
@@ -68,8 +62,7 @@ module.exports = function (data) {
                 };
             }
         } else {
-            output = Paper.compile(data.template_file, data.templates, data.context, preferredTranslation);
-            output = internals.decorateOutput(output, request, data);
+            output = theme.render(data.template_file, data.context);
         }
 
         response = reply(output);
@@ -88,26 +81,29 @@ module.exports = function (data) {
  * @param request
  * @param data
  */
-internals.decorateOutput = function (content, request, data) {
-    var regex;
+internals.makeDecorator = function (request, context) {
 
-    if (data.context.settings) {
-        regex = new RegExp(internals.escapeRegex(data.context.settings.base_url), 'g');
-        content = content.replace(regex, '');
+    return function(content) {
+        var regex;
 
-        regex = new RegExp(internals.escapeRegex(data.context.settings.secure_base_url), 'g');
-        content = content.replace(regex, '');
+        if (context.settings) {
+            regex = new RegExp(internals.escapeRegex(context.settings.base_url), 'g');
+            content = content.replace(regex, '');
 
+            regex = new RegExp(internals.escapeRegex(context.settings.secure_base_url), 'g');
+            content = content.replace(regex, '');
+
+        }
+
+        if (request.query.debug === 'bar') {
+            var debugBar = '<pre style="background-color:#EEE; word-wrap:break-word;">';
+            debugBar += internals.escapeHtml(JSON.stringify(context, null, 2)) + '</pre>';
+            regex = new RegExp('</body>');
+            content = content.replace(regex, debugBar + '\n</body>');
+        }
+
+        return content;
     }
-
-    if (request.query.debug === 'bar') {
-        var debugBar = '<pre style="background-color:#EEE; word-wrap:break-word;">';
-        debugBar += internals.escapeHtml(JSON.stringify(data.context, null, 2)) + '</pre>';
-        regex = new RegExp('</body>');
-        content = content.replace(regex, debugBar + '\n</body>');
-    }
-
-    return content;
 };
 
 /**
@@ -135,39 +131,4 @@ internals.escapeHtml = function () {
  */
 internals.escapeRegex = function (string) {
     return string.replace(/[-\\^$*+?.()|[\]{}]/g, "\\$&");
-};
-
-/**
- * Translate an array of error keys
- * @param  {Array} errors
- * @param  {Object} translations
- * @return {Object}
- */
-internals.translateErrors = function (errors, translations) {
-    return errors.map(function(errorKey) {
-        var translate = translations['errors.' + errorKey];
-        return (typeof translate === 'function') ? translate() : errorKey;
-    });
-};
-
-internals.getPreferredTranslation = function (acceptLanguage, translations) {
-    // default the preferred translation
-    var compiledTranslations = Paper.compileTranslations('en', translations),
-        preferredTranslation = compiledTranslations['en'] || {},
-        preferredLang = LangParser.parse(acceptLanguage);
-    // march down the preferred languages and use the first translatable locale
-    _.each(preferredLang, function(acceptedLang) {
-        var suitableLang = acceptedLang.code;
-
-        if (_.isString(acceptedLang.region)) {
-            suitableLang += '-' + acceptedLang.region;
-        }
-
-        if (compiledTranslations[suitableLang]) {
-            preferredTranslation = compiledTranslations[suitableLang];
-            return false;
-        }
-    });
-
-    return preferredTranslation;
 };
