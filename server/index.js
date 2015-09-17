@@ -35,7 +35,8 @@ module.exports = function(options, callback) {
                 plugins: {
                     // Third Party Plugins
                     './plugins/StencilEditor': {
-                        themeVariationName: options.themeVariationName
+                        themeVariationName: options.themeVariationName,
+                        stencilServerPort: options.dotStencilFile.stencilServerPort
                     }
                 }
             };
