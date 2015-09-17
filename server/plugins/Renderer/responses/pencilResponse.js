@@ -134,8 +134,8 @@ internals.makeDecorator = function (request, context) {
         }
 
         if (request.query.stencilEditor || request.state.stencil_editor_enabled) {
-            stencilEditorSDK = '<script src="https://localhost:8181/public/jspm_packages/github/meenie/jschannel@0.0.5/src/jschannel.js"></script>';
-            stencilEditorSDK += '<script src="https://localhost:8181/public/js/stencil-editor.js"></script>';
+            stencilEditorSDK = '<script src="http://localhost:8181/public/jspm_packages/github/meenie/jschannel@0.0.5/src/jschannel.js"></script>';
+            stencilEditorSDK += '<script src="http://localhost:8181/public/js/stencil-editor.js"></script>';
 
             content = content.replace(new RegExp('</body>'), stencilEditorSDK + '\n</body>');
         }
