@@ -10,7 +10,8 @@ var Fs = require('fs'),
             rootPath: Path.join(__dirname, '../../..'),
             stencilEditorFilePath: 'public/jspm_packages/github/bigcommerce-labs/ng-stencil-editor@master',
             patternLabFilePath: 'public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.7.1',
-            themeVariationName: ''
+            themeVariationName: '',
+            stencilServerPort: 0
         }
     };
 
@@ -30,11 +31,22 @@ module.exports.register = function (server, options, next) {
     server.route([
         {
             method: 'GET',
+            path: '/',
+            handler: function(request, reply) {
+                reply.redirect('/ng-stencil-editor');
+            }
+        },
+        {
+            method: 'GET',
             path: '/ng-stencil-editor',
             handler: function(request, reply) {
                 var pattern = Path.join(internals.options.stencilEditorFilePath, 'build/js/**/*.js');
+
                 Glob(pattern, {cwd: internals.options.rootPath}, function(err, files) {
-                    reply.view('index', {jsFiles: files.map(function(file) {return '/' + file})});
+                    reply.view('index', {
+                        jsFiles: files.map(function(file) {return '/' + file}),
+                        storeUrl: 'http://localhost:' + internals.options.stencilServerPort + '?stencilEditor=true'
+                    });
                 });
             },
             config: {
