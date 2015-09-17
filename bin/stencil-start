@@ -67,6 +67,11 @@ stencilServerPort = ++dotStencilFile.port;
 cssCompilerDir = cssWatchBaseDir + themeConfig.config.css_compiler;
 isTopLevelCssRegex = new RegExp('^(?!_).+\.(?:' + themeConfig.config.css_compiler + ')$');
 
+// Once stapler is in the production environment, we change this line to point to
+// dotStencilFile.staplerUrl if it exists or fallback to dotStencilFile.storeUrl
+dotStencilFile.staplerUrl = dotStencilFile.staplerUrl || 'https://bc-stapler.herokuapp.com';
+dotStencilFile.stencilServerPort = stencilServerPort;
+
 if (!(dotStencilFile.normalStoreUrl)) {
     return console.error(
         'Error: Your stencil config is outdated. Please run'.red +

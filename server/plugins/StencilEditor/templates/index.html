@@ -27,7 +27,8 @@
             System.import('src/app/app.module.js').then(function() {
                 angular.module('ng-common.bc-app', [])
                     .constant('BC_APP_CONFIG', {
-                        cdnPath: '//localhost:8181'
+                        cdnPath: '//localhost:8181',
+                        storeUrl: '{{storeUrl}}'
                     })
                     .constant('BC_SEED_DATA', {});
 
