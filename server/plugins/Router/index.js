@@ -59,7 +59,8 @@ internals.registerRoutes = function(server, next) {
                 cors: true,
                 payload: {
                     output: 'stream',
-                    parse: false
+                    parse: false,
+                    maxBytes: 20971520 // 20MB
                 },
                 state: {
                     failAction: 'log'
