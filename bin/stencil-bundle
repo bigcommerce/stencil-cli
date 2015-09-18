@@ -185,8 +185,17 @@ function getCssAssembleTask(compiler) {
 function assembleTemplatesTask(callback) {
     console.log('Template Parsing Started...');
     require('recursive-readdir')(templatesBasePath, function(err, files) {
-        var replaceRegex = new RegExp('^' + templatesBasePath + '/(.*?)\.html$');
-        files = _.invoke(files, 'replace', replaceRegex, '$1');
+        var replaceRegex = new RegExp('^' + templatesBasePath + '/(.*?)\.html$'),
+            filesIn = [];
+
+        //Prevent poorly named files breaking the regex (.DS_Store)
+        files.forEach(function(fileName) {
+           if (fileName.indexOf(".html") == fileName.length - 5) {
+               filesIn.push(fileName);
+           }
+        });
+
+        files = _.invoke(filesIn, 'replace', replaceRegex, '$1');
         Async.map(files, TemplateAssembler.assemble, function(err, results) {
             var ret = {};
 
