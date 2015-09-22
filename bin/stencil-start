@@ -31,7 +31,7 @@ var _ = require('lodash'),
     themeConfigHooks,
     staplerUrl,
     headers,
-    themeConfigSchemaPath = Path.join(themePath, 'config.schema.json'),
+    themeConfigSchemaPath = Path.join(themePath, 'schema.json'),
     themeConfigSchemaExists = Fs.existsSync(themeConfigPath);
 
 Program
@@ -266,7 +266,7 @@ function parseThemeConfig() {
         themeConfigSchemaPath = '';
     }
 
-    themeConfig = new ThemeConfig(themeConfigPath, themeConfigSchemaPath, Program.variation);
+    themeConfig = ThemeConfig.getInstance(themeConfigPath, themeConfigSchemaPath, Program.variation);
 
     try {
         ret.config = themeConfig.getConfig();

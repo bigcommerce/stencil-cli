@@ -1,4 +1,5 @@
-var Fs = require('fs'),
+var _ = require('lodash'),
+    Fs = require('fs'),
     Glob = require('glob'),
     Hoek = require('hoek'),
     Path = require('path'),
@@ -17,6 +18,8 @@ var Fs = require('fs'),
 
 module.exports.register = function (server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);
+
+    internals.themeConfig = ThemeConfig.getInstance();
 
     server.views({
         engines: {
@@ -39,21 +42,7 @@ module.exports.register = function (server, options, next) {
         {
             method: 'GET',
             path: '/ng-stencil-editor',
-            handler: function(request, reply) {
-                var pattern = Path.join(internals.options.stencilEditorFilePath, 'build/js/**/*.js');
-
-                Glob(pattern, {cwd: internals.options.rootPath}, function(err, files) {
-                    reply.view('index', {
-                        jsFiles: files.map(function(file) {return '/' + file}),
-                        storeUrl: 'http://localhost:' + internals.options.stencilServerPort + '?stencilEditor=true'
-                    });
-                });
-            },
-            config: {
-                state: {
-                    failAction: 'log'
-                }
-            }
+            handler: internals.home
         },
         {
             method: 'GET',
@@ -62,71 +51,55 @@ module.exports.register = function (server, options, next) {
                 directory: {
                     path: Path.join(internals.options.rootPath, 'public')
                 }
-            },
-            config: {
-                state: {
-                    failAction: 'log'
-                }
             }
         },
         {
             method: 'POST',
             path: '/ng-stencil-editor/config',
-            handler: internals.updateConfig,
-            config: {
-                state: {
-                    failAction: 'log'
-                },
-                cors: true
-            }
+            handler: internals.updateConfig
         },
         {
             method: 'GET',
             path: '/ng-stencil-editor/config',
-            handler: internals.getConfig,
-            config: {
-                state: {
-                    failAction: 'log'
-                },
-                cors: true
-            }
+            handler: internals.getConfig
         },
         {
             method: 'GET',
             path: '/ng-stencil-editor/config/variation-name',
-            handler: internals.getVariationName,
-            config: {
-                state: {
-                    failAction: 'log'
-                },
-                cors: true
-            }
+            handler: internals.getVariationName
         },
         {
             method: 'POST',
             path: '/ng-stencil-editor/config/variation-name',
-            handler: internals.setVariationName,
-            config: {
-                state: {
-                    failAction: 'log'
-                },
-                cors: true
-            }
+            handler: internals.setVariationName
         },
         {
             method: 'GET',
             path: '/ng-stencil-editor/schema',
-            handler: internals.getConfigSchema,
-            config: {
-                state: {
-                    failAction: 'log'
-                },
-                cors: true
-            }
+            handler: internals.getConfigSchema
         }
     ]);
 
     return next();
+};
+
+/**
+ * Render main page that boots up stencil-editor
+ *
+ * @param request
+ * @param reply
+ */
+internals.home = function(request, reply) {
+    var pattern = Path.join(internals.options.stencilEditorFilePath, 'build/js/**/*.js');
+
+    Glob(pattern, {cwd: internals.options.rootPath}, function(err, files) {
+        reply.view('index', {
+            jsFiles: files.map(function(file) {return '/' + file}),
+            storeUrl: 'http://localhost:' +
+            internals.options.stencilServerPort +
+            '?stencilEditor=true'
+        });
+    });
 };
 
 /**
@@ -136,9 +109,8 @@ module.exports.register = function (server, options, next) {
  * @param reply
  */
 internals.updateConfig = function (request, reply) {
-    var themeConfig = new ThemeConfig(internals.options.themeConfigPath, internals.options.themeConfigSchemaPath, internals.options.themeVariationName),
-        response = {
-            forceReload: themeConfig.updateConfig(request.payload).forceReload,
+    var response = {
+            forceReload: internals.themeConfig.updateConfig(request.payload).forceReload,
             stylesheets: []
         };
 
@@ -150,15 +122,11 @@ internals.updateConfig = function (request, reply) {
 };
 
 internals.getConfig = function (request, reply) {
-    var themeConfig = new ThemeConfig(internals.options.themeConfigPath, internals.options.themeConfigSchemaPath, internals.options.themeVariationName);
-
-    reply(themeConfig.getConfig());
+    reply(internals.themeConfig.getConfig());
 };
 
 internals.getVariationName = function (request, reply) {
-    var themeConfig = new ThemeConfig(internals.options.themeConfigPath, internals.options.themeConfigSchemaPath, internals.options.themeVariationName);
-
-    reply(themeConfig.getConfig().variationName);
+    reply(internals.themeConfig.getConfig().variationName);
 };
 
 internals.getConfigSchema = function (request, reply) {
@@ -168,7 +136,7 @@ internals.getConfigSchema = function (request, reply) {
 };
 
 internals.setVariationName = function(request, reply) {
-    internals.options.themeVariationName = request.payload.name;
+    internals.themeConfig.setVariationName(request.payload.name);
 
     reply({forceReload: true});
 };
