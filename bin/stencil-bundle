@@ -44,7 +44,7 @@ if (! themeConfigExists) {
     return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
 }
 
-themeConfig = new ThemeConfig(themeConfigPath).getConfig();
+themeConfig = ThemeConfig.getInstance(themeConfigPath).getConfig();
 themeConfigHooks = themeConfig.hooks || {};
 
 // Execute hook before bundling
