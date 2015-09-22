@@ -7,9 +7,7 @@ var Hoek = require('hoek'),
             storeUrl: '',
             apiKey: '',
             staplerUrl: '',
-            port: '',
-            themeVariationName: '',
-            themeConfigPath: Path.join(process.cwd(), 'config.json')
+            port: ''
         },
         paths: {
             renderer: '/{url*}',
@@ -18,8 +16,7 @@ var Hoek = require('hoek'),
             favicon: '/favicon.ico',
             stencilEditor: '/stencil-editor',
             updateParam: '/stencil-editor/update-param'
-        },
-        themeConfigPath: Path.join(process.cwd(), 'config.json')
+        }
     };
 
 module.exports.register = function(server, options, next) {
@@ -30,10 +27,7 @@ module.exports.register = function(server, options, next) {
         request.app.normalStoreUrl = internals.options.normalStoreUrl;
         request.app.apiKey = internals.options.apiKey;
         request.app.staplerUrl = internals.options.staplerUrl;
-        request.app.themeConfig = new ThemeConfig(
-            internals.options.themeConfigPath,
-            internals.options.themeVariationName
-        );
+        request.app.themeConfig = ThemeConfig.getInstance();
 
         reply.continue();
     });
