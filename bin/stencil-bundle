@@ -42,7 +42,8 @@ if (! themeConfigExists) {
     return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
 }
 
-themeConfig = new ThemeConfig(themeConfigPath).getConfig();
+
+themeConfig = ThemeConfig.getInstance(themeConfigPath).getConfig();
 
 tasks.css = getCssAssembleTask(themeConfig.css_compiler);
 tasks.templates = assembleTemplatesTask;
