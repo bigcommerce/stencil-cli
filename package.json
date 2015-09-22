@@ -36,6 +36,7 @@
     "commander": "^2.7.1",
     "confidence": "^1.0.0",
     "front-matter": "^1.0.0",
+    "glob": "^5.0.14",
     "glue": "^2.0.0",
     "good": "^5.1.2",
     "good-console": "^4.1.0",
