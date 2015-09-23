@@ -290,7 +290,8 @@ internals.getPencilResponse = function (data, request, response) {
  * @param config
  */
 internals.getHeaders = function (request, options, config) {
-    var currentOptions = {};
+    var currentOptions = {},
+        headers;
 
     options = options || {};
 
@@ -308,10 +309,17 @@ internals.getHeaders = function (request, options, config) {
         }
     }
 
-    return Hoek.applyToDefaults(request.headers, {
+    headers = {
+        'stencil-cli': Pkg.config.version,
         'stencil-version': Pkg.config.stencil_version,
         'stencil-options': JSON.stringify(Hoek.applyToDefaults(options, currentOptions)),
-        'stencil-store-url': request.app.storeUrl,
         'accept-encoding': 'identity'
-    });
+    };
+
+    // Development
+    if (request.app.staplerUrl) {
+        headers['stencil-store-url'] = request.app.storeUrl;
+    }
+
+    return Hoek.applyToDefaults(request.headers, headers);
 };
