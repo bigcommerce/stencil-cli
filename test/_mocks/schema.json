@@ -1,0 +1,65 @@
+[
+  {
+    "name": "Test",
+    "settings": [
+      {
+        "type": "heading",
+        "content": "Heading"
+      },
+      {
+        "type": "paragraph",
+        "content": "Paragraph"
+      },
+      {
+        "type": "color",
+        "label": "Color",
+        "id": "color"
+      },
+      {
+        "type": "font",
+        "label": "Font",
+        "id": "font"
+      },
+      {
+        "type": "select",
+        "label": "Select",
+        "id": "select",
+        "force_reload": true,
+        "options": [
+          {
+            "value": "first",
+            "label": "First"
+          },
+          {
+            "value": "second",
+            "label": "Second"
+          },
+          {
+            "value": "third",
+            "label": "Third"
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "label": "Checkbox",
+        "id": "checkbox"
+      },
+      {
+        "type": "radio",
+        "label": "Radio",
+        "id": "radio",
+        "options": [
+          {
+            "value": "first",
+            "label": "First"
+          },
+          {
+            "value": "second",
+            "label": "Second"
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "name": "Stencil",
+  "version": "1.0",
+  "variations": [
+    {
+      "name": "First"
+    }
+  ]
+}
