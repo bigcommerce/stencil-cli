@@ -117,6 +117,7 @@ Wreck.get(
 
             dotStencilFile.storeUrl = payload.sslUrl;
             dotStencilFile.normalStoreUrl = payload.baseUrl;
+            dotStencilFile.stencilServerPort = stencilServerPort;
 
             if (themeConfig.config.jspm && Program.test) {
                 bundleTask = JspmAssembler.assemble(
