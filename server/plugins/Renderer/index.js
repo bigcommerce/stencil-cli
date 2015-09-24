@@ -50,7 +50,7 @@ internals.implementation = function (request, reply) {
  * @param callback
  */
 internals.getResponse = function (request, callback) {
-    var staplerUrlObject = Url.parse(request.app.staplerUrl),
+    var staplerUrlObject = request.app.staplerUrl ? Url.parse(request.app.staplerUrl) : Url.parse(request.app.storeUrl),
         urlObject = _.clone(request.url, true),
         url,
         themeConfig = request.app.themeConfig.getConfig(),
@@ -290,7 +290,8 @@ internals.getPencilResponse = function (data, request, response) {
  * @param config
  */
 internals.getHeaders = function (request, options, config) {
-    var currentOptions = {};
+    var currentOptions = {},
+        headers;
 
     options = options || {};
 
@@ -308,10 +309,17 @@ internals.getHeaders = function (request, options, config) {
         }
     }
 
-    return Hoek.applyToDefaults(request.headers, {
+    headers = {
+        'stencil-cli': Pkg.version,
         'stencil-version': Pkg.config.stencil_version,
         'stencil-options': JSON.stringify(Hoek.applyToDefaults(options, currentOptions)),
-        'stencil-store-url': request.app.storeUrl,
         'accept-encoding': 'identity'
-    });
+    };
+
+    // Development
+    if (request.app.staplerUrl) {
+        headers['stencil-store-url'] = request.app.storeUrl;
+    }
+
+    return Hoek.applyToDefaults(request.headers, headers);
 };

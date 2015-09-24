@@ -5,7 +5,6 @@ require('colors');
 var _ = require('lodash'),
     Bs = require('browser-sync').create(),
     Fs = require('fs'),
-    Jspm = require('jspm'),
     JspmAssembler = require('../lib/jspmAssembler'),
     Path = require('path'),
     Pkg = require('../package.json'),
@@ -29,7 +28,9 @@ var _ = require('lodash'),
     themeConfig,
     themeConfigPath = Path.join(themePath, 'config.json'),
     themeConfigExists = Fs.existsSync(themeConfigPath),
-    themeConfigHooks;
+    themeConfigHooks,
+    staplerUrl,
+    headers;
 
 Program
     .version(Pkg.version)
@@ -67,10 +68,6 @@ stencilServerPort = ++dotStencilFile.port;
 cssCompilerDir = cssWatchBaseDir + themeConfig.config.css_compiler;
 isTopLevelCssRegex = new RegExp('^(?!_).+\.(?:' + themeConfig.config.css_compiler + ')$');
 
-// Once stapler is in the production environment, we change this line to point to
-// dotStencilFile.staplerUrl if it exists or fallback to dotStencilFile.storeUrl
-dotStencilFile.staplerUrl = dotStencilFile.staplerUrl || 'https://bc-stapler.herokuapp.com';
-
 if (!(dotStencilFile.normalStoreUrl)) {
     return console.error(
         'Error: Your stencil config is outdated. Please run'.red +
@@ -78,13 +75,22 @@ if (!(dotStencilFile.normalStoreUrl)) {
     );
 }
 
+headers = {
+    'stencil-cli': Pkg.version,
+    'stencil-options': '{"get_data_only": true}'
+};
+
+if (dotStencilFile.staplerUrl) {
+    staplerUrl = dotStencilFile.staplerUrl;
+    headers['stencil-store-url'] = dotStencilFile.normalStoreUrl;
+} else {
+    staplerUrl = dotStencilFile.normalStoreUrl;
+}
+
 Wreck.get(
-    Url.resolve(dotStencilFile.staplerUrl, '/stencil-version-check?v=' + Pkg.version),
+    Url.resolve(staplerUrl, '/stencil-version-check?v=' + Pkg.version),
     {
-        headers: {
-            'stencil-options': '{"get_data_only": true}',
-            'stencil-store-url': dotStencilFile.normalStoreUrl
-        }
+        headers: headers
     },
     function(err, res, payload) {
         var retError = err !== null,
