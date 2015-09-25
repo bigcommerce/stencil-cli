@@ -3,6 +3,7 @@ var Code = require('code'),
     Hoek = require('hoek'),
     Lab = require('lab'),
     Path = require('path'),
+    Sinon = require('sinon'),
     ThemeConfig = require('../../lib/themeConfig'),
     lab = exports.lab = Lab.script(),
     configPath = Path.join(__dirname, '../_mocks/config.json'),
@@ -67,7 +68,7 @@ describe('ThemeConfig', function() {
 
             expect(config.settings).to.deep.equal(settingsToCompare);
             expect(config.images).to.deep.equal(imagesToCompare);
-            expect(config.globalSettings).to.deep.equal(originalSettingsToCompare);
+            expect(ThemeConfig.getInstance().globalSettings).to.deep.equal(originalSettingsToCompare);
 
             done();
         });
@@ -123,7 +124,87 @@ describe('ThemeConfig', function() {
     });
 
     describe('updateConfig()', function() {
-        // @TODO: To be filled in by Daniel
+        var config,
+            newSettings,
+            originalSettings,
+            themeConfig;
+
+        lab.beforeEach(function(done) {
+            themeConfig = ThemeConfig.getInstance();
+            config = themeConfig.getConfig();
+            originalSettings = Hoek.clone(config.settings);
+            newSettings = {
+                color: '#000000',
+                font: 'Sans Something',
+                select: 'second',
+                checkbox: true,
+                radio: 'first'
+            };
+
+            done();
+        });
+
+        it('should update the currentConfig with the new changes', function(done) {
+            expect(originalSettings).not.to.deep.equal(newSettings);
+
+            themeConfig.updateConfig(newSettings);
+
+            expect(themeConfig.getConfig().settings).not.to.deep.equal(originalSettings);
+            expect(themeConfig.getConfig().settings).to.deep.equal(newSettings);
+
+            done();
+        });
+
+        it('should not write to config file if saveToFile is falsey', function(done) {
+            Sinon.stub(Fs, 'writeFileSync');
+
+            themeConfig.updateConfig(newSettings);
+            expect(Fs.writeFileSync.called).to.be.false();
+            Fs.writeFileSync.restore();
+
+            done();
+        });
+
+        it('should write to config file if saveToFile is truthy', function(done) {
+            Sinon.stub(Fs, 'writeFileSync');
+
+            themeConfig.updateConfig(newSettings, true);
+            expect(Fs.writeFileSync.called).to.be.true();
+            Fs.writeFileSync.restore();
+
+            done();
+        });
+
+        it('should return an object with forceReload property', function(done) {
+            var response = themeConfig.updateConfig(newSettings);
+
+            expect(response).to.include('forceReload');
+
+            done();
+        });
+
+        it('should just modify the variations section of the file', function(done) {
+            var initialConfig = JSON.parse(Fs.readFileSync(configPath, {encoding: 'utf-8'}));
+
+            Sinon.stub(Fs, 'writeFileSync', testSave);
+
+            function testSave(path, newConfig) {
+                newConfig = JSON.parse(newConfig);
+
+                expect(newConfig).not.to.deep.equal(initialConfig);
+
+                delete newConfig.variations;
+                delete initialConfig.variations;
+
+                expect(newConfig).to.deep.equal(initialConfig);
+
+                done();
+            }
+
+            themeConfig.updateConfig(newSettings, true);
+
+            Fs.writeFileSync.restore();
+        });
     });
 
     describe('checkForceReload()', function() {
