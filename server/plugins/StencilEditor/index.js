@@ -8,6 +8,7 @@ var _ = require('lodash'),
         options: {
             themeConfigPath: Path.join(process.cwd(), 'config.json'),
             themeConfigSchemaPath: Path.join(process.cwd(), 'schema.json'),
+            themeStyles: Path.join(process.cwd(), 'assets/scss'),
             rootPath: Path.join(__dirname, '../../..'),
             stencilEditorFilePath: 'public/jspm_packages/github/bigcommerce-labs/ng-stencil-editor@master',
             patternLabFilePath: 'public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.10.0',
@@ -113,10 +114,26 @@ internals.updateConfig = function (request, reply) {
         response = {
             forceReload: internals.themeConfig.updateConfig(request.payload, saveToFile).forceReload,
             stylesheets: []
-        };
+        },
+        compilerExtension,
+        styleFiles,
+        files;
 
     if (! response.forceReload) {
-        response.stylesheets.push('/assets/css/theme.css');
+        files = Fs.readdirSync(internals.options.themeStyles);
+        compilerExtension = '.' + internals.themeConfig.getConfig().css_compiler;
+
+        styleFiles = _.filter(files, function(file) {
+            var fileExt = Path.extname(file);
+
+            return fileExt === '.css' || fileExt === compilerExtension;
+        });
+
+        response.stylesheets = _.map(styleFiles, function(file) {
+            file = file.substring(0, file.lastIndexOf('.')) + '.css';
+
+            return '/assets/css/' + file;
+        });
     }
 
     return reply(response);
