@@ -1,27 +1,31 @@
 var chan = Channel.build({window: window.parent, origin: '*', scope: 'stencilEditor'});
 
-setInterval(function(){
+setInterval(function focusBody(){
     document.body.focus();
 }, 250);
 
-chan.bind('reload-stylesheets', function(trans, stylesheets) {
-    var i = -1,
-        length,
-        stylesheetHref;
+chan.bind('reload-stylesheets', function reloadStylesheets(trans, stylesheets) {
+    var linkElements = Array.prototype.slice.call(document.getElementsByTagName('link'));
 
     stylesheets = JSON.parse(stylesheets);
 
-    length = stylesheets.length;
+    linkElements.forEach(function iterateLinkElements(element) {
+        var href = element.getAttribute('href'),
+            queryIndex = href.indexOf('?');
 
-    while (++i < length) {
-        stylesheetHref = stylesheets[i];
-        document.getElementById(stylesheetHref).setAttribute('href', stylesheetHref + '?' + Date.now());
-    }
+        if (queryIndex !== -1) {
+            href = href.substring(0, queryIndex);
+        }
+
+        if(stylesheets.indexOf(href) !== -1) {
+            element.setAttribute('href', href + '?' + Date.now());
+        }
+    });
 
     return true;
 });
 
-chan.bind('reload-page', function() {
+chan.bind('reload-page', function reloadPage() {
     document.location.reload(true);
 
     return true;
