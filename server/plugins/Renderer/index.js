@@ -127,7 +127,7 @@ internals.getResponse = function (request, callback) {
             },
             function (err, assembledData) {
                 var frontmatter,
-                    frontmatterRegex = /---\n(?:.|\s)*?\n---\n/g,
+                    frontmatterRegex = /---\r?\n(?:.|\s)*?\r?\n---\r?\n/g,
                     missingThemeSettingsRegex = /{{\\s*?theme_settings\\..+?\\s*?}}/g,
                     frontmatterMatch,
                     frontmatterContent,
