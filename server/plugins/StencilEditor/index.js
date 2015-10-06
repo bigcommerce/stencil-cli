@@ -11,7 +11,7 @@ var _ = require('lodash'),
             themeStyles: Path.join(process.cwd(), 'assets/scss'),
             rootPath: Path.join(__dirname, '../../..'),
             stencilEditorFilePath: 'public/jspm_packages/github/bigcommerce-labs/ng-stencil-editor@master',
-            patternLabFilePath: 'public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.10.0',
+            patternLabFilePath: 'public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.11.0',
             themeVariationName: '',
             stencilServerPort: 0
         }
