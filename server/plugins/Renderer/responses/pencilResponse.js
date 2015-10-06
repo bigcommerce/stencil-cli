@@ -73,10 +73,6 @@ module.exports = function (data, assembler) {
             if (data.headers['set-cookie']) {
                 response.header('set-cookie', data.headers['set-cookie']);
             }
-
-            if (request.query.stencilEditor) {
-                response.state('stencil_editor_enabled', true);
-            }
         });
     };
 };
@@ -135,6 +131,7 @@ internals.makeDecorator = function (request, context) {
 
         if (request.query.stencilEditor || request.state.stencil_editor_enabled) {
             stencilEditorSDK = '<script src="http://localhost:8181/public/jspm_packages/github/meenie/jschannel@0.0.5/src/jschannel.js"></script>';
+            stencilEditorSDK += '<script src="http://localhost:8181/public/jspm_packages/github/js-cookie/js-cookie@2.0.3/src/js.cookie.js"></script>';
             stencilEditorSDK += '<script src="http://localhost:8181/public/js/stencil-editor.js"></script>';
 
             content = content.replace(new RegExp('</body>'), stencilEditorSDK + '\n</body>');

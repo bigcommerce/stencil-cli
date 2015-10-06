@@ -1,3 +1,4 @@
+import 'angular-cookies';
 import 'angular-animate';
 import 'angular-sanitize';
 import 'angular-ui-router';
