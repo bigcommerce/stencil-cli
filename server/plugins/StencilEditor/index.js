@@ -98,7 +98,7 @@ internals.home = function(request, reply) {
         reply.view('index', {
             cssFiles: assets.cssFiles,
             jsFiles: assets.jsFiles,
-            storeUrl: 'http://localhost:' + internals.options.stencilServerPort + '?stencilEditor=true'
+            storeUrl: 'http://localhost:' + internals.options.stencilServerPort + '?stencilEditor=stencil-cli'
         });
     });
 };

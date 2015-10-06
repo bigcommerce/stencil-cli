@@ -19,15 +19,6 @@ module.exports.register = function (server, options, next) {
 
     server.expose('implementation', internals.implementation);
 
-    server.state('stencil_editor_enabled', {
-        ttl: null,
-        isSecure: true,
-        isHttpOnly: true,
-        encoding: 'base64json',
-        clearInvalid: true, // remove invalid cookies
-        strictHeader: true // don't allow violations of RFC 6265
-    });
-
     next();
 };
 

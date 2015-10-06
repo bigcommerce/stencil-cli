@@ -22,6 +22,7 @@ System.config({
   "map": {
     "angular": "github:angular/bower-angular@1.3.7",
     "angular-animate": "github:angular/bower-angular-animate@1.3.7",
+    "angular-cookies": "github:angular/bower-angular-cookies@1.3.7",
     "angular-formly": "github:formly-js/angular-formly@6.15.2",
     "angular-sanitize": "github:angular/bower-angular-sanitize@1.3.7",
     "angular-ui-router": "github:angular-ui/ui-router@0.2.13",
@@ -33,6 +34,7 @@ System.config({
     "bigcommerce-labs/ng-stencil-editor": "github:bigcommerce-labs/ng-stencil-editor@1.0.0",
     "core-js": "npm:core-js@0.9.18",
     "jmdobry/angular-cache": "github:jmdobry/angular-cache@3.2.4",
+    "js-cookie": "github:js-cookie/js-cookie@2.0.3",
     "kentcdodds/api-check": "github:kentcdodds/api-check@7.5.3",
     "lodash": "npm:lodash@2.4.1",
     "meenie/jschannel": "github:meenie/jschannel@0.0.5",
@@ -41,6 +43,9 @@ System.config({
       "angular": "github:angular/bower-angular@1.3.7"
     },
     "github:angular/bower-angular-animate@1.3.7": {
+      "angular": "github:angular/bower-angular@1.3.7"
+    },
+    "github:angular/bower-angular-cookies@1.3.7": {
       "angular": "github:angular/bower-angular@1.3.7"
     },
     "github:angular/bower-angular-sanitize@1.3.7": {
