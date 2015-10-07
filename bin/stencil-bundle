@@ -75,6 +75,7 @@ Async.parallel(tasks, function(err, assembledData) {
             'templates/**/*',
             'lang/*',
             'README.md',
+            'CHANGELOG.md',
             'config.json',
             'package.json'
         ],
