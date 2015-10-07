@@ -12,8 +12,8 @@ module.exports = function (data, assembler) {
             templatePath;
 
         // Remove the CDN prefixes in development
-        data.context.cdn_url = '';
-        data.context.cdn_url_with_settings_hash = '';
+        delete data.context.settings['cdn_url'];
+
         // Set the environment to dev
         data.context.in_development = true;
         data.context.in_production = false;
