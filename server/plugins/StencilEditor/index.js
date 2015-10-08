@@ -110,7 +110,7 @@ internals.home = function(request, reply) {
  * @param reply
  */
 internals.updateConfig = function (request, reply) {
-    var saveToFile = !!request.query.publish,
+    var saveToFile = !!request.query.commit,
         response = {
             forceReload: internals.themeConfig.updateConfig(request.payload, saveToFile).forceReload,
             stylesheets: []
