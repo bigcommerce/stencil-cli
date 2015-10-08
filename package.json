@@ -77,7 +77,6 @@
       "kentcdodds/api-check": "github:kentcdodds/api-check@^7.5.0",
       "lodash": "npm:lodash@2.4.1",
       "meenie/jschannel.git": "github:meenie/jschannel@0.0.5",
-      "meenie/ng-stencil-editor": "github:meenie/ng-stencil-editor@test-deploy",
       "rubenv/angular-gettext": "github:rubenv/angular-gettext@1.1.4"
     },
     "devDependencies": {

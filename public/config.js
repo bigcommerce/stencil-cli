@@ -28,7 +28,7 @@ System.config({
     "api-check": "github:kentcdodds/api-check@7.5.0",
     "babel": "npm:babel-core@5.6.7",
     "babel-runtime": "npm:babel-runtime@5.6.7",
-    "bigcommerce-labs/bcapp-pattern-lab": "github:bigcommerce-labs/bcapp-pattern-lab@1.10.0",
+    "bigcommerce-labs/bcapp-pattern-lab": "github:bigcommerce-labs/bcapp-pattern-lab@1.11.0",
     "bigcommerce-labs/ng-common": "github:bigcommerce-labs/ng-common@2.5.1",
     "bigcommerce-labs/ng-stencil-editor": "github:bigcommerce-labs/ng-stencil-editor@master",
     "core-js": "npm:core-js@0.9.18",
