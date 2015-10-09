@@ -91,17 +91,67 @@ module.exports.register = function (server, options, next) {
  * @param reply
  */
 internals.home = function(request, reply) {
-    var pattern = Path.join(internals.options.stencilEditorFilePath, 'build/js/**/*.js');
+    internals.getAssets(function (err, assets) {
+        if (err) {
+            reply(err);
+        }
 
-    Glob(pattern, {cwd: internals.options.rootPath}, function(err, files) {
         reply.view('index', {
-            jsFiles: files.map(function(file) {return '/' + file}),
-            storeUrl: 'http://localhost:' +
-            internals.options.stencilServerPort +
-            '?stencilEditor=true'
+            cssFiles: assets.cssFiles,
+            jsFiles: assets.jsFiles,
+            storeUrl: 'http://localhost:' + internals.options.stencilServerPort + '?stencilEditor=true'
         });
     });
 };
+
+/**
+ * Returns the asset files for the template
+ *
+ * @param callback
+ */
+internals.getAssets = function (callback) {
+    var pattern = internals.buildDirectoryExists()
+        ? 'build'
+        : 'dist';
+
+    pattern = Path.join(internals.options.stencilEditorFilePath, pattern + '/**/*.{js,css}');
+
+    Glob(pattern, {cwd: internals.options.rootPath}, function(err, files) {
+        var assets = {};
+
+        if (err) {
+            callback(err);
+        }
+
+        files = files.map(function(file) {return '/' + file});
+
+        assets.cssFiles = files.filter(function (file) {
+            return file.substr(-4) === '.css';
+        });
+
+        assets.jsFiles = files.filter(function (file) {
+            return file.substr(-3) === '.js';
+        });
+        
+        callback(null, assets);
+    });
+};
+
+/**
+ * Returns true if the build directory exists
+ *
+ * @param callback
+ */
+internals.buildDirectoryExists = function () {
+    var path = Path.join(internals.options.rootPath, internals.options.stencilEditorFilePath, 'build');
+    try {
+        // Is it a directory?
+        return Fs.statSync(path).isDirectory();
+    }
+    catch (e) {
+        return false;
+    }
+}
 
 /**
  * Endpoint to update a variations param value
