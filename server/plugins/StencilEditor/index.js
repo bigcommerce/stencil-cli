@@ -4,14 +4,13 @@ var _ = require('lodash'),
     Hoek = require('hoek'),
     Path = require('path'),
     ThemeConfig = require('../../../lib/themeConfig'),
+    packageJson = require('../../../package.json'),
     internals = {
         options: {
             themeConfigPath: Path.join(process.cwd(), 'config.json'),
             themeConfigSchemaPath: Path.join(process.cwd(), 'schema.json'),
             themeStyles: Path.join(process.cwd(), 'assets/scss'),
-            rootPath: Path.join(__dirname, '../../..'),
-            stencilEditorFilePath: 'public/jspm_packages/github/bigcommerce-labs/ng-stencil-editor@master',
-            patternLabFilePath: 'public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.11.0',
+            publicPath: Path.join(__dirname, '../../../public'),
             themeVariationName: '',
             stencilServerPort: 0
         }
@@ -50,7 +49,7 @@ module.exports.register = function (server, options, next) {
             path: '/public/{path*}',
             handler: {
                 directory: {
-                    path: Path.join(internals.options.rootPath, 'public')
+                    path: internals.options.publicPath
                 }
             }
         },
@@ -91,16 +90,78 @@ module.exports.register = function (server, options, next) {
  * @param reply
  */
 internals.home = function(request, reply) {
-    var pattern = Path.join(internals.options.stencilEditorFilePath, 'build/js/**/*.js');
+    internals.getAssets(function (err, assets) {
+        if (err) {
+            reply(err);
+        }
 
-    Glob(pattern, {cwd: internals.options.rootPath}, function(err, files) {
         reply.view('index', {
-            jsFiles: files.map(function(file) {return '/' + file}),
-            storeUrl: 'http://localhost:' +
-            internals.options.stencilServerPort +
-            '?stencilEditor=true'
+            cssFiles: assets.cssFiles,
+            jsFiles: assets.jsFiles,
+            storeUrl: 'http://localhost:' + internals.options.stencilServerPort + '?stencilEditor=true'
         });
     });
+};
+
+/**
+ * Returns the asset files for the template
+ *
+ * @param callback
+ */
+internals.getAssets = function (callback) {
+    var pattern = internals.buildDirectoryExists()
+        ? 'build'
+        : 'dist';
+
+    pattern = Path.join(internals.getStencilEditorPath(), pattern + '/**/*.{js,css}');
+
+    Glob(pattern, {cwd: internals.options.publicPath}, function(err, files) {
+        var assets = {};
+
+        if (err) {
+            callback(err);
+        }
+
+        files = files.map(function(file) {return '/public/' + file});
+
+        assets.cssFiles = files.filter(function (file) {
+            return file.substr(-4) === '.css';
+        });
+
+        assets.jsFiles = files.filter(function (file) {
+            return file.substr(-3) === '.js';
+        });
+        
+        callback(null, assets);
+    });
+};
+
+/**
+ * Returns true if the build directory exists
+ *
+ * @param callback
+ */
+internals.buildDirectoryExists = function () {
+    var path = Path.join(internals.options.publicPath, internals.getStencilEditorPath(), 'build');
+    try {
+        // Is it a directory?
+        return Fs.statSync(path).isDirectory();
+    }
+    catch (e) {
+        return false;
+    }
+};
+
+/**
+ * Returns stencil-editor path relative to the public path
+ *
+ * @param callback
+ */
+internals.getStencilEditorPath = function (path) {
+    var basePath = 'jspm_packages/github/bigcommerce-labs/ng-stencil-editor@';
+    var version = packageJson.jspm.dependencies['bigcommerce-labs/ng-stencil-editor'].split('@')[1];
+
+    return basePath + version;
 };
 
 /**
