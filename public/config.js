@@ -25,7 +25,7 @@ System.config({
     "angular-formly": "github:formly-js/angular-formly@6.15.2",
     "angular-sanitize": "github:angular/bower-angular-sanitize@1.3.7",
     "angular-ui-router": "github:angular-ui/ui-router@0.2.13",
-    "api-check": "github:kentcdodds/api-check@7.5.0",
+    "api-check": "github:kentcdodds/api-check@7.5.3",
     "babel": "npm:babel-core@5.6.7",
     "babel-runtime": "npm:babel-runtime@5.6.7",
     "bigcommerce-labs/bcapp-pattern-lab": "github:bigcommerce-labs/bcapp-pattern-lab@1.11.0",
