@@ -30,7 +30,7 @@ System.config({
     "babel-runtime": "npm:babel-runtime@5.6.7",
     "bigcommerce-labs/bcapp-pattern-lab": "github:bigcommerce-labs/bcapp-pattern-lab@1.11.0",
     "bigcommerce-labs/ng-common": "github:bigcommerce-labs/ng-common@2.5.1",
-    "bigcommerce-labs/ng-stencil-editor": "github:bigcommerce-labs/ng-stencil-editor@master",
+    "bigcommerce-labs/ng-stencil-editor": "github:bigcommerce-labs/ng-stencil-editor@1.0.0",
     "core-js": "npm:core-js@0.9.18",
     "jmdobry/angular-cache": "github:jmdobry/angular-cache@3.2.4",
     "kentcdodds/api-check": "github:kentcdodds/api-check@7.5.3",
