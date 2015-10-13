@@ -98,6 +98,8 @@ internals.getResponse = function (request, callback) {
         }
 
         Wreck.read(response, {json: true}, function (err, bcAppData) {
+            var resourcesConfig;
+
             if (err) {
                 return callback(err);
             }
@@ -119,7 +121,7 @@ internals.getResponse = function (request, callback) {
 
             } else {
 
-                var resourcesConfig = internals.getResourceConfig(bcAppData, request, themeConfig);
+                resourcesConfig = internals.getResourceConfig(bcAppData, request, themeConfig);
 
                 httpOpts.headers = internals.getHeaders(request, {get_data_only: true}, resourcesConfig);
                 // Set host to stapler host
@@ -317,7 +319,7 @@ internals.themeAssembler = {
             if (templates[path]) {
                 // Check if the string includes frntmatter configutation
                 // and remove it
-                var match = templates[path].match(/---\n[\S\s]*\n---\n([\S\s]*)$/);
+                var match = templates[path].match(/---\r?\n[\S\s]*\r?\n---\r?\n([\S\s]*)$/);
 
                 if (_.isObject(match) && match[1]) {
                     templates[path] = match[1];
