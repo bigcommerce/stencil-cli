@@ -102,7 +102,7 @@ internals.getResponse = function (request, callback) {
                 return callback(err);
             }
 
-            if (!_.has(bcAppData, 'content_type')) {
+            if (!_.has(bcAppData, 'pencil_response')) {
                 // this is a raw response not emitted by TemplateEngine
                 return callback(null, new Responses.RawResponse(
                     bcAppData,
@@ -252,7 +252,6 @@ internals.getPencilResponse = function (data, request, response, themeConfig) {
     data.context.theme_images = themeConfig.images;
 
     return new Responses.PencilResponse({
-       content_type: data.content_type,
        template_file: data.template_file,
        templates: data.templates,
        remote: data.remote,

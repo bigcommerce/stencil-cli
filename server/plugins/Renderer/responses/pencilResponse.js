@@ -29,7 +29,7 @@ module.exports = function (data, assembler) {
                 return reply(data.context);
             }
 
-            if (data.content_type === 'application/json') {
+            if (data.remote || _.isArray(templatePath)) {
                 
                 if (data.remote) {
                     data.context = _.extend({}, data.context, data.remote_data);
