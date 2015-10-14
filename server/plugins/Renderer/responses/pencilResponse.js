@@ -1,78 +1,106 @@
 var _ = require('lodash'),
-    Paper = require('stencil-paper')(),
+    Paper = require('stencil-paper'),
     Url = require('url'),
     internals = {};
 
-module.exports = function (data) {
+module.exports = function (data, assembler) {
     this.respond = function (request, reply) {
         var response,
             output,
             html,
-            theme;
+            paper,
+            templatePath;
 
         // Remove the CDN prefixes in development
-        data.context.cdn_url = '';
-        data.context.cdn_url_with_settings_hash = '';
+        delete data.context.settings['cdn_url'];
+
         // Set the environment to dev
         data.context.in_development = true;
         data.context.in_production = false;
 
-        theme = Paper.make(1);
+        paper = new Paper(assembler);
 
-        theme.loadTranslations(data.acceptLanguage, data.translations);
-        theme.addDecorator(internals.makeDecorator(request, data.context));
-        theme.loadTemplatesSync(data.templates);
+        paper.addDecorator(internals.makeDecorator(request, data.context));
 
-        if (request.query.debug === 'context') {
-            return reply(data.context);
-        }
+        templatePath = internals.getTemplatePath(request, data);
 
-        if (data.content_type === 'application/json') {
-            
-            if (data.remote) {
-                data.context = _.extend({}, data.context, data.remote_data);
+        paper.loadTheme(templatePath, data.acceptLanguage, function () {
+            if (request.query.debug === 'context') {
+                return reply(data.context);
             }
 
-            if (data.template_file) {
-                // if multiple render_with
-                if (_.isArray(data.template_file)) {
-                    // if data.template_file is an array ( multiple templates using render_with option)
-                    // compile all the template required files into a hash table
-                    html = data.template_file.reduce(function(table, file) {
-                        table[file] = theme.render(file, data.context);
-
-                        return table;
-                    }, {});
-                } else {
-                    html = theme.render(data.template_file, data.context);
+            if (data.remote || _.isArray(templatePath)) {
+                
+                if (data.remote) {
+                    data.context = _.extend({}, data.context, data.remote_data);
                 }
 
-                if (data.remote) {
-                    // combine the context & rendered html
-                    output = {
-                        data: data.remote_data,
-                        content: html
-                    };
+                if (data.template_file) {
+                    // if multiple render_with
+                    if (_.isArray(data.template_file)) {
+                        // if data.template_file is an array ( multiple templates using render_with option)
+                        // compile all the template required files into a hash table
+                        html = data.template_file.reduce(function(table, file) {
+                            table[file] = paper.render(file, data.context);
+
+                            return table;
+                        }, {});
+                    } else {
+                        html = paper.render(data.template_file, data.context);
+                    }
+
+                    if (data.remote) {
+                        // combine the context & rendered html
+                        output = {
+                            data: data.remote_data,
+                            content: html
+                        };
+                    } else {
+                        output = html;
+                    }
                 } else {
-                    output = html;
+                    output = {
+                        data: data.remote_data
+                    };
                 }
             } else {
-                output = {
-                    data: data.remote_data
-                };
+                output = paper.render(data.template_file, data.context);
             }
-        } else {
-            output = theme.render(data.template_file, data.context);
-        }
 
-        response = reply(output);
-        response.code(data.statusCode);
+            response = reply(output);
+            response.code(data.statusCode);
 
-        if (data.headers['set-cookie']) {
-            response.header('set-cookie', data.headers['set-cookie']);
-        }
+            if (data.headers['set-cookie']) {
+                response.header('set-cookie', data.headers['set-cookie']);
+            }
+        });
     };
 };
+
+
+internals.getTemplatePath = function (request, data) {
+    var path = data.template_file;
+
+    if (request.headers['stencil-options']) {
+        var options = JSON.parse(request.headers['stencil-options']);
+
+        if (options['render_with'] && typeof options['render_with'] === 'string') {
+
+            path = options['render_with'].split(',');
+            
+            path = _.map(path, function (path) {
+                return 'components/' + path;
+            });
+
+            if (path.length === 1) {
+                path = path[0];
+            }
+        }
+    }
+
+    return path;
+};
+
 
 /**
  * Output post-processing
