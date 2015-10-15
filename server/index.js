@@ -4,7 +4,10 @@ var Fs = require('fs'),
     Path = require('path'),
     Url = require('url'),
     manifest = require('./manifest'),
-    logo = require('./lib/showLogo');
+    logo = require('./lib/showLogo'),
+    internals = {};
+
+require('colors');
 
 module.exports = function(options, callback) {
     var config = manifest.get('/'),
@@ -26,31 +29,42 @@ module.exports = function(options, callback) {
         }
 
         server.start(function () {
-            var stencilEditorConfig = {
-                connections: [{
-                    host: 'localhost',
-                    port: 8181
-                }],
-                plugins: {
-                    // Third Party Plugins
-                    './plugins/StencilEditor': {
-                        themeVariationName: options.themeVariationName,
-                        stencilServerPort: options.dotStencilFile.stencilServerPort
-                    }
-                }
-            };
+            console.log(logo);
 
-            Glue.compose(stencilEditorConfig, {relativeTo: __dirname}, function (err, server) {
-                if (err) {
-                    return callback(err);
-                }
-
-                server.start(function () {
-                    server.log('info', logo);
-                    callback(null);
-                });
-            });
+            if (options.stencilEditorEnabled) {
+                return internals.startThemeEditor(options, callback);
+            } else {
+                return callback();
+            }
         });
 
+    });
+};
+
+internals.startThemeEditor = function(options, callback) {
+    var stencilEditorConfig = {
+        connections: [{
+            host: 'localhost',
+            port: options.stencilEditorPort
+        }],
+        plugins: {
+            './plugins/StencilEditor': {
+                themeVariationName: options.themeVariationName,
+                stencilServerPort: options.dotStencilFile.stencilServerPort
+            }
+        }
+    };
+
+    Glue.compose(stencilEditorConfig, {relativeTo: __dirname}, function (err, server) {
+        if (err) {
+            return callback(err);
+        }
+
+        server.start(function () {
+            var host = 'http://localhost: ' + options.stencilEditorPort;
+
+            console.log('Theme Editor:', host.cyan);
+            return callback();
+        });
     });
 };
