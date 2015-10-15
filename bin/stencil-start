@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-require('colors');
-
 var _ = require('lodash'),
     Bs = require('browser-sync').create(),
     Fs = require('fs'),
@@ -32,12 +30,16 @@ var _ = require('lodash'),
     themeConfigSchemaPath = Path.join(themePath, 'schema.json'),
     themeConfigSchemaExists = Fs.existsSync(themeConfigPath);
 
+require('colors');
+
 Program
     .version(Pkg.version)
     .option('-o, --open', 'Automatically open default browser')
     .option('-v, --variation [name]', 'Set which theme variation to use while developing')
     .option('-t, --test', 'Enable QA mode which will bundle all javascript for speed to test locally')
     .option('--tunnel', 'Create a tunnel URL which points to your local server that anyone can use.')
+    .option('-e, --theme-editor', 'Run Theme Editor server')
+    .option('--theme-editor-port [port]', 'Run the Theme Editor on a different port')
     .parse(process.argv);
 
 if (! dotStencilFileExists) {
@@ -138,7 +140,14 @@ Wreck.get(
  * Starts up the local Stencil Server as well as starts up BrowserSync and sets some watch options.
  */
 function startServer() {
-    Server({dotStencilFile: dotStencilFile, themeVariationName: themeConfig.config.variationName}, function(err) {
+    var params = {
+        dotStencilFile: dotStencilFile,
+        themeVariationName: themeConfig.config.variationName,
+        stencilEditorEnabled: Program.themeEditor,
+        stencilEditorPort: Program.themeEditorPort || 8181
+    };
+
+    Server(params, function(err) {
         if (err) {
             throw err;
         }
