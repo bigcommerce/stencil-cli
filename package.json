@@ -4,6 +4,7 @@
   "description": "CLI tool to run Bigcommerce Stores locally for theme development.",
   "main": "index.js",
   "scripts": {
+    "postinstall": "node make --install",
     "test": "lab -t 90 -e 'development'",
     "test-cov-html": "lab -r html -o coverage.html"
   },
@@ -35,6 +36,7 @@
     "colors": "^1.0.3",
     "commander": "^2.7.1",
     "confidence": "^1.0.0",
+    "decompress-zip": "^0.2.0",
     "front-matter": "^1.0.0",
     "glob": "^5.0.14",
     "glue": "^2.0.0",

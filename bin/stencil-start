@@ -18,17 +18,14 @@ var _ = require('lodash'),
     cssWatchBaseDir = Path.join(themePath, 'assets/'),
     jsCompilerDir = Path.join(themePath, 'assets/js'),
     dotStencilFilePath = Path.join(themePath, '.stencil'),
-    dotStencilFileExists = Fs.existsSync(dotStencilFilePath),
     dotStencilFile,
     isTopLevelCssRegex,
     stencilServerPort,
     themeConfig,
     themeConfigPath = Path.join(themePath, 'config.json'),
-    themeConfigExists = Fs.existsSync(themeConfigPath),
     staplerUrl,
     headers,
-    themeConfigSchemaPath = Path.join(themePath, 'schema.json'),
-    themeConfigSchemaExists = Fs.existsSync(themeConfigPath);
+    themeConfigSchemaPath = Path.join(themePath, 'schema.json');
 
 require('colors');
 
@@ -42,11 +39,20 @@ Program
     .option('--theme-editor-port [port]', 'Run the Theme Editor on a different port')
     .parse(process.argv);
 
-if (! dotStencilFileExists) {
+function fileExist(path) {
+    try {
+        return Fs.statSync(path);
+    }
+    catch (e) {
+        return false;
+    }
+}
+
+if (!fileExist(dotStencilFilePath)) {
     return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
 }
 
-if (! themeConfigExists) {
+if (!fileExist(themeConfigPath)) {
     return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
 }
 
@@ -244,7 +250,7 @@ function parseThemeConfig() {
         themeConfig;
 
     // We don't require the schema file to exist as it's only used for the Theme Editor
-    if (! themeConfigSchemaExists) {
+    if (!fileExist(themeConfigSchemaPath)) {
         themeConfigSchemaPath = '';
     }
 
