@@ -1,7 +1,7 @@
 'use strict';
 
 (function stencilEditorSDK(window, Channel) {
-    var cookieName= 'stencil_editor_enabled',
+    var _cookieName = 'stencil_editor_enabled',
         _editorToken;
 
     function init() {
@@ -20,7 +20,7 @@
     function closePreview(event) {
         event.preventDefault();
 
-        Cookies.remove(cookieName);
+        Cookies.remove(_cookieName);
         reloadPage();
     }
 
@@ -31,6 +31,14 @@
      */
     function getEditorToken() {
         return _editorToken;
+    }
+
+    function getStylesheet(href) {
+        return document.head.querySelector('link[id="' + href + '"]');
+    }
+
+    function isStylesheet(element) {
+        return element !== null && element !== undefined;
     }
 
     /**
@@ -139,25 +147,54 @@
      * @returns {boolean}
      */
     function reloadStylesheets(trans, stylesheets) {
-        var linkElements = Array.prototype.slice.call(document.getElementsByTagName('link'));
-
         try {
             stylesheets = JSON.parse(stylesheets);
         } catch(e) {
             stylesheets = [];
         }
 
-        linkElements.forEach(function iterateLinkElements(element) {
-            var href = element.getAttribute('href'),
-                queryIndex = href.indexOf('?');
+        stylesheets.map(getStylesheet).filter(isStylesheet).forEach(function updateStylesheets(currentLink) {
+            var href = currentLink.getAttribute('href'),
+                hrefBase = currentLink.getAttribute('href'),
+                queryIndex = href.indexOf('?'),
+                newLink = currentLink.cloneNode(false),
+                newLinkErrorHandler,
+                newLinkLoadHandler,
+                newHref;
+
+            if (!href) {
+                return;
+            }
 
             if (queryIndex !== -1) {
-                href = href.substring(0, queryIndex);
+                hrefBase = href.substring(0, queryIndex);
             }
 
-            if(stylesheets.indexOf(href) !== -1) {
-                element.setAttribute('href', href + '?' + Date.now());
-            }
+            newHref = hrefBase + '?' + Date.now();
+            newLink.setAttribute('href', newHref);
+
+            newLinkLoadHandler = newLink.addEventListener('load', function stylesheetLoad() {
+                // Destroy any existing handlers to save memory on subsequent stylesheet changes
+                newLink.removeEventListener('error', newLinkErrorHandler);
+                newLink.removeEventListener('load', newLinkLoadHandler);
+
+                // Remove the old stylesheet to allow the new one to take over
+                currentLink.remove();
+
+                // Force the browser to repaint the page after a stylesheet update
+                document.body.focus();
+            });
+
+            newLinkErrorHandler = newLink.addEventListener('error', function stylesheetError() {
+                // Something went wrong with our new stylesheet, so destroy it and keep the old one
+                newLink.removeEventListener('error', newLinkErrorHandler);
+                newLink.removeEventListener('load', newLinkLoadHandler);
+                newLink.remove();
+            });
+
+            // Insert the new stylesheet before the old one to avoid any flash of un-styled content. The load
+            // and error events only work for the initial load, which is why we replace the link on each update.
+            document.head.insertBefore(newLink, currentLink);
         });
 
         return true;
@@ -179,7 +216,7 @@
      * Sets the cookie with the current value of _editorToken
      */
     function setCookie() {
-        Cookies.set(cookieName, getEditorToken());
+        Cookies.set(_cookieName, getEditorToken());
     }
 
     /**
