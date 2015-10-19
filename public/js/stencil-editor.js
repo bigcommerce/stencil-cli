@@ -15,13 +15,52 @@
     init();
 
     /**
+     * Adds a link element with the passed font collection
+     * @param trans - jsChannel transaction
+     * @param data - object containing a the font collection string
+     */
+    function addFonts(trans, data) {
+        var link = document.createElement('link'),
+            linkLoadHandler,
+            url;
+
+        try {
+            data = JSON.parse(data);
+        } catch (e) {
+            return false;
+        }
+
+        url = '//fonts.googleapis.com/css?family=' + data.googleFontCollection;
+
+        link.setAttribute('rel', 'stylesheet');
+        link.setAttribute('href', url);
+
+        linkLoadHandler = link.addEventListener('load', function newFontLoaded() {
+            link.removeEventListener('load', linkLoadHandler);
+
+            focusBody();
+        });
+
+        document.head.appendChild(link);
+
+        return true;
+    }
+
+    /**
      * Removes the cookie and reloads the page
      */
     function closePreview(event) {
         event.preventDefault();
 
-        Cookies.remove(_cookieName);
+        window.Cookies.remove(_cookieName);
         reloadPage();
+    }
+
+    /**
+     * Force the browser to repaint the page after a stylesheet update
+     */
+    function focusBody() {
+        document.body.focus();
     }
 
     /**
@@ -124,6 +163,7 @@
     function registerJsChannelEvents() {
         var chan = Channel.build({window: window.parent, origin: '*', scope: 'stencilEditor'});
 
+        chan.bind('add-fonts', addFonts);
         chan.bind('on-ready', onReady);
         chan.bind('reload-stylesheets', reloadStylesheets);
         chan.bind('reload-page', reloadPage);
@@ -181,8 +221,7 @@
                 // Remove the old stylesheet to allow the new one to take over
                 currentLink.remove();
 
-                // Force the browser to repaint the page after a stylesheet update
-                document.body.focus();
+                focusBody();
             });
 
             newLinkErrorHandler = newLink.addEventListener('error', function stylesheetError() {
@@ -216,7 +255,7 @@
      * Sets the cookie with the current value of _editorToken
      */
     function setCookie() {
-        Cookies.set(_cookieName, getEditorToken());
+        window.Cookies.set(_cookieName, getEditorToken());
     }
 
     /**
