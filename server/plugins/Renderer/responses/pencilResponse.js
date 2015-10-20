@@ -105,14 +105,14 @@ internals.getTemplatePath = function (request, data) {
 /**
  * Output post-processing
  *
- * @param content
  * @param request
- * @param data
+ * @param context
  */
 internals.makeDecorator = function (request, context) {
-
     return function(content) {
-        var regex;
+        var regex,
+            debugBar,
+            stencilEditorSDK;
 
         if (context.settings) {
             regex = new RegExp(internals.escapeRegex(context.settings.base_url), 'g');
@@ -120,14 +120,21 @@ internals.makeDecorator = function (request, context) {
 
             regex = new RegExp(internals.escapeRegex(context.settings.secure_base_url), 'g');
             content = content.replace(regex, '');
-
         }
 
         if (request.query.debug === 'bar') {
-            var debugBar = '<pre style="background-color:#EEE; word-wrap:break-word;">';
+            debugBar = '<pre style="background-color:#EEE; word-wrap:break-word;">';
             debugBar += internals.escapeHtml(JSON.stringify(context, null, 2)) + '</pre>';
             regex = new RegExp('</body>');
             content = content.replace(regex, debugBar + '\n</body>');
+        }
+
+        if (request.query.stencilEditor || request.state.stencil_editor_enabled) {
+            stencilEditorSDK = '<script src="http://localhost:8181/public/jspm_packages/github/meenie/jschannel@0.0.5/src/jschannel.js"></script>';
+            stencilEditorSDK += '<script src="http://localhost:8181/public/jspm_packages/github/js-cookie/js-cookie@2.0.3/src/js.cookie.js"></script>';
+            stencilEditorSDK += '<script src="http://localhost:8181/public/js/stencil-editor.js"></script>';
+
+            content = content.replace(new RegExp('</body>'), stencilEditorSDK + '\n</body>');
         }
 
         return content;

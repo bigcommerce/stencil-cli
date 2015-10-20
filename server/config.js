@@ -1,6 +1,7 @@
 'use strict';
 
 var Confidence = require('confidence'),
+    Fs = require('fs'),
     Path = require('path'),
     criteria,
     store,

@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-require('colors');
-
 var _ = require('lodash'),
     Bs = require('browser-sync').create(),
     Fs = require('fs'),
@@ -20,15 +18,16 @@ var _ = require('lodash'),
     cssWatchBaseDir = Path.join(themePath, 'assets/'),
     jsCompilerDir = Path.join(themePath, 'assets/js'),
     dotStencilFilePath = Path.join(themePath, '.stencil'),
-    dotStencilFileExists = Fs.existsSync(dotStencilFilePath),
     dotStencilFile,
     isTopLevelCssRegex,
     stencilServerPort,
     themeConfig,
     themeConfigPath = Path.join(themePath, 'config.json'),
-    themeConfigExists = Fs.existsSync(themeConfigPath),
     staplerUrl,
-    headers;
+    headers,
+    themeConfigSchemaPath = Path.join(themePath, 'schema.json');
+
+require('colors');
 
 Program
     .version(Pkg.version)
@@ -36,13 +35,24 @@ Program
     .option('-v, --variation [name]', 'Set which theme variation to use while developing')
     .option('-t, --test', 'Enable QA mode which will bundle all javascript for speed to test locally')
     .option('--tunnel', 'Create a tunnel URL which points to your local server that anyone can use.')
+    .option('-e, --theme-editor', 'Run Theme Editor server')
+    .option('--theme-editor-port [port]', 'Run the Theme Editor on a different port')
     .parse(process.argv);
 
-if (! dotStencilFileExists) {
+function fileExist(path) {
+    try {
+        return Fs.statSync(path);
+    }
+    catch (e) {
+        return false;
+    }
+}
+
+if (!fileExist(dotStencilFilePath)) {
     return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
 }
 
-if (! themeConfigExists) {
+if (!fileExist(themeConfigPath)) {
     return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
 }
 
@@ -112,6 +122,7 @@ Wreck.get(
 
             dotStencilFile.storeUrl = payload.sslUrl;
             dotStencilFile.normalStoreUrl = payload.baseUrl;
+            dotStencilFile.stencilServerPort = stencilServerPort;
 
             if (themeConfig.config.jspm && Program.test) {
                 bundleTask = JspmAssembler.assemble(
@@ -135,7 +146,14 @@ Wreck.get(
  * Starts up the local Stencil Server as well as starts up BrowserSync and sets some watch options.
  */
 function startServer() {
-    Server({dotStencilFile: dotStencilFile, themeVariationName: themeConfig.config.variationName}, function(err) {
+    var params = {
+        dotStencilFile: dotStencilFile,
+        themeVariationName: themeConfig.config.variationName,
+        stencilEditorEnabled: Program.themeEditor,
+        stencilEditorPort: Program.themeEditorPort || 8181
+    };
+
+    Server(params, function(err) {
         if (err) {
             throw err;
         }
@@ -229,7 +247,14 @@ function startServer() {
  */
 function parseThemeConfig() {
     var ret = {},
-        themeConfig = new ThemeConfig(themeConfigPath, Program.variation);
+        themeConfig;
+
+    // We don't require the schema file to exist as it's only used for the Theme Editor
+    if (!fileExist(themeConfigSchemaPath)) {
+        themeConfigSchemaPath = '';
+    }
+
+    themeConfig = ThemeConfig.getInstance(themeConfigPath, themeConfigSchemaPath, Program.variation);
 
     try {
         ret.config = themeConfig.getConfig();

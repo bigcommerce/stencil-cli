@@ -72,7 +72,7 @@ Inquirer.prompt(questions, function(answers) {
         }
 
         // bundle dev dependencies
-        themeConfig = new ThemeConfig(themeConfigPath).getConfig();
+        themeConfig = ThemeConfig.getInstance(themeConfigPath).getConfig();
         if (themeConfig.jspm) {
             if (! Fs.existsSync(Path.join(themePath, themeConfig.jspm.jspm_packages_path))) {
                 console.log('Error: The path you specified for your "jspm_packages" folder does not exist.'.red);
