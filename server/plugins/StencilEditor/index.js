@@ -204,18 +204,19 @@ internals.updateConfig = function (request, reply) {
 
 internals.getConfig = function (request, reply) {
     var configiration = internals.themeConfig.getConfig();
-    var variations = configiration.variations || {};
+    
+    if (!_.isArray(configiration.variations)) {
+        return;
+    }
 
     // Add absolute path to the preview images
-    _.each(variations, function(variation) {
-        var meta = variation.meta || {};
-        var screenshot = meta.screenshot || {};
+    _.each(configiration.variations, function(variation) {
+        variation.meta = variation.meta || {};
 
-        screenshot.smallThumb = internals.stencilThemeHost + '/' + screenshot.smallThumb;
-        variation.meta = meta;
+        variation.meta.screenshot = {
+            smallThumb: internals.stencilThemeHost + '/' + variation.meta.desktop_screenshot
+        };
     });
-
-    configiration.variations = variations;
 
     reply(configiration);
 };
