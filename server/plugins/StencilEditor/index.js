@@ -12,7 +12,7 @@ var _ = require('lodash'),
             themeStyles: Path.join(process.cwd(), 'assets/scss'),
             publicPath: Path.join(__dirname, '../../../public'),
             themeVariationName: '',
-            stencilServerPort: 0
+            stencilThemeHost: ''
         }
     };
 
@@ -20,6 +20,8 @@ module.exports.register = function (server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);
 
     internals.themeConfig = ThemeConfig.getInstance();
+
+    internals.stencilThemeHost = 'http://localhost:' + internals.options.stencilServerPort;
 
     server.views({
         engines: {
@@ -98,7 +100,7 @@ internals.home = function(request, reply) {
         reply.view('index', {
             cssFiles: assets.cssFiles,
             jsFiles: assets.jsFiles,
-            storeUrl: 'http://localhost:' + internals.options.stencilServerPort + '?stencilEditor=stencil-cli'
+            storeUrl: internals.stencilThemeHost + '?stencilEditor=stencil-cli'
         });
     });
 };
@@ -201,7 +203,21 @@ internals.updateConfig = function (request, reply) {
 };
 
 internals.getConfig = function (request, reply) {
-    reply(internals.themeConfig.getConfig());
+    var configiration = internals.themeConfig.getConfig();
+    var variations = configiration.variations || {};
+
+    // Add absolute path to the preview images
+    _.each(variations, function(variation) {
+        var meta = variation.meta || {};
+        var screenshot = meta.screenshot || {};
+
+        screenshot.smallThumb = internals.stencilThemeHost + '/' + screenshot.smallThumb;
+        variation.meta = meta;
+    });
+
+    configiration.variations = variations;
+
+    reply(configiration);
 };
 
 internals.getVariationName = function (request, reply) {
