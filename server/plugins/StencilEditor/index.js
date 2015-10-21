@@ -3,6 +3,7 @@ var _ = require('lodash'),
     Glob = require('glob'),
     Hoek = require('hoek'),
     Path = require('path'),
+    Url = require('url'),
     ThemeConfig = require('../../../lib/themeConfig'),
     packageJson = require('../../../package.json'),
     internals = {
@@ -214,7 +215,7 @@ internals.getConfig = function (request, reply) {
         variation.meta = variation.meta || {};
 
         variation.meta.screenshot = {
-            smallThumb: internals.stencilThemeHost + '/' + variation.meta.desktop_screenshot
+            smallThumb: Url.resolve(internals.stencilThemeHost, variation.meta.desktop_screenshot)
         };
     });
 
