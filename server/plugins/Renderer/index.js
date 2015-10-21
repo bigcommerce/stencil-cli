@@ -76,7 +76,7 @@ internals.getResponse = function (request, callback) {
         protocol: staplerUrlObject.protocol,
         host: staplerUrlObject.host,
         pathname: urlObject.pathname,
-        query: urlObject.query
+        search: urlObject.search
     });
 
     Wreck.request(request.method, url, httpOpts, function (err, response) {
@@ -113,7 +113,7 @@ internals.getResponse = function (request, callback) {
                 ));
             }
 
-            // If a remote call, no need to do a second call to get the data, 
+            // If a remote call, no need to do a second call to get the data,
             // it has already come back
             if (bcAppData.remote) {
 
