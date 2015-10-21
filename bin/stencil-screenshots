@@ -1,0 +1,63 @@
+#!/usr/bin/env node
+var Pageres = require('pageres');
+var themePath = process.cwd();
+var Path = require('path');
+var Fs = require('fs');
+var Url = require('url');
+var dotStencilFilePath = Path.join(themePath, '.stencil');
+var metaPath = Path.join(themePath, 'meta');
+var pageResOptions = {
+    crop: true
+};
+var dotStencilFile;
+var localUrl;
+
+require('colors');
+
+function fileExist(path) {
+    try {
+        return Fs.statSync(path);
+    }
+    catch (e) {
+        return false;
+    }
+}
+
+if (!fileExist(dotStencilFilePath)) {
+    return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
+}
+
+try {
+    Fs.statSync(metaPath).isDirectory()
+} catch (e) {
+    console.log('Creating \'meta\' folder to store screenshots');
+    Fs.mkdirSync(metaPath);
+}
+
+
+dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
+dotStencilFile = JSON.parse(dotStencilFile);
+
+localUrl = Url.format({
+    protocol: 'http',
+    hostname: 'localhost',
+    port: dotStencilFile.port
+});
+
+
+console.log('Generating screenshots for: "' + localUrl + '"');
+
+new Pageres({
+        delay: 2,
+        headers: {
+            'Accept-Language': 'en'
+        }
+    })
+    .src(localUrl, ['2048x2600', '304x540', '600x760'], pageResOptions)
+    .dest(metaPath)
+    .run(function (err) {
+    if (err) {
+        console.log(err);
+    }
+    console.log('Done.');
+});
