@@ -11,7 +11,8 @@
   "bin": {
     "stencil": "./bin/stencil",
     "stencil-start": "./bin/stencil-start",
-    "stencil-init": "./bin/stencil-init"
+    "stencil-init": "./bin/stencil-init",
+    "stencil-screenshots": "./bin/stencil-screenshots"
   },
   "config": {
     "stencil_version": "1.0"
@@ -51,6 +52,7 @@
     "less": "^2.5.0",
     "lodash": "^3.9.0",
     "npm": "^2.7.5",
+    "pageres": "^2.1.0",
     "recursive-readdir": "^1.2.1",
     "stencil-paper": "bigcommerce/paper",
     "stencil-styles": "bigcommerce/stencil-styles",
