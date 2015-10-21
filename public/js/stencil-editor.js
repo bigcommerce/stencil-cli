@@ -15,14 +15,13 @@
     init();
 
     /**
-     * Adds a link element with the passed font collection
+     * Adds a link element with the passed font url
      * @param trans - jsChannel transaction
-     * @param data - object containing a the font collection string
+     * @param data - object containing the font collection string
      */
-    function addFonts(trans, data) {
+    function addFont(trans, data) {
         var link = document.createElement('link'),
-            linkLoadHandler,
-            url;
+            linkLoadHandler;
 
         try {
             data = JSON.parse(data);
@@ -30,10 +29,8 @@
             return false;
         }
 
-        url = '//fonts.googleapis.com/css?family=' + data.googleFontCollection;
-
         link.setAttribute('rel', 'stylesheet');
-        link.setAttribute('href', url);
+        link.setAttribute('href', data.fontUrl);
 
         linkLoadHandler = link.addEventListener('load', function newFontLoaded() {
             link.removeEventListener('load', linkLoadHandler);
@@ -163,7 +160,7 @@
     function registerJsChannelEvents() {
         var chan = Channel.build({window: window.parent, origin: '*', scope: 'stencilEditor'});
 
-        chan.bind('add-fonts', addFonts);
+        chan.bind('add-font', addFont);
         chan.bind('on-ready', onReady);
         chan.bind('reload-stylesheets', reloadStylesheets);
         chan.bind('reload-page', reloadPage);
