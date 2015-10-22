@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://themes.bigcommerce.com/theme_packages/config",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "price": {
+          "type": "integer"
+        },
+        "documentation_url": {
+          "type": "string"
+        },
+        "composed_image": {
+          "type": "string"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [ "faceted_search", "responsive", "etc", "TODO" ]
+          },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "price",
+        "documentation_url",
+        "composed_image",
+        "features"
+      ]
+    },
+    "settings": {
+      "type": "object"
+    },
+    "variations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "desktop_screenshot": {
+                "type": "string"
+              },
+              "mobile_screenshot": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "demo_url": {
+                "type": "string"
+              },
+              "optimized_for": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [ "image_heavy", "retail", "fashion", "etc", "TODO" ]
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              },
+              "industries": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [ "automotive", "pets", "etc", "TODO" ]
+                },
+                "uniqueItems": true,
+                "minItems": 0,
+                "maxItems": 4
+              }
+            },
+            "required": [
+              "desktop_screenshot",
+              "mobile_screenshot",
+              "description",
+              "demo_url",
+              "optimized_for"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "id",
+          "meta"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 4
+    }
+  },
+  "required": [
+    "name",
+    "version",
+    "meta",
+    "settings",
+    "variations"
+  ],
+  "additionalProperties": true
+}
