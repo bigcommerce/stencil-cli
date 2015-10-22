@@ -42,6 +42,7 @@ module.exports = function(options, callback) {
 };
 
 internals.startThemeEditor = function(options, callback) {
+    var themeEditorHost = 'http://localhost:' + options.stencilEditorPort;
     var stencilEditorConfig = {
         connections: [{
             host: 'localhost',
@@ -50,7 +51,8 @@ internals.startThemeEditor = function(options, callback) {
         plugins: {
             './plugins/StencilEditor': {
                 themeVariationName: options.themeVariationName,
-                stencilServerPort: options.dotStencilFile.stencilServerPort
+                stencilServerPort: options.dotStencilFile.stencilServerPort,
+                themeEditorHost: themeEditorHost
             }
         }
     };
@@ -61,9 +63,7 @@ internals.startThemeEditor = function(options, callback) {
         }
 
         server.start(function () {
-            var host = 'http://localhost: ' + options.stencilEditorPort;
-
-            console.log('Theme Editor:', host.cyan);
+            console.log('Theme Editor:', themeEditorHost.cyan);
             return callback();
         });
     });

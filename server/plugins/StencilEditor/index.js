@@ -12,6 +12,7 @@ var _ = require('lodash'),
             themeConfigSchemaPath: Path.join(process.cwd(), 'schema.json'),
             themeStyles: Path.join(process.cwd(), 'assets/scss'),
             publicPath: Path.join(__dirname, '../../../public'),
+            metaPath: Path.join(process.cwd(), 'meta'),
             themeVariationName: '',
             stencilThemeHost: ''
         }
@@ -53,6 +54,15 @@ module.exports.register = function (server, options, next) {
             handler: {
                 directory: {
                     path: internals.options.publicPath
+                }
+            }
+        },
+        {
+            method: 'GET',
+            path: '/meta/{path*}',
+            handler: {
+                directory: {
+                    path: internals.options.metaPath
                 }
             }
         },
@@ -215,7 +225,7 @@ internals.getConfig = function (request, reply) {
         variation.meta = variation.meta || {};
 
         variation.meta.screenshot = {
-            smallThumb: Url.resolve(internals.stencilThemeHost, variation.meta.desktop_screenshot)
+            smallThumb: Url.resolve(internals.options.themeEditorHost, Path.join('meta', variation.meta.desktop_screenshot))
         };
     });
 
