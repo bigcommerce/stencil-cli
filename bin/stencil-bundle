@@ -78,7 +78,8 @@ Async.parallel(tasks, function(err, assembledData) {
             'README.md',
             'CHANGELOG.md',
             'config.json',
-            'package.json'
+            'package.json',
+            'schema.json'
         ],
         archive = Archiver('zip');
 
