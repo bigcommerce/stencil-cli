@@ -3,6 +3,7 @@ var _ = require('lodash'),
     Glob = require('glob'),
     Hoek = require('hoek'),
     Path = require('path'),
+    Url = require('url'),
     ThemeConfig = require('../../../lib/themeConfig'),
     packageJson = require('../../../package.json'),
     internals = {
@@ -11,8 +12,9 @@ var _ = require('lodash'),
             themeConfigSchemaPath: Path.join(process.cwd(), 'schema.json'),
             themeStyles: Path.join(process.cwd(), 'assets/scss'),
             publicPath: Path.join(__dirname, '../../../public'),
+            metaPath: Path.join(process.cwd(), 'meta'),
             themeVariationName: '',
-            stencilServerPort: 0
+            stencilThemeHost: ''
         }
     };
 
@@ -20,6 +22,8 @@ module.exports.register = function (server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);
 
     internals.themeConfig = ThemeConfig.getInstance();
+
+    internals.stencilThemeHost = 'http://localhost:' + internals.options.stencilServerPort;
 
     server.views({
         engines: {
@@ -50,6 +54,15 @@ module.exports.register = function (server, options, next) {
             handler: {
                 directory: {
                     path: internals.options.publicPath
+                }
+            }
+        },
+        {
+            method: 'GET',
+            path: '/meta/{path*}',
+            handler: {
+                directory: {
+                    path: internals.options.metaPath
                 }
             }
         },
@@ -98,7 +111,7 @@ internals.home = function(request, reply) {
         reply.view('index', {
             cssFiles: assets.cssFiles,
             jsFiles: assets.jsFiles,
-            storeUrl: 'http://localhost:' + internals.options.stencilServerPort + '?stencilEditor=stencil-cli'
+            storeUrl: internals.stencilThemeHost + '?stencilEditor=stencil-cli'
         });
     });
 };
@@ -201,7 +214,22 @@ internals.updateConfig = function (request, reply) {
 };
 
 internals.getConfig = function (request, reply) {
-    reply(internals.themeConfig.getConfig());
+    var configiration = internals.themeConfig.getConfig();
+    
+    if (!_.isArray(configiration.variations)) {
+        return;
+    }
+
+    // Add absolute path to the preview images
+    _.each(configiration.variations, function(variation) {
+        variation.meta = variation.meta || {};
+
+        variation.meta.screenshot = {
+            smallThumb: Url.resolve(internals.options.themeEditorHost, Path.join('meta', variation.meta.desktop_screenshot))
+        };
+    });
+
+    reply(configiration);
 };
 
 internals.getVariationName = function (request, reply) {
