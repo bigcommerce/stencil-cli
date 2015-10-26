@@ -50,6 +50,7 @@ internals.implementation = function (request, reply) {
             }
         }, function (err, css) {
             if (err) {
+                console.error(err);
                 return reply(Boom.badData(err));
             }
 
