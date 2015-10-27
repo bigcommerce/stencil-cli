@@ -3,17 +3,19 @@ var _ = require('lodash'),
     Glob = require('glob'),
     Hoek = require('hoek'),
     Path = require('path'),
+    Async = require('async'),
     Url = require('url'),
     ThemeConfig = require('../../../lib/themeConfig'),
-    packageJson = require('../../../package.json'),
+    PackageJson = require('../../../package.json'),
+    handlers = {},
     internals = {
         options: {
             themeConfigPath: Path.join(process.cwd(), 'config.json'),
             themeConfigSchemaPath: Path.join(process.cwd(), 'schema.json'),
-            themeStyles: Path.join(process.cwd(), 'assets/scss'),
+            themeStylesPath: Path.join(process.cwd(), 'assets/scss'),
+            themeTemplatesPath: Path.join(process.cwd(), 'templates'),
             publicPath: Path.join(__dirname, '../../../public'),
             metaPath: Path.join(process.cwd(), 'meta'),
-            themeVariationName: '',
             stencilThemeHost: ''
         }
     };
@@ -46,7 +48,7 @@ module.exports.register = function (server, options, next) {
         {
             method: 'GET',
             path: '/ng-stencil-editor',
-            handler: internals.home
+            handler: handlers.home
         },
         {
             method: 'GET',
@@ -69,27 +71,32 @@ module.exports.register = function (server, options, next) {
         {
             method: 'POST',
             path: '/ng-stencil-editor/config',
-            handler: internals.updateConfig
+            handler: handlers.updateConfig
         },
         {
             method: 'GET',
             path: '/ng-stencil-editor/config',
-            handler: internals.getConfig
+            handler: handlers.getConfig
         },
         {
             method: 'GET',
             path: '/ng-stencil-editor/config/variation-name',
-            handler: internals.getVariationName
+            handler: handlers.getVariationName
         },
         {
             method: 'POST',
             path: '/ng-stencil-editor/config/variation-name',
-            handler: internals.setVariationName
+            handler: handlers.setVariationName
         },
         {
             method: 'GET',
             path: '/ng-stencil-editor/schema',
-            handler: internals.getConfigSchema
+            handler: handlers.getConfigSchema
+        },
+        {
+            method: 'GET',
+            path: '/api/versions/{id}',
+            handler: require('./api/versions')(internals.options, internals.themeConfig)
         }
     ]);
 
@@ -102,7 +109,7 @@ module.exports.register = function (server, options, next) {
  * @param request
  * @param reply
  */
-internals.home = function(request, reply) {
+handlers.home = function(request, reply) {
     internals.getAssets(function (err, assets) {
         if (err) {
             reply(err);
@@ -172,7 +179,7 @@ internals.buildDirectoryExists = function () {
  */
 internals.getStencilEditorPath = function (path) {
     var basePath = 'jspm_packages/github/bigcommerce-labs/ng-stencil-editor@';
-    var version = packageJson.jspm.dependencies['bigcommerce-labs/ng-stencil-editor'].split('@')[1];
+    var version = PackageJson.jspm.dependencies['bigcommerce-labs/ng-stencil-editor'].split('@')[1];
 
     return basePath + version;
 };
@@ -183,7 +190,7 @@ internals.getStencilEditorPath = function (path) {
  * @param request
  * @param reply
  */
-internals.updateConfig = function (request, reply) {
+handlers.updateConfig = function (request, reply) {
     var saveToFile = !!request.query.commit,
         response = {
             forceReload: internals.themeConfig.updateConfig(request.payload, saveToFile).forceReload,
@@ -194,7 +201,7 @@ internals.updateConfig = function (request, reply) {
         files;
 
     if (! response.forceReload) {
-        files = Fs.readdirSync(internals.options.themeStyles);
+        files = Fs.readdirSync(internals.options.themeStylesPath);
         compilerExtension = '.' + internals.themeConfig.getConfig().css_compiler;
 
         styleFiles = _.filter(files, function(file) {
@@ -213,7 +220,19 @@ internals.updateConfig = function (request, reply) {
     return reply(response);
 };
 
-internals.getConfig = function (request, reply) {
+/**
+ * Get the theme schema.json
+ * @param  {Object} request
+ * @param  {Object} reply
+ * @deprecated replaced by GET/api/versions/{id}
+ */
+handlers.getConfigSchema = function (request, reply) {
+    var schema = require(internals.options.themeConfigSchemaPath);
+
+    reply(schema);
+};
+
+handlers.getConfig = function (request, reply) {
     var configiration = internals.themeConfig.getConfig();
     
     if (!_.isArray(configiration.variations)) {
@@ -232,17 +251,11 @@ internals.getConfig = function (request, reply) {
     reply(configiration);
 };
 
-internals.getVariationName = function (request, reply) {
+handlers.getVariationName = function (request, reply) {
     reply(internals.themeConfig.getConfig().variationName);
 };
 
-internals.getConfigSchema = function (request, reply) {
-    var schema = require(internals.options.themeConfigSchemaPath);
-
-    reply(schema);
-};
-
-internals.setVariationName = function(request, reply) {
+handlers.setVariationName = function(request, reply) {
     internals.themeConfig.setVariationName(request.payload.name);
 
     reply({forceReload: true});

@@ -61,7 +61,9 @@
   },
   "devDependencies": {
     "code": "^1.4.0",
+    "jsonschema": "^1.0.2",
     "lab": "^5.5.1",
+    "proxyquire": "^1.7.3",
     "sinon": "^1.14.1"
   },
   "jspm": {
