@@ -61,5 +61,25 @@
         ]
       }
     ]
+  },
+  {
+    "name": "Page",
+    "settings": [
+      {
+        "type": "string",
+        "label": "A Title",
+        "id": "customizable_title"
+      },
+      {
+        "type": "checkbox",
+        "label": "Fetch Data",
+        "id": "fornt_matter_value"
+      },
+      {
+        "type": "radio",
+        "label": "Display That",
+        "id": "display_that"
+      }
+    ]
   }
 ]
