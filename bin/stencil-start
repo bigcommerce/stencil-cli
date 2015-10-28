@@ -25,7 +25,7 @@ var _ = require('lodash'),
     themeConfigPath = Path.join(themePath, 'config.json'),
     staplerUrl,
     headers,
-    themeConfigSchemaPath = Path.join(themePath, 'schema.json');
+    themeSchemaPath = Path.join(themePath, 'schema.json');
 
 require('colors');
 
@@ -250,11 +250,11 @@ function parseThemeConfig() {
         themeConfig;
 
     // We don't require the schema file to exist as it's only used for the Theme Editor
-    if (!fileExist(themeConfigSchemaPath)) {
-        themeConfigSchemaPath = '';
+    if (!fileExist(themeSchemaPath)) {
+        themeSchemaPath = '';
     }
 
-    themeConfig = ThemeConfig.getInstance(themeConfigPath, themeConfigSchemaPath, Program.variation);
+    themeConfig = ThemeConfig.getInstance(themeConfigPath, themeSchemaPath, Program.variation);
 
     try {
         ret.config = themeConfig.getConfig();

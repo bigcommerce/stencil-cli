@@ -4,6 +4,7 @@ var Fs = require('fs');
 var Glob = require('glob');
 var Async = require('async');
 var _ = require('lodash');
+var JsonLint = require('jsonlint');
 var internals = {};
 
 /**
@@ -23,12 +24,25 @@ module.exports = function (options, themeConfig) {
 
         internals.getThemeSchema(options, function(err, schema) {
             if (err) {
-                return reply(err);
+                return reply({
+                    errors: [
+                        {
+                            type: 'parse_error',
+                            title: 'Parse Error',
+                            detail: err.message
+                        }
+                    ]
+                });
+            }
+
+            if (schema.length === 0) {
+                // Warn the user that there is no schema.jon file
+                request.log("No schema.json found in the theme directory. " + options.themeSchemaPath);
             }
 
             reply({
                 data: {
-                    id: '1',
+                    id: 'theme',
                     name: config.name,
                     price: config.meta.price,
                     displayVersion: config.version,
@@ -46,43 +60,48 @@ module.exports = function (options, themeConfig) {
 
 /**
  * Scans the theme template directory for theme settings that need force reload
- * @param {Object}   schema
  * @param {Object}   options
  * @param {Function} callback
  */
 internals.getThemeSchema = function (options, callback) {
-    var schema = require(options.themeConfigSchemaPath);
-    var forceReloadIds = {};
+    var themeSchemaContent;
+    var themeSchema;
 
-    function searchForThemeSettings(path, next) {
-        var match;
+    try {
+        themeSchemaContent = Fs.readFileSync(options.themeSchemaPath, 'utf8');
+    } catch (err) {
+        return callback(null, []);
+    }
 
-        Fs.readFile(path, 'utf8', function(err, content) {
-            if (err) {
-                return next(err);
-            }
+    if (themeSchemaContent) {
+        try {
+            themeSchema = JsonLint.parse(themeSchemaContent);
+        } catch (err) {
+            return callback(err);
+        }
+    }        
 
-            var pattern = /{{\s*theme_settings\.([^}}]+)}}/g;
-
-            while (match = pattern.exec(content)) {
-                forceReloadIds[match[1]] = true;
-            }
-
-            next();
-        });
-    };
+    if (!_.isArray(themeSchema)) {
+        themeSchema = [];
+    }
 
     Glob(Path.join(options.themeTemplatesPath, '**/*.html'), function(err, files) {
         if (err) {
             return callback(err);
         }
 
-        Async.map(files, searchForThemeSettings, function(err) {
+        Async.map(files, internals.fetchThemeSettings, function(err, themeSettings) {
+            var forceReloadIds = {};
+
             if (err) {
                 return callback(err);
             }
 
-            _.each(schema, function(data) {
+            _.each(themeSettings, function(id) {
+                forceReloadIds = _.merge(forceReloadIds, id);
+            });
+
+            _.each(themeSchema, function(data) {
                 _.each(data.settings, function(item) {
                     if (forceReloadIds[item.id]) {
                         item['force_reload'] = true;
@@ -90,8 +109,32 @@ internals.getThemeSchema = function (options, callback) {
                 })
             });
 
-            callback(null, schema);
+            return callback(null, themeSchema);
         });
+    });
+};
+
+/**
+ * Scan file for theme_settings.*
+ * @param  {String}   path
+ * @param  {Function} next
+ */
+internals.fetchThemeSettings = function (path, next) {
+    var themeSettingsRegexPattern = /\Wtheme_settings\.(.+?)\W/g;
+    var themeSettings = {};
+
+    Fs.readFile(path, 'utf8', function(err, content) {
+        var match;
+
+        if (err) {
+            return next(err);
+        }
+
+        while (match = themeSettingsRegexPattern.exec(content)) {
+            themeSettings[match[1]] = true;
+        }
+
+        return next(null, themeSettings);
     });
 };
 

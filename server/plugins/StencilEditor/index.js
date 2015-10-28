@@ -11,7 +11,7 @@ var _ = require('lodash'),
     internals = {
         options: {
             themeConfigPath: Path.join(process.cwd(), 'config.json'),
-            themeConfigSchemaPath: Path.join(process.cwd(), 'schema.json'),
+            themeSchemaPath: Path.join(process.cwd(), 'schema.json'),
             themeStylesPath: Path.join(process.cwd(), 'assets/scss'),
             themeTemplatesPath: Path.join(process.cwd(), 'templates'),
             publicPath: Path.join(__dirname, '../../../public'),
@@ -227,7 +227,7 @@ handlers.updateConfig = function (request, reply) {
  * @deprecated replaced by GET/api/versions/{id}
  */
 handlers.getConfigSchema = function (request, reply) {
-    var schema = require(internals.options.themeConfigSchemaPath);
+    var schema = require(internals.options.themeSchemaPath);
 
     reply(schema);
 };

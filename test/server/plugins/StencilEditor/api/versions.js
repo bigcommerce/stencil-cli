@@ -5,32 +5,13 @@ var Path = require('path');
 var Sinon = require('sinon');
 var Proxyquire = require('proxyquire').noCallThru();
 var lab = exports.lab = Lab.script();
-var Validator = require('jsonschema').Validator;
-var modulePath = '../../../../../server/plugins/StencilEditor/api/versions';
-
-var responseSchema = {
-    "data": {
-        "id": "string",
-        "name": "string",
-        "price": 0,
-        "displayVersion": "string",
-        "editorSchema": [
-            {}
-        ],
-        "status": "string",
-        "numVariations": 0,
-        "defaultVariationId": "string",
-        "screenshot": "string"
-    },
-    "meta": {}
-}
+var validator = new (require('jsonschema').Validator)();
+var VersionsApi = require('../../../../../server/plugins/StencilEditor/api/versions');
+var responseSchema = require('./versions.schema');
 
 lab.describe('GET /versions/{id} api endpoint', function() {
-    var readFileStub;
-    var options = {
-        themeConfigSchemaPath: '/path/schema.json',
-        themeEditorHost: 'http://localhost:3000',
-        themeTemplatesPath: '/path/templates'
+    var requestStub = {
+        log: function () {}
     };
     var themeConfig = {
         getConfig: function() {
@@ -46,78 +27,91 @@ lab.describe('GET /versions/{id} api endpoint', function() {
         }
     };
 
-    var themeSchema = [
-        {
-            "name": "Colors",
-            "settings": [
-                {
-                    "type": "color",
-                    "label": "Text Color",
-                    "id": "body-font-color"
-                },
-                {
-                    "type": "color",
-                    "label": "Link Color",
-                    "id": "color-textLink"
-                }
-            ]
-        },
-        {
-            "name": "Page",
-            "settings": [
-                {
-                    // attribute that requires force_reload
-                    "type": "color",
-                    "label": "Background Color",
-                    "id": "footer-backgroundColor"
-                },
-                {
-                    "type": "color",
-                    "label": "Column Header Text",
-                    "id": "footer-heading-fontColor"
-                }
-            ]
-        }
-    ];
+    lab.it('should reply with the right schema and include the theme schema', function(done) {
 
-    var glob = function(pattern, callback) {
-        callback(null, ['file1', 'file2']);
-    };
+        var options = {
+            themeSchemaPath: Path.join(process.cwd(), 'test/_mocks/schema.json'),
+            themeEditorHost: 'http://localhost:3000',
+            themeTemplatesPath: Path.join(process.cwd(), '/test/_mocks/templates')
+        };
 
-    lab.beforeEach(function(done) {        
-        readFileStub = Sinon.stub(Fs, 'readFile');
-        readFileStub.yields(null, '{{theme_settings.footer-backgroundColor}}')
-
-        done();
-    });
-
-    lab.afterEach(function(done) {
-        readFileStub.restore();
-
-        done();
-    });
-
-    lab.it('should reply with the correct schema and include the theme schema', function(done) {
-
-        var Versions = Proxyquire(modulePath, {
-            '/path/schema.json': themeSchema,
-            'glob': glob
-        });
-
-        Versions(options, themeConfig)({}, function(response) {
-            var v = new Validator();
+        VersionsApi(options, themeConfig)(requestStub, function(response) {
 
             // Validate the response schema against the theme-registry schema
-            Code.expect(v.validate(response, responseSchema).errors)
+            Code.expect(validator.validate(response, responseSchema).errors)
                 .to.be.empty();
 
             // expect theme schema to be included
             Code.expect(response.data.editorSchema)
-                .to.deep.equal(themeSchema);
+                .to.be.an.array();
 
-            // Make sure the force_reload was added to footer-backgroundColor
+            Code.expect(response.data.editorSchema[0])
+                .to.be.an.object();
+
+            Code.expect(response.data.editorSchema[1])
+                .to.be.an.object();
+
+            // Make sure the force_reload was added to the settings in _mocks/templates/*
             Code.expect(response.data.editorSchema[1].settings[0].force_reload)
                 .to.be.true();
+
+            Code.expect(response.data.editorSchema[1].settings[1].force_reload)
+                .to.be.true();
+
+            Code.expect(response.data.editorSchema[1].settings[2].force_reload)
+                .to.be.true();
+
+            done();
+        });
+    });
+
+    lab.it('should not include the theme schema in the response', function(done) {
+        var options = {
+            themeSchemaPath: Path.join(process.cwd(), 'test/_mocks/schemaNotExistant.json'),
+            themeEditorHost: 'http://localhost:3000',
+            themeTemplatesPath: Path.join(process.cwd(), '/test/_mocks/templates')
+        };
+
+        Sinon.spy(requestStub, 'log');
+
+        VersionsApi(options, themeConfig)(requestStub, function(response) {
+
+            // Validate the response schema against the theme-registry schema
+            Code.expect(validator.validate(response, responseSchema).errors)
+                .to.be.empty();
+
+            // expect theme schema to be included
+            Code.expect(response.data.editorSchema)
+                .to.be.an.array();
+
+            Code.expect(response.data.editorSchema)
+                .to.be.empty();
+
+            Code.expect(requestStub.log.calledOnce)
+                .to.be.true();
+
+            done();
+        });
+    });
+
+    lab.it('should respond with an error if the schema file is malformed', function(done) {
+
+        var options = {
+            themeSchemaPath: Path.join(process.cwd(), 'test/_mocks/malformedSchema.json'),
+            themeEditorHost: 'http://localhost:3000',
+            themeTemplatesPath: Path.join(process.cwd(), '/test/_mocks/templates')
+        };
+
+        VersionsApi(options, themeConfig)(requestStub, function(response) {
+
+            Code.expect(response.data)
+                .to.be.undefined();
+
+            Code.expect(response.errors[0].type)
+                .to.equal('parse_error');
+
+            Code.expect(response.errors)
+                .to.be.an.array();
 
             done();
         });

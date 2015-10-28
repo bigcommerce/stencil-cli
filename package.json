@@ -47,6 +47,7 @@
     "hoek": "^2.12.0",
     "inquirer": "^0.8.2",
     "install": "^0.1.8",
+    "jsonlint": "^1.6.2",
     "jsonschema": "^1.0.2",
     "jspm": "^0.15.7",
     "less": "^2.5.0",
@@ -61,7 +62,6 @@
   },
   "devDependencies": {
     "code": "^1.4.0",
-    "jsonschema": "^1.0.2",
     "lab": "^5.5.1",
     "proxyquire": "^1.7.3",
     "sinon": "^1.14.1"
