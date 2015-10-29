@@ -1,6 +1,8 @@
 var _ = require('lodash'),
     Async = require('async'),
     Boom = require('boom'),
+    Cache = require('memory-cache'),
+    Crypto = require('crypto'),
     Frontmatter = require('front-matter'),
     Hoek = require('hoek'),
     LangAssembler = require('../../../lib/langAssembler'),
@@ -11,7 +13,8 @@ var _ = require('lodash'),
     Utils = require('../../lib/utils'),
     Wreck = require('wreck'),
     internals = {
-        options: {}
+        options: {},
+        cacheTTL: 1000 * 60 * 5, // 5 minutes
     };
 
 module.exports.register = function (server, options, next) {
@@ -44,6 +47,16 @@ internals.implementation = function (request, reply) {
 };
 
 /**
+ * Creates a hash
+ *
+ * @param String|Object|Array input
+ * @returns String
+ */
+internals.sha1sum = function(input) {
+    return Crypto.createHash('sha1').update(JSON.stringify(input)).digest('hex');
+}
+
+/**
  * Fetches data from Stapler
  *
  * @param request
@@ -53,12 +66,16 @@ internals.getResponse = function (request, callback) {
     var staplerUrlObject = request.app.staplerUrl ? Url.parse(request.app.staplerUrl) : Url.parse(request.app.storeUrl),
         urlObject = _.clone(request.url, true),
         url,
+        requestSignature,
         themeConfig = request.app.themeConfig.getConfig(),
         httpOpts = {
             rejectUnauthorized: false,
             headers: internals.getHeaders(request, {get_template_file: true, get_data_only: true}),
             payload: request.payload
-        };
+        },
+        httpOptsSignature,
+        responseArgs,
+        cachedResponse;
 
     // Set host to stapler host
     httpOpts.headers.host = staplerUrlObject.host;
@@ -79,6 +96,29 @@ internals.getResponse = function (request, callback) {
         search: urlObject.search
     });
 
+    responseArgs = {
+        themeConfig: themeConfig,
+        request: request,
+        httpOpts: httpOpts,
+        staplerUrlObject: staplerUrlObject,
+        url: url
+    };
+
+    // create request signature for caching
+    httpOptsSignature = _.cloneDeep(httpOpts.headers);
+    delete httpOptsSignature.cookie;
+    requestSignature = internals.sha1sum(request.method) + internals.sha1sum(url) + internals.sha1sum(httpOptsSignature);
+    cachedResponse = Cache.get(requestSignature);
+
+    // check request signature and use cache, if available
+    if (cachedResponse && 'get' === request.method) {
+        // if GET request, return with cached response
+        return internals.parseResponse(cachedResponse.bcAppData, cachedResponse.response, responseArgs, callback);
+    } else if ('get' !== request.method) {
+        // clear when making a non-get request
+        Cache.clear();
+    }
+
     Wreck.request(request.method, url, httpOpts, function (err, response) {
         if (err) {
             return callback(err);
@@ -97,66 +137,118 @@ internals.getResponse = function (request, callback) {
             return internals.redirect(response, request, callback);
         }
 
-        Wreck.read(response, {json: true}, function (err, bcAppData) {
-            var resourcesConfig;
-
+        // parse response
+        Wreck.read(response, {json: true}, function(err, bcAppData) {
             if (err) {
                 return callback(err);
             }
 
-            if (!_.has(bcAppData, 'pencil_response')) {
-                // this is a raw response not emitted by TemplateEngine
-                return callback(null, new Responses.RawResponse(
-                    bcAppData,
-                    response.headers,
-                    response.statusCode
-                ));
-            }
+            // cache response
+            Cache.put(requestSignature, {
+                bcAppData: bcAppData,
+                response: response
+            }, internals.cacheTTL);
 
-            // If a remote call, no need to do a second call to get the data,
-            // it has already come back
-            if (bcAppData.remote) {
-
-                callback(null, internals.getPencilResponse(bcAppData, request, response, themeConfig));
-
-            } else {
-
-                resourcesConfig = internals.getResourceConfig(bcAppData, request, themeConfig);
-
-                httpOpts.headers = internals.getHeaders(request, {get_data_only: true}, resourcesConfig);
-                // Set host to stapler host
-                httpOpts.headers.host = staplerUrlObject.host;
-                Wreck.get(url, httpOpts, function (err, response, data) {
-                    if (err) {
-                        return callback(err);
-                    }
-
-                    // Response is a redirect
-                    if (response.statusCode >= 301 && response.statusCode <= 303) {
-                        return internals.redirect(response, request, callback);
-                    }
-
-                    // Response is bad
-                    if (response.statusCode === 500) {
-                        return callback(new Error('The Bigcommerce server responded with a 500 error'));
-                    }
-
-                    try {
-                        data = JSON.parse(data);
-                    } catch (e) {
-                        return callback(e);
-                    }
-
-                    // Data response is bad
-                    if (data.statusCode && data.statusCode === 500) {
-                        return callback(new Error('The Bigcommerce server responded with a 500 error'));
-                    }
-
-                    callback(null, internals.getPencilResponse(data, request, response, themeConfig));
-                });
-            }
+            internals.parseResponse(bcAppData, response, responseArgs, callback);
         });
     });
+};
+
+/**
+ * parses the response from bc app
+ *
+ * @param bcAppData
+ * @param response
+ * @param responseArgs
+ * @param callback
+ * @returns {*}
+ */
+internals.parseResponse = function (bcAppData, response, responseArgs, callback) {
+    var resourcesConfig;
+    var dataRequestSignature;
+    var httpOptsSignature;
+    var themeConfig = responseArgs.themeConfig;
+    var request = responseArgs.request;
+    var httpOpts = responseArgs.httpOpts;
+    var staplerUrlObject = responseArgs.staplerUrlObject;
+    var url = responseArgs.url;
+
+    if (!_.has(bcAppData, 'pencil_response')) {
+        // this is a raw response not emitted by TemplateEngine
+        return callback(null, new Responses.RawResponse(
+            bcAppData,
+            response.headers,
+            response.statusCode
+        ));
+    }
+
+    // If a remote call, no need to do a second call to get the data,
+    // it has already come back
+    if (bcAppData.remote) {
+        return callback(null, internals.getPencilResponse(bcAppData, request, response, themeConfig));
+    } else {
+        resourcesConfig = internals.getResourceConfig(bcAppData, request, themeConfig);
+
+        httpOpts.headers = internals.getHeaders(request, {get_data_only: true}, resourcesConfig);
+        // Set host to stapler host
+        httpOpts.headers.host = staplerUrlObject.host;
+
+        // create request signature for caching
+        httpOptsSignature = _.cloneDeep(httpOpts.headers);
+        delete httpOptsSignature.cookie;
+        dataRequestSignature = 'bcapp:' + internals.sha1sum(url) + internals.sha1sum(httpOptsSignature);
+
+        // check request signature and use cache, if available
+        if (Cache.get(dataRequestSignature)) {
+            var cache = Cache.get(dataRequestSignature);
+            return callback(
+                null,
+                internals.getPencilResponse(
+                    cache.data,
+                    cache.request,
+                    cache.response,
+                    cache.themeConfig
+                )
+            );
+        } else {
+            Wreck.get(url, httpOpts, function (err, response, data) {
+                if (err) {
+                    return callback(err);
+                }
+
+                // Response is a redirect
+                if (response.statusCode >= 301 && response.statusCode <= 303) {
+                    return internals.redirect(response, request, callback);
+                }
+
+                // Response is bad
+                if (response.statusCode === 500) {
+                    return callback(new Error('The Bigcommerce server responded with a 500 error'));
+                }
+
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    return callback(e);
+                }
+
+                // Data response is bad
+                if (data.statusCode && data.statusCode === 500) {
+                    return callback(new Error('The Bigcommerce server responded with a 500 error'));
+                }
+
+                // Cache data
+                Cache.put(dataRequestSignature, {
+                    data: data,
+                    request: request,
+                    response: response,
+                    themeConfig: themeConfig
+                }, internals.cacheTTL);
+
+                return callback(null, internals.getPencilResponse(data, request, response, themeConfig));
+            });
+        }
+    }
 };
 
 /**
