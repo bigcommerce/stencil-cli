@@ -8,6 +8,7 @@ var _ = require('lodash'),
     packageJson = require('../../../package.json'),
     internals = {
         options: {
+            basePath: '/api',
             themeConfigPath: Path.join(process.cwd(), 'config.json'),
             themeConfigSchemaPath: Path.join(process.cwd(), 'schema.json'),
             themeStyles: Path.join(process.cwd(), 'assets/scss'),
@@ -109,6 +110,7 @@ internals.home = function(request, reply) {
         }
 
         reply.view('index', {
+            basePath: internals.options.basePath,
             cssFiles: assets.cssFiles,
             jsFiles: assets.jsFiles,
             storeUrl: internals.stencilThemeHost + '?stencilEditor=stencil-cli'
