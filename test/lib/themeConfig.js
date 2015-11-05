@@ -6,18 +6,17 @@ var Code = require('code'),
     Sinon = require('sinon'),
     ThemeConfig = require('../../lib/themeConfig'),
     lab = exports.lab = Lab.script(),
-    configPath = Path.join(__dirname, '../_mocks/config.json'),
-    configMissingVariationsPath = Path.join(__dirname, '../_mocks/config-missing-variations.json'),
-    configBareBonesPath = Path.join(__dirname, '../_mocks/config-bare-bones.json'),
+    themePath = Path.join(__dirname, '../_mocks/themes/valid'),
+    missingVariationsThemePath = Path.join(__dirname, '../_mocks/themes/missing-variation'),
+    bareBonesThemePath = Path.join(__dirname, '../_mocks/themes/bare-bones'),
     describe = lab.describe,
     expect = Code.expect,
     it = lab.it,
-    schemaPath = Path.join(__dirname, '../_mocks/schema.json'),
     themeConfig;
 
 describe('ThemeConfig', function() {
     lab.beforeEach(function(done) {
-        themeConfig = ThemeConfig.getInstance(configPath, schemaPath, 'First');
+        themeConfig = ThemeConfig.getInstance(themePath).setVariationByName('First');
 
         done();
     });
@@ -29,15 +28,16 @@ describe('ThemeConfig', function() {
             done();
         });
 
-        it ('should allow overwriting of configPath, schemaPath, and variationName', function(done) {
-            var secondConfigPath = '/fake/config.json',
-                secondSchemaPath = '/fake/schema.json',
-                secondVariationName = 'Second',
-                secondThemeConfig = ThemeConfig.getInstance(secondConfigPath, secondSchemaPath, secondVariationName);
+        it ('should allow overwriting of configPath, schemaPath, and variationName by calling getInstance with params', function(done) {
+            var secondConfigPath = '/fake/config.json';
+            var secondSchemaPath = '/fake/schema.json';
+            var secondVariationName = 'Second';
+            var secondThemeConfig;
+
+            secondThemeConfig = ThemeConfig.getInstance('/fake');
 
             expect(secondThemeConfig.configPath).to.equal(secondConfigPath);
             expect(secondThemeConfig.schemaPath).to.equal(secondSchemaPath);
-            expect(secondThemeConfig.variationName).to.equal(secondVariationName);
             expect(secondThemeConfig).to.equal(themeConfig);
 
             done();
@@ -46,7 +46,7 @@ describe('ThemeConfig', function() {
 
     describe('getConfig()', function() {
         it('should return the correct config for the current variation', function(done) {
-            var config = ThemeConfig.getInstance().setVariationName('Second').getConfig(),
+            var config = ThemeConfig.getInstance().setVariationByName('Second').getConfig(),
                 originalSettingsToCompare = {
                     color: '#ffffff',
                     font: 'Sans Something',
@@ -74,7 +74,7 @@ describe('ThemeConfig', function() {
         });
 
         it('should throw an Error if there are no variations in config.json file', function(done) {
-            var themeConfig = ThemeConfig.getInstance(configMissingVariationsPath);
+            var themeConfig = ThemeConfig.getInstance(missingVariationsThemePath);
 
             expect(themeConfig.getConfig).to.throw(Error);
 
@@ -84,7 +84,8 @@ describe('ThemeConfig', function() {
         it('should grab the first variation if none is passed in', function(done) {
             var themeConfig = ThemeConfig.getInstance();
 
-            themeConfig.setVariationName(null);
+            themeConfig.setVariationByName(null);
+            // console.log(themeConfig.getConfig());
             expect(themeConfig.getConfig().variationName).to.equal('First');
 
             done();
@@ -93,24 +94,26 @@ describe('ThemeConfig', function() {
         it('should grab a specific variation if passed in', function(done) {
             var themeConfig = ThemeConfig.getInstance();
 
-            themeConfig.setVariationName('Second');
+            themeConfig.setVariationByName('Second');
             expect(themeConfig.getConfig().variationName).to.equal('Second');
 
             done();
         });
 
         it('should throw an Error if the passed in variation name does not match any in the config.json', function(done) {
-            var themeConfig = ThemeConfig.getInstance(configMissingVariationsPath);
+            var themeConfig = ThemeConfig.getInstance(themePath);
 
-            themeConfig.setVariationName('Does Not Exist');
+            function setVariation() {
+                themeConfig.setVariationByName('Does Not Exist');
+            }
 
-            expect(themeConfig.getConfig).to.throw(Error);
+            expect(setVariation).to.throw(Error);
 
             done();
         });
 
         it('should set proper default values if they do not exist', function(done) {
-            var themeConfig = ThemeConfig.getInstance(configBareBonesPath),
+            var themeConfig = ThemeConfig.getInstance(bareBonesThemePath),
                 config = themeConfig.getConfig();
 
             expect(config.settings).to.deep.equal({});
@@ -175,15 +178,8 @@ describe('ThemeConfig', function() {
             done();
         });
 
-        it('should return an object with forceReload property', function(done) {
-            var response = themeConfig.updateConfig(newSettings);
-
-            expect(response).to.include('forceReload');
-
-            done();
-        });
-
         it('should just modify the variations section of the file', function(done) {
+            var configPath = Path.join(themePath, 'config.json');
             var initialConfig = JSON.parse(Fs.readFileSync(configPath, {encoding: 'utf-8'}));
 
             Sinon.stub(Fs, 'writeFileSync', testSave);
@@ -207,14 +203,40 @@ describe('ThemeConfig', function() {
         });
     });
 
-    describe('checkForceReload()', function() {
-        it('should return the correct boolean based on passed in setting names', function(done) {
+    describe('getSchema()', function() {
+
+        it('should return the correct schema', function(done) {
+
             var themeConfig = ThemeConfig.getInstance();
+            var originalSchema = require(Path.join(themePath, 'schema.json'));
 
-            expect(themeConfig.checkForceReload(['color', 'font'])).to.equal(false);
-            expect(themeConfig.checkForceReload(['color', 'select'])).to.equal(true);
+            themeConfig.getSchema(function(err, schema) {
 
-            done();
+                expect(err).to.be.null();
+
+                expect(schema).to.be.an.array();
+
+                expect(schema[0]).to.deep.equal(originalSchema[0]);
+                expect(schema).to.have.length(2);
+
+                expect(schema[1].settings[0].force_reload).to.deep.true();
+                expect(schema[1].settings[1].force_reload).to.deep.true();
+                expect(schema[1].settings[2].force_reload).to.deep.true();
+
+                done();
+            });
+        });
+
+        it('should return an empty schema', function(done) {
+
+            var themeConfig = ThemeConfig.getInstance(bareBonesThemePath);
+
+            themeConfig.getSchema(function(err, schema) {
+                expect(schema).to.be.an.array();
+                expect(schema).to.have.length(0);
+
+                done();
+            });
         });
     });
 });

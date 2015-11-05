@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Missing Comma ->"
+    "settings": [
+      {
+        "type": "string",
+        "label": "A Title",
+        "id": "customizable_title"
+      },
+      {
+        "type": "checkbox",
+        "label": "Fetch Data",
+        "id": "front_matter_value"
+      },
+      {
+        "type": "radio",
+        "label": "Display That",
+        "id": "display_that"
+      }
+    ]
+  }
+]
