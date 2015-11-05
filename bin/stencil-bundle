@@ -2,7 +2,20 @@
 
 require('colors');
 
-var _ = require('lodash'),
+
+
+var MAX_SIZE_COMPOSED = 1048576 * 2, //2MB
+    MAX_SIZE_MOBILE = 1048576, //1MB
+    MAX_SIZE_DESKTOP = 1048576 * 5, //5MB
+    MAX_SIZE_BUNDLE = 1048576 * 50, //50MB
+    WIDTH_COMPOSED = 600,
+    HEIGHT_COMPOSED = 760,
+    WIDTH_MOBILE = 304,
+    HEIGHT_MOBILE = 540,
+    WIDTH_DESKTOP = 2048,
+    HEIGHT_DESKTOP = 2600,
+
+    _ = require('lodash'),
     Archiver = require('archiver'),
     Async = require('async'),
     Validator = require('jsonschema').Validator,
@@ -25,6 +38,7 @@ var _ = require('lodash'),
     templatesBasePath = Path.join(themePath, 'templates'),
     themeConfig,
     result,
+    rawConfig,
     v = new Validator(),
     schema = Fs.readFileSync(Path.resolve(__dirname, '..', 'theme_config.json'), {encoding: 'utf-8'}),
     themeConfigPath = Path.join(themePath, 'config.json'),
@@ -51,7 +65,7 @@ if (! themeConfigExists) {
 
 
 themeConfig = ThemeConfig.getInstance(themeConfigPath).getConfig();
-
+rawConfig = JSON.parse(Fs.readFileSync(themeConfigPath, {encoding: 'utf-8'}));
 tasks.css = getCssAssembleTask(themeConfig.css_compiler);
 tasks.templates = assembleTemplatesTask;
 tasks.lang = assembleLangTask;
@@ -72,6 +86,10 @@ if (themeConfig.jspm) {
 
     themeConfig.jspm.tmpBundleFile = Tmp.fileSync().name;
     tasks.jspmBundle = getJspmBundleTask(themeConfig.jspm);
+}
+
+if (!rawConfig.settings) {
+    return console.error('Error: Your config.json is missing \'settings\' (object).'.red);
 }
 
 if (! Fs.existsSync(Path.join(themePath, 'schema.json'))) {
@@ -166,6 +184,14 @@ Async.series([
             output.on('close', function () {
                 console.log('ok'.green + ' -- Zipping Files Finished');
                 console.log('Bundled saved to: ' + Path.join(outputFolder, outputName).cyan);
+
+                var stats = Fs.statSync(Path.join(outputFolder, outputName));
+                var size = stats['size'];
+
+                if (size > MAX_SIZE_BUNDLE) {
+                    return console.error('Error: Your bundle of size' + size
+                        + 'bytes is above the max size of ' + MAX_SIZE_BUNDLE + 'bytes');
+                }
             });
 
 
@@ -229,7 +255,6 @@ Async.series([
     }
 });
 
-
 function validateImage(path, width, height, cb) {
     lwip.open(path, function(err, image) {
         if (err) {
@@ -238,18 +263,31 @@ function validateImage(path, width, height, cb) {
 
         var imageWidth = image.width();
         var imageHeight = image.height();
+        var failureMessage = '';
 
+        var stats = Fs.statSync(path);
+        var size = stats['size'];
+
+        if (width === WIDTH_DESKTOP && height === HEIGHT_DESKTOP && size > MAX_SIZE_DESKTOP) {
+            failureMessage = 'Error: Image of size ' + size + ' bytes at path (' + path + ') '
+            +  'is greater than allowed size ' + MAX_SIZE_DESKTOP + '\n';
+        } else if (width === WIDTH_COMPOSED && height === HEIGHT_COMPOSED && size > MAX_SIZE_COMPOSED) {
+            failureMessage = 'Error: Image of size ' + size + ' bytes at path (' + path + ') '
+            +  'is greater than allowed size ' + MAX_SIZE_COMPOSED + '\n';
+        } else if (width === WIDTH_MOBILE && height === HEIGHT_MOBILE && size > MAX_SIZE_MOBILE) {
+            failureMessage = 'Error: Image of size ' + size + ' bytes at path (' + path + ') '
+            +  'is greater than allowed size ' + MAX_SIZE_MOBILE + '\n';
+        }
 
         if (imageWidth !== width || imageHeight != height) {
-            var message = 'Error: Image ' + path + ' has incorrect dimensions ('
+            failureMessage += 'Error: Image at (' + path + ') has incorrect dimensions ('
                 + imageWidth + 'x' + imageHeight + ') should be' + '(' + width + 'x' + height + ')';
-            return cb(new Error(message));
+            return cb(new Error(failureMessage));
         }
 
         cb(null, true);
     });
 }
-
 
 function getCssAssembleTask(compiler) {
     return function (callback) {
