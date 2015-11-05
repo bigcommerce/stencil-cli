@@ -19,7 +19,9 @@ module.exports = function (options, themeConfig) {
         var desktopScreenshot;
         var mobileScreenshot;
 
-        themeConfig.setVariation(variationIndex);
+        if (variationIndex !== themeConfig.variationIndex) {
+            themeConfig.setVariation(variationIndex);
+        }
 
         try {
             // Get the selected variation
