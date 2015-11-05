@@ -2,55 +2,50 @@
 
 require('colors');
 
+var MAX_SIZE_COMPOSED = 1048576 * 2; //2MB
+var MAX_SIZE_MOBILE = 1048576; //1MB
+var MAX_SIZE_DESKTOP = 1048576 * 5; //5MB
+var MAX_SIZE_BUNDLE = 1048576 * 50; //50MB
+var WIDTH_COMPOSED = 600;
+var HEIGHT_COMPOSED = 760;
+var WIDTH_MOBILE = 304;
+var HEIGHT_MOBILE = 540;
+var WIDTH_DESKTOP = 2048;
+var HEIGHT_DESKTOP = 2600;
+var VALID_IMAGE_TYPES = ['.jpg', '.jpeg', '.png', '.gif'];
 
-
-var MAX_SIZE_COMPOSED = 1048576 * 2, //2MB
-    MAX_SIZE_MOBILE = 1048576, //1MB
-    MAX_SIZE_DESKTOP = 1048576 * 5, //5MB
-    MAX_SIZE_BUNDLE = 1048576 * 50, //50MB
-    WIDTH_COMPOSED = 600,
-    HEIGHT_COMPOSED = 760,
-    WIDTH_MOBILE = 304,
-    HEIGHT_MOBILE = 540,
-    WIDTH_DESKTOP = 2048,
-    HEIGHT_DESKTOP = 2600,
-    VALID_IMAGE_TYPES = ['.jpg', '.jpeg', '.png', '.gif'],
-
-    _ = require('lodash'),
-    Archiver = require('archiver'),
-    Async = require('async'),
-    Validator = require('jsonschema').Validator,
-    Crypto = require('crypto'),
-    Fs = require('fs'),
-    Jspm = require('jspm'),
-    Path = require('path'),
-    Program = require('commander'),
-    CssAssembler = require('../lib/cssAssembler'),
-    LangAssembler = require('../lib/langAssembler'),
-    TemplateAssembler = require('../lib/templateAssembler'),
-    ThemeConfig = require('../lib/themeConfig'),
-    Tmp = require('tmp'),
-    pkg = require('../package.json'),
-    lwip = require('lwip'),
-    themePath = process.cwd(),
-    imagePath,
-    imageTasks = [],
-    tasks = {},
-    templatesBasePath = Path.join(themePath, 'templates'),
-    themeConfig,
-    result,
-    rawConfig,
-    v = new Validator(),
-    schema = Fs.readFileSync(Path.resolve(__dirname, '..', 'theme_config.json'), {encoding: 'utf-8'}),
-    themeConfigPath = Path.join(themePath, 'config.json'),
-    themeConfigExists = Fs.existsSync(themeConfigPath);
+var _ = require('lodash');
+var Archiver = require('archiver');
+var Async = require('async');
+var Crypto = require('crypto');
+var Fs = require('fs');
+var Jspm = require('jspm');
+var Path = require('path');
+var Program = require('commander');
+var CssAssembler = require('../lib/cssAssembler');
+var LangAssembler = require('../lib/langAssembler');
+var TemplateAssembler = require('../lib/templateAssembler');
+var ThemeConfig = require('../lib/themeConfig');
+var Tmp = require('tmp');
+var pkg = require('../package.json');
+var lwip = require('lwip');
+var themePath = process.cwd();
+var imagePath;
+var imageTasks = [];
+var tasks = {};
+var templatesBasePath = Path.join(themePath, 'templates');
+var themeConfig;
+var configuration;
+var validation;
+var rawConfig;
 
 Program
     .version(pkg.version)
     .option('-d, --dest [dest]', 'Where to save the zip file. It defaults to the current directory you are in when bundling')
     .option('-n, --name  [filename]', 'What do you want to call the zip file. It defaults to stencil-bundle.zip')
-    .option('-l, --lite', 'Only include the files necessary to run the theme on Bigcommerce. Do not include any templates, js, or scss source files.')
     .parse(process.argv);
+
+themeConfig = ThemeConfig.getInstance(themePath);
 
 if (Program.dest === true) {
     return console.error('Error: You have to specify a value for -d or --dest'.red);
@@ -60,21 +55,26 @@ if (Program.name === true) {
     return console.error('Error: You have to specify a value for -n or --name'.red);
 }
 
-if (! themeConfigExists) {
+if (! themeConfig.configExists()) {
     return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
 }
 
+rawConfig = JSON.parse(Fs.readFileSync(themeConfig.configPath, {encoding: 'utf-8'}));
+if (!rawConfig.settings) {
+    return console.error('Error: Your config.json is missing \'settings\' (object).'.red);
+}
 
-themeConfig = ThemeConfig.getInstance(themeConfigPath).getConfig();
-rawConfig = JSON.parse(Fs.readFileSync(themeConfigPath, {encoding: 'utf-8'}));
-tasks.css = getCssAssembleTask(themeConfig.css_compiler);
+configuration = themeConfig.getConfig();
+
+tasks.css = getCssAssembleTask(configuration.css_compiler);
 tasks.templates = assembleTemplatesTask;
 tasks.lang = assembleLangTask;
+tasks.schema = assembleSchema;
 
 console.log("Validating theme...");
 
-if (themeConfig.jspm) {
-    if (! Fs.existsSync(Path.join(themePath, themeConfig.jspm.jspm_packages_path))) {
+if (configuration.jspm) {
+    if (! fileExists(Path.join(themePath, configuration.jspm.jspm_packages_path))) {
         console.log('Error: The path you specified for your "jspm_packages" folder does not exist.'.red);
         return console.log(
             'Please check your '.red +
@@ -85,25 +85,19 @@ if (themeConfig.jspm) {
         );
     }
 
-    themeConfig.jspm.tmpBundleFile = Tmp.fileSync().name;
-    tasks.jspmBundle = getJspmBundleTask(themeConfig.jspm);
+    configuration.jspm.tmpBundleFile = Tmp.fileSync().name;
+    tasks.jspmBundle = getJspmBundleTask(configuration.jspm);
 }
 
-if (!rawConfig.settings) {
-    return console.error('Error: Your config.json is missing \'settings\' (object).'.red);
-}
-
-if (! Fs.existsSync(Path.join(themePath, 'schema.json'))) {
-    return console.error('Error: Your theme is missing a \'schema.json\' file.'.red);
+if (! themeConfig.schemaExists()) {
+    console.log('Warning: Your theme is missing a \'schema.json\' file.'.orange);
 }
 
 // Validate against the theme registry config schema
-schema = JSON.parse(schema);
-result = v.validate(themeConfig, schema);
-
-if (result.errors.length > 0) {
+validation = themeConfig.validateConfigSchema();
+if (validation.length > 0) {
     console.error('Your theme\'s config.json has errors:'.red);
-    result.errors.forEach(function(error ,index) {
+    validation.forEach(function(error ,index) {
         console.error(error.stack.red);
     });
 
@@ -111,8 +105,8 @@ if (result.errors.length > 0) {
 }
 
 // Do a bit of validation on the images
+imagePath = Path.resolve(themePath, 'meta', configuration.meta.composed_image);
 
-imagePath = Path.resolve(themePath, 'meta', themeConfig.meta.composed_image);
 if (!isValidImageType(imagePath)) {
     return console.error('Error: Invalid file type for "meta.composed_image".'.red
         + '\r\nValid types ('.red + VALID_IMAGE_TYPES.join(', ').red + ')'.red);
@@ -126,8 +120,8 @@ if (!isValidImageType(imagePath)) {
     }(imagePath));
 }
 
-for (var i = 0; i < themeConfig.variations.length; i++) {
-    var variation = themeConfig.variations[i];
+for (var i = 0; i < configuration.variations.length; i++) {
+    var variation = configuration.variations[i];
     var id = variation.id.blue;
     imagePath = Path.resolve(themePath, 'meta', variation.meta.desktop_screenshot);
     if (!isValidImageType(imagePath)) {
@@ -145,6 +139,7 @@ for (var i = 0; i < themeConfig.variations.length; i++) {
     }
 
     imagePath = Path.resolve(themePath, 'meta', variation.meta.mobile_screenshot);
+
     if (!isValidImageType(imagePath)) {
         return console.error('Error: Invalid file type for '.red + id
             + ' variation\'s "mobile_screenshot".'.red
@@ -183,7 +178,6 @@ Async.series([
                     'CHANGELOG.md',
                     'config.json',
                     'package.json',
-                    'schema.json'
                 ],
                 archive = Archiver('zip');
 
@@ -206,23 +200,12 @@ Async.series([
                 }
             });
 
-
-            if (Program.lite) {
-                pathsToZip = pathsToZip.concat([
-                    '!meta/**',
-                    '!assets/js/**',
-                    '!assets/scss/**',
-                    '!templates/**',
-                    '!lang/**'
-                ])
-            }
-
             archive.pipe(output);
 
-            if (themeConfig.jspm) {
+            if (configuration.jspm) {
                 archive.append(
-                    Fs.createReadStream(themeConfig.jspm.tmpBundleFile),
-                    {name: themeConfig.jspm.bundle_location}
+                    Fs.createReadStream(configuration.jspm.tmpBundleFile),
+                    {name: configuration.jspm.bundle_location}
                 );
             }
 
@@ -244,13 +227,14 @@ Async.series([
                         archive.append(JSON.stringify(val), {name: filename});
                         forEachOfCallback();
                     }, callback);
-                } else {
-                    if (type === 'lang') {
+                } else if (type === 'lang') {
                         archive.append(JSON.stringify(data), {name: 'parsed/lang.json'});
-                    }
-
+                } else if (type === 'schema') {
+                    archive.append(JSON.stringify(data), {name: 'schema.json'});
+                } else {
                     callback();
                 }
+
             }, function (err) {
                 if (err) {
                     cb(err);
@@ -309,6 +293,7 @@ function validateImage(path, width, height, cb) {
 function getCssAssembleTask(compiler) {
     return function (callback) {
         var basePath = Path.join(themePath, 'assets', compiler);
+
         console.log('%s Parsing Started...', compiler.toUpperCase());
         Fs.readdir(basePath, function (err, files) {
             files = files.filter(function (file) {
@@ -338,8 +323,8 @@ function getCssAssembleTask(compiler) {
 function assembleTemplatesTask(callback) {
     console.log('Template Parsing Started...');
     require('recursive-readdir')(templatesBasePath, function (err, files) {
-        var replaceRegex = new RegExp('^' + templatesBasePath + '/(.*?)\.html$'),
-            filesIn = [];
+        var replaceRegex = new RegExp('^' + templatesBasePath + '/(.*?)\.html$');
+        var filesIn = [];
 
         //Prevent poorly named files breaking the regex (.DS_Store)
         files.forEach(function (fileName) {
@@ -363,6 +348,16 @@ function assembleTemplatesTask(callback) {
             console.log('ok'.green + ' -- Template Parsing Finished');
             callback(null, ret);
         });
+    });
+}
+
+function assembleSchema(callback) {
+    console.log('Building Theme Schema File...');
+    
+    themeConfig.getSchema(function(err, schema) {
+        console.log('ok'.green + ' -- Theme Schema Building Finished');
+
+        callback(err, schema);
     });
 }
 
@@ -405,3 +400,16 @@ function getJspmBundleTask(jspmConfig) {
     }
 }
 
+/**
+ * Check if file exist syncronous
+ * @param  {string} path
+ * @return {boolean}
+ */
+function fileExists(path) {
+    try {
+        return !!Fs.statSync(path);
+    }
+    catch (e) {
+        return false;
+    }
+}

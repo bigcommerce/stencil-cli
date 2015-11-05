@@ -6,6 +6,10 @@
   "autoprefixer_browsers": [
     "> 5% in US"
   ],
+  "meta": {
+    "price": 15000,
+    "composed_image": "image.jpg"
+  },
   "settings": {
     "color": "#ffffff",
     "font": "Sans Something",
