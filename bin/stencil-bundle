@@ -37,7 +37,6 @@ var templatesBasePath = Path.join(themePath, 'templates');
 var themeConfig;
 var configuration;
 var validation;
-var rawConfig;
 
 Program
     .version(pkg.version)
@@ -59,12 +58,11 @@ if (! themeConfig.configExists()) {
     return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
 }
 
-rawConfig = JSON.parse(Fs.readFileSync(themeConfig.configPath, {encoding: 'utf-8'}));
-if (!rawConfig.settings) {
+configuration = themeConfig.getConfig();
+
+if (!themeConfig.globalSettings) {
     return console.error('Error: Your config.json is missing \'settings\' (object).'.red);
 }
-
-configuration = themeConfig.getConfig();
 
 tasks.css = getCssAssembleTask(configuration.css_compiler);
 tasks.templates = assembleTemplatesTask;
