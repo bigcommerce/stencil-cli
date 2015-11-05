@@ -11,17 +11,15 @@ var Fs = require('fs'),
     ThemeConfig = require('../lib/themeConfig'),
     pkg = require('../package.json'),
     dotStencilFilePath = './.stencil',
-    dotStencilFileExists = Fs.existsSync(dotStencilFilePath),
     dotStencilFile,
     themePath = process.cwd(),
-    themeConfigPath = Path.join(themePath, 'config.json'),
-    themeConfig;
+    configuration;
 
 Program
     .version(pkg.version)
     .parse(process.argv);
 
-if (dotStencilFileExists) {
+if (Fs.existsSync(dotStencilFilePath)) {
     dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
     dotStencilFile = JSON.parse(dotStencilFile);
 }
@@ -72,9 +70,9 @@ Inquirer.prompt(questions, function(answers) {
         }
 
         // bundle dev dependencies
-        themeConfig = ThemeConfig.getInstance(themeConfigPath).getConfig();
-        if (themeConfig.jspm) {
-            if (! Fs.existsSync(Path.join(themePath, themeConfig.jspm.jspm_packages_path))) {
+        configuration = ThemeConfig.getInstance(themePath).getConfig();
+        if (configuration.jspm) {
+            if (! Fs.existsSync(Path.join(themePath, configuration.jspm.jspm_packages_path))) {
                 console.log('Error: The path you specified for your "jspm_packages" folder does not exist.'.red);
                 return console.log(
                     'Please check your '.red +
@@ -87,7 +85,7 @@ Inquirer.prompt(questions, function(answers) {
 
             bundleTask = JspmAssembler.assemble(
                 {
-                    bootstrap: themeConfig.jspm.dev.bootstrap
+                    bootstrap: configuration.jspm.dev.bootstrap
                 },
                 themePath
             );

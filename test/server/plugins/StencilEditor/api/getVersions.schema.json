@@ -1,0 +1,16 @@
+{
+    "data": {
+        "id": "string",
+        "name": "string",
+        "price": 0,
+        "displayVersion": "string",
+        "editorSchema": [
+            {}
+        ],
+        "status": "string",
+        "numVariations": 0,
+        "defaultVariationId": "string",
+        "screenshot": "string"
+    },
+    "meta": {}
+}

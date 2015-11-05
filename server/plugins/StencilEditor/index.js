@@ -3,17 +3,20 @@ var _ = require('lodash'),
     Glob = require('glob'),
     Hoek = require('hoek'),
     Path = require('path'),
+    Async = require('async'),
     Url = require('url'),
     ThemeConfig = require('../../../lib/themeConfig'),
-    packageJson = require('../../../package.json'),
+    PackageJson = require('../../../package.json'),
+    handlers = {},
     internals = {
         options: {
+            basePath: '/api',
             themeConfigPath: Path.join(process.cwd(), 'config.json'),
-            themeConfigSchemaPath: Path.join(process.cwd(), 'schema.json'),
-            themeStyles: Path.join(process.cwd(), 'assets/scss'),
+            themeSchemaPath: Path.join(process.cwd(), 'schema.json'),
+            themeStylesPath: Path.join(process.cwd(), 'assets/scss'),
+            themeTemplatesPath: Path.join(process.cwd(), 'templates'),
             publicPath: Path.join(__dirname, '../../../public'),
             metaPath: Path.join(process.cwd(), 'meta'),
-            themeVariationName: '',
             stencilThemeHost: ''
         }
     };
@@ -40,13 +43,13 @@ module.exports.register = function (server, options, next) {
             method: 'GET',
             path: '/',
             handler: function(request, reply) {
-                reply.redirect('/ng-stencil-editor');
+                reply.redirect('/ng-stencil-editor/theme/1/1');
             }
         },
         {
             method: 'GET',
-            path: '/ng-stencil-editor',
-            handler: internals.home
+            path: '/ng-stencil-editor/{versionId}/{variationId}/{configId}',
+            handler: handlers.home
         },
         {
             method: 'GET',
@@ -67,29 +70,24 @@ module.exports.register = function (server, options, next) {
             }
         },
         {
-            method: 'POST',
-            path: '/ng-stencil-editor/config',
-            handler: internals.updateConfig
+            method: 'GET',
+            path: internals.options.basePath + '/variations/{variationId}',
+            handler: require('./api/getVariations')(internals.options, internals.themeConfig)
         },
         {
             method: 'GET',
-            path: '/ng-stencil-editor/config',
-            handler: internals.getConfig
-        },
-        {
-            method: 'GET',
-            path: '/ng-stencil-editor/config/variation-name',
-            handler: internals.getVariationName
+            path: internals.options.basePath + '/configurations/{configurationId}',
+            handler: require('./api/getConfigurations')(internals.options, internals.themeConfig)
         },
         {
             method: 'POST',
-            path: '/ng-stencil-editor/config/variation-name',
-            handler: internals.setVariationName
+            path: internals.options.basePath + '/configurations',
+            handler: require('./api/postConfigurations')(internals.options, internals.themeConfig)
         },
         {
             method: 'GET',
-            path: '/ng-stencil-editor/schema',
-            handler: internals.getConfigSchema
+            path: internals.options.basePath + '/versions/{versionId}',
+            handler: require('./api/getVersions')(internals.options, internals.themeConfig)
         }
     ]);
 
@@ -102,13 +100,14 @@ module.exports.register = function (server, options, next) {
  * @param request
  * @param reply
  */
-internals.home = function(request, reply) {
+handlers.home = function(request, reply) {
     internals.getAssets(function (err, assets) {
         if (err) {
             reply(err);
         }
 
         reply.view('index', {
+            basePath: internals.options.basePath,
             cssFiles: assets.cssFiles,
             jsFiles: assets.jsFiles,
             storeUrl: internals.stencilThemeHost + '?stencilEditor=stencil-cli'
@@ -172,80 +171,9 @@ internals.buildDirectoryExists = function () {
  */
 internals.getStencilEditorPath = function (path) {
     var basePath = 'jspm_packages/github/bigcommerce-labs/ng-stencil-editor@';
-    var version = packageJson.jspm.dependencies['bigcommerce-labs/ng-stencil-editor'].split('@')[1];
+    var version = PackageJson.jspm.dependencies['bigcommerce-labs/ng-stencil-editor'].split('@')[1];
 
     return basePath + version;
-};
-
-/**
- * Endpoint to update a variations param value
- *
- * @param request
- * @param reply
- */
-internals.updateConfig = function (request, reply) {
-    var saveToFile = !!request.query.commit,
-        response = {
-            forceReload: internals.themeConfig.updateConfig(request.payload, saveToFile).forceReload,
-            stylesheets: []
-        },
-        compilerExtension,
-        styleFiles,
-        files;
-
-    if (! response.forceReload) {
-        files = Fs.readdirSync(internals.options.themeStyles);
-        compilerExtension = '.' + internals.themeConfig.getConfig().css_compiler;
-
-        styleFiles = _.filter(files, function(file) {
-            var fileExt = Path.extname(file);
-
-            return fileExt === '.css' || fileExt === compilerExtension;
-        });
-
-        response.stylesheets = _.map(styleFiles, function(file) {
-            file = file.substring(0, file.lastIndexOf('.')) + '.css';
-
-            return '/assets/css/' + file;
-        });
-    }
-
-    return reply(response);
-};
-
-internals.getConfig = function (request, reply) {
-    var configiration = internals.themeConfig.getConfig();
-    
-    if (!_.isArray(configiration.variations)) {
-        return;
-    }
-
-    // Add absolute path to the preview images
-    _.each(configiration.variations, function(variation) {
-        variation.meta = variation.meta || {};
-
-        variation.meta.screenshot = {
-            smallThumb: Url.resolve(internals.options.themeEditorHost, Path.join('meta', variation.meta.desktop_screenshot))
-        };
-    });
-
-    reply(configiration);
-};
-
-internals.getVariationName = function (request, reply) {
-    reply(internals.themeConfig.getConfig().variationName);
-};
-
-internals.getConfigSchema = function (request, reply) {
-    var schema = require(internals.options.themeConfigSchemaPath);
-
-    reply(schema);
-};
-
-internals.setVariationName = function(request, reply) {
-    internals.themeConfig.setVariationName(request.payload.name);
-
-    reply({forceReload: true});
 };
 
 module.exports.register.attributes = {

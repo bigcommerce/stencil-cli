@@ -1,0 +1,9 @@
+{
+    "data": {
+        "id": "string",
+        "variationId": "string",
+        "storeHash": "string",
+        "settings": {}
+    },
+    "meta": {}
+}

@@ -21,10 +21,9 @@ var _ = require('lodash'),
     isTopLevelCssRegex,
     stencilServerPort,
     themeConfig,
-    themeConfigPath = Path.join(themePath, 'config.json'),
+    configuration,
     staplerUrl,
-    headers,
-    themeConfigSchemaPath = Path.join(themePath, 'schema.json');
+    headers;
 
 require('colors');
 
@@ -38,20 +37,11 @@ Program
     .option('--theme-editor-port [port]', 'Run the Theme Editor on a different port')
     .parse(process.argv);
 
-function fileExist(path) {
-    try {
-        return Fs.statSync(path);
-    }
-    catch (e) {
-        return false;
-    }
-}
-
 if (!fileExist(dotStencilFilePath)) {
     return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
 }
 
-if (!fileExist(themeConfigPath)) {
+if (!fileExist(Path.join(themePath, 'config.json'))) {
     return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
 }
 
@@ -60,19 +50,30 @@ if (Program.variation === true) {
     return console.error('Error: You have to specify a value for -v or --variation'.red);
 }
 
+// Instantiate themeConfig
+themeConfig = ThemeConfig.getInstance(themePath);
+
+if (Program.variation) {
+    try {
+        themeConfig.setVariationByName(Program.variation);
+    } catch (err) {
+        return console.error('Error: The variation '.red + Program.variation + ' does not exists in your config.json file'.red);
+    }   
+}
+
+configuration = themeConfig.getConfig();
+
 dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
 dotStencilFile = JSON.parse(dotStencilFile);
 
-themeConfig = parseThemeConfig();
-
-if (allowedCssCompilers.indexOf(themeConfig.config.css_compiler) === -1) {
+if (allowedCssCompilers.indexOf(configuration.css_compiler) === -1) {
     return console.error('Error: Only %s are allowed as CSS Compilers'.red, allowedCssCompilers.join(', '));
 }
 
 browserSyncPort = dotStencilFile.port;
 stencilServerPort = ++dotStencilFile.port;
-cssCompilerDir = cssWatchBaseDir + themeConfig.config.css_compiler;
-isTopLevelCssRegex = new RegExp('^(?!_).+\.(?:' + themeConfig.config.css_compiler + ')$');
+cssCompilerDir = cssWatchBaseDir + configuration.css_compiler;
+isTopLevelCssRegex = new RegExp('^(?!_).+\.(?:' + configuration.css_compiler + ')$');
 
 if (!(dotStencilFile.normalStoreUrl)) {
     return console.error(
@@ -123,10 +124,10 @@ Wreck.get(
             dotStencilFile.normalStoreUrl = payload.baseUrl;
             dotStencilFile.stencilServerPort = stencilServerPort;
 
-            if (themeConfig.config.jspm && Program.test) {
+            if (configuration.jspm && Program.test) {
                 bundleTask = JspmAssembler.assemble(
                     {
-                        bootstrap: themeConfig.config.jspm.bootstrap
+                        bootstrap: configuration.jspm.bootstrap
                     },
                     themePath
                 );
@@ -147,7 +148,7 @@ Wreck.get(
 function startServer() {
     var params = {
         dotStencilFile: dotStencilFile,
-        themeVariationName: themeConfig.config.variationName,
+        themeVariationName: configuration.variationName,
         stencilEditorEnabled: Program.themeEditor,
         stencilEditorPort: Program.themeEditorPort || 8181
     };
@@ -177,7 +178,7 @@ function startServer() {
                 if (
                     ! relativePath.match(/\//) && isTopLevelCssRegex.test(relativePath)
                 ) {
-                    basename = Path.basename(file, '.' + themeConfig.config.css_compiler);
+                    basename = Path.basename(file, '.' + configuration.css_compiler);
                     changedFile = Path.join(process.cwd(), 'assets/css', basename + '.css');
                     Bs.reload(changedFile);
                 // Only reload top level files if this is a change event and it's in a sub directory
@@ -190,7 +191,7 @@ function startServer() {
         Bs.watch('config.json', function(event) {
             if (event === 'change') {
                 try {
-                    themeConfig = parseThemeConfig();
+                    configuration = themeConfig.getConfig();
                 } catch (e) {
                     return console.error(e);
                 }
@@ -248,12 +249,7 @@ function parseThemeConfig() {
     var ret = {},
         themeConfig;
 
-    // We don't require the schema file to exist as it's only used for the Theme Editor
-    if (!fileExist(themeConfigSchemaPath)) {
-        themeConfigSchemaPath = '';
-    }
-
-    themeConfig = ThemeConfig.getInstance(themeConfigPath, themeConfigSchemaPath, Program.variation);
+    themeConfig = ThemeConfig.getInstance(themePath, Program.variation);
 
     try {
         ret.config = themeConfig.getConfig();
@@ -281,10 +277,24 @@ function reloadTopLevelCss(cssCompilerDir) {
         files.filter(function (file) {
             return isTopLevelCssRegex.test(file);
         }).forEach(function (file) {
-            basename = Path.basename(file, '.' + themeConfig.config.css_compiler);
+            basename = Path.basename(file, '.' + configuration.css_compiler);
             changedFile = Path.join(process.cwd(), 'assets/css', basename + '.css');
 
             Bs.reload(changedFile);
         });
     });
+}
+
+/**
+ * Check if file exist syncronous
+ * @param  {string} path
+ * @return {boolean}
+ */
+function fileExist(path) {
+    try {
+        return !!Fs.statSync(path);
+    }
+    catch (e) {
+        return false;
+    }
 }
