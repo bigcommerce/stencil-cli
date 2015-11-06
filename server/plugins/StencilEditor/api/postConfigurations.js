@@ -1,3 +1,5 @@
+var Cache = require('memory-cache');
+
 /**
  * Returns a request handler for POST /api/configurations
  * @param  {Object} options
@@ -20,6 +22,8 @@ module.exports = function (options, themeConfig) {
         }
             
         themeConfig.updateConfig(payload.settings, saveToFile);
+
+        Cache.clear();
 
         reply({
             data: {
