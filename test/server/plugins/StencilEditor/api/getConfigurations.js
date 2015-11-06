@@ -17,7 +17,9 @@ lab.describe('GET /configurations/{id} api endpoint', function () {
     lab.it('should reply with the right schema and include the first variation settings', function (done) {
         var originalConfig = require(Path.join(themePath, 'config.json'));
         var request = {
-            params: {}
+            params: {
+                configurationId: 1
+            }
         };
 
         themeConfig.setVariation(0);
@@ -41,7 +43,9 @@ lab.describe('GET /configurations/{id} api endpoint', function () {
     lab.it('should reply with the right schema and include the second variation settings', function (done) {
         var originalConfig = require(Path.join(themePath, 'config.json'));
         var request = {
-            params: {}
+            params: {
+                configurationId: 2
+            }
         };
 
         themeConfig.setVariation(1);

@@ -22,6 +22,8 @@ var _ = require('lodash'),
     };
 
 module.exports.register = function (server, options, next) {
+    var variationId;
+
     internals.options = Hoek.applyToDefaults(internals.options, options);
 
     internals.themeConfig = ThemeConfig.getInstance();
@@ -38,12 +40,15 @@ module.exports.register = function (server, options, next) {
         helpersPath: './templates/helpers'
     });
 
+    // When using stencil-cli variationId = configurationId
+    variationId = internals.themeConfig.variationIndex + 1;
+
     server.route([
         {
             method: 'GET',
             path: '/',
             handler: function(request, reply) {
-                reply.redirect('/ng-stencil-editor/theme/1/1');
+                reply.redirect('/ng-stencil-editor/theme/' + variationId + '/' + variationId);
             }
         },
         {
