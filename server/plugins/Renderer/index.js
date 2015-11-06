@@ -111,7 +111,7 @@ internals.getResponse = function (request, callback) {
     cachedResponse = Cache.get(requestSignature);
 
     // check request signature and use cache, if available
-    if (cachedResponse && 'get' === request.method) {
+    if (cachedResponse && 'get' === request.method && internals.options.useCache) {
         // if GET request, return with cached response
         return internals.parseResponse(cachedResponse.bcAppData, cachedResponse.response, responseArgs, callback);
     } else if ('get' !== request.method) {

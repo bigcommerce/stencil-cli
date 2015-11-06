@@ -22,6 +22,7 @@ module.exports = function(options, callback) {
     config.plugins['./plugins/Router'].apiKey = options.dotStencilFile.apiKey;
     config.plugins['./plugins/Router'].port = options.dotStencilFile.port;
     config.plugins['./plugins/Router'].staplerUrl = options.dotStencilFile.staplerUrl;
+    config.plugins['./plugins/Renderer'].useCache = options.useCache;
 
     Glue.compose(config, {relativeTo: __dirname}, function (err, server) {
         if (err) {
