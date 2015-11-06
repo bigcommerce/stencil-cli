@@ -199,7 +199,7 @@ internals.parseResponse = function (bcAppData, response, responseArgs, callback)
         dataRequestSignature = 'bcapp:' + internals.sha1sum(url) + internals.sha1sum(httpOptsSignature);
 
         // check request signature and use cache, if available
-        if (Cache.get(dataRequestSignature)) {
+        if (internals.options.useCache && Cache.get(dataRequestSignature)) {
             var cache = Cache.get(dataRequestSignature);
             return callback(
                 null,
