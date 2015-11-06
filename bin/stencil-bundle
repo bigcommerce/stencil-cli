@@ -94,6 +94,12 @@ if (!rawConfig.settings) {
 
 if (! Fs.existsSync(Path.join(themePath, 'schema.json'))) {
     return console.error('Error: Your theme is missing a \'schema.json\' file.'.red);
+} else {
+    try {
+        JSON.parse(Fs.readFileSync(Path.join(themePath, 'schema.json'), {encoding: 'utf-8'}));
+    } catch (e) {
+        return console.error('Error: Your theme\'s schema.json file is not valid json'.red);
+    }
 }
 
 // Validate against the theme registry config schema
