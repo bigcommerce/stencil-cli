@@ -35,6 +35,7 @@ Program
     .option('-t, --test', 'Enable QA mode which will bundle all javascript for speed to test locally')
     .option('--tunnel', 'Create a tunnel URL which points to your local server that anyone can use.')
     .option('-e, --theme-editor', 'Run Theme Editor server')
+    .option('-n, --no-cache', 'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.')
     .option('--theme-editor-port [port]', 'Run the Theme Editor on a different port')
     .parse(process.argv);
 
@@ -149,7 +150,8 @@ function startServer() {
         dotStencilFile: dotStencilFile,
         themeVariationName: themeConfig.config.variationName,
         stencilEditorEnabled: Program.themeEditor,
-        stencilEditorPort: Program.themeEditorPort || 8181
+        stencilEditorPort: Program.themeEditorPort || 8181,
+        useCache: Program.cache
     };
 
     Server(params, function(err) {
