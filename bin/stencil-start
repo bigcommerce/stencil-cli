@@ -148,9 +148,9 @@ Wreck.get(
 function startServer() {
     var params = {
         dotStencilFile: dotStencilFile,
-        themeVariationName: configuration.variationName,
+        variationIndex: themeConfig.variationIndex || 0,
         stencilEditorEnabled: Program.themeEditor,
-        stencilEditorPort: Program.themeEditorPort || 8181
+        stencilEditorPort: Program.themeEditorPort || 8181,
     };
 
     Server(params, function(err) {

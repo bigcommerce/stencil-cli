@@ -73,7 +73,8 @@ module.exports = function (options, themeConfig) {
                 releaseNotes: "string",
                 status: "draft",
                 relatedVariations: getRelatedVarations(options, themeConfig),
-                configurationId: variationIndex + 1
+                configurationId: variationIndex + 1,
+                isCurrent: options.variationIndex === variationIndex
             },
             meta: variation.meta
         });
@@ -99,7 +100,8 @@ function getRelatedVarations(options, themeConfig) {
                 largeThumb: screenshot,
                 smallThumb: screenshot
             },
-            configurationId: index + 1
+            configurationId: index + 1,
+            isCurrent: options.variationIndex === index
         });
     };
 
