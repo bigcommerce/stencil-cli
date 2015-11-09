@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 /**
  * Returns a request handler for GET /api/configurations/{configurationId}
  * @param  {Object} options
@@ -11,7 +13,7 @@ module.exports = function (options, themeConfig) {
      * @param  {Object} reply
      */
     return function (request, reply) {
-        var variationIndex = parseInt(request.params.configurationId - 1);
+        var variationIndex = _.parseInt(request.params.configurationId - 1);
 
         if (themeConfig.variationIndex !== variationIndex) {
             themeConfig.setVariation(variationIndex);
