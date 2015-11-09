@@ -1,0 +1,97 @@
+{
+  "name": "Stencil",
+  "version": "1.0",
+  "css_compiler": "scss",
+  "autoprefixer_cascade": true,
+  "autoprefixer_browsers": [
+    "> 5% in US"
+  ],
+  "meta": {
+    "price": 15000,
+    "composed_image": "image.jpg"
+  },
+  "settings": {
+    "color": "#ffffff",
+    "font": "Sans Something",
+    "select": "first",
+    "checkbox": true,
+    "radio": "first"
+  },
+  "images": {
+    "logo": {
+      "width": 100,
+      "height": 100
+    },
+    "thumb": {
+      "width": 10,
+      "height": 10
+    }
+  },
+  "variations": [
+    {
+      "name": "First",
+      "meta": {
+        "desktop_screenshot": "desktop_first.png",
+        "mobile_screenshot": "mobile_first.png",
+        "description": "First variation",
+        "demo_url": "https://stencil-first.example.com",
+        "optimized_for": [
+          "fashion",
+          "image_heavy"
+        ],
+        "industries": []
+      },
+      "settings": {
+        "color": "#000000",
+        "select": "first"
+      },
+      "images": {}
+    },
+    {
+      "name": "Second",
+      "meta": {
+        "desktop_screenshot": "desktop_second.png",
+        "mobile_screenshot": "mobile_second.png",
+        "description": "Second variation",
+        "demo_url": "https://stencil-second.example.com",
+        "optimized_for": [
+          "fashion"
+        ],
+        "industries": []
+      },
+      "settings": {
+        "color": "#000000",
+        "select": "second"
+      },
+      "images": {
+        "logo": {
+          "width": 200,
+          "height": 200
+        }
+      }
+    },
+    {
+      "name": "Third",
+      "meta": {
+        "desktop_screenshot": "desktop_third.png",
+        "mobile_screenshot": "mobile_third.png",
+        "description": "Third variation",
+        "demo_url": "https://stencil-third.example.com",
+        "optimized_for": [
+          "restaurants"
+        ],
+        "industries": []
+      },
+      "settings": {
+        "color": "#FFFFFF",
+        "select": "third"
+      },
+      "images": {
+        "logo": {
+          "width": 150,
+          "height": 150
+        }
+      }
+    }
+  ]
+}

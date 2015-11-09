@@ -69,12 +69,10 @@
         return _editorToken;
     }
 
-    function getStylesheet(href) {
-        return document.head.querySelector('link[id="' + href + '"]');
-    }
+    function getStylesheets() {
+        var stylesheets = document.head.querySelectorAll('link[data-stencil-stylesheet]');
 
-    function isStylesheet(element) {
-        return element !== null && element !== undefined;
+        return Array.prototype.slice.call(stylesheets);
     }
 
     /**
@@ -179,18 +177,10 @@
 
     /**
      * Reloads stylesheets by appending Date.now() to their href
-     * @param trans - jsChannel transaction
-     * @param stylesheets - stringified array of stylesheet names
      * @returns {boolean}
      */
-    function reloadStylesheets(trans, stylesheets) {
-        try {
-            stylesheets = JSON.parse(stylesheets);
-        } catch(e) {
-            stylesheets = [];
-        }
-
-        stylesheets.map(getStylesheet).filter(isStylesheet).forEach(function updateStylesheets(currentLink) {
+    function reloadStylesheets() {
+        getStylesheets().forEach(function updateStylesheets(currentLink) {
             var href = currentLink.getAttribute('href'),
                 hrefBase = currentLink.getAttribute('href'),
                 queryIndex = href.indexOf('?'),

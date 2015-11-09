@@ -1,0 +1,53 @@
+{
+  "data": {
+    "id": "string",
+    "themeName": "string",
+    "themeId": "string",
+    "versionId": "string",
+    "variationName": "string",
+    "price": 0,
+    "partner": {
+      "id": "string",
+      "name": "string",
+      "contactUrl": "string",
+      "contactEmail": "string"
+    },
+    "description": "string",
+    "industries": [
+      "string"
+    ],
+    "features": [
+      "string"
+    ],
+    "optimizedFor": [
+      "string"
+    ],
+    "screenshot": {
+      "largePreview": "string",
+      "largeThumb": "string",
+      "smallThumb": "string"
+    },
+    "mobileScreenshot": "string",
+    "demoUrl": "string",
+    "documentationUrl": "string",
+    "displayVersion": "string",
+    "releaseNotes": "string",
+    "status": "string",
+    "isCurrent": "boolean",
+    "relatedVariations": [
+      {
+        "id": "string",
+        "variationName": "string",
+        "screenshot": {
+          "largePreview": "string",
+          "largeThumb": "string",
+          "smallThumb": "string",
+          "isCurrent": "boolean"
+        },
+        "configurationId": "string"
+      }
+    ],
+    "configurationId": "string"
+  },
+  "meta": {}
+}
