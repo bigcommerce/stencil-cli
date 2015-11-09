@@ -33,6 +33,7 @@
     "displayVersion": "string",
     "releaseNotes": "string",
     "status": "string",
+    "isCurrent": "boolean",
     "relatedVariations": [
       {
         "id": "string",
@@ -40,7 +41,8 @@
         "screenshot": {
           "largePreview": "string",
           "largeThumb": "string",
-          "smallThumb": "string"
+          "smallThumb": "string",
+          "isCurrent": "boolean"
         },
         "configurationId": "string"
       }
