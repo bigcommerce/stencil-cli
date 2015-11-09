@@ -1,5 +1,6 @@
 var Path = require('path');
 var Url = require('url');
+var _ = require('lodash');
 
 /**
  * Returns a request handler for GET /api/variations/{variationId}
@@ -14,7 +15,7 @@ module.exports = function (options, themeConfig) {
      * @param  {Object} reply
      */
     return function (request, reply) {
-        var variationIndex = parseInt(request.params.variationId - 1);
+        var variationIndex = _.parseInt(request.params.variationId - 1);
         var variation;
         var desktopScreenshot;
         var mobileScreenshot;

@@ -1,4 +1,5 @@
 var Cache = require('memory-cache');
+var _ = require('lodash');
 
 /**
  * Returns a request handler for POST /api/configurations
@@ -14,7 +15,7 @@ module.exports = function (options, themeConfig) {
      */
     return function (request, reply) {
         var payload = request.payload || {};
-        var variationIndex = parseInt(payload.variationId - 1);
+        var variationIndex = _.parseInt(payload.variationId - 1);
         var saveToFile = !payload.preview;
 
         if (themeConfig.variationIndex !== variationIndex) {
