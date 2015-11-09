@@ -14,6 +14,7 @@ var MAX_SIZE_COMPOSED = 1048576 * 2, //2MB
     HEIGHT_MOBILE = 540,
     WIDTH_DESKTOP = 2048,
     HEIGHT_DESKTOP = 2600,
+    VALID_IMAGE_TYPES = ['.jpg', '.jpeg', '.png', '.gif'],
 
     _ = require('lodash'),
     Archiver = require('archiver'),
@@ -112,8 +113,11 @@ if (result.errors.length > 0) {
 // Do a bit of validation on the images
 
 imagePath = Path.resolve(themePath, 'meta', themeConfig.meta.composed_image);
-if (! Fs.existsSync(imagePath)) {
-    return console.error('Error: The path you specified for your "meta.composed_image" folder does not exist.'.red);
+if (!isValidImageType(imagePath)) {
+    return console.error('Error: Invalid file type for "meta.composed_image".'.red
+        + '\r\nValid types ('.red + VALID_IMAGE_TYPES.join(', ').red + ')'.red);
+} else if (! Fs.existsSync(imagePath)) {
+    return console.error('Error: The path you specified for your "meta.composed_image" does not exist.'.red);
 } else {
     (function (path) {
         imageTasks.push(function (cb) {
@@ -126,8 +130,12 @@ for (var i = 0; i < themeConfig.variations.length; i++) {
     var variation = themeConfig.variations[i];
     var id = variation.id.blue;
     imagePath = Path.resolve(themePath, 'meta', variation.meta.desktop_screenshot);
-    if (! Fs.existsSync(imagePath)) {
-        return console.error('Error: The path you specified for the '.red + id + ' variation\'s "desktop_image" does not exist.'.red);
+    if (!isValidImageType(imagePath)) {
+        return console.error('Error: Invalid file type for '.red + id
+            + ' variation\'s "desktop_screenshot".'.red
+            + '\r\nValid types ('.red + VALID_IMAGE_TYPES.join(', ').red + ')'.red);
+    } else if (! Fs.existsSync(imagePath)) {
+        return console.error('Error: The path you specified for the '.red + id + ' variation\'s "desktop_screenshot" does not exist.'.red);
     } else {
         (function (path) {
             imageTasks.push(function (cb) {
@@ -137,7 +145,11 @@ for (var i = 0; i < themeConfig.variations.length; i++) {
     }
 
     imagePath = Path.resolve(themePath, 'meta', variation.meta.mobile_screenshot);
-    if (! Fs.existsSync(imagePath)) {
+    if (!isValidImageType(imagePath)) {
+        return console.error('Error: Invalid file type for '.red + id
+            + ' variation\'s "mobile_screenshot".'.red
+            + '\r\nValid types ('.red + VALID_IMAGE_TYPES.join(', ').red + ')'.red);
+    } else if (! Fs.existsSync(imagePath)) {
         return console.error('Error: The path you specified for the '.red + id + ' variation\'s "mobile_screenshot" does not exist.'.red);
     } else {
         (function (path) {
@@ -254,6 +266,11 @@ Async.series([
         return console.error(err.message.red);
     }
 });
+
+function isValidImageType(imagePath) {
+    var ext = Path.extname(imagePath);
+    return _.includes(VALID_IMAGE_TYPES, ext);
+}
 
 function validateImage(path, width, height, cb) {
     lwip.open(path, function(err, image) {
