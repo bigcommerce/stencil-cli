@@ -15,9 +15,7 @@ module.exports = function (options, themeConfig) {
     return function (request, reply) {
         var variationIndex = _.parseInt(request.params.configurationId - 1);
 
-        if (themeConfig.variationIndex !== variationIndex) {
-            themeConfig.setVariation(variationIndex);
-        }
+        themeConfig.setVariation(variationIndex);
 
         reply({
             data: {
