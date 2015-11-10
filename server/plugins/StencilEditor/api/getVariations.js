@@ -15,7 +15,7 @@ module.exports = function (options, themeConfig) {
      * @param  {Object} reply
      */
     return function (request, reply) {
-        var variationIndex = _.parseInt(request.params.variationId - 1);
+        var variationIndex = _.parseInt(request.params.variationId - 1, 10);
         var variation;
         var desktopScreenshot;
         var mobileScreenshot;

@@ -31,7 +31,7 @@ module.exports.register.attributes = {
  * @param reply
  */
 internals.cssHandler = function (request, reply) {
-    var variationIndex = _.parseInt(request.params.configId - 1);
+    var variationIndex = _.parseInt(request.params.configId - 1, 10);
     var fileParts = Path.parse(request.params.fileName);
     var compiler;
     var basePath;
@@ -39,7 +39,7 @@ internals.cssHandler = function (request, reply) {
     var configuration;
 
     if (!request.app.themeConfig.variationExists(variationIndex)) {
-        return reply(Boom.notFound('Variation ' + request.params.configId + ' does not exists'));
+        return reply(Boom.notFound('Variation ' + request.params.configId + ' does not exist.'));
     }
 
     // Set the variation to get the right theme configuration
