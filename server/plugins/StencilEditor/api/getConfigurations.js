@@ -13,7 +13,7 @@ module.exports = function (options, themeConfig) {
      * @param  {Object} reply
      */
     return function (request, reply) {
-        var variationIndex = _.parseInt(request.params.configurationId - 1);
+        var variationIndex = _.parseInt(request.params.configurationId - 1, 10);
 
         themeConfig.setVariation(variationIndex);
 

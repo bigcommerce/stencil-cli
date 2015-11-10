@@ -15,7 +15,7 @@ module.exports = function (options, themeConfig) {
      */
     return function (request, reply) {
         var payload = request.payload || {};
-        var variationIndex = _.parseInt(payload.variationId - 1);
+        var variationIndex = _.parseInt(payload.variationId - 1, 10);
         var saveToFile = !payload.preview;
 
         themeConfig.setVariation(variationIndex);

@@ -96,8 +96,6 @@ internals.getResponse = function (request, callback) {
     });
 
     responseArgs = {
-        configuration: request.app.themeConfig.getConfig(),
-        request: request,
         httpOpts: httpOpts,
         staplerUrlObject: staplerUrlObject,
         url: url
@@ -167,7 +165,7 @@ internals.parseResponse = function (bcAppData, request, response, responseArgs, 
     var resourcesConfig;
     var dataRequestSignature;
     var httpOptsSignature;
-    var configuration = responseArgs.configuration;
+    var configuration = request.app.themeConfig.getConfig();
     var httpOpts = responseArgs.httpOpts;
     var staplerUrlObject = responseArgs.staplerUrlObject;
     var url = responseArgs.url;
