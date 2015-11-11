@@ -11,8 +11,8 @@ var Hoek = require('hoek'),
         },
         paths: {
             renderer: '/{url*}',
-            staticAssets: '/assets/{path*}',
-            cssFiles: '/assets/css/{path*}',
+            staticAssets: '/stencil/{versionId}/{configId}/{fileName*}',
+            cssFiles: '/stencil/{versionId}/{configId}/css/{fileName}.css',
             favicon: '/favicon.ico',
             stencilEditor: '/stencil-editor',
             updateParam: '/stencil-editor/update-param'
@@ -32,7 +32,7 @@ module.exports.register = function(server, options, next) {
         reply.continue();
     });
 
-    server.dependency(['Renderer', 'CssCompiler'], internals.registerRoutes);
+    server.dependency(['Renderer', 'ThemeAssets'], internals.registerRoutes);
     return next();
 };
 
@@ -68,11 +68,7 @@ internals.registerRoutes = function(server, next) {
         {
             method: 'GET',
             path: internals.paths.staticAssets,
-            handler: {
-                directory: {
-                    path: './assets'
-                }
-            },
+            handler: server.plugins.ThemeAssets.assetHandler,
             config: {
                 state: {
                     failAction: 'log'
@@ -94,7 +90,7 @@ internals.registerRoutes = function(server, next) {
         {
             method: 'GET',
             path: internals.paths.cssFiles,
-            handler: server.plugins.CssCompiler.implementation,
+            handler: server.plugins.ThemeAssets.cssHandler,
             config: {
                 state: {
                     failAction: 'log'
