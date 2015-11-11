@@ -22,6 +22,11 @@ module.exports = function (data, assembler) {
 
         paper.addDecorator(internals.makeDecorator(request, data.context));
 
+        // Plugins have the opportunity to add/modify the response by using decorators
+        _.each(request.app.decorators, function (decorator) {
+            paper.addDecorator(decorator);    
+        })
+        
         templatePath = internals.getTemplatePath(request, data);
 
         paper.loadTheme(templatePath, data.acceptLanguage, function () {
@@ -111,8 +116,7 @@ internals.getTemplatePath = function (request, data) {
 internals.makeDecorator = function (request, context) {
     return function(content) {
         var regex,
-            debugBar,
-            stencilEditorSDK;
+            debugBar;
 
         if (context.settings) {
             regex = new RegExp(internals.escapeRegex(context.settings.base_url), 'g');
@@ -127,14 +131,6 @@ internals.makeDecorator = function (request, context) {
             debugBar += internals.escapeHtml(JSON.stringify(context, null, 2)) + '</pre>';
             regex = new RegExp('</body>');
             content = content.replace(regex, debugBar + '\n</body>');
-        }
-
-        if (request.query.stencilEditor || request.state.stencil_editor_enabled) {
-            stencilEditorSDK = '<script src="http://localhost:8181/public/jspm_packages/github/meenie/jschannel@0.0.5/src/jschannel.js"></script>';
-            stencilEditorSDK += '<script src="http://localhost:8181/public/jspm_packages/github/js-cookie/js-cookie@2.0.3/src/js.cookie.js"></script>';
-            stencilEditorSDK += '<script src="http://localhost:8181/public/js/stencil-editor.js"></script>';
-
-            content = content.replace(new RegExp('</body>'), stencilEditorSDK + '\n</body>');
         }
 
         return content;

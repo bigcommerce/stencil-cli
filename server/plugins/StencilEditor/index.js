@@ -40,6 +40,18 @@ module.exports.register = function (server, options, next) {
         helpersPath: './templates/helpers'
     });
 
+    // On Request event handler to add the SDK to the footer
+    options.themeServer.ext('onRequest', function(request, reply) {
+        request.app.decorators = request.app.decorators || [];
+
+        // Only add the SDK if stencilEditor is a query parameter
+        if (request.query.stencilEditor) {
+            request.app.decorators.push(internals.SDKDecorator);
+        }
+
+        reply.continue();
+    });
+
     // When using stencil-cli variationId = configurationId
     variationId = internals.themeConfig.variationIndex + 1;
 
@@ -156,7 +168,6 @@ internals.getAssets = function (callback) {
 /**
  * Returns true if the build directory exists
  *
- * @param callback
  */
 internals.buildDirectoryExists = function () {
     var path = Path.join(internals.options.publicPath, internals.getStencilEditorPath(), 'build');
@@ -172,13 +183,30 @@ internals.buildDirectoryExists = function () {
 /**
  * Returns stencil-editor path relative to the public path
  *
- * @param callback
+ * @param path
  */
 internals.getStencilEditorPath = function (path) {
     var basePath = 'jspm_packages/github/bigcommerce-labs/ng-stencil-editor@';
     var version = PackageJson.jspm.dependencies['bigcommerce-labs/ng-stencil-editor'].split('@')[1];
 
     return basePath + version;
+};
+
+/**
+ * Pencil response decorator for adding the SDK scripts to the footer
+ *
+ * @param content
+ */
+internals.SDKDecorator = function (content) {
+    var stencilEditorSDK = '';
+
+    stencilEditorSDK = '<script src="http://localhost:8181/public/jspm_packages/github/meenie/jschannel@0.0.5/src/jschannel.js"></script>';
+    stencilEditorSDK += '<script src="http://localhost:8181/public/jspm_packages/github/js-cookie/js-cookie@2.0.3/src/js.cookie.js"></script>';
+    stencilEditorSDK += '<script src="http://localhost:8181/public/' + internals.getStencilEditorPath() + '/dist/js/stencil-editor-sdk.min.js"></script>';
+
+    content = content.replace(new RegExp('</body>'), stencilEditorSDK + '\n</body>'); 
+
+    return content;
 };
 
 module.exports.register.attributes = {
