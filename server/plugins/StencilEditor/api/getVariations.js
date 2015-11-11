@@ -75,6 +75,7 @@ module.exports = function (options, themeConfig) {
                 status: "draft",
                 relatedVariations: getRelatedVarations(options, themeConfig),
                 configurationId: variationIndex + 1,
+                defaultConfigurationId: variationIndex + 1,
                 isCurrent: options.variationIndex === variationIndex
             },
             meta: variation.meta
