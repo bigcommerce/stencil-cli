@@ -11,7 +11,8 @@ var Hoek = require('hoek'),
         },
         paths: {
             renderer: '/{url*}',
-            staticAssets: '/stencil/{versionId}/{configId}/{fileName*}',
+            staticAssets: '/assets/{path*}',
+            cdnAssets: '/stencil/{versionId}/{configId}/{fileName*}',
             cssFiles: '/stencil/{versionId}/{configId}/css/{fileName}.css',
             favicon: '/favicon.ico',
             stencilEditor: '/stencil-editor',
@@ -67,8 +68,22 @@ internals.registerRoutes = function(server, next) {
         },
         {
             method: 'GET',
-            path: internals.paths.staticAssets,
+            path: internals.paths.cdnAssets,
             handler: server.plugins.ThemeAssets.assetHandler,
+            config: {
+                state: {
+                    failAction: 'log'
+                }
+            }
+        },
+        {
+            method: 'GET',
+            path: internals.paths.staticAssets,
+            handler: {
+                directory: {
+                    path: './assets'
+                }
+            },
             config: {
                 state: {
                     failAction: 'log'
