@@ -46,7 +46,7 @@ module.exports.register = function (server, options, next) {
 
         // Only add the SDK if stencilEditor is a query parameter
         if (request.query.stencilEditor) {
-            request.app.decorators.push(internals.SDKDecorator);
+            request.app.decorators.push(internals.sdkDecorator);
         }
 
         reply.continue();
@@ -197,14 +197,18 @@ internals.getStencilEditorPath = function (path) {
  *
  * @param content
  */
-internals.SDKDecorator = function (content) {
-    var stencilEditorSDK = '';
+internals.sdkDecorator = function (content) {
+    var scriptTags = '';
+    var publicUrl = 'http://localhost:' + internals.options.stencilEditorPort + '/public/';
+    var sdkPath = internals.buildDirectoryExists()
+        ? 'build/sdk/sdk-stencil-editor.js'
+        : 'dist/sdk/sdk-stencil-editor.js';
 
-    stencilEditorSDK = '<script src="http://localhost:8181/public/jspm_packages/github/meenie/jschannel@0.0.5/src/jschannel.js"></script>';
-    stencilEditorSDK += '<script src="http://localhost:8181/public/jspm_packages/github/js-cookie/js-cookie@2.0.3/src/js.cookie.js"></script>';
-    stencilEditorSDK += '<script src="http://localhost:8181/public/' + internals.getStencilEditorPath() + '/dist/js/stencil-editor-sdk.min.js"></script>';
+    scriptTags = '<script src="' + publicUrl + 'jspm_packages/github/meenie/jschannel@0.0.5/src/jschannel.js"></script>\n';
+    scriptTags += '<script src="' + publicUrl + 'jspm_packages/github/js-cookie/js-cookie@2.0.3/src/js.cookie.js"></script>\n';
+    scriptTags += '<script src="' + publicUrl  + internals.getStencilEditorPath() + '/' + sdkPath + '"></script>\n';
 
-    content = content.replace(new RegExp('</body>'), stencilEditorSDK + '\n</body>'); 
+    content = content.replace(new RegExp('</body>'), scriptTags + '\n</body>'); 
 
     return content;
 };
