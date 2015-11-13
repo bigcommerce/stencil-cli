@@ -138,30 +138,30 @@ handlers.home = function(request, reply) {
  * @param callback
  */
 internals.getAssets = function (callback) {
+    var assets = {};
     var pattern = internals.buildDirectoryExists()
         ? 'build'
         : 'dist';
 
-    pattern = Path.join(internals.getStencilEditorPath(), pattern + '/**/*.{js,css}');
+    jsPattern = Path.join(internals.getStencilEditorPath(), pattern + '/js/**/*.js');
+    cssPattern = Path.join(internals.getStencilEditorPath(), pattern + '/css/**/*.css');
 
-    Glob(pattern, {cwd: internals.options.publicPath}, function(err, files) {
-        var assets = {};
-
+    Glob(jsPattern, {cwd: internals.options.publicPath}, function(err, files) {
         if (err) {
             callback(err);
         }
 
-        files = files.map(function(file) {return '/public/' + file});
+        assets.jsFiles = files.map(function(file) {return '/public/' + file});
 
-        assets.cssFiles = files.filter(function (file) {
-            return file.substr(-4) === '.css';
-        });
+        Glob(cssPattern, {cwd: internals.options.publicPath}, function(err, files) {
+            if (err) {
+                callback(err);
+            }
 
-        assets.jsFiles = files.filter(function (file) {
-            return file.substr(-3) === '.js';
+            assets.cssFiles = files.map(function(file) {return '/public/' + file});
+
+            callback(null, assets);
         });
-        
-        callback(null, assets);
     });
 };
 
