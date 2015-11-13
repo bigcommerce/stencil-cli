@@ -169,8 +169,6 @@ Async.series([
                 return console.error(err);
             }
 
-            console.log('Zipping Files Started...');
-
             output.on('close', function () {
                 console.log('ok'.green + ' -- Zipping Files Finished');
                 console.log('Bundled saved to: ' + Path.join(outputFolder, outputName).cyan);
@@ -200,7 +198,9 @@ Async.series([
             });
 
             Async.forEachOf(assembledData, function (data, type, callback) {
+
                 if (type === 'css' || type === 'templates') {
+                    // Create the parsed tree files
                     Async.forEachOf(data, function (val, filename, forEachOfCallback) {
                         if (type === 'templates') {
                             filename = Crypto.createHash('md5').update(filename).digest('hex');
@@ -211,13 +211,18 @@ Async.series([
                         archive.append(JSON.stringify(val), {name: filename});
                         forEachOfCallback();
                     }, callback);
+
+                    return;
+
                 } else if (type === 'lang') {
-                        archive.append(JSON.stringify(data), {name: 'parsed/lang.json'});
+                    // append the parsed translation file with all translations
+                    archive.append(JSON.stringify(data), {name: 'parsed/lang.json'});
                 } else if (type === 'schema') {
+                    // append the generated schema.json file
                     archive.append(JSON.stringify(data), {name: 'schema.json'});
-                } else {
-                    callback();
                 }
+
+                callback();
 
             }, function (err) {
                 if (err) {
