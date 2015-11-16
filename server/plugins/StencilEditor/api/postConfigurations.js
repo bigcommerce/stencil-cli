@@ -27,7 +27,7 @@ module.exports = function (options, themeConfig) {
                         detail: 'Reset Is not possible while using stencil-cli.'
                     }
                 ]
-            }).code(400);
+            }).code(405);
         }
 
         themeConfig.setVariation(variationIndex);
