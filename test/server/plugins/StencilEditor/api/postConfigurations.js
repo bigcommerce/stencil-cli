@@ -106,7 +106,7 @@ lab.describe('POST /configurations/{id} api endpoint', function () {
 
             return {
                 code: function (code) {
-                    Code.expect(code).to.be.equal(400);
+                    Code.expect(code).to.be.equal(405);
 
                     done();
                 }
