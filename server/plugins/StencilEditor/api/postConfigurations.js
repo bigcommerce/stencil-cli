@@ -18,6 +18,18 @@ module.exports = function (options, themeConfig) {
         var variationIndex = _.parseInt(payload.variationId - 1, 10);
         var saveToFile = !payload.preview;
 
+        if (payload.reset) {
+            return reply({
+                errors: [
+                    {
+                        type: 'not_available',
+                        title: 'Reset is not available',
+                        detail: 'Reset Is not possible while using stencil-cli.'
+                    }
+                ]
+            }).code(400);
+        }
+
         themeConfig.setVariation(variationIndex);
             
         themeConfig.updateConfig(payload.settings, saveToFile);
