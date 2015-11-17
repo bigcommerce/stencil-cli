@@ -22,10 +22,14 @@ describe('Router', function () {
                 next();
             }
         },
-        CSSPluginMock = {
+        ThemeAssetsMock = {
             register: function(server, options, next) {
-                server.expose('implementation', function(request, reply) {
-                    return reply('CSSHandlerFired');
+                server.expose('cssHandler', function(request, reply) {
+                    return reply('CssHandlerFired');
+                });
+
+                server.expose('assetHandler', function(request, reply) {
+                    return reply('assetHandlerFired');
                 });
 
                 next();
@@ -37,8 +41,8 @@ describe('Router', function () {
         version: '0.0.1'
     };
 
-    CSSPluginMock.register.attributes = {
-        name: 'CssCompiler',
+    ThemeAssetsMock.register.attributes = {
+        name: 'ThemeAssets',
         version: '0.0.1'
     };
 
@@ -49,7 +53,7 @@ describe('Router', function () {
     lab.before(function(done) {
         server.register([
             RendererPluginMock,
-            CSSPluginMock,
+            ThemeAssetsMock,
             require(internals.paths.pluginsPath + '/Router')
         ], function (err) {
             expect(err).to.equal(undefined);
@@ -68,6 +72,30 @@ describe('Router', function () {
         }, function (response) {
             expect(response.statusCode).to.equal(200);
             expect(response.payload).to.equal('RendererHandlerFired');
+
+            done();
+        });
+    });
+
+    it('should call the CSS handler', function (done) {
+        server.inject({
+            method: 'GET',
+            url: '/stencil/123/234/css/file.css'
+        }, function (response) {
+            expect(response.statusCode).to.equal(200);
+            expect(response.payload).to.equal('CssHandlerFired');
+
+            done();
+        });
+    });
+
+    it('should call the assets handler', function (done) {
+        server.inject({
+            method: 'GET',
+            url: '/stencil/123/234/js/file.js'
+        }, function (response) {
+            expect(response.statusCode).to.equal(200);
+            expect(response.payload).to.equal('assetHandlerFired');
 
             done();
         });

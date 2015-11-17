@@ -11,11 +11,6 @@ module.exports = function (data, assembler) {
             paper,
             templatePath;
 
-        // Remove the CDN prefixes in development
-        delete data.context.settings['cdn_url'];
-        delete data.context.settings['theme_version_id'];
-        delete data.context.settings['theme_config_id'];
-
         // Set the environment to dev
         data.context.in_development = true;
         data.context.in_production = false;

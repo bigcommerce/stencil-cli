@@ -67,7 +67,6 @@ internals.getResponse = function (request, callback) {
         urlObject = _.clone(request.url, true),
         url,
         requestSignature,
-        themeConfig = request.app.themeConfig.getConfig(),
         httpOpts = {
             rejectUnauthorized: false,
             headers: internals.getHeaders(request, {get_template_file: true, get_data_only: true}),
@@ -97,8 +96,6 @@ internals.getResponse = function (request, callback) {
     });
 
     responseArgs = {
-        themeConfig: themeConfig,
-        request: request,
         httpOpts: httpOpts,
         staplerUrlObject: staplerUrlObject,
         url: url
@@ -113,7 +110,7 @@ internals.getResponse = function (request, callback) {
     // check request signature and use cache, if available
     if (cachedResponse && 'get' === request.method && internals.options.useCache) {
         // if GET request, return with cached response
-        return internals.parseResponse(cachedResponse.bcAppData, cachedResponse.response, responseArgs, callback);
+        return internals.parseResponse(cachedResponse.bcAppData, request, cachedResponse.response, responseArgs, callback);
     } else if ('get' !== request.method) {
         // clear when making a non-get request
         Cache.clear();
@@ -147,10 +144,10 @@ internals.getResponse = function (request, callback) {
             // cache response
             Cache.put(requestSignature, {
                 bcAppData: bcAppData,
-                response: response
+                response: response,
             }, internals.cacheTTL);
 
-            internals.parseResponse(bcAppData, response, responseArgs, callback);
+            internals.parseResponse(bcAppData, request, response, responseArgs, callback);
         });
     });
 };
@@ -164,12 +161,11 @@ internals.getResponse = function (request, callback) {
  * @param callback
  * @returns {*}
  */
-internals.parseResponse = function (bcAppData, response, responseArgs, callback) {
+internals.parseResponse = function (bcAppData, request, response, responseArgs, callback) {
     var resourcesConfig;
     var dataRequestSignature;
     var httpOptsSignature;
-    var themeConfig = responseArgs.themeConfig;
-    var request = responseArgs.request;
+    var configuration = request.app.themeConfig.getConfig();
     var httpOpts = responseArgs.httpOpts;
     var staplerUrlObject = responseArgs.staplerUrlObject;
     var url = responseArgs.url;
@@ -186,9 +182,9 @@ internals.parseResponse = function (bcAppData, response, responseArgs, callback)
     // If a remote call, no need to do a second call to get the data,
     // it has already come back
     if (bcAppData.remote) {
-        return callback(null, internals.getPencilResponse(bcAppData, request, response, themeConfig));
+        return callback(null, internals.getPencilResponse(bcAppData, request, response, configuration));
     } else {
-        resourcesConfig = internals.getResourceConfig(bcAppData, request, themeConfig);
+        resourcesConfig = internals.getResourceConfig(bcAppData, request, configuration);
 
         httpOpts.headers = internals.getHeaders(request, {get_data_only: true}, resourcesConfig);
         // Set host to stapler host
@@ -202,15 +198,9 @@ internals.parseResponse = function (bcAppData, response, responseArgs, callback)
         // check request signature and use cache, if available
         if (internals.options.useCache && Cache.get(dataRequestSignature)) {
             var cache = Cache.get(dataRequestSignature);
-            return callback(
-                null,
-                internals.getPencilResponse(
-                    cache.data,
-                    cache.request,
-                    cache.response,
-                    cache.themeConfig
-                )
-            );
+
+            return callback(null, internals.getPencilResponse(cache.data, request, cache.response, configuration));
+
         } else {
             Wreck.get(url, httpOpts, function (err, response, data) {
                 if (err) {
@@ -241,12 +231,10 @@ internals.parseResponse = function (bcAppData, response, responseArgs, callback)
                 // Cache data
                 Cache.put(dataRequestSignature, {
                     data: data,
-                    request: request,
                     response: response,
-                    themeConfig: themeConfig
                 }, internals.cacheTTL);
 
-                return callback(null, internals.getPencilResponse(data, request, response, themeConfig));
+                return callback(null, internals.getPencilResponse(data, request, response, configuration));
             });
         }
     }
@@ -257,10 +245,10 @@ internals.parseResponse = function (bcAppData, response, responseArgs, callback)
  * or from the header stencil-config for ajax requests
  * @param  {Object} data
  * @param  {Object} request
- * @param  {Object} themeConfig
+ * @param  {Object} configuration
  * @return {Object}
  */
-internals.getResourceConfig = function(data, request, themeConfig) {
+internals.getResourceConfig = function(data, request, configuration) {
     var frontmatter,
         frontmatterRegex = /---\r?\n(?:.|\s)*?\r?\n---\r?\n/g,
         missingThemeSettingsRegex = /{{\\s*?theme_settings\\..+?\\s*?}}/g,
@@ -280,7 +268,7 @@ internals.getResourceConfig = function(data, request, themeConfig) {
         if (frontmatterMatch !== null) {
             frontmatterContent = frontmatterMatch[0];
             // Interpolate theme settings for frontmatter
-            _.forOwn(themeConfig.settings, function (val, key) {
+            _.forOwn(configuration.settings, function (val, key) {
                 var regex = '{{\\s*?theme_settings\\.' + key + '\\s*?}}';
 
                 frontmatterContent = frontmatterContent.replace(new RegExp(regex, 'g'), val);
@@ -296,8 +284,8 @@ internals.getResourceConfig = function(data, request, themeConfig) {
         // Set the config
         resourcesConfig = frontmatter.attributes;
         // Merge the frontmatter config  with the global resource config
-        if (_.isObject(themeConfig.resources)) {
-            resourcesConfig = _.extend({}, themeConfig.resources, resourcesConfig);
+        if (_.isObject(configuration.resources)) {
+            resourcesConfig = _.extend({}, configuration.resources, resourcesConfig);
         }
 
     } else if (request.headers['stencil-config']) {
@@ -342,9 +330,14 @@ internals.redirect = function (response, request, callback) {
  * @param response
  * @returns {*}
  */
-internals.getPencilResponse = function (data, request, response, themeConfig) {
-    data.context.theme_settings = themeConfig.settings;
-    data.context.theme_images = themeConfig.images;
+internals.getPencilResponse = function (data, request, response, configuration) {
+    data.context.theme_settings = configuration.settings;
+    data.context.theme_images = configuration.images;
+
+    // change cdn settings to serve local assets
+    data.context.settings['cdn_url'] = '';
+    data.context.settings['theme_version_id'] = 'theme';
+    data.context.settings['theme_config_id'] = request.app.themeConfig.variationIndex + 1;
 
     return new Responses.PencilResponse({
        template_file: data.template_file,

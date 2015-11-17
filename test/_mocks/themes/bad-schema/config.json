@@ -1,0 +1,48 @@
+{
+  "name": "Stencil",
+  "version": "1.0",
+  "css_compiler": "scss",
+  "autoprefixer_cascade": true,
+  "autoprefixer_browsers": [
+    "> 5% in US"
+  ],
+  "meta": {
+    "price": 15000,
+    "composed_image": "image.jpg"
+  },
+  "settings": {
+    "color": "#ffffff",
+    "font": "Sans Something",
+    "select": "first",
+    "checkbox": true,
+    "radio": "first"
+  },
+  "images": {
+    "logo": {
+      "width": 100,
+      "height": 100
+    },
+    "thumb": {
+      "width": 10,
+      "height": 10
+    }
+  },
+  "variations": [
+    {
+      "name": "First"
+    },
+    {
+      "name": "Second",
+      "settings": {
+        "color": "#000000",
+        "select": "second"
+      },
+      "images": {
+        "logo": {
+          "width": 200,
+          "height": 200
+        }
+      }
+    }
+  ]
+}

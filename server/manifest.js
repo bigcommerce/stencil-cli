@@ -21,7 +21,7 @@ manifest = {
         // First Party Plugins
         './plugins/Renderer': {},
         './plugins/Router': {},
-        './plugins/CssCompiler': config.get('/cssCompiler')
+        './plugins/ThemeAssets': config.get('/themeAssets')
     }
 };
 

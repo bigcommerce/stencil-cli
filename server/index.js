@@ -51,7 +51,7 @@ internals.startThemeEditor = function(options, callback) {
         }],
         plugins: {
             './plugins/StencilEditor': {
-                themeVariationName: options.themeVariationName,
+                variationIndex: options.variationIndex,
                 stencilServerPort: options.dotStencilFile.stencilServerPort,
                 themeEditorHost: themeEditorHost
             }

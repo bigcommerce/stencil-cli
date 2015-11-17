@@ -20,11 +20,10 @@ config = {
             args: [{log: '*', request: '*'}]
         }]
     },
-    cssCompiler: {
-        cssBasePath: Path.join(process.cwd(), 'assets')
+    themeAssets: {
+        assetsBasePath: Path.join(process.cwd(), 'assets')
     }
 };
-
 
 criteria = {
     env: process.env.NODE_ENV || 'development'
