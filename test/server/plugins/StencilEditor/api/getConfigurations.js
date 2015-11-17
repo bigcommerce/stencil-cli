@@ -11,8 +11,6 @@ var GetConfigurations = require('../../../../../server/plugins/StencilEditor/api
 var responseSchema = require('./getConfigurations.schema');
 
 lab.describe('GET /configurations/{id} api endpoint', function () {
-    
-    var themeConfig = ThemeConfig.getInstance(themePath);
 
     lab.it('should reply with the right schema and include the first variation settings', function (done) {
         var originalConfig = require(Path.join(themePath, 'config.json'));
@@ -22,7 +20,7 @@ lab.describe('GET /configurations/{id} api endpoint', function () {
             }
         };
 
-        themeConfig.setVariation(0);
+        var themeConfig = ThemeConfig.getInstance(themePath);
 
         GetConfigurations({}, themeConfig)(request, function (response) {
 
@@ -48,7 +46,7 @@ lab.describe('GET /configurations/{id} api endpoint', function () {
             }
         };
 
-        themeConfig.setVariation(1);
+        var themeConfig = ThemeConfig.getInstance(themePath);
 
         GetConfigurations({}, themeConfig)(request, function (response) {
             // Validate the response schema against the theme-registry schema
