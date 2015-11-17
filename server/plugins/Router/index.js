@@ -33,7 +33,7 @@ module.exports.register = function(server, options, next) {
     });
 
     server.dependency(['Renderer', 'CssCompiler'], internals.registerRoutes);
-    return next();
+    next();
 };
 
 internals.registerRoutes = function(server, next) {
