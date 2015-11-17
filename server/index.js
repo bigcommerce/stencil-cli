@@ -34,6 +34,8 @@ module.exports = function(options, callback) {
             console.log(logo);
 
             if (options.stencilEditorEnabled) {
+                options.themeServer = server;
+
                 return internals.startThemeEditor(options, callback);
             } else {
                 return callback(null, server);
@@ -54,7 +56,9 @@ internals.startThemeEditor = function(options, callback) {
             './plugins/StencilEditor': {
                 variationIndex: options.variationIndex,
                 stencilServerPort: options.dotStencilFile.stencilServerPort,
-                themeEditorHost: themeEditorHost
+                stencilEditorPort: options.stencilEditorPort,
+                themeEditorHost: themeEditorHost,
+                themeServer: options.themeServer
             }
         }
     };
