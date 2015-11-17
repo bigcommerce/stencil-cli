@@ -35,7 +35,7 @@ module.exports = function(options, callback) {
             if (options.stencilEditorEnabled) {
                 return internals.startThemeEditor(options, callback);
             } else {
-                return callback();
+                return callback(null, server);
             }
         });
 

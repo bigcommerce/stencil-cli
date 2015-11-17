@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "node make --install",
-    "test": "lab -t 90 -e 'development'",
+    "test": "lab -t 75 -e 'development'",
     "test-cov-html": "lab -r html -o coverage.html"
   },
   "bin": {

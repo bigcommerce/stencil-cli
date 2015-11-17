@@ -120,6 +120,7 @@ internals.getResponse = function (request, callback) {
     }
 
     Wreck.request(request.method, url, httpOpts, function (err, response) {
+
         if (err) {
             return callback(err);
         }
