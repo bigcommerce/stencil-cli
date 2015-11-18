@@ -5,8 +5,6 @@ var Path = require('path');
 var Sinon = require('sinon');
 var lab = exports.lab = Lab.script();
 var validator = new (require('jsonschema').Validator)();
-var themePath = Path.join(process.cwd(), 'test/_mocks/themes/valid');
-var ThemeConfig = require('../../../../../lib/themeConfig');
 var PostConfigurations = require('../../../../../server/plugins/StencilEditor/api/postConfigurations');
 var responseSchema = require('./postConfigurations.schema');
 
@@ -70,6 +68,49 @@ lab.describe('POST /configurations/{id} api endpoint', function () {
                 .to.be.true();
 
             done();
+        });
+    });
+
+    lab.it('should respond with an error if reset flag is passed', function(done) {
+        var themeConfig = {
+            setVariation: Sinon.spy(),
+            updateConfig: Sinon.spy(),
+        };
+        var requestStub = {
+            payload: {
+                reset: true,
+                variationId: 1,
+                settings: {
+                    b: 1
+                }
+            }
+        };
+
+        PostConfigurations({}, themeConfig)(requestStub, function(response) {
+
+            Code.expect(response.data)
+                .to.be.undefined();
+
+            Code.expect(response.errors)
+                .to.be.an.array();
+
+
+            Code.expect(response.errors[0].type)
+                .to.equal('not_available');
+
+            Code.expect(themeConfig.setVariation.notCalled)
+                .to.be.true();
+
+            Code.expect(themeConfig.updateConfig.notCalled)
+                .to.be.true();
+
+            return {
+                code: function (code) {
+                    Code.expect(code).to.be.equal(405);
+
+                    done();
+                }
+            };
         });
     });
 });
