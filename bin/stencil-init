@@ -6,6 +6,7 @@ var Fs = require('fs'),
     Inquirer = require('inquirer'),
     Jspm = require('jspm'),
     JspmAssembler = require('../lib/jspmAssembler'),
+    jsonLint = require('../lib/jsonLint'),
     Path = require('path'),
     Program = require('commander'),
     ThemeConfig = require('../lib/themeConfig'),
@@ -21,7 +22,11 @@ Program
 
 if (Fs.existsSync(dotStencilFilePath)) {
     dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
-    dotStencilFile = JSON.parse(dotStencilFile);
+    try {
+        dotStencilFile = jsonLint.parse(dotStencilFile, dotStencilFilePath);
+    } catch (e) {
+        return console.error(e.fileName, e.stack);
+    }
 }
 
 var questions = [

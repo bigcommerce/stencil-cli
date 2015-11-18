@@ -11,12 +11,14 @@ var _ = require('lodash'),
     ThemeConfig = require('../lib/themeConfig'),
     Url = require('url'),
     Wreck = require('wreck'),
+    jsonLint = require('./../lib/jsonLint'),
     themePath = process.cwd(),
     allowedCssCompilers = ['scss', 'less'],
     browserSyncPort,
     cssCompilerDir,
     cssWatchBaseDir = Path.join(themePath, 'assets/'),
     dotStencilFilePath = Path.join(themePath, '.stencil'),
+    themeConfigPath = Path.join(themePath, 'config.json'),
     dotStencilFile,
     isTopLevelCssRegex,
     stencilServerPort,
@@ -59,13 +61,18 @@ if (Program.variation) {
         themeConfig.setVariationByName(Program.variation);
     } catch (err) {
         return console.error('Error: The variation '.red + Program.variation + ' does not exists in your config.json file'.red);
-    }   
+    }
 }
 
 configuration = themeConfig.getConfig();
 
 dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
-dotStencilFile = JSON.parse(dotStencilFile);
+
+try {
+    dotStencilFile = jsonLint.parse(dotStencilFile, dotStencilFilePath);
+} catch (e) {
+    return console.error(e.stack);
+}
 
 if (allowedCssCompilers.indexOf(configuration.css_compiler) === -1) {
     return console.error('Error: Only %s are allowed as CSS Compilers'.red, allowedCssCompilers.join(', '));
@@ -105,7 +112,7 @@ Wreck.get(
             bundleTask;
 
         try {
-            payload = JSON.parse(payload);
+            payload = jsonLint.parse(payload);
         } catch (e) {
             retError = true;
         }
@@ -159,6 +166,9 @@ function startServer() {
         if (err) {
             throw err;
         }
+
+        // Display Set up information
+        console.log(startUpInformation());
 
         /**
          * Watch the appropriate css directory based on which compiler was chosen.
@@ -299,4 +309,29 @@ function fileExist(path) {
     catch (e) {
         return false;
     }
+}
+
+/**
+* Displays information about your environment and configuration.
+* @return {string}
+*/
+function startUpInformation() {
+    var information = '\n';
+
+    information += '-----------------Startup Information-------------\n'.gray;
+    information += '\n';
+    information += '.stencil location: ' + dotStencilFilePath.cyan + '\n';
+    information += 'config.json location: ' + themeConfigPath.cyan + '\n';
+    information += 'Store URL: ' + dotStencilFile.normalStoreUrl.cyan + '\n';
+
+    if (dotStencilFile.staplerUrl) {
+        information += 'Stapler URL: ' + staplerUrl.cyan + '\n';
+    }
+
+    information += 'SSL Store URL: ' + dotStencilFile.storeUrl.cyan + '\n';
+    information += 'Node Version: ' + process.version + '\n';
+    information += '\n';
+    information += '-------------------------------------------------\n'.gray;
+
+    return information;
 }
