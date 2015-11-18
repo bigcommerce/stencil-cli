@@ -18,7 +18,7 @@ module.exports = function (options, themeConfig) {
         var variationIndex = _.parseInt(payload.variationId - 1, 10);
         var saveToFile = !payload.preview;
 
-        if (payload.reset) {
+        if (payload.reset || payload.publish) {
             return reply({
                 errors: [
                     {
