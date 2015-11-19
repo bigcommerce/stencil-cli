@@ -30,7 +30,9 @@
                 angular.module('ng-common.bc-app', [])
                     .constant('BC_APP_CONFIG', {
                         cdnPath: '//localhost:8181',
-                        storeUrl: '{{{storeUrl}}}',
+                        config: {
+                            ShopPath: '{{{storeUrl}}}'
+                        },
                         isProduction: false
                     })
                     .constant('BC_SEED_DATA', {
