@@ -29,12 +29,13 @@
             System.import('src/app/app.module.js').then(function() {
                 angular.module('ng-common.bc-app', [])
                     .constant('BC_APP_CONFIG', {
-                        basePath: '{{basePath}}',
                         cdnPath: '//localhost:8181',
                         storeUrl: '{{{storeUrl}}}',
                         isProduction: false
                     })
-                    .constant('BC_SEED_DATA', {});
+                    .constant('BC_SEED_DATA', {
+                        basePath: '{{basePath}}'
+                    });
 
                 angular.bootstrap(document.getElementById('micro-app-ng-stencil-editor'), ['ng-stencil-editor']);
             });
