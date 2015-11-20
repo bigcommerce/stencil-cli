@@ -23,6 +23,8 @@ module.exports = function(options, callback) {
     config.plugins['./plugins/Router'].port = options.dotStencilFile.port;
     config.plugins['./plugins/Router'].staplerUrl = options.dotStencilFile.staplerUrl;
     config.plugins['./plugins/Renderer'].useCache = options.useCache;
+    config.plugins['./plugins/Renderer'].username = options.dotStencilFile.username;
+    config.plugins['./plugins/Renderer'].token = options.dotStencilFile.token;
     config.plugins['./plugins/Renderer'].customLayouts = options.dotStencilFile.customLayouts;
 
     Glue.compose(config, {relativeTo: __dirname}, function (err, server) {
