@@ -23,7 +23,7 @@ System.config({
     "angular": "github:angular/bower-angular@1.3.7",
     "angular-animate": "github:angular/bower-angular-animate@1.3.7",
     "angular-cookies": "github:angular/bower-angular-cookies@1.3.7",
-    "angular-formly": "github:formly-js/angular-formly@6.15.2",
+    "angular-formly": "github:formly-js/angular-formly@7.3.3",
     "angular-sanitize": "github:angular/bower-angular-sanitize@1.3.7",
     "angular-ui-router": "github:angular-ui/ui-router@0.2.13",
     "api-check": "github:kentcdodds/api-check@7.5.3",
