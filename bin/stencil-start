@@ -1,31 +1,31 @@
 #!/usr/bin/env node
 
-var _ = require('lodash'),
-    Bs = require('browser-sync').create(),
-    Fs = require('fs'),
-    JspmAssembler = require('../lib/jspmAssembler'),
-    Path = require('path'),
-    Pkg = require('../package.json'),
-    Program = require('commander'),
-    Server = require('../server'),
-    ThemeConfig = require('../lib/themeConfig'),
-    Url = require('url'),
-    Wreck = require('wreck'),
-    jsonLint = require('./../lib/jsonLint'),
-    themePath = process.cwd(),
-    allowedCssCompilers = ['scss', 'less'],
-    browserSyncPort,
-    cssCompilerDir,
-    cssWatchBaseDir = Path.join(themePath, 'assets/'),
-    dotStencilFilePath = Path.join(themePath, '.stencil'),
-    themeConfigPath = Path.join(themePath, 'config.json'),
-    dotStencilFile,
-    isTopLevelCssRegex,
-    stencilServerPort,
-    themeConfig,
-    configuration,
-    staplerUrl,
-    headers;
+var _ = require('lodash');
+var Bs = require('browser-sync').create();
+var Fs = require('fs');
+var JspmAssembler = require('../lib/jspmAssembler');
+var Path = require('path');
+var Pkg = require('../package.json');
+var Program = require('commander');
+var Server = require('../server');
+var ThemeConfig = require('../lib/themeConfig');
+var Url = require('url');
+var Wreck = require('wreck');
+var jsonLint = require('./../lib/jsonLint');
+var themePath = process.cwd();
+var allowedCssCompilers = ['scss', 'less'];
+var browserSyncPort;
+var cssCompilerDir;
+var cssWatchBaseDir = Path.join(themePath, 'assets/');
+var dotStencilFilePath = Path.join(themePath, '.stencil');
+var themeConfigPath = Path.join(themePath, 'config.json');
+var dotStencilFile;
+var isTopLevelCssRegex;
+var stencilServerPort;
+var themeConfig;
+var configuration;
+var staplerUrl;
+var headers;
 
 require('colors');
 
@@ -83,7 +83,7 @@ stencilServerPort = ++dotStencilFile.port;
 cssCompilerDir = cssWatchBaseDir + configuration.css_compiler;
 isTopLevelCssRegex = new RegExp('^(?!_).+\.(?:' + configuration.css_compiler + ')$');
 
-if (!(dotStencilFile.normalStoreUrl)) {
+if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
     return console.error(
         'Error: Your stencil config is outdated. Please run'.red +
         ' $ stencil init'.cyan + ' again.'.red
@@ -119,7 +119,7 @@ Wreck.get(
 
         if (retError) {
             console.error(
-                'The Bigcommerce Store you are pointing to either does\'t exist or is not available at this time.'.red
+                'The Bigcommerce Store you are pointing to either does not exist or is not available at this time.'.red
             );
         } else if (payload.status !== 'ok') {
             console.error(
@@ -329,7 +329,7 @@ function startUpInformation() {
     }
 
     information += 'SSL Store URL: ' + dotStencilFile.storeUrl.cyan + '\n';
-    information += 'Node Version: ' + process.version + '\n';
+    information += 'Node Version: ' + process.version.cyan + '\n';
     information += '\n';
     information += '-------------------------------------------------\n'.gray;
 

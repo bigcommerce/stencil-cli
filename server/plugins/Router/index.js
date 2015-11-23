@@ -29,6 +29,7 @@ module.exports.register = function(server, options, next) {
         request.app.apiKey = internals.options.apiKey;
         request.app.staplerUrl = internals.options.staplerUrl;
         request.app.themeConfig = ThemeConfig.getInstance();
+        request.app.customLayouts = internals.options.customLayouts;
 
         reply.continue();
     });

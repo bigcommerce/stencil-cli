@@ -256,7 +256,7 @@ internals.getResourceConfig = function(data, request, configuration) {
         frontmatterContent,
         rawTemplate,
         resourcesConfig = {},
-        templatePath = data.template_file;
+        templatePath = internals.getTemplatePath(request, data.template_file);
 
     // If the requested template is not an array, we parse the Frontmatter
     // If it is an array, then it's an ajax request using `render_with` with multiple components
@@ -323,6 +323,75 @@ internals.redirect = function (response, request, callback) {
 };
 
 /**
+ * Find and return the corresponding template file name when the needle is found
+ *
+ * @example
+ * var haystack = {
+ *   "products": {
+ *     "dress.html": "/sample-marc-retro-style-summer-mid-dress/",
+ *     "aligator.html": ["/sample-collette-aligator-clutch/", "/sample-jimmy-choo-extra-high-dynamite-cheetahs/"]
+ *   },
+ *   "search": {
+ *     "search.html": "/example"
+ *   }
+ * };
+ *
+ * findDeepTemplate(haystack, "/example"); // -> "search.html"
+ *
+ * @param {Object} haystack
+ * @param {String} needle
+ * @return {String|Boolean}
+ */
+internals.findDeepTemplate = function (haystack, needle) {
+    var template = false;
+
+    _.forEach(haystack, function(val, key) {
+        if (typeof val.length === 'undefined' ) {
+            // object, recursive find
+            template = internals.findDeepTemplate(val, needle);
+            if (template) {
+                template = _.trimRight(key + '/' + template, '.html');
+                return false; // break out of loop
+            }
+        } else if (typeof val === 'string') {
+            // found in string
+            if (val === needle) {
+                // found in string
+                template = key;
+                return false; // break out of loop
+            }
+        } else if (typeof val.length === 'number' && val.indexOf(needle) !== -1) {
+            // found in array
+            template = key;
+            return false; // break out of loop
+        }
+    });
+
+    return template;
+}
+
+/**
+ *
+ * @param {Object} request
+ * @param {String} defaultTemplateFile
+ * @returns {string}
+ */
+internals.getTemplatePath = function (request, defaultTemplateFile) {
+    var customLayouts = internals.options.customLayouts;
+    var templatePath = internals.findDeepTemplate(customLayouts, request.path);
+
+    // cannot find
+    if (!templatePath) {
+        // default
+        templatePath = defaultTemplateFile;
+    } else {
+        templatePath = 'custom/' + templatePath;
+    }
+    
+    return templatePath;
+};
+
+/**
  * Creates a new Pencil Response object and returns it.
  *
  * @param data
@@ -340,7 +409,7 @@ internals.getPencilResponse = function (data, request, response, configuration) 
     data.context.settings['theme_config_id'] = request.app.themeConfig.variationIndex + 1;
 
     return new Responses.PencilResponse({
-       template_file: data.template_file,
+       template_file: internals.getTemplatePath(request, data.template_file),
        templates: data.templates,
        remote: data.remote,
        remote_data: data.remote_data,
