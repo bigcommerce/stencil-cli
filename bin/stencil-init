@@ -1,106 +1,15 @@
 #!/usr/bin/env node
 
 require('colors');
-
-var Fs = require('fs'),
-    Inquirer = require('inquirer'),
-    Jspm = require('jspm'),
-    JspmAssembler = require('../lib/jspmAssembler'),
-    jsonLint = require('../lib/jsonLint'),
-    Path = require('path'),
-    Program = require('commander'),
-    ThemeConfig = require('../lib/themeConfig'),
-    pkg = require('../package.json'),
-    dotStencilFilePath = './.stencil',
-    dotStencilFile,
-    themePath = process.cwd(),
-    configuration;
+var stencilInit = require('../lib/stencilInit');
+var pkg = require('../package.json');
+var Program = require('commander');
+var JspmAssembler = require('../lib/jspmAssembler');
+var ThemeConfig = require('../lib/themeConfig');
+var dotStencilFilePath = './.stencil';
 
 Program
     .version(pkg.version)
     .parse(process.argv);
 
-if (Fs.existsSync(dotStencilFilePath)) {
-    dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
-    try {
-        dotStencilFile = jsonLint.parse(dotStencilFile, dotStencilFilePath);
-    } catch (e) {
-        return console.error(e.fileName, e.stack);
-    }
-}
-
-var questions = [
-    {
-        type: 'input',
-        name: 'normalStoreUrl',
-        message: 'What is the URL of your store\'s home page?',
-        validate: function(val) {
-            if (/^https?:\/\//.test(val)) {
-                return true;
-            } else {
-                return 'You must enter a URL';
-            }
-        },
-        default: dotStencilFile && dotStencilFile.normalStoreUrl || undefined
-    },
-    {
-        type: 'input',
-        name: 'port',
-        message: 'What port would you like to run the server on?',
-        default: dotStencilFile && dotStencilFile.port || 3000,
-        validate: function(val) {
-            if (isNaN(val)) {
-                return 'You must enter an integer';
-            } else if (val < 1024 || val > 65535) {
-                return 'The port number must be between 1025 and 65535';
-            } else {
-                return true;
-            }
-        }
-    }
-];
-
-Inquirer.prompt(questions, function(answers) {
-    // preserve the staplerUrl
-    if (dotStencilFile && dotStencilFile.staplerUrl) {
-        answers.staplerUrl = dotStencilFile.staplerUrl;
-    }
-
-    Fs.writeFile(dotStencilFilePath, JSON.stringify(answers, null, 2), function(err) {
-        var ready = 'You are now ready to go! To start developing, run $ stencil start',
-            bundleTask;
-
-        if (err) {
-            throw err;
-        }
-
-        // bundle dev dependencies
-        configuration = ThemeConfig.getInstance(themePath).getConfig();
-        if (configuration.jspm) {
-            if (! Fs.existsSync(Path.join(themePath, configuration.jspm.jspm_packages_path))) {
-                console.log('Error: The path you specified for your "jspm_packages" folder does not exist.'.red);
-                return console.log(
-                    'Please check your '.red +
-                    'jspm.jspm_packages_path'.cyan +
-                    ' setting in your theme\'s '.red +
-                    'config.json'.cyan +
-                    ' file to make sure it\'s correct.'.red
-                );
-            }
-
-            bundleTask = JspmAssembler.assemble(
-                {
-                    bootstrap: configuration.jspm.dev.bootstrap
-                },
-                themePath
-            );
-
-            bundleTask(function() {
-                console.log(ready);
-            });
-
-        } else {
-            console.log(ready);
-        }
-    });
-});
+stencilInit(JspmAssembler, ThemeConfig, dotStencilFilePath);
