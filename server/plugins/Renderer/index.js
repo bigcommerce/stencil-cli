@@ -116,6 +116,11 @@ internals.getResponse = function (request, callback) {
         Cache.clear();
     }
 
+    if (url.indexOf('checkout.php') !== -1) {
+        httpOpts.headers['theme-version-id'] = 'theme';
+        httpOpts.headers['theme-config-id'] = request.app.themeConfig.variationIndex + 1
+    }
+
     Wreck.request(request.method, url, httpOpts, function (err, response) {
 
         if (err) {
