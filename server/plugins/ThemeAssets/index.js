@@ -2,6 +2,7 @@ var Boom = require('boom'),
     CssAssembler = require('../../../lib/cssAssembler'),
     Hoek = require('hoek'),
     Path = require('path'),
+    StencilStyles = require('stencil-styles'),
     Fs = require('fs'),
     _ = require('lodash'),
     internals = {
@@ -12,6 +13,8 @@ var Boom = require('boom'),
 
 module.exports.register = function (server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);
+
+    internals.stencilStyles = new StencilStyles();
 
     server.expose('cssHandler', internals.cssHandler);
     server.expose('assetHandler', internals.assetHandler);
@@ -67,7 +70,7 @@ internals.cssHandler = function (request, reply) {
             }
         };
 
-        request.server.plugins.StencilStyles.compile(compiler, params, function (err, css) {
+        internals.stencilStyles.compileCss(compiler, params, function (err, css) {
             if (err) {
                 console.error(err);
                 return reply(Boom.badData(err));
