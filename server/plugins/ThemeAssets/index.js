@@ -13,6 +13,7 @@ var Boom = require('boom'),
 
 module.exports.register = function (server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);
+    internals.options.assetsBasePath = Path.join(internals.options.themePath, 'assets');
 
     internals.stencilStyles = new StencilStyles();
 
@@ -83,12 +84,13 @@ internals.cssHandler = function (request, reply) {
 
 /**
  * Assets handler
- * 
+ *
  * @param request
  * @param reply
  */
 internals.assetHandler = function (request, reply) {
     var filePath = Path.join(internals.options.assetsBasePath, request.params.fileName);
+    console.log(filePath);
 
     reply.file(filePath);
 };

@@ -262,7 +262,7 @@ internals.getResourceConfig = function(data, request, configuration) {
     // If it is an array, then it's an ajax request using `render_with` with multiple components
     // which don't have Frontmatter and needs to get it's config from the `stencil-config` header.
     if (templatePath && !_.isArray(templatePath)) {
-        rawTemplate = TemplateAssembler.getTemplateContentSync(templatePath);
+        rawTemplate = TemplateAssembler.getTemplateContentSync(internals.options.themePath, templatePath);
 
         frontmatterMatch = rawTemplate.match(frontmatterRegex);
         if (frontmatterMatch !== null) {
@@ -416,7 +416,7 @@ internals.themeAssembler = {
         });
     },
     getTranslations: function (callback) {
-        LangAssembler.assemble(function (err, translations) {
+        LangAssembler.assemble(internals.options.themePath, function (err, translations) {
             translations = _.mapValues(translations, function(locales, lang) {
                 return JSON.parse(locales);
             })
