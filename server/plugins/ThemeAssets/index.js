@@ -90,7 +90,6 @@ internals.cssHandler = function (request, reply) {
  */
 internals.assetHandler = function (request, reply) {
     var filePath = Path.join(internals.options.assetsBasePath, request.params.fileName);
-    console.log(filePath);
 
     reply.file(filePath);
 };
