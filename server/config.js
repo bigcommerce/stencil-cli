@@ -21,7 +21,7 @@ config = {
         }]
     },
     themeAssets: {
-        assetsBasePath: Path.join(process.cwd(), 'assets')
+        //assetsBasePath: Path.join(process.cwd(), 'assets')
     }
 };
 

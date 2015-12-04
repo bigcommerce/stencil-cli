@@ -1,15 +1,20 @@
-#!/usr/bin/env node
-
 require('colors');
 var stencilInit = require('../lib/stencilInit');
+var Path = require('path');
 var pkg = require('../package.json');
 var Program = require('commander');
 var JspmAssembler = require('../lib/jspmAssembler');
 var ThemeConfig = require('../lib/themeConfig');
-var dotStencilFilePath = './.stencil';
+var dotStencilFilePath;
+
 
 Program
     .version(pkg.version)
+    .option('-s, --storeUrl [storeUrl]', 'Your storeUrl')
+    .option('-p, --port [port]', 'Port to run the server on')
+    .option('-P --path [path]', 'Path to theme')
     .parse(process.argv);
 
-stencilInit(JspmAssembler, ThemeConfig, dotStencilFilePath);
+dotStencilFilePath = Program.path ? Path.join(Program.path, '.stencil') : './.stencil';
+
+stencilInit(JspmAssembler, ThemeConfig, dotStencilFilePath, Program);
