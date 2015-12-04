@@ -10,7 +10,6 @@ var dotStencilFilePath;
 
 Program
     .version(pkg.version)
-    .option('-u, --unattended', 'Run init unattended')
     .option('-s, --storeUrl [storeUrl]', 'Your storeUrl')
     .option('-p, --port [port]', 'Port to run the server on')
     .option('-P --path [path]', 'Path to theme')
