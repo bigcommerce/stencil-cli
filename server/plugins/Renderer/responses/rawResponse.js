@@ -1,8 +1,11 @@
 var _ = require('lodash'),
     cheerio = require('cheerio'),
-    internals = {};
+    internals = {
+        stubActiveVersion: 'theme'
+    };
 
-module.exports = function (data, headers, statusCode) {
+module.exports = function (request, data, headers, statusCode) {
+    internals.stubActiveConfig = request.app.themeConfig.variationIndex + 1;
 
     this.respond = function (request, reply) {
         var response;
@@ -31,9 +34,9 @@ module.exports = function (data, headers, statusCode) {
 
 internals.appendCss = function (buffer) {
     if (buffer) {
-        var domFromBuffer = cheerio.load(buffer);
-        domFromBuffer('head').append('<link href="/assets/css/checkout.css" type="text/css" rel="stylesheet">');
-        return domFromBuffer.html();
+        var dom = cheerio.load(buffer);
+        dom('head').append('<link href="/stencil/'+ internals.stubActiveVersion + '/' + internals.stubActiveConfig + '/css/checkout.css" type="text/css" rel="stylesheet">');
+        return dom.html();
     }
 
     return false;
