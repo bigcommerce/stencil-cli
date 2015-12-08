@@ -18,6 +18,11 @@ var _ = require('lodash'),
             publicPath: Path.join(__dirname, '../../../public'),
             metaPath: Path.join(process.cwd(), 'meta'),
             stencilThemeHost: ''
+        },
+        routesConfig: {
+            state: {
+                parse: false // do not parse cookies 
+            }
         }
     };
 
@@ -59,6 +64,7 @@ module.exports.register = function (server, options, next) {
         {
             method: 'GET',
             path: '/',
+            config: internals.routesConfig,
             handler: function(request, reply) {
                 reply.redirect('/ng-stencil-editor/theme/' + variationId + '/' + variationId);
             }
@@ -66,11 +72,13 @@ module.exports.register = function (server, options, next) {
         {
             method: 'GET',
             path: '/ng-stencil-editor/{versionId}/{variationId}/{configId}',
+            config: internals.routesConfig,
             handler: handlers.home
         },
         {
             method: 'GET',
             path: '/public/{path*}',
+            config: internals.routesConfig,
             handler: {
                 directory: {
                     path: internals.options.publicPath
@@ -80,6 +88,7 @@ module.exports.register = function (server, options, next) {
         {
             method: 'GET',
             path: '/meta/{path*}',
+            config: internals.routesConfig,
             handler: {
                 directory: {
                     path: internals.options.metaPath
@@ -89,21 +98,25 @@ module.exports.register = function (server, options, next) {
         {
             method: 'GET',
             path: internals.options.basePath + '/variations/{variationId}',
+            config: internals.routesConfig,
             handler: require('./api/getVariations')(internals.options, internals.themeConfig)
         },
         {
             method: 'GET',
             path: internals.options.basePath + '/configurations/{configurationId}',
+            config: internals.routesConfig,
             handler: require('./api/getConfigurations')(internals.options, internals.themeConfig)
         },
         {
             method: 'POST',
             path: internals.options.basePath + '/configurations',
+            config: internals.routesConfig,
             handler: require('./api/postConfigurations')(internals.options, internals.themeConfig)
         },
         {
             method: 'GET',
             path: internals.options.basePath + '/versions/{versionId}',
+            config: internals.routesConfig,
             handler: require('./api/getVersions')(internals.options, internals.themeConfig)
         }
     ]);
