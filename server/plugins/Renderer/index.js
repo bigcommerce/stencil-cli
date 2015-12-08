@@ -402,7 +402,6 @@ internals.getTemplatePath = function (request, defaultTemplateFile) {
  */
 internals.getPencilResponse = function (data, request, response, configuration) {
     data.context.theme_settings = configuration.settings;
-    data.context.theme_images = configuration.images;
 
     // change cdn settings to serve local assets
     data.context.settings['cdn_url'] = '';
