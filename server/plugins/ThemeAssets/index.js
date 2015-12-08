@@ -64,6 +64,7 @@ internals.cssHandler = function (request, reply) {
             files: files,
             dest: Path.join('/assets/css', request.params.fileName),
             themeSettings: configuration.settings,
+            sourceMap: true,
             autoprefixerOptions: {
                 cascade: configuration.autoprefixer_cascade,
                 browsers: configuration.autoprefixer_browsers
@@ -83,7 +84,7 @@ internals.cssHandler = function (request, reply) {
 
 /**
  * Assets handler
- * 
+ *
  * @param request
  * @param reply
  */
