@@ -31,12 +31,13 @@
                     .constant('BC_APP_CONFIG', {
                         cdnPath: '//localhost:8181',
                         config: {
-                            ShopPath: '{{{storeUrl}}}'
+                            ShopPath: '{{{shopPath}}}'
                         },
                         isProduction: false
                     })
                     .constant('BC_SEED_DATA', {
-                        basePath: '{{basePath}}'
+                        basePath: '{{basePath}}',
+                        svgPath: '{{svgPath}}'
                     });
 
                 angular.bootstrap(document.getElementById('micro-app-ng-stencil-editor'), ['ng-stencil-editor']);
