@@ -49,8 +49,8 @@ module.exports.register = function (server, options, next) {
     options.themeServer.ext('onRequest', function(request, reply) {
         request.app.decorators = request.app.decorators || [];
 
-        // Only add the SDK if stencilEditor is a query parameter
-        if (request.query.stencilEditor) {
+        // Only add the SDK if stencilEditor is a query parameter or the cookie preview_config_id is set
+        if (request.query.stencilEditor || (request.headers.cookie || '').indexOf('preview_config_id') !== -1) {
             request.app.decorators.push(internals.sdkDecorator);
         }
 
