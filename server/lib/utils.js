@@ -40,3 +40,12 @@ module.exports.normalizeRedirectUrl = function(request, redirectUrl) {
         return redirectUrl;
     }
 };
+
+/**
+ * Scape special characters for regular expression
+ *
+ * @param string
+ */
+module.exports.escapeRegex = function (string) {
+    return string.replace(/[-\\^$*+?.()|[\]{}]/g, "\\$&");
+};

@@ -1,5 +1,6 @@
 var _ = require('lodash'),
     Paper = require('stencil-paper'),
+    utils = require('../../../lib/utils'),
     Url = require('url'),
     internals = {};
 
@@ -27,7 +28,7 @@ module.exports = function (data, assembler) {
             }
 
             if (data.remote || _.isArray(templatePath)) {
-                
+
                 if (data.remote) {
                     data.context = _.extend({}, data.context, data.remote_data);
                 }
@@ -84,7 +85,7 @@ internals.getTemplatePath = function (request, data) {
         if (options['render_with'] && typeof options['render_with'] === 'string') {
 
             path = options['render_with'].split(',');
-            
+
             path = _.map(path, function (path) {
                 return 'components/' + path;
             });
@@ -112,10 +113,10 @@ internals.makeDecorator = function (request, context) {
             stencilEditorSDK;
 
         if (context.settings) {
-            regex = new RegExp(internals.escapeRegex(context.settings.base_url), 'g');
+            regex = new RegExp(utils.escapeRegex(context.settings.base_url), 'g');
             content = content.replace(regex, '');
 
-            regex = new RegExp(internals.escapeRegex(context.settings.secure_base_url), 'g');
+            regex = new RegExp(utils.escapeRegex(context.settings.secure_base_url), 'g');
             content = content.replace(regex, '');
         }
 
@@ -155,12 +156,3 @@ internals.escapeHtml = function () {
         });
     }
 }();
-
-/**
- * Scape special characters for regular expression
- *
- * @param string
- */
-internals.escapeRegex = function (string) {
-    return string.replace(/[-\\^$*+?.()|[\]{}]/g, "\\$&");
-};
