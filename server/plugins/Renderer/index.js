@@ -14,7 +14,7 @@ var _ = require('lodash'),
     Wreck = require('wreck'),
     internals = {
         options: {},
-        cacheTTL: 1000 * 60 * 5, // 5 minutes
+        cacheTTL: 1000 * 15, // 15 seconds
     };
 
 module.exports.register = function (server, options, next) {
