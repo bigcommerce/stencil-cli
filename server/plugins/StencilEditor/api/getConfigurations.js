@@ -19,7 +19,7 @@ module.exports = function (options, themeConfig) {
 
         reply({
             data: {
-                id: 'theme',
+                id: themeConfig.variationIndex + 1,
                 variationId: themeConfig.variationIndex + 1,
                 storeHash: 'hash',
                 settings: themeConfig.getConfig().settings
