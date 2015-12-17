@@ -66,12 +66,12 @@ module.exports.register = function (server, options, next) {
             path: '/',
             config: internals.routesConfig,
             handler: function(request, reply) {
-                reply.redirect('/ng-stencil-editor/theme/' + variationId + '/' + variationId);
+                reply.redirect('/theme-editor/theme/' + variationId + '/' + variationId);
             }
         },
         {
             method: 'GET',
-            path: '/ng-stencil-editor/{versionId}/{variationId}/{configId}',
+            path: '/theme-editor/{versionId}/{variationId}/{configId}',
             config: internals.routesConfig,
             handler: handlers.home
         },

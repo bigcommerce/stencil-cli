@@ -2,7 +2,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>ng-stencil-editor</title>
+    <title>Stencil Theme Editor</title>
     <base href="/">
     <link rel="stylesheet" href="/public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.14.4/dist/css/bcapp-pattern-lab.css"/>
     {{#each cssFiles}}
@@ -21,8 +21,8 @@
 {{/each}}
 <script type="text/javascript">
     System.import('js/globals').then(function(loaded) {
-        window.angular = loaded.globals.angular;
         window._ = loaded.globals._;
+        window.angular = loaded.globals.angular;
         window.Channel = loaded.globals.Channel;
 
         System.import('js/app').then(function() {
