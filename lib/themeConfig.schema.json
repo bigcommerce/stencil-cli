@@ -39,7 +39,28 @@
       ]
     },
     "settings": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "_images": {
+          "type": "object",
+          "patternProperties": {
+            ".+": {
+              "type": "object",
+              "properties": {
+                "width": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "height": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": true
     },
     "variations": {
       "type": "array",
@@ -83,8 +104,7 @@
                   "enum": ["arts_crafts", "animals_pets", "automotive_industrial", "electronics_computers", "fashion_jewelry", "food_beverage", "gifts_specialty", "health_beauty", "home_garden", "books_entertainment", "sports_recreation", "toys_games"]
                 },
                 "uniqueItems": true,
-                "minItems": 0,
-                "maxItems": 4
+                "minItems": 0
               }
             },
             "required": [
