@@ -11,6 +11,7 @@ var _ = require('lodash'),
     TemplateAssembler = require('../../../lib/templateAssembler'),
     Url = require('url'),
     Utils = require('../../lib/utils'),
+    stencilToken = require('../../lib/stencilToken'),
     Wreck = require('wreck'),
     internals = {
         options: {},
@@ -40,6 +41,10 @@ internals.implementation = function (request, reply) {
     internals.getResponse(request, function (err, response) {
         if (err) {
             return reply(Boom.badImplementation(err));
+        }
+
+        if (response.statusCode === 401) {
+            return reply(response).code(401);
         }
 
         response.respond(request, reply);
@@ -117,9 +122,12 @@ internals.getResponse = function (request, callback) {
     }
 
     Wreck.request(request.method, url, httpOpts, function (err, response) {
-
         if (err) {
             return callback(err);
+        }
+
+        if (response.statusCode === 401) {
+            return callback(null, response);
         }
 
         if (response.statusCode === 500) {
@@ -453,7 +461,8 @@ internals.getHeaders = function (request, options, config) {
         'stencil-cli': Pkg.version,
         'stencil-version': Pkg.config.stencil_version,
         'stencil-options': JSON.stringify(Hoek.applyToDefaults(options, currentOptions)),
-        'accept-encoding': 'identity'
+        'accept-encoding': 'identity',
+        'Authorization': 'Basic ' + stencilToken.generate(internals.options.username, internals.options.token)
     };
 
     // Development
@@ -488,7 +497,7 @@ internals.themeAssembler = {
         LangAssembler.assemble(function (err, translations) {
             translations = _.mapValues(translations, function(locales, lang) {
                 return JSON.parse(locales);
-            })
+            });
 
             callback(null, translations);
         });

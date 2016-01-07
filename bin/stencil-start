@@ -9,6 +9,7 @@ var Pkg = require('../package.json');
 var Program = require('commander');
 var Server = require('../server');
 var ThemeConfig = require('../lib/themeConfig');
+var stencilToken = require('../server/lib/stencilToken');
 var Url = require('url');
 var Wreck = require('wreck');
 var jsonLint = require('./../lib/jsonLint');
@@ -91,8 +92,7 @@ if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
 }
 
 headers = {
-    'stencil-cli': Pkg.version,
-    'stencil-options': '{"get_data_only": true}'
+    'stencil-cli': Pkg.version
 };
 
 if (dotStencilFile.staplerUrl) {
@@ -113,6 +113,10 @@ Wreck.get(
 
         try {
             payload = jsonLint.parse(payload);
+
+            if (payload.error) {
+                return console.error(payload.error.red);
+            }
         } catch (e) {
             retError = true;
         }
@@ -127,25 +131,34 @@ Wreck.get(
                 '$ npm install -g bigcommerce/stencil-cli'.cyan
             );
         } else {
+            stencilToken.getAuth({
+                username: dotStencilFile.username,
+                token: dotStencilFile.token,
+                host: payload.sslUrl
+            }, function(err, response) {
+                if (response.authorized) {
+                    dotStencilFile.storeUrl = payload.sslUrl;
+                    dotStencilFile.normalStoreUrl = payload.baseUrl;
+                    dotStencilFile.stencilServerPort = stencilServerPort;
 
-            dotStencilFile.storeUrl = payload.sslUrl;
-            dotStencilFile.normalStoreUrl = payload.baseUrl;
-            dotStencilFile.stencilServerPort = stencilServerPort;
+                    if (configuration.jspm && Program.test) {
+                        bundleTask = JspmAssembler.assemble(
+                            {
+                                bootstrap: configuration.jspm.bootstrap
+                            },
+                            themePath
+                        );
 
-            if (configuration.jspm && Program.test) {
-                bundleTask = JspmAssembler.assemble(
-                    {
-                        bootstrap: configuration.jspm.bootstrap
-                    },
-                    themePath
-                );
-
-                bundleTask(function(result) {
-                    startServer();
-                });
-            } else {
-                startServer();
-            }
+                        bundleTask(function(result) {
+                            return startServer();
+                        });
+                    } else {
+                        return startServer();
+                    }
+                } else {
+                    return console.error('Unauthorized, please use a valid username/token'.red);
+                }
+            })
         }
     }
 );
