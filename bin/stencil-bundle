@@ -325,18 +325,13 @@ function getCssAssembleTask(compiler) {
 
 function assembleTemplatesTask(callback) {
     console.log('Template Parsing Started...');
-    require('recursive-readdir')(templatesBasePath, function (err, files) {
-        var replaceRegex = new RegExp('^' + templatesBasePath + '/(.*?)\.html$');
-        var filesIn = [];
 
-        //Prevent poorly named files breaking the regex (.DS_Store)
-        files.forEach(function (fileName) {
-            if (fileName.indexOf(".html") == fileName.length - 5) {
-                filesIn.push(fileName);
-            }
+    // https://github.com/bigcommerce-stencil/stencil-cli/pull/1
+    require('recursive-readdir')(templatesBasePath, ['!*.html'], function (err, files) {
+        files = files.map(function(file) {
+            return file.replace(templatesBasePath + Path.sep, '').replace('.html', '');
         });
 
-        files = _.invoke(filesIn, 'replace', replaceRegex, '$1');
         Async.map(files, TemplateAssembler.assemble, function (err, results) {
             var ret = {};
 
@@ -356,7 +351,7 @@ function assembleTemplatesTask(callback) {
 
 function assembleSchema(callback) {
     console.log('Building Theme Schema File...');
-    
+
     themeConfig.getSchema(function(err, schema) {
         console.log('ok'.green + ' -- Theme Schema Building Finished');
 
