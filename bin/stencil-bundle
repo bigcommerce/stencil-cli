@@ -164,7 +164,8 @@ Async.series([
     function(cb) {
         Async.parallel(tasks, function (err, assembledData) {
             var outputFolder = Program.dest ? Program.dest : themePath,
-                outputName = Program.filename ? Program.filename : 'stencil-bundle.zip',
+                defaultName = themeConfig.getName() + '-' + themeConfig.getVersion() + '.zip',
+                outputName = Program.filename ? Program.filename : defaultName,
                 output = Fs.createWriteStream(Path.join(outputFolder, outputName)),
                 pathsToZip = [
                     'assets/**/*',
@@ -356,7 +357,7 @@ function assembleTemplatesTask(callback) {
 
 function assembleSchema(callback) {
     console.log('Building Theme Schema File...');
-    
+
     themeConfig.getSchema(function(err, schema) {
         console.log('ok'.green + ' -- Theme Schema Building Finished');
 
