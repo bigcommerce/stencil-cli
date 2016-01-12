@@ -141,7 +141,7 @@ handlers.home = function(request, reply) {
             cssFiles: assets.cssFiles,
             jsFiles: assets.jsFiles,
             shopPath: internals.stencilThemeHost,
-            svgPath: '/public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.17.1/dist/svg/icons/'
+            svgPath: '/public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.17.2/dist/svg/icons/'
         });
     });
 };
