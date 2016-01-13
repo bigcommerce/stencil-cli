@@ -21,7 +21,7 @@ var _ = require('lodash'),
         },
         routesConfig: {
             state: {
-                parse: false // do not parse cookies 
+                parse: false // do not parse cookies
             }
         }
     };
@@ -141,7 +141,7 @@ handlers.home = function(request, reply) {
             cssFiles: assets.cssFiles,
             jsFiles: assets.jsFiles,
             shopPath: internals.stencilThemeHost,
-            svgPath: '/public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.17.2/dist/svg/icons/'
+            svgPath: '/public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.17.3/dist/svg/icons/'
         });
     });
 };
@@ -222,7 +222,7 @@ internals.sdkDecorator = function (content) {
     scriptTags += '<script src="' + publicUrl + 'jspm_packages/github/js-cookie/js-cookie@2.0.3/src/js.cookie.js"></script>\n';
     scriptTags += '<script src="' + publicUrl  + internals.getStencilEditorPath() + '/' + sdkPath + '"></script>\n';
 
-    content = content.replace(new RegExp('</body>'), scriptTags + '\n</body>'); 
+    content = content.replace(new RegExp('</body>'), scriptTags + '\n</body>');
 
     return content;
 };
