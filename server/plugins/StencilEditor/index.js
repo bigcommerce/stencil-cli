@@ -66,12 +66,12 @@ module.exports.register = function (server, options, next) {
             path: '/',
             config: internals.routesConfig,
             handler: function(request, reply) {
-                reply.redirect('/theme-editor/theme/' + variationId + '/' + variationId);
+                reply.redirect('/theme-editor/theme/' + variationId);
             }
         },
         {
             method: 'GET',
-            path: '/theme-editor/{versionId}/{variationId}/{configId}',
+            path: '/theme-editor/{versionId}/{variationId}',
             config: internals.routesConfig,
             handler: handlers.home
         },
