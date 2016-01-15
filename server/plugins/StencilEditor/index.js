@@ -71,6 +71,16 @@ module.exports.register = function (server, options, next) {
         },
         {
             method: 'GET',
+            path: '/admin/remote.php',
+            config: internals.routesConfig,
+            handler: function(request, reply) {
+                reply({
+                    status: 'ALIVE'
+                });
+            }
+        },
+        {
+            method: 'GET',
             path: '/theme-editor/{versionId}/{variationId}',
             config: internals.routesConfig,
             handler: handlers.home
