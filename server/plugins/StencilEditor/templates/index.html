@@ -37,7 +37,8 @@
                     })
                     .constant('BC_SEED_DATA', {
                         basePath: '{{basePath}}',
-                        svgPath: '{{svgPath}}'
+                        svgPath: '{{svgPath}}',
+                        disableHeartbeat: true
                     });
 
                 angular.bootstrap(document.getElementById('micro-app-ng-stencil-editor'), ['ng-stencil-editor']);
