@@ -151,7 +151,7 @@ handlers.home = function(request, reply) {
             cssFiles: assets.cssFiles,
             jsFiles: assets.jsFiles,
             shopPath: internals.stencilThemeHost,
-            svgPath: '/public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@1.17.6/dist/svg/icons/'
+            patternLabPath: internals.getPatternLabPath()
         });
     });
 };
@@ -212,6 +212,18 @@ internals.buildDirectoryExists = function () {
 internals.getStencilEditorPath = function (path) {
     var basePath = 'jspm_packages/github/bigcommerce-labs/ng-stencil-editor@';
     var version = PackageJson.jspm.dependencies['bigcommerce-labs/ng-stencil-editor'].split('@')[1];
+
+    return basePath + version;
+};
+
+/**
+ * Returns bcapp-pattern-lab public path
+ *
+ * @param path
+ */
+internals.getPatternLabPath = function (path) {
+    var basePath = '/public/jspm_packages/github/bigcommerce-labs/bcapp-pattern-lab@';
+    var version = PackageJson.jspm.dependencies['bigcommerce-labs/bcapp-pattern-lab'].split('@')[1];
 
     return basePath + version;
 };
