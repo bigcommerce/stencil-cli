@@ -2,17 +2,7 @@
 
 require('colors');
 
-var MAX_SIZE_COMPOSED = 1048576 * 2; //2MB
-var MAX_SIZE_MOBILE = 1048576; //1MB
-var MAX_SIZE_DESKTOP = 1048576 * 5; //5MB
 var MAX_SIZE_BUNDLE = 1048576 * 50; //50MB
-var WIDTH_COMPOSED = 600;
-var HEIGHT_COMPOSED = 760;
-var WIDTH_MOBILE = 304;
-var HEIGHT_MOBILE = 540;
-var WIDTH_DESKTOP = 2048;
-var HEIGHT_DESKTOP = 2600;
-var VALID_IMAGE_TYPES = ['.jpg', '.jpeg', '.png', '.gif'];
 
 var _ = require('lodash');
 var Archiver = require('archiver');
@@ -22,26 +12,25 @@ var Fs = require('fs');
 var Jspm = require('jspm');
 var Path = require('path');
 var Program = require('commander');
+var BundleValidator = require('../lib/bundleValidator');
 var CssAssembler = require('../lib/cssAssembler');
 var LangAssembler = require('../lib/langAssembler');
 var TemplateAssembler = require('../lib/templateAssembler');
 var ThemeConfig = require('../lib/themeConfig');
 var Tmp = require('tmp');
 var pkg = require('../package.json');
-var lwip = require('lwip');
 var themePath = process.cwd();
-var imagePath;
-var imageTasks = [];
 var tasks = {};
 var templatesBasePath = Path.join(themePath, 'templates');
-var themeConfig;
 var configuration;
-var validation;
+var themeConfig;
+var validator;
 
 Program
     .version(pkg.version)
     .option('-d, --dest [dest]', 'Where to save the zip file. It defaults to the current directory you are in when bundling')
     .option('-n, --name  [filename]', 'What do you want to call the zip file. It defaults to stencil-bundle.zip')
+    .option('-m, --marketplace', 'Runs extra bundle validations for partners who can create marketplace themes')
     .parse(process.argv);
 
 themeConfig = ThemeConfig.getInstance(themePath);
@@ -58,113 +47,44 @@ if (! themeConfig.configExists()) {
     return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
 }
 
-configuration = themeConfig.getConfig();
+configuration = themeConfig.getRawConfig();
 
-if (!themeConfig.globalSettings) {
-    return console.error('Error: Your config.json is missing \'settings\' (object).'.red);
+if (configuration.css_compiler) {
+    tasks.css = getCssAssembleTask(configuration.css_compiler);
 }
 
-tasks.css = getCssAssembleTask(configuration.css_compiler);
 tasks.templates = assembleTemplatesTask;
 tasks.lang = assembleLangTask;
 tasks.schema = assembleSchema;
 
-console.log("Validating theme...");
-
 if (configuration.jspm) {
-    if (! fileExists(Path.join(themePath, configuration.jspm.jspm_packages_path))) {
-        console.log('Error: The path you specified for your "jspm_packages" folder does not exist.'.red);
-        return console.log(
-            'Please check your '.red +
-            'jspm.jspm_packages_path'.cyan +
-            ' setting in your theme\'s '.red +
-            'config.json'.cyan +
-            ' file to make sure it\'s correct.'.red
-        );
-    }
-
     configuration.jspm.tmpBundleFile = Tmp.fileSync().name;
     tasks.jspmBundle = getJspmBundleTask(configuration.jspm);
 }
 
-if (! themeConfig.schemaExists()) {
-    console.log('Warning: Your theme is missing a \'schema.json\' file.'.orange);
-}
-
-// Validate against the theme registry config schema
-validation = themeConfig.validateConfigSchema();
-if (validation.length > 0) {
-    console.error('Your theme\'s config.json has errors:'.red);
-    validation.forEach(function(error ,index) {
-        console.error(error.stack.red);
-    });
-
-    return;
-}
-
-// Do a bit of validation on the images
-imagePath = Path.resolve(themePath, 'meta', configuration.meta.composed_image);
-
-if (!isValidImageType(imagePath)) {
-    return console.error('Error: Invalid file type for "meta.composed_image".'.red
-        + '\r\nValid types ('.red + VALID_IMAGE_TYPES.join(', ').red + ')'.red);
-} else if (! Fs.existsSync(imagePath)) {
-    return console.error('Error: The path you specified for your "meta.composed_image" does not exist.'.red);
-} else {
-    (function (path) {
-        imageTasks.push(function (cb) {
-            validateImage(path, 600, 760, cb);
-        });
-    }(imagePath));
-}
-
-for (var i = 0; i < configuration.variations.length; i++) {
-    var variation = configuration.variations[i];
-    var id = variation.id.blue;
-    imagePath = Path.resolve(themePath, 'meta', variation.meta.desktop_screenshot);
-    if (!isValidImageType(imagePath)) {
-        return console.error('Error: Invalid file type for '.red + id
-            + ' variation\'s "desktop_screenshot".'.red
-            + '\r\nValid types ('.red + VALID_IMAGE_TYPES.join(', ').red + ')'.red);
-    } else if (! Fs.existsSync(imagePath)) {
-        return console.error('Error: The path you specified for the '.red + id + ' variation\'s "desktop_screenshot" does not exist.'.red);
-    } else {
-        (function (path) {
-            imageTasks.push(function (cb) {
-                validateImage(path, 2048, 2600, cb);
-            });
-        }(imagePath));
-    }
-
-    imagePath = Path.resolve(themePath, 'meta', variation.meta.mobile_screenshot);
-
-    if (!isValidImageType(imagePath)) {
-        return console.error('Error: Invalid file type for '.red + id
-            + ' variation\'s "mobile_screenshot".'.red
-            + '\r\nValid types ('.red + VALID_IMAGE_TYPES.join(', ').red + ')'.red);
-    } else if (! Fs.existsSync(imagePath)) {
-        return console.error('Error: The path you specified for the '.red + id + ' variation\'s "mobile_screenshot" does not exist.'.red);
-    } else {
-        (function (path) {
-            imageTasks.push(function (cb) {
-                validateImage(path, 304, 540, cb);
-            });
-        }(imagePath));
-    }
-}
+validator = new BundleValidator(themePath, themeConfig, Program.marketplace !== true);
 
 // First validate images, then we are good to process the bundle afterwards
 Async.series([
     function(cb) {
-        // Validate in parallel
-        Async.parallel(imageTasks, function(err, result) {
-            cb(err, result);
+        console.log("Validating theme...");
+        validator.validateTheme(function(error, result) {
+            if (error) {
+                throw error;
+            }
+
+            cb(null, true);
         });
     },
     function(cb) {
+        var defaultName = configuration.name + '-' + configuration.version + '.zip';
+
+        if (!configuration.name) {
+            defaultName = 'Custom-0.0.1.zip';
+        }
+
         Async.parallel(tasks, function (err, assembledData) {
             var outputFolder = Program.dest ? Program.dest : themePath,
-                defaultName = themeConfig.getName() + '-' + themeConfig.getVersion() + '.zip',
                 outputName = Program.filename ? Program.filename : defaultName,
                 output = Fs.createWriteStream(Path.join(outputFolder, outputName)),
                 pathsToZip = [
@@ -254,45 +174,6 @@ Async.series([
         return console.error(err.message.red);
     }
 });
-
-function isValidImageType(imagePath) {
-    var ext = Path.extname(imagePath);
-    return _.includes(VALID_IMAGE_TYPES, ext);
-}
-
-function validateImage(path, width, height, cb) {
-    lwip.open(path, function(err, image) {
-        if (err) {
-            return cb(err);
-        }
-
-        var imageWidth = image.width();
-        var imageHeight = image.height();
-        var failureMessage = '';
-
-        var stats = Fs.statSync(path);
-        var size = stats['size'];
-
-        if (width === WIDTH_DESKTOP && height === HEIGHT_DESKTOP && size > MAX_SIZE_DESKTOP) {
-            failureMessage = 'Error: Image of size ' + size + ' bytes at path (' + path + ') '
-            +  'is greater than allowed size ' + MAX_SIZE_DESKTOP + '\n';
-        } else if (width === WIDTH_COMPOSED && height === HEIGHT_COMPOSED && size > MAX_SIZE_COMPOSED) {
-            failureMessage = 'Error: Image of size ' + size + ' bytes at path (' + path + ') '
-            +  'is greater than allowed size ' + MAX_SIZE_COMPOSED + '\n';
-        } else if (width === WIDTH_MOBILE && height === HEIGHT_MOBILE && size > MAX_SIZE_MOBILE) {
-            failureMessage = 'Error: Image of size ' + size + ' bytes at path (' + path + ') '
-            +  'is greater than allowed size ' + MAX_SIZE_MOBILE + '\n';
-        }
-
-        if (imageWidth !== width || imageHeight != height) {
-            failureMessage += 'Error: Image at (' + path + ') has incorrect dimensions ('
-                + imageWidth + 'x' + imageHeight + ') should be' + '(' + width + 'x' + height + ')';
-            return cb(new Error(failureMessage));
-        }
-
-        cb(null, true);
-    });
-}
 
 function getCssAssembleTask(compiler) {
     return function (callback) {
@@ -396,19 +277,5 @@ function getJspmBundleTask(jspmConfig) {
             console.error = oldConsoleError;
             callback(null, true);
         });
-    }
-}
-
-/**
- * Check if file exist syncronous
- * @param  {string} path
- * @return {boolean}
- */
-function fileExists(path) {
-    try {
-        return !!Fs.statSync(path);
-    }
-    catch (e) {
-        return false;
     }
 }
