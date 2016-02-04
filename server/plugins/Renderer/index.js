@@ -359,7 +359,7 @@ internals.findDeepTemplate = function (haystack, needle) {
             // object, recursive find
             template = internals.findDeepTemplate(val, needle);
             if (template) {
-                template = _.trimRight(key + '/' + template, '.html');
+                template = key + '/' + template.replace('.html', '');
                 return false; // break out of loop
             }
         } else if (typeof val === 'string') {
@@ -377,7 +377,7 @@ internals.findDeepTemplate = function (haystack, needle) {
     });
 
     return template;
-}
+};
 
 /**
  *
@@ -394,9 +394,9 @@ internals.getTemplatePath = function (request, defaultTemplateFile) {
         // default
         templatePath = defaultTemplateFile;
     } else {
-        templatePath = 'custom/' + templatePath;
+        templatePath = 'pages/custom/' + templatePath;
     }
-    
+
     return templatePath;
 };
 
