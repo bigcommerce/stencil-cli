@@ -11,7 +11,7 @@ module.exports.register = function (server, options, next) {
 
         // Add prerender event hook
         request.app.preRenderEvents.push(function (paper, done) {
-            paper.containers = getContainers(); 
+            paper.regions = getRegions(); 
             done();
         });
 
@@ -26,7 +26,7 @@ module.exports.register.attributes = {
     version: '0.0.1'
 };
 
-function getContainers() {
+function getRegions() {
     var data;
 
     try {
@@ -35,5 +35,5 @@ function getContainers() {
         return [];
     }
 
-    return jsonLint.parse(data, filePath).containers;
+    return jsonLint.parse(data, filePath).regions;
 };
