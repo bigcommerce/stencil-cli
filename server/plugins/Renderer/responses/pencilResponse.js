@@ -26,6 +26,8 @@ module.exports = function (data, assembler) {
         
         templatePath = internals.getTemplatePath(request, data);
 
+        paper.on('load', request.app.preRenderEvents || []);
+
         paper.loadTheme(templatePath, data.acceptLanguage, function () {
             if (request.query.debug === 'context') {
                 return reply(data.context);
