@@ -7,8 +7,15 @@
     "> 5% in US"
   ],
   "meta": {
-    "price": 15000,
-    "composed_image": "image.jpg"
+    "price": 0,
+    "documentation_url": "https://stencil.bigcommerce.com/docs/what-is-stencil",
+    "author_name": "Bigcommerce",
+    "author_email": "support@bigcommerce.com",
+    "author_support_url": "https://www.bigcommerce.com/support",
+    "composed_image": "composed.jpg",
+    "features": [
+      "fully_responsive"
+    ]
   },
   "settings": {
     "color": "#ffffff",
@@ -29,15 +36,15 @@
   },
   "variations": [
     {
+      "id": "first",
       "name": "First",
       "meta": {
-        "desktop_screenshot": "desktop_first.png",
-        "mobile_screenshot": "mobile_first.png",
+        "desktop_screenshot": "desktop_light.jpg",
+        "mobile_screenshot": "mobile_light.jpg",
         "description": "First variation",
         "demo_url": "https://stencil-first.example.com",
         "optimized_for": [
-          "fashion",
-          "image_heavy"
+          "arts_crafts"
         ],
         "industries": []
       },
@@ -48,14 +55,15 @@
       "images": {}
     },
     {
+      "id": "second",
       "name": "Second",
       "meta": {
-        "desktop_screenshot": "desktop_second.png",
-        "mobile_screenshot": "mobile_second.png",
+        "desktop_screenshot": "desktop_bold.jpg",
+        "mobile_screenshot": "mobile_bold.jpg",
         "description": "Second variation",
         "demo_url": "https://stencil-second.example.com",
         "optimized_for": [
-          "fashion"
+          "arts_crafts"
         ],
         "industries": []
       },
@@ -71,14 +79,15 @@
       }
     },
     {
+      "id": "third",
       "name": "Third",
       "meta": {
-        "desktop_screenshot": "desktop_third.png",
-        "mobile_screenshot": "mobile_third.png",
+        "desktop_screenshot": "desktop_warm.jpg",
+        "mobile_screenshot": "mobile_warm.jpg",
         "description": "Third variation",
         "demo_url": "https://stencil-third.example.com",
         "optimized_for": [
-          "restaurants"
+          "arts_crafts"
         ],
         "industries": []
       },

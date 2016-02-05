@@ -31,7 +31,7 @@ lab.describe('GET /variations/{id} api endpoint', function() {
                 .to.be.empty();
 
             Code.expect(response.data.screenshot.smallThumb)
-                .to.be.equal('http://localhost:8181/meta/desktop_second.png');
+                .to.be.equal('http://localhost:8181/meta/desktop_bold.jpg');
 
             Code.expect(response.data.relatedVariations)
                 .to.have.length(3);
