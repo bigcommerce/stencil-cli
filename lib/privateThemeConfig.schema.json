@@ -43,9 +43,7 @@
       "required": [
         "author_name",
         "author_email",
-        "author_support_url",
-        "price",
-        "documentation_url"
+        "author_support_url"
       ]
     },
     "settings": {
@@ -128,16 +126,12 @@
           "meta"
         ]
       },
-      "minItems": 1,
+      "minItems": 0,
       "maxItems": 4
     }
   },
   "required": [
-    "name",
-    "version",
-    "meta",
-    "settings",
-    "variations"
+    "meta"
   ],
   "additionalProperties": true
 }
