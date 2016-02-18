@@ -225,6 +225,12 @@ function startServer() {
             }
         });
 
+        Bs.watch('content-blocks.json', function(event) {
+            if (event === 'change') {
+                Bs.reload();
+            }
+        });
+
         Bs.init({
             open: !! Program.open,
             port: browserSyncPort,

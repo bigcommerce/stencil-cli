@@ -18,6 +18,7 @@ manifest = {
         // Third Party Plugins
         'good': config.get('/good'),
         // First Party Plugins
+        './plugins/ContentBlocks': {},
         './plugins/Renderer': {},
         './plugins/Router': {},
         './plugins/ThemeAssets': config.get('/themeAssets')
