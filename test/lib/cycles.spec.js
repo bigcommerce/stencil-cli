@@ -1,9 +1,7 @@
 var Code = require('code'),
     Lab = require('lab'),
-    rewire = require('rewire'),
     lab = exports.lab = Lab.script(),
     describe = lab.describe,
-    templateAssembler = rewire('../../lib/templateAssembler'),
     Cycles = require('../../lib/Cycles'),
     expect = Code.expect,
     it = lab.it;
