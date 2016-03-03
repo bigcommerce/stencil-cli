@@ -2,6 +2,10 @@
 
 var _ = require('lodash');
 var Bs = require('browser-sync').create();
+var Cycles = require('../lib/Cycles');
+var recursiveRead = require('recursive-readdir');
+var Async = require('async');
+var templateAssembler = require('../lib/templateAssembler');
 var Fs = require('fs');
 var JspmAssembler = require('../lib/jspmAssembler');
 var Path = require('path');
@@ -18,6 +22,7 @@ var allowedCssCompilers = ['scss', 'less'];
 var browserSyncPort;
 var cssCompilerDir;
 var cssWatchBaseDir = Path.join(themePath, 'assets/');
+var templatePath = Path.join(themePath, 'templates');
 var dotStencilFilePath = Path.join(themePath, '.stencil');
 var themeConfigPath = Path.join(themePath, 'config.json');
 var dotStencilFile;
@@ -107,7 +112,7 @@ Wreck.get(
     {
         headers: headers
     },
-    function(err, res, payload) {
+    function (err, res, payload) {
         var retError = err !== null,
             bundleTask;
 
@@ -135,7 +140,7 @@ Wreck.get(
                 username: dotStencilFile.username,
                 token: dotStencilFile.token,
                 host: payload.sslUrl
-            }, function(err, response) {
+            }, function (err, response) {
                 if (response.authorized) {
                     dotStencilFile.storeUrl = payload.sslUrl;
                     dotStencilFile.normalStoreUrl = payload.baseUrl;
@@ -149,7 +154,7 @@ Wreck.get(
                             themePath
                         );
 
-                        bundleTask(function(result) {
+                        bundleTask(function (result) {
                             return startServer();
                         });
                     } else {
@@ -175,7 +180,7 @@ function startServer() {
         useCache: Program.cache
     };
 
-    Server(params, function(err) {
+    Server(params, function (err) {
         if (err) {
             throw err;
         }
@@ -192,7 +197,7 @@ function startServer() {
          * When a file in a sub directory changes, we have to recompile all top level files because
          * more than one could have included the changed file.
          */
-        Bs.watch(cssCompilerDir, function(event, file) {
+        Bs.watch(cssCompilerDir, function (event, file) {
             var relativePath,
                 changedFile,
                 basename;
@@ -201,19 +206,19 @@ function startServer() {
                 relativePath = Path.relative(cssCompilerDir, file);
                 // Only run it through if it's a top level file
                 if (
-                    ! relativePath.match(/\//) && isTopLevelCssRegex.test(relativePath)
+                    !relativePath.match(/\//) && isTopLevelCssRegex.test(relativePath)
                 ) {
                     basename = Path.basename(file, '.' + configuration.css_compiler);
                     changedFile = Path.join(process.cwd(), 'assets/css', basename + '.css');
                     Bs.reload(changedFile);
-                // Only reload top level files if this is a change event and it's in a sub directory
+                    // Only reload top level files if this is a change event and it's in a sub directory
                 } else if (event === 'change') {
                     reloadTopLevelCss(cssCompilerDir);
                 }
             }
         });
 
-        Bs.watch('config.json', function(event) {
+        Bs.watch('config.json', function (event) {
             if (event === 'change') {
                 try {
                     configuration = themeConfig.getConfig();
@@ -225,14 +230,28 @@ function startServer() {
             }
         });
 
+        Bs.watch(templatePath, {ignoreInitial: true}, function () {
+            assembleTemplates(templatePath, function(err, results) {
+                if (err) {
+                    return console.error(err);
+                }
+
+                try {
+                    new Cycles(results).detect();
+                } catch (e) {
+                    console.error(e);
+                }
+            })
+        });
+
         Bs.init({
-            open: !! Program.open,
+            open: !!Program.open,
             port: browserSyncPort,
             files: [
                 '/assets',
                 '/templates',
                 '/lang'
-            ].map(function(val) {
+            ].map(function (val) {
                 return Path.join(themePath, val);
             }),
             watchOptions: {
@@ -242,12 +261,12 @@ function startServer() {
                     '/assets/less',
                     '/assets/css',
                     '/assets/jspm_packages'
-                ].map(function(val) {
+                ].map(function (val) {
                     return Path.join(themePath, val);
                 })
             },
             proxy: "localhost:" + stencilServerPort,
-            tunnel: !! Program.tunnel
+            tunnel: !!Program.tunnel
         });
 
         // Handle manual reloading of browsers by typing 'rs';
@@ -283,6 +302,26 @@ function parseThemeConfig() {
     }
 
     return ret;
+}
+
+/**
+ * Assembles all the needed templates and resolves their partials.
+ * @param {string} templatePath
+ * @param {function} callback
+ */
+function assembleTemplates(templatePath, callback) {
+    recursiveRead(templatePath, ['!*.html'], function (err, files) {
+        files = files.map(function (file) {
+            return file.replace(templatePath + Path.sep, '').replace('.html', '');
+        });
+
+        Async.map(files, templateAssembler.assemble, function (err, results) {
+            if (err) {
+                callback(err);
+            }
+            callback(null, results);
+        })
+    });
 }
 
 /**
@@ -325,9 +364,9 @@ function fileExist(path) {
 }
 
 /**
-* Displays information about your environment and configuration.
-* @return {string}
-*/
+ * Displays information about your environment and configuration.
+ * @return {string}
+ */
 function startUpInformation() {
     var information = '\n';
 

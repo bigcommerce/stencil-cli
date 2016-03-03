@@ -14,6 +14,7 @@ var Path = require('path');
 var Program = require('commander');
 var BundleValidator = require('../lib/bundleValidator');
 var CssAssembler = require('../lib/cssAssembler');
+var Cycles = require('../lib/Cycles');
 var LangAssembler = require('../lib/langAssembler');
 var TemplateAssembler = require('../lib/templateAssembler');
 var ThemeConfig = require('../lib/themeConfig');
@@ -43,7 +44,7 @@ if (Program.name === true) {
     return console.error('Error: You have to specify a value for -n or --name'.red);
 }
 
-if (! themeConfig.configExists()) {
+if (!themeConfig.configExists()) {
     return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
 }
 
@@ -66,9 +67,9 @@ validator = new BundleValidator(themePath, themeConfig, Program.marketplace !== 
 
 // First validate images, then we are good to process the bundle afterwards
 Async.series([
-    function(cb) {
+    function (cb) {
         console.log("Validating theme...");
-        validator.validateTheme(function(error, result) {
+        validator.validateTheme(function (error, result) {
             if (error) {
                 throw error;
             }
@@ -76,7 +77,7 @@ Async.series([
             cb(null, true);
         });
     },
-    function(cb) {
+    function (cb) {
         var defaultName = configuration.name + '-' + configuration.version + '.zip';
 
         if (!configuration.name) {
@@ -169,7 +170,7 @@ Async.series([
             });
         });
     }
-], function(err , result) {
+], function (err, result) {
     if (err) {
         return console.error(err.message.red);
     }
@@ -210,7 +211,7 @@ function assembleTemplatesTask(callback) {
 
     // https://github.com/bigcommerce-stencil/stencil-cli/pull/1
     require('recursive-readdir')(templatesBasePath, ['!*.html'], function (err, files) {
-        files = files.map(function(file) {
+        files = files.map(function (file) {
             return file.replace(templatesBasePath + Path.sep, '').replace('.html', '');
         });
 
@@ -225,6 +226,13 @@ function assembleTemplatesTask(callback) {
                 ret[file] = results[index];
             });
 
+            // Checks to see if there is a cyclical dependency
+            try {
+                new Cycles(results).detect();
+            } catch (e) {
+                console.error('error'.red);
+                throw e;
+            }
             console.log('ok'.green + ' -- Template Parsing Finished');
             callback(null, ret);
         });
@@ -234,7 +242,7 @@ function assembleTemplatesTask(callback) {
 function assembleSchema(callback) {
     console.log('Building Theme Schema File...');
 
-    themeConfig.getSchema(function(err, schema) {
+    themeConfig.getSchema(function (err, schema) {
         console.log('ok'.green + ' -- Theme Schema Building Finished');
 
         callback(err, schema);
