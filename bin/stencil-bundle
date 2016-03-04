@@ -234,9 +234,9 @@ function assembleTemplatesTask(callback) {
                 throw e;
             }
 
-            validator.validateObjects(results, function(err, validate) {
+            validator.validateObjects(results, function (err, validate) {
                 if (err) {
-                    console.error('error '.red  + err.message);
+                    console.error('error '.red + err.message);
                     return callback(err);
                 }
 
