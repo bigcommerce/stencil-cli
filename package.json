@@ -1,5 +1,5 @@
 {
-  "name": "stencil-cli",
+  "name": "@bigcommerce/stencil-cli",
   "version": "1.3.2",
   "description": "CLI tool to run Bigcommerce Stores locally for theme development.",
   "main": "index.js",
@@ -37,6 +37,8 @@
     "commander": "^2.7.1",
     "confidence": "^1.0.0",
     "decompress-zip": "^0.2.0",
+    "eslint": "^2.2.0",
+    "eslint-config-airbnb": "^6.0.2",
     "front-matter": "^1.0.0",
     "glob": "^5.0.14",
     "glue": "^2.0.0",
