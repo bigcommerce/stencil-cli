@@ -58,7 +58,7 @@
     "memory-cache": "^0.1.4",
     "npm": "^2.7.5",
     "recursive-readdir": "^1.3.0",
-    "stencil-paper": "@bigcommerce/paper",
+    "stencil-paper": "@bigcommerce/stencil-paper",
     "stencil-styles": "@bigcommerce/stencil-styles",
     "tarjan-graph": "^0.3.0",
     "tmp": "0.0.26",
