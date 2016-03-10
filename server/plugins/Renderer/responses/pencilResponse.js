@@ -1,5 +1,5 @@
 var _ = require('lodash'),
-    Paper = require('stencil-paper'),
+    Paper = require('@bigcommerce/stencil-paper'),
     Url = require('url'),
     internals = {};
 
@@ -21,9 +21,9 @@ module.exports = function (data, assembler) {
 
         // Plugins have the opportunity to add/modify the response by using decorators
         _.each(request.app.decorators, function (decorator) {
-            paper.addDecorator(decorator);    
+            paper.addDecorator(decorator);
         })
-        
+
         templatePath = internals.getTemplatePath(request, data);
 
         paper.loadTheme(templatePath, data.acceptLanguage, function () {
@@ -32,7 +32,7 @@ module.exports = function (data, assembler) {
             }
 
             if (data.remote || _.isArray(templatePath)) {
-                
+
                 if (data.remote) {
                     data.context = _.extend({}, data.context, data.remote_data);
                 }
@@ -89,7 +89,7 @@ internals.getTemplatePath = function (request, data) {
         if (options['render_with'] && typeof options['render_with'] === 'string') {
 
             path = options['render_with'].split(',');
-            
+
             path = _.map(path, function (path) {
                 return 'components/' + path;
             });
