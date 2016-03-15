@@ -87,7 +87,7 @@ Async.series([
         Async.parallel(tasks, function (err, assembledData) {
             var outputFolder = Program.dest ? Program.dest : themePath,
                 outputName = Program.filename ? Program.filename : defaultName,
-                output = Fs.createWriteStream(Path.join(outputFolder, outputName)),
+                output,
                 pathsToZip = [
                     'assets/**/*',
                     'meta/**/*',
@@ -102,8 +102,10 @@ Async.series([
                 archive = Archiver('zip');
 
             if (err) {
-                return console.error(err);
+                return cb(err);
             }
+
+            output = Fs.createWriteStream(Path.join(outputFolder, outputName));
 
             output.on('close', function () {
                 console.log('ok'.green + ' -- Zipping Files Finished');
@@ -172,7 +174,8 @@ Async.series([
     }
 ], function (err, result) {
     if (err) {
-        return console.error(err.message.red);
+        console.error('failed  -- '.red  + err.message.red);
+        throw err;
     }
 });
 
