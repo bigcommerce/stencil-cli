@@ -1,4 +1,5 @@
 # Stencil CLI - Stencil Server emulator for local theme development
+[![Build Status](https://travis-ci.org/bigcommerce/stencil-cli.svg?branch=master)](https://travis-ci.org/bigcommerce/stencil-cli)
 
 ### Install
 
