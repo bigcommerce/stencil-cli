@@ -24,15 +24,16 @@ var cssCompilerDir;
 var cssWatchBaseDir = Path.join(themePath, 'assets/');
 var templatePath = Path.join(themePath, 'templates');
 var dotStencilFilePath = Path.join(themePath, '.stencil');
+var stencilConfigFilePath = Path.join(themePath, 'stencil.conf.js');
 var themeConfigPath = Path.join(themePath, 'config.json');
 var dotStencilFile;
 var isTopLevelCssRegex;
 var stencilServerPort;
+var stencilConfig;
 var themeConfig;
 var configuration;
 var staplerUrl;
 var headers;
-
 require('colors');
 
 Program
@@ -48,6 +49,10 @@ Program
 
 if (!fileExist(dotStencilFilePath)) {
     return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
+}
+
+if (fileExist(stencilConfigFilePath)) {
+    stencilConfig = require(stencilConfigFilePath);
 }
 
 if (!fileExist(Path.join(themePath, 'config.json'))) {
@@ -282,6 +287,10 @@ function startServer() {
             }
         });
     });
+
+    if (stencilConfig && typeof(stencilConfig.development) === 'function') {
+        stencilConfig.development(Bs);
+    }
 }
 
 /**

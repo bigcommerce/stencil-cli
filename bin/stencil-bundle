@@ -23,7 +23,9 @@ var pkg = require('../package.json');
 var themePath = process.cwd();
 var tasks = {};
 var templatesBasePath = Path.join(themePath, 'templates');
+var stencilConfigFilePath = Path.join(themePath, 'stencil.conf.js');
 var configuration;
+var stencilConfig;
 var themeConfig;
 var validator;
 
@@ -35,6 +37,11 @@ Program
     .parse(process.argv);
 
 themeConfig = ThemeConfig.getInstance(themePath);
+
+
+if (fileExist(stencilConfigFilePath)) {
+    stencilConfig = require(stencilConfigFilePath);
+}
 
 if (Program.dest === true) {
     return console.error('Error: You have to specify a value for -d or --dest'.red);
@@ -58,6 +65,19 @@ tasks.templates = assembleTemplatesTask;
 tasks.lang = assembleLangTask;
 tasks.schema = assembleSchema;
 
+if (stencilConfig && typeof(stencilConfig.production) === 'function') {
+    tasks.custom = function(callback) {
+        console.log('Theme custom task Started...');
+        stencilConfig.production(function(error, result) {
+            console.log('ok'.green + ' -- Theme custom task Finished');
+            callback();
+        });
+
+    }
+}
+
+
+// TODO: Remove explicit support here in the platform tool and move this to the theme.
 if (configuration.jspm) {
     configuration.jspm.tmpBundleFile = Tmp.fileSync().name;
     tasks.jspmBundle = getJspmBundleTask(configuration.jspm);
@@ -297,5 +317,19 @@ function getJspmBundleTask(jspmConfig) {
             console.error = oldConsoleError;
             callback(null, true);
         });
+    }
+}
+
+/**
+ * Check if file exist syncronous
+ * @param  {string} path
+ * @return {boolean}
+ */
+function fileExist(path) {
+    try {
+        return !!Fs.statSync(path);
+    }
+    catch (e) {
+        return false;
     }
 }
