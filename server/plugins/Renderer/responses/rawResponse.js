@@ -10,7 +10,7 @@ module.exports = function (request, data, headers, statusCode) {
     this.respond = function (request, reply) {
         var response;
         // TODO This will change when we build the new checkout in SFP.
-        if (request.url.path.indexOf('/checkout.php') === 0) {
+        if (request.url.path.indexOf('/checkout.php') === 0 || request.url.path.indexOf('/finishorder.php') === 0) {
             response = reply(internals.appendCss(data));
         } else {
             response = reply(data);
