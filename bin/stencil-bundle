@@ -113,7 +113,6 @@ Async.series([
                     'meta/**/*',
                     '!assets/jspm_packages/**', // Don't want jspm_packages if it's there
                     'templates/**/*',
-                    'lang/*',
                     'README.md',
                     'CHANGELOG.md',
                     'config.json',
@@ -123,6 +122,10 @@ Async.series([
 
             if (err) {
                 return cb(err);
+            }
+
+            if (fileExist(LangAssembler.localeDirectory)) {
+                pathsToZip.push('lang/*');
             }
 
             output = Fs.createWriteStream(Path.join(outputFolder, outputName));
@@ -283,6 +286,12 @@ function assembleSchema(callback) {
 
 function assembleLangTask(callback) {
     console.log('Language Files Parsing Started...');
+
+    if (!fileExist(LangAssembler.localeDirectory)) {
+        console.log('warning'.yellow + ' -- lang folder not found, translations will be disabled');
+        return callback(null, {});
+    }
+
     LangAssembler.assemble(function (err, results) {
         if (err) {
             return callback(err);
