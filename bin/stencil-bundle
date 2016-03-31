@@ -2,32 +2,17 @@
 
 require('colors');
 
-var MAX_SIZE_BUNDLE = 1048576 * 50; //50MB
-
-var _ = require('lodash');
-var Archiver = require('archiver');
-var Async = require('async');
-var Crypto = require('crypto');
-var Fs = require('fs');
-var Jspm = require('jspm');
-var Path = require('path');
 var Program = require('commander');
-var BundleValidator = require('../lib/bundleValidator');
-var CssAssembler = require('../lib/cssAssembler');
-var Cycles = require('../lib/Cycles');
-var LangAssembler = require('../lib/langAssembler');
-var TemplateAssembler = require('../lib/templateAssembler');
+var Path = require('path');
 var ThemeConfig = require('../lib/themeConfig');
-var Tmp = require('tmp');
 var pkg = require('../package.json');
 var themePath = process.cwd();
-var tasks = {};
-var templatesBasePath = Path.join(themePath, 'templates');
-var stencilConfigFilePath = Path.join(themePath, 'stencil.conf.js');
 var configuration;
+var bundle;
+var Bundle = require('../lib/stencilBundle');
 var stencilConfig;
+var stencilConfigFilePath = Path.join(themePath, 'stencil.conf.js');
 var themeConfig;
-var validator;
 
 Program
     .version(pkg.version)
@@ -57,277 +42,13 @@ if (!themeConfig.configExists()) {
 
 configuration = themeConfig.getRawConfig();
 
-if (configuration.css_compiler) {
-    tasks.css = getCssAssembleTask(configuration.css_compiler);
-}
-
-tasks.templates = assembleTemplatesTask;
-tasks.lang = assembleLangTask;
-tasks.schema = assembleSchema;
-
-if (stencilConfig && typeof(stencilConfig.production) === 'function') {
-    tasks.custom = function(callback) {
-        console.log('Theme custom task Started...');
-        stencilConfig.production(function(error, result) {
-            console.log('ok'.green + ' -- Theme custom task Finished');
-            callback();
-        });
-
-    }
-}
-
-
-// TODO: Remove explicit support here in the platform tool and move this to the theme.
-if (configuration.jspm) {
-    configuration.jspm.tmpBundleFile = Tmp.fileSync().name;
-    tasks.jspmBundle = getJspmBundleTask(configuration.jspm);
-}
-
-validator = new BundleValidator(themePath, themeConfig, Program.marketplace !== true);
-
-// First validate images, then we are good to process the bundle afterwards
-Async.series([
-    function (cb) {
-        console.log("Validating theme...");
-        validator.validateTheme(function (error, result) {
-            if (error) {
-                throw error;
-            }
-
-            cb(null, true);
-        });
-    },
-    function (cb) {
-        var defaultName = configuration.name + '-' + configuration.version + '.zip';
-
-        if (!configuration.name) {
-            defaultName = 'Custom-0.0.1.zip';
-        }
-
-        Async.parallel(tasks, function (err, assembledData) {
-            var outputFolder = Program.dest ? Program.dest : themePath,
-                outputName = Program.filename ? Program.filename : defaultName,
-                output,
-                pathsToZip = [
-                    'assets/**/*',
-                    'meta/**/*',
-                    '!assets/jspm_packages/**', // Don't want jspm_packages if it's there
-                    'templates/**/*',
-                    'README.md',
-                    'CHANGELOG.md',
-                    'config.json',
-                    'package.json',
-                ],
-                archive = Archiver('zip');
-
-            if (err) {
-                return cb(err);
-            }
-
-            if (fileExist(LangAssembler.localeDirectory)) {
-                pathsToZip.push('lang/*');
-            }
-
-            output = Fs.createWriteStream(Path.join(outputFolder, outputName));
-
-            output.on('close', function () {
-                console.log('ok'.green + ' -- Zipping Files Finished');
-                console.log('Bundled saved to: ' + Path.join(outputFolder, outputName).cyan);
-
-                var stats = Fs.statSync(Path.join(outputFolder, outputName));
-                var size = stats['size'];
-
-                if (size > MAX_SIZE_BUNDLE) {
-                    return console.error('Error: Your bundle of size' + size
-                        + 'bytes is above the max size of ' + MAX_SIZE_BUNDLE + 'bytes');
-                }
-            });
-
-            archive.pipe(output);
-
-            if (configuration.jspm) {
-                archive.append(
-                    Fs.createReadStream(configuration.jspm.tmpBundleFile),
-                    {name: configuration.jspm.bundle_location}
-                );
-            }
-
-            archive.bulk({
-                src: pathsToZip,
-                cwd: themePath,
-                expand: true
-            });
-
-            Async.forEachOf(assembledData, function (data, type, callback) {
-
-                if (type === 'css' || type === 'templates') {
-                    // Create the parsed tree files
-                    Async.forEachOf(data, function (val, filename, forEachOfCallback) {
-                        if (type === 'templates') {
-                            filename = Crypto.createHash('md5').update(filename).digest('hex');
-                            filename = Path.join('parsed', 'templates', filename + '.json');
-                        } else {
-                            filename = Path.join('parsed', 'scss', filename + '.json');
-                        }
-                        archive.append(JSON.stringify(val), {name: filename});
-                        forEachOfCallback();
-                    }, callback);
-
-                    return;
-
-                } else if (type === 'lang') {
-                    // append the parsed translation file with all translations
-                    archive.append(JSON.stringify(data), {name: 'parsed/lang.json'});
-                } else if (type === 'schema') {
-                    // append the generated schema.json file
-                    archive.append(JSON.stringify(data), {name: 'schema.json'});
-                }
-
-                callback();
-
-            }, function (err) {
-                if (err) {
-                    cb(err);
-                }
-
-                archive.finalize();
-                cb(null, true);
-            });
-        });
-    }
-], function (err, result) {
-    if (err) {
-        console.error('failed  -- '.red  + err.message.red);
-        throw err;
-    }
-});
-
-function getCssAssembleTask(compiler) {
-    return function (callback) {
-        var basePath = Path.join(themePath, 'assets', compiler);
-
-        console.log('%s Parsing Started...', compiler.toUpperCase());
-        Fs.readdir(basePath, function (err, files) {
-            files = files.filter(function (file) {
-                return file.substr(-(compiler.length + 1)) === '.' + compiler;
-            });
-
-            Async.map(files, function (file, mapCallback) {
-                CssAssembler.assemble(file, basePath, compiler, mapCallback);
-            }, function (err, results) {
-                var ret = {};
-
-                if (err) {
-                    return callback(err);
-                }
-
-                _.each(files, function (file, index) {
-                    ret[file] = results[index];
-                });
-
-                console.log('ok'.green + ' -- %s Parsing Finished', compiler.toUpperCase());
-                callback(null, ret);
-            });
-        });
-    }
-}
-
-function assembleTemplatesTask(callback) {
-    console.log('Template Parsing Started...');
-
-    // https://github.com/bigcommerce-stencil/stencil-cli/pull/1
-    require('recursive-readdir')(templatesBasePath, ['!*.html'], function (err, files) {
-        files = files.map(function (file) {
-            return file.replace(templatesBasePath + Path.sep, '').replace('.html', '');
-        });
-
-        Async.map(files, TemplateAssembler.assemble, function (err, results) {
-            var ret = {};
-
-            if (err) {
-                return callback(err);
-            }
-
-            _.each(files, function (file, index) {
-                ret[file] = results[index];
-            });
-
-            // Checks to see if there is a cyclical dependency
-            try {
-                new Cycles(results).detect();
-            } catch (e) {
-                console.error('error'.red);
-                throw e;
-            }
-
-            validator.validateObjects(results, function (err, validate) {
-                if (err) {
-                    console.error('error '.red + err.message);
-                    return callback(err);
-                }
-
-                console.log('ok'.green + ' -- Template Parsing Finished');
-
-                callback(null, ret);
-            });
-        });
-    });
-}
-
-function assembleSchema(callback) {
-    console.log('Building Theme Schema File...');
-
-    themeConfig.getSchema(function (err, schema) {
-        console.log('ok'.green + ' -- Theme Schema Building Finished');
-
-        callback(err, schema);
-    });
-}
-
-function assembleLangTask(callback) {
-    console.log('Language Files Parsing Started...');
-
-    if (!fileExist(LangAssembler.localeDirectory)) {
-        console.log('warning'.yellow + ' -- lang folder not found, translations will be disabled');
-        return callback(null, {});
-    }
-
-    LangAssembler.assemble(function (err, results) {
-        if (err) {
-            return callback(err);
-        }
-
-        console.log('ok'.green + ' -- Language Files Parsing Finished');
-        callback(null, results);
-    });
-}
-
-function getJspmBundleTask(jspmConfig) {
-    return function (callback) {
-        var oldConsoleError = console.error;
-
-        console.log('JavaScript Bundling Started...');
-
-        // Need to suppress annoying errors from Babel.
-        // They will be gone in the next minor version of JSPM (0.16.0).
-        // Until then, this will stay in place
-        console.error = function (error) {
-            if (!/Deprecated option metadataUsedHelpers/.test(error)) {
-                oldConsoleError(error);
-            }
-        };
-
-        Jspm.setPackagePath(themePath);
-        Jspm.bundleSFX(jspmConfig.bootstrap, jspmConfig.tmpBundleFile, {
-            minify: true,
-            mangle: true
-        }).then(function () {
-            console.log('ok'.green + ' -- JavaScript Bundling Finished');
-            console.error = oldConsoleError;
-            callback(null, true);
-        });
-    }
-}
+bundle = new Bundle(
+    themePath,
+    themeConfig,
+    configuration,
+    stencilConfig,
+    {cmd: Program}
+);
 
 /**
  * Check if file exist syncronous
@@ -342,3 +63,5 @@ function fileExist(path) {
         return false;
     }
 }
+
+bundle.initBundle();
