@@ -37,18 +37,18 @@ module.exports = function (data, assembler) {
                     data.context = _.extend({}, data.context, data.remote_data);
                 }
 
-                if (data.template_file) {
+                if (templatePath) {
                     // if multiple render_with
-                    if (_.isArray(data.template_file)) {
-                        // if data.template_file is an array ( multiple templates using render_with option)
+                    if (_.isArray(templatePath)) {
+                        // if templatePath is an array ( multiple templates using render_with option)
                         // compile all the template required files into a hash table
-                        html = data.template_file.reduce(function(table, file) {
+                        html = templatePath.reduce(function(table, file) {
                             table[file] = paper.render(file, data.context);
 
                             return table;
                         }, {});
                     } else {
-                        html = paper.render(data.template_file, data.context);
+                        html = paper.render(templatePath, data.context);
                     }
 
                     if (data.remote) {
@@ -66,7 +66,7 @@ module.exports = function (data, assembler) {
                     };
                 }
             } else {
-                output = paper.render(data.template_file, data.context);
+                output = paper.render(templatePath, data.context);
             }
 
             response = reply(output);
