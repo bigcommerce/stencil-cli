@@ -186,6 +186,18 @@ function startServer() {
     };
 
     Server(params, function (err) {
+        var watchFiles = [
+            '/assets',
+            '/templates',
+            '/lang'
+        ];
+        var watchIgnored = [
+            '/assets/scss',
+            '/assets/less',
+            '/assets/css',
+            '/assets/jspm_packages'
+        ];
+
         if (err) {
             throw err;
         }
@@ -249,24 +261,23 @@ function startServer() {
             })
         });
 
+        if (stencilConfig && stencilConfig.watchOptions && stencilConfig.watchOptions.files) {
+            watchFiles = stencilConfig.watchOptions.files;
+        }
+
+        if (stencilConfig && stencilConfig.watchOptions && stencilConfig.watchOptions.ignored) {
+            watchIgnored = stencilConfig.watchOptions.ignored;
+        }
+
         Bs.init({
             open: !!Program.open,
             port: browserSyncPort,
-            files: [
-                '/assets',
-                '/templates',
-                '/lang'
-            ].map(function (val) {
+            files: watchFiles.map(function (val) {
                 return Path.join(themePath, val);
             }),
             watchOptions: {
                 ignoreInitial: true,
-                ignored: [
-                    '/assets/scss',
-                    '/assets/less',
-                    '/assets/css',
-                    '/assets/jspm_packages'
-                ].map(function (val) {
+                ignored: watchIgnored.map(function (val) {
                     return Path.join(themePath, val);
                 })
             },
