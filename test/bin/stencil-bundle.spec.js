@@ -202,9 +202,11 @@ describe('Stencil Bundle', function () {
             'Fs.writeFile': FsStub
         });
 
-        var callback = function (err, result) {
+        var callback = function () {
             expect(rrStub.calledOnce).to.equal(true);
-            expect(FsStub.calledOnce).to.equal(true);
+            expect(Bundle.manifest.templates[0]).to.equal('test');
+            expect(Bundle.manifest.templates[1]).to.equal('test2');
+
             done();
         };
 
