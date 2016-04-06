@@ -1,5 +1,4 @@
 var _ = require('lodash'),
-    Async = require('async'),
     Boom = require('boom'),
     Cache = require('memory-cache'),
     Crypto = require('crypto'),
@@ -54,12 +53,12 @@ internals.implementation = function (request, reply) {
 /**
  * Creates a hash
  *
- * @param String|Object|Array input
+ * @param {String|Object|Array} input
  * @returns String
  */
-internals.sha1sum = function(input) {
+internals.sha1sum = function (input) {
     return Crypto.createHash('sha1').update(JSON.stringify(input)).digest('hex');
-}
+};
 
 /**
  * Fetches data from Stapler
@@ -144,7 +143,7 @@ internals.getResponse = function (request, callback) {
         }
 
         // parse response
-        Wreck.read(response, {json: true}, function(err, bcAppData) {
+        Wreck.read(response, {json: true}, function (err, bcAppData) {
             if (err) {
                 return callback(err);
             }
@@ -164,6 +163,7 @@ internals.getResponse = function (request, callback) {
  * parses the response from bc app
  *
  * @param bcAppData
+ * @param request
  * @param response
  * @param responseArgs
  * @param callback
@@ -257,7 +257,7 @@ internals.parseResponse = function (bcAppData, request, response, responseArgs, 
  * @param  {Object} configuration
  * @return {Object}
  */
-internals.getResourceConfig = function(data, request, configuration) {
+internals.getResourceConfig = function (data, request, configuration) {
     var frontmatter,
         frontmatterRegex = /---\r?\n(?:.|\s)*?\r?\n---\r?\n/g,
         missingThemeSettingsRegex = /{{\\s*?theme_settings\\..+?\\s*?}}/g,
@@ -317,7 +317,7 @@ internals.getResourceConfig = function(data, request, configuration) {
  * @returns {*}
  */
 internals.redirect = function (response, request, callback) {
-    if (! response.headers.location) {
+    if (!response.headers.location) {
         return callback(new Error('StatusCode is set to 30x but there is no location header to redirect to.'));
     }
 
@@ -338,7 +338,7 @@ internals.redirect = function (response, request, callback) {
  * var haystack = {
  *   "products": {
  *     "dress.html": "/sample-marc-retro-style-summer-mid-dress/",
- *     "aligator.html": ["/sample-collette-aligator-clutch/", "/sample-jimmy-choo-extra-high-dynamite-cheetahs/"]
+ *     "alligator.html": ["/sample-collette-alligator-clutch/", "/sample-jimmy-choo-extra-high-dynamite-cheetahs/"]
  *   },
  *   "search": {
  *     "search.html": "/example"
@@ -354,8 +354,8 @@ internals.redirect = function (response, request, callback) {
 internals.findDeepTemplate = function (haystack, needle) {
     var template = false;
 
-    _.forEach(haystack, function(val, key) {
-        if (typeof val.length === 'undefined' ) {
+    _.forEach(haystack, function (val, key) {
+        if (typeof val.length === 'undefined') {
             // object, recursive find
             template = internals.findDeepTemplate(val, needle);
             if (template) {
@@ -377,7 +377,7 @@ internals.findDeepTemplate = function (haystack, needle) {
     });
 
     return template;
-}
+};
 
 /**
  *
@@ -394,9 +394,9 @@ internals.getTemplatePath = function (request, defaultTemplateFile) {
         // default
         templatePath = defaultTemplateFile;
     } else {
-        templatePath = 'custom/' + templatePath;
+        templatePath = 'pages/custom/' + templatePath;
     }
-    
+
     return templatePath;
 };
 
@@ -406,6 +406,7 @@ internals.getTemplatePath = function (request, defaultTemplateFile) {
  * @param data
  * @param request
  * @param response
+ * @param configuration
  * @returns {*}
  */
 internals.getPencilResponse = function (data, request, response, configuration) {
@@ -417,17 +418,17 @@ internals.getPencilResponse = function (data, request, response, configuration) 
     data.context.settings['theme_config_id'] = request.app.themeConfig.variationIndex + 1;
 
     return new Responses.PencilResponse({
-       template_file: internals.getTemplatePath(request, data.template_file),
-       templates: data.templates,
-       remote: data.remote,
-       remote_data: data.remote_data,
-       context: data.context,
-       translations: data.translations,
-       method: request.method,
-       acceptLanguage: request.headers['accept-language'],
-       headers: response.headers,
-       statusCode: response.statusCode
-   }, internals.themeAssembler);
+        template_file: internals.getTemplatePath(request, data.template_file),
+        templates: data.templates,
+        remote: data.remote,
+        remote_data: data.remote_data,
+        context: data.context,
+        translations: data.translations,
+        method: request.method,
+        acceptLanguage: request.headers['accept-language'],
+        headers: response.headers,
+        statusCode: response.statusCode
+    }, internals.themeAssembler);
 };
 
 /**
@@ -444,7 +445,7 @@ internals.getHeaders = function (request, options, config) {
     options = options || {};
 
     // If stencil-config header already set, we don't want to overwrite it
-    if (! request.headers['stencil-config'] && config) {
+    if (!request.headers['stencil-config'] && config) {
         request.headers['stencil-config'] = JSON.stringify(config);
     }
 
@@ -495,7 +496,7 @@ internals.themeAssembler = {
     },
     getTranslations: function (callback) {
         LangAssembler.assemble(function (err, translations) {
-            translations = _.mapValues(translations, function(locales, lang) {
+            translations = _.mapValues(translations, function (locales, lang) {
                 return JSON.parse(locales);
             });
 
