@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 require('colors');
-var stencilInit = require('../lib/stencilInit');
+var stencilInit = require('../lib/stencil-init');
 var pkg = require('../package.json');
 var Program = require('commander');
-var JspmAssembler = require('../lib/jspmAssembler');
-var ThemeConfig = require('../lib/themeConfig');
+var JspmAssembler = require('../lib/jspm-assembler');
+var ThemeConfig = require('../lib/theme-config');
 var dotStencilFilePath = './.stencil';
 
 Program

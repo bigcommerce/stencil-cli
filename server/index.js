@@ -4,7 +4,7 @@ var Fs = require('fs'),
     Path = require('path'),
     Url = require('url'),
     manifest = require('./manifest'),
-    logo = require('./lib/showLogo'),
+    logo = require('./lib/show-logo'),
     internals = {};
 
 require('colors');
@@ -17,15 +17,15 @@ module.exports = function(options, callback) {
     callback = Hoek.nextTick(callback);
 
     config.connections[0].port = options.dotStencilFile.port;
-    config.plugins['./plugins/Router'].storeUrl = parsedSecureUrl.protocol + '//' + parsedSecureUrl.host;
-    config.plugins['./plugins/Router'].normalStoreUrl = parsedNormalUrl.protocol + '//' + parsedNormalUrl.host;
-    config.plugins['./plugins/Router'].apiKey = options.dotStencilFile.apiKey;
-    config.plugins['./plugins/Router'].port = options.dotStencilFile.port;
-    config.plugins['./plugins/Router'].staplerUrl = options.dotStencilFile.staplerUrl;
-    config.plugins['./plugins/Renderer'].useCache = options.useCache;
-    config.plugins['./plugins/Renderer'].username = options.dotStencilFile.username;
-    config.plugins['./plugins/Renderer'].token = options.dotStencilFile.token;
-    config.plugins['./plugins/Renderer'].customLayouts = options.dotStencilFile.customLayouts;
+    config.plugins['./plugins/router/router.module'].storeUrl = parsedSecureUrl.protocol + '//' + parsedSecureUrl.host;
+    config.plugins['./plugins/router/router.module'].normalStoreUrl = parsedNormalUrl.protocol + '//' + parsedNormalUrl.host;
+    config.plugins['./plugins/router/router.module'].apiKey = options.dotStencilFile.apiKey;
+    config.plugins['./plugins/router/router.module'].port = options.dotStencilFile.port;
+    config.plugins['./plugins/router/router.module'].staplerUrl = options.dotStencilFile.staplerUrl;
+    config.plugins['./plugins/renderer/renderer.module'].useCache = options.useCache;
+    config.plugins['./plugins/renderer/renderer.module'].username = options.dotStencilFile.username;
+    config.plugins['./plugins/renderer/renderer.module'].token = options.dotStencilFile.token;
+    config.plugins['./plugins/renderer/renderer.module'].customLayouts = options.dotStencilFile.customLayouts;
 
     Glue.compose(config, {relativeTo: __dirname}, function (err, server) {
         if (err) {

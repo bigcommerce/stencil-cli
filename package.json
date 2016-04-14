@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "node make --install",
-    "test": "lab -t 75 -l -e 'development'",
-    "test-cov-html": "lab -r html -o coverage.html"
+    "test": "lab server -t 80 -l -e 'development' -P spec",
+    "test-cov-html": "lab server -r html -o coverage.html -P spec"
   },
   "bin": {
     "stencil": "./bin/stencil",
