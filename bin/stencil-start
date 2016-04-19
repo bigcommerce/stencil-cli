@@ -2,21 +2,21 @@
 
 var _ = require('lodash');
 var Bs = require('browser-sync').create();
-var Cycles = require('../lib/Cycles');
+var Cycles = require('../lib/cycles');
 var recursiveRead = require('recursive-readdir');
 var Async = require('async');
-var templateAssembler = require('../lib/templateAssembler');
+var templateAssembler = require('../lib/template-assembler');
 var Fs = require('fs');
-var JspmAssembler = require('../lib/jspmAssembler');
+var JspmAssembler = require('../lib/jspm-assembler');
 var Path = require('path');
 var Pkg = require('../package.json');
 var Program = require('commander');
 var Server = require('../server');
-var ThemeConfig = require('../lib/themeConfig');
-var stencilToken = require('../server/lib/stencilToken');
+var ThemeConfig = require('../lib/theme-config');
+var stencilToken = require('../server/lib/stencil-token');
 var Url = require('url');
 var Wreck = require('wreck');
-var jsonLint = require('./../lib/jsonLint');
+var jsonLint = require('../lib/json-lint');
 var themePath = process.cwd();
 var allowedCssCompilers = ['scss', 'less'];
 var browserSyncPort;

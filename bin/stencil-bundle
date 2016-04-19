@@ -4,12 +4,12 @@ require('colors');
 
 var Program = require('commander');
 var Path = require('path');
-var ThemeConfig = require('../lib/themeConfig');
+var ThemeConfig = require('../lib/theme-config');
 var pkg = require('../package.json');
 var themePath = process.cwd();
 var configuration;
 var bundle;
-var Bundle = require('../lib/stencilBundle');
+var Bundle = require('../lib/stencil-bundle');
 var stencilConfig;
 var stencilConfigFilePath = Path.join(themePath, 'stencil.conf.js');
 var themeConfig;
