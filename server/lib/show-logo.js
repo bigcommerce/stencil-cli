@@ -22,7 +22,7 @@ logo += " `/hdddddddddddddddddddddddddddddddddddd\n".blue;
 logo += "/hdddddddddddddddddddddddddddddddddddddd\n".blue;
 logo += "_________________________\n".white;
 logo += '\n';
-logo += "Bigcommerce Stencil \n".yellow;
+logo += "BigCommerce Stencil \n".yellow;
 logo += '_________________________\n'.white;
 
 module.exports = logo;

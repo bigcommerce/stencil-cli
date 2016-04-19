@@ -33,7 +33,7 @@ If you need any help or experience any bugs, please create a GitHub issue in thi
 
 ### License
 
-Copyright (c) 2015-2016, Bigcommerce Inc.
+Copyright (c) 2015-2016, BigCommerce Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,8 @@ modification, are permitted provided that the following conditions are met:
    documentation and/or other materials provided with the distribution.
 3. All advertising materials mentioning features or use of this software
    must display the following acknowledgement:
-   This product includes software developed by Bigcommerce Inc.
-4. Neither the name of Bigcommerce Inc. nor the
+   This product includes software developed by BigCommerce Inc.
+4. Neither the name of BigCommerce Inc. nor the
    names of its contributors may be used to endorse or promote products
    derived from this software without specific prior written permission.
 

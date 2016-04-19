@@ -133,7 +133,7 @@ Wreck.get(
 
         if (retError) {
             console.error(
-                'The Bigcommerce Store you are pointing to either does not exist or is not available at this time.'.red
+                'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'.red
             );
         } else if (payload.status !== 'ok') {
             console.error(

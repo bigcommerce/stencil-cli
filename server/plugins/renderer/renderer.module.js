@@ -130,7 +130,7 @@ internals.getResponse = function (request, callback) {
         }
 
         if (response.statusCode === 500) {
-            return callback(new Error('The Bigcommerce server responded with a 500 error'));
+            return callback(new Error('The BigCommerce server responded with a 500 error'));
         }
 
         if (response.headers['set-cookie']) {
@@ -223,7 +223,7 @@ internals.parseResponse = function (bcAppData, request, response, responseArgs, 
 
                 // Response is bad
                 if (response.statusCode === 500) {
-                    return callback(new Error('The Bigcommerce server responded with a 500 error'));
+                    return callback(new Error('The BigCommerce server responded with a 500 error'));
                 }
 
                 try {
@@ -234,7 +234,7 @@ internals.parseResponse = function (bcAppData, request, response, responseArgs, 
 
                 // Data response is bad
                 if (data.statusCode && data.statusCode === 500) {
-                    return callback(new Error('The Bigcommerce server responded with a 500 error'));
+                    return callback(new Error('The BigCommerce server responded with a 500 error'));
                 }
 
                 // Cache data
