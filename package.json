@@ -1,7 +1,7 @@
 {
   "name": "@bigcommerce/stencil-cli",
   "version": "1.3.4",
-  "description": "CLI tool to run Bigcommerce Stores locally for theme development.",
+  "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
   "scripts": {
     "postinstall": "node make --install",
@@ -20,7 +20,7 @@
     "type": "git",
     "url": "https://github.com/bigcommerce/stencil-cli"
   },
-  "author": "Bigcommerce",
+  "author": "BigCommerce",
   "license": "BSD-4-Clause",
   "bugs": {
     "url": "https://github.com/bigcommerce/stencil-cli/issues"
