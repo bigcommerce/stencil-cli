@@ -38,7 +38,7 @@ module.exports.register = function (server, options, next) {
 
     server.views({
         engines: {
-            html: handlebars
+            html: Handlebars
         },
         relativeTo: __dirname,
         path: './templates',
