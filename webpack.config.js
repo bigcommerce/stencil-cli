@@ -22,22 +22,6 @@ var config = {
                 test: /\.js$/,
                 exclude: /(node_modules|ng-stencil-editor)/,
                 loader: 'babel?presets[]=es2015'
-            },
-            {
-                test: require.resolve('angular'),
-                loader: 'expose?angular',
-            },
-            {
-                test: require.resolve('lodash'),
-                loader: 'expose?_',
-            },
-            {
-                test: require.resolve('jschannel'),
-                loader: 'expose?Channel',
-            },
-            {
-                test: require.resolve('js-cookie'),
-                loader: 'expose?Cookies',
             }
         ]
     },

@@ -1,3 +1,4 @@
-import 'jschannel';
-import 'js-cookie';
-import 'ng-stencil-editor/dist/sdk/sdk-stencil-editor.js';
+window.Channel = require('jschannel');
+window.Cookies = require('js-cookie');
+
+require('ng-stencil-editor/src/static/sdk/sdk-stencil-editor');
