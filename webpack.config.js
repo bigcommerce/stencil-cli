@@ -5,6 +5,18 @@ var CleanWebpackPlugin = require('clean-webpack-plugin');
 var Path = require('path');
 var distPath = Path.join(__dirname, 'server/plugins/stencil-editor/public/dist');
 
+// Icons used from pattern lab
+var icons = [
+    'ic-add',
+    'ic-remove',
+    'ic-phone-iphone',
+    'ic-tablet-mac',
+    'ic-desktop-windows',
+    'ic-check-circle',
+    'ic-close',
+    'ic-refresh',
+].join(',');
+
 var config = {
     devtool: 'inline-source-map',
     watch: true,
@@ -39,7 +51,12 @@ var config = {
         new CopyWebpackPlugin([
             {
                 context: 'node_modules/bcapp-pattern-lab/dist',
-                from: '**/*.{css,svg}',
+                from: 'svg/icons/{' + icons + '}.svg',
+                to: Path.join(distPath, 'bcapp-pattern-lab')
+            },
+            {
+                context: 'node_modules/bcapp-pattern-lab/dist',
+                from: 'css/**/*.css',
                 to: Path.join(distPath, 'bcapp-pattern-lab')
             },
             {
