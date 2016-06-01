@@ -8,7 +8,9 @@ module.exports = function (location, headers, statusCode) {
         response.statusCode = statusCode;
 
         _.each(headers, function (value, name) {
-            response.header(name, value);
+            if (name !== 'transfer-encoding') {
+                response.header(name, value);
+            }
         });
 
         return response;
