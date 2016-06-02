@@ -359,7 +359,7 @@ internals.findDeepTemplate = function (haystack, needle) {
             // object, recursive find
             template = internals.findDeepTemplate(val, needle);
             if (template) {
-                template = _.trimRight(key + '/' + template, '.html');
+                template = (key + '/' + template).replace('.html', '');
                 return false; // break out of loop
             }
         } else if (typeof val === 'string') {
