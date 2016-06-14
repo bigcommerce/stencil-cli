@@ -60,7 +60,7 @@ var config = {
                 to: Path.join(distPath, 'bcapp-pattern-lab')
             },
             {
-                context: 'node_modules/ng-stencil-editor/dist',
+                context: 'node_modules/ng-stencil-editor/build',
                 from: '**/*.{css,svg}',
                 to: Path.join(distPath, 'ng-stencil-editor')
             }

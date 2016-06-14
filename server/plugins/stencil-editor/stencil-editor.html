@@ -4,7 +4,7 @@
     <title>Stencil Theme Editor</title>
     <base href="/">
     <link rel="stylesheet" href="dist/bcapp-pattern-lab/css/bcapp-pattern-lab.min.css">
-    <link rel="stylesheet" href="dist/ng-stencil-editor/css/ng-stencil-editor.min.css">
+    <link rel="stylesheet" href="dist/ng-stencil-editor/css/ng-stencil-editor.css">
 </head>
 <body>
 <div id="micro-app-ng-stencil-editor">
@@ -29,7 +29,7 @@
             disableHeartbeat: true
         });
 
-    System.import('src/app/app.module.js').then(function() {    
+    System.import('src/app/app.module.js').then(function() {
         angular.bootstrap(document.getElementById('micro-app-ng-stencil-editor'), ['ng-stencil-editor']);
     });
 </script>

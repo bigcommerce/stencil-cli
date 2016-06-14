@@ -1,0 +1,488 @@
+/*
+SCSS variables are information about icon's compiled state, stored under its original file name
+
+.icon-home {
+  width: $icon-home-width;
+}
+
+The large array-like variables contain all information about a single icon
+$icon-home: x y offset_x offset_y width height total_width total_height image_path;
+
+At the bottom of this section, we provide information about the spritesheet itself
+$spritesheet: width height image $spritesheet-sprites;
+*/
+/*
+These "retina group" variables are mappings for the naming and pairing of normal and retina sprites.
+
+The list formatted variables are intended for mixins like `retina-sprite` and `retina-sprites`.
+*/
+/*
+The provided mixins are intended to be used with the array-like variables
+
+.icon-home {
+  @include sprite-width($icon-home);
+}
+
+.icon-email {
+  @include sprite($icon-email);
+}
+*/
+/*
+The `retina-sprite` mixin sets up rules and a media query for a sprite/retina sprite.
+  It should be used with a "retina group" variable.
+
+The media query is from CSS Tricks: https://css-tricks.com/snippets/css/retina-display-media-query/
+
+$icon-home-group: ('icon-home', $icon-home, $icon-home-2x, );
+
+.icon-home {
+  @include retina-sprite($icon-home-group);
+}
+*/
+/*
+The `sprites` mixin generates identical output to the CSS template
+  but can be overridden inside of SCSS
+
+@include sprites($spritesheet-sprites);
+*/
+/*
+The `retina-sprites` mixin generates a CSS rule and media query for retina groups
+  This yields the same output as CSS retina template but can be overridden in SCSS
+
+@include retina-sprites($retina-groups);
+*/
+meta.foundation-version {
+  font-family: "/5.5.3/"; }
+
+meta.foundation-mq-small {
+  font-family: "/only screen/";
+  width: 0; }
+
+meta.foundation-mq-small-only {
+  font-family: "/only screen and (max-width: 769px)/";
+  width: 0; }
+
+meta.foundation-mq-medium {
+  font-family: "/only screen and (min-width:769px)/";
+  width: 769px; }
+
+meta.foundation-mq-medium-only {
+  font-family: "/only screen and (min-width:769px) and (max-width:1025px)/";
+  width: 769px; }
+
+meta.foundation-mq-large {
+  font-family: "/only screen and (min-width:1025px)/";
+  width: 1025px; }
+
+meta.foundation-mq-large-only {
+  font-family: "/only screen and (min-width:1025px) and (max-width:1281px)/";
+  width: 1025px; }
+
+meta.foundation-mq-xlarge {
+  font-family: "/only screen and (min-width:1281px)/";
+  width: 1281px; }
+
+meta.foundation-mq-xlarge-only {
+  font-family: "/only screen and (min-width:1281px) and (max-width:1681px)/";
+  width: 1281px; }
+
+meta.foundation-mq-xxlarge {
+  font-family: "/only screen and (min-width:1681px)/";
+  width: 1681px; }
+
+meta.foundation-data-attribute-namespace {
+  font-family: false; }
+
+/*doc
+---
+title: ActionBar
+name: action_bar
+category: Patterns
+---
+```html_example
+<form class="actionBar">
+    <fieldset class="form-fieldset actionBar-section">
+        <div class="form-field">
+            <button class="button" type="submit">
+                Add
+            </button>
+            <button class="button button--icon">
+                <span class="u-hiddenVisually">Remove</span>
+                <icon glyph="ic-delete"></icon>
+            </button>
+        </div>
+    </fieldset>
+
+    <fieldset class="form-fieldset actionBar-section">
+        <div class="form-field">
+            <select class="form-select" name="select1" id="select1">
+                <option>Choose an action</option>
+                <option value="1">Bulk Edit Selected</option>
+                <option value="2">Label all options</option>
+            </select>
+        </div>
+    </fieldset>
+
+    <fieldset class="form-fieldset actionBar-section">
+        <div class="form-field">
+            <input class="form-input has-action"
+                   placeholder="Filter"
+                   type="search">
+            <button class="button button--icon button--inputAction">
+                <span class="u-hiddenVisually">Filter</span>
+                <icon glyph="ic-filter-list"></icon>
+            </button>
+        </div>
+    </fieldset>
+
+    <a class="actionBar-section" href="#">
+        Search
+    </a>
+
+</form>
+```
+
+```sass_file_example
+src/settings/bigcommerce/actionBar/_settings.scss
+```
+*/
+body {
+  background-color: #fff; }
+
+.layout-main {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%; }
+
+.editor {
+  -webkit-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  max-width: 21.42857rem;
+  min-width: 21.42857rem; }
+  .editor p {
+    overflow-wrap: break-word; }
+
+.editor-inputs {
+  border-right: 1px solid #f2f4f6;
+  bottom: 0;
+  box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.1);
+  max-width: 21.42857rem;
+  min-width: 21.42857rem;
+  overflow-y: scroll;
+  padding: 2.25rem 0 0.75rem;
+  position: absolute;
+  top: 0;
+  z-index: 20; }
+
+.editor-header-update-available {
+  background-color: #556273;
+  color: #fcfcfd;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  margin-top: -2.25rem;
+  padding: 0.75rem 0;
+  text-align: center; }
+
+.editor-header-navigation {
+  height: 1.71429rem;
+  margin: 0 1.875rem;
+  width: 1.71429rem; }
+  .editor-header-navigation svg {
+    height: 1.71429rem;
+    width: 1.71429rem; }
+
+.editor-header-navigation--right {
+  float: right; }
+
+.editor-header-navigation--left {
+  display: inline-block;
+  margin-left: 0;
+  margin-right: 0.75rem;
+  vertical-align: middle; }
+
+.editor-header-title {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.28571rem;
+  font-weight: 400;
+  margin-bottom: 3rem;
+  margin-left: 1.875rem; }
+
+.editor-header-versions {
+  border-bottom: 1px solid #e1e6eb;
+  border-width: 2px;
+  padding-bottom: 2.25rem;
+  padding-left: 1.875rem; }
+
+.editor-header-versions-title {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  vertical-align: middle; }
+
+.editor-reset {
+  padding: 0 0.75rem; }
+
+.editor-controls {
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  background: #fff;
+  border-top: 1px solid #e1e6eb;
+  bottom: 0;
+  box-shadow: 2px 0 4px 1px rgba(0, 0, 0, 0.1);
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  height: 6rem;
+  left: 0;
+  margin-left: 21.42857rem;
+  padding: 0.5rem 3rem;
+  position: fixed;
+  right: 0;
+  z-index: 10; }
+
+.editor-controls-preview,
+.editor-controls-actions {
+  -webkit-flex: 1;
+      -ms-flex: 1;
+          flex: 1; }
+
+.editor-controls-preview {
+  -webkit-flex: 2;
+      -ms-flex: 2;
+          flex: 2;
+  font-size: 0; }
+
+.editor-controls-actions {
+  -webkit-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  min-width: 29.28571rem; }
+
+.form-field {
+  margin-bottom: 1rem;
+  position: relative; }
+
+.form-field:before {
+  border-radius: 5px;
+  content: " ";
+  float: left;
+  height: 5px;
+  margin-left: -15px;
+  margin-right: 10px;
+  margin-top: 5px;
+  width: 5px; }
+
+.form-field--updated:before {
+  background-color: #00abc9; }
+
+.form-label--minor, .form-inputColor--minor .form-label {
+  color: #556273;
+  font-size: 0.85714rem;
+  font-weight: 400;
+  line-height: 1.25;
+  margin-bottom: 0.5rem; }
+
+.form-select--minor {
+  font-size: 0.85714rem;
+  height: 2.4375rem;
+  padding-bottom: 0.5rem;
+  padding-top: 0.5rem; }
+
+.form-checkbox + .form-label--minor {
+  font-size: 0.85714rem;
+  line-height: 1.5;
+  margin-bottom: 0.375rem; }
+
+.form-inputColor--minor .form-prefixPostfix-input {
+  font-size: 0.85714rem;
+  height: 2.4375rem;
+  padding-bottom: 0.5rem;
+  padding-top: 0.5rem; }
+
+.form-inputColor--minor .form-prefixPostfix-label {
+  height: 2.4375rem;
+  max-width: 2.4375rem;
+  width: 2.4375rem; }
+
+.form-inputColor--minor .colorPicker-selection svg,
+.form-inputColor--minor .colorPicker-slider svg {
+  min-height: 12rem; }
+
+.formly-field:first-child {
+  margin-top: 1rem; }
+
+.formly-field-heading h5 {
+  font-weight: 500; }
+
+.formly-field-heading:not(:first-of-type) {
+  margin-top: 2.25rem; }
+
+.loadingOverlay-container {
+  position: static; }
+
+.history-list {
+  list-style-type: none;
+  margin: 0; }
+
+.history-item {
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  border-bottom: 1px solid #e1e6eb;
+  cursor: pointer;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding-bottom: 0.5rem;
+  padding-top: 0.5rem;
+  padding-left: 4.5rem; }
+  .history-item.is-active {
+    border: 1px solid #00abc9; }
+
+.history-item-icon {
+  float: right;
+  margin: 0 1.875rem 0 1.5rem; }
+  .history-item-icon svg {
+    fill: #00abc9; }
+
+.history-item-title {
+  margin: 0; }
+
+.preview {
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  background: #ebeef0 url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%205%205%22%3E%3Cg%20fill%3D%22%23D3DBE2%22%3E%3Crect%20width%3D%221%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E) 0/5px 5px;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 3;
+      -ms-flex: 3;
+          flex: 3;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-justify-content: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  position: relative; }
+
+.preview-iframe {
+  border: 0;
+  -webkit-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  height: 100%;
+  margin-bottom: 6rem;
+  transition: all 300ms cubic-bezier(0.605, 0.195, 0.175, 1);
+  width: 100%; }
+  .preview-iframe--desktop {
+    max-height: 100%;
+    max-width: 100%; }
+    .preview-iframe--desktop--flipped {
+      max-height: 100%;
+      max-width: 100%; }
+  .preview-iframe--mobile {
+    max-height: 480px;
+    max-width: 320px; }
+    .preview-iframe--mobile--flipped {
+      max-height: 320px;
+      max-width: 480px; }
+  .preview-iframe--tablet {
+    max-height: 1024px;
+    max-width: 768px; }
+    .preview-iframe--tablet--flipped {
+      max-height: 768px;
+      max-width: 1024px; }
+
+.preview-iframe-reload {
+  background-color: rgba(0, 0, 0, 0.3);
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0; }
+  .preview-iframe-reload .button {
+    left: 50%;
+    position: absolute;
+    top: 50%; }
+
+.preview-flashMessages {
+  position: absolute; }
+
+.previewControls {
+  display: inline-block; }
+  @media (min-width: 1320px) {
+    .previewControls {
+      left: 50%;
+      position: absolute;
+      top: 50%;
+      -webkit-transform: translateX(-50%) translateY(-50%);
+              transform: translateX(-50%) translateY(-50%); } }
+  .previewControls .button {
+    margin-bottom: 0; }
+    .previewControls .button.is-active {
+      background-color: #00abc9;
+      border-color: #00abc9; }
+      .previewControls .button.is-active svg {
+        fill: #fff; }
+  .previewControls .icon {
+    height: 1.71429rem;
+    width: 1.71429rem;
+    transition: -webkit-transform 0.5s ease;
+    transition: transform 0.5s ease;
+    transition: transform 0.5s ease, -webkit-transform 0.5s ease; }
+  .previewControls .icon--flipped {
+    -webkit-transform: rotate(-90deg);
+            transform: rotate(-90deg); }
+
+.themeVariations {
+  list-style: none;
+  margin-left: 0;
+  margin: 0; }
+  .themeVariations ul,
+  .themeVariations ol {
+    list-style: none;
+    margin-bottom: 0; }
+
+.themeVariations-item:not(:last-child) {
+  margin-bottom: 0.375rem; }
+
+.themeVariation {
+  border: #fff 1px solid;
+  border-radius: 2px;
+  color: #798289;
+  margin: 0 -0.75rem;
+  padding: 0.75rem;
+  text-align: left;
+  transition: all 200ms ease-out; }
+  .themeVariation.is-active {
+    border-color: #00abc9; }
+  .themeVariation .icon {
+    float: right; }
+
+.themeVariation-caption {
+  font-size: 0.85714rem;
+  margin-bottom: 0.375rem; }
+  .is-active .themeVariation-caption {
+    font-weight: 700; }
+  .themeVariation-caption svg {
+    fill: #00abc9; }
+
+.themeVariation-thumb {
+  background-size: cover;
+  border: 1px solid #e1e6eb;
+  display: inline-block;
+  width: 100%; }
+  .themeVariation-thumb::after {
+    content: "";
+    display: block;
+    padding-bottom: 70%; }
