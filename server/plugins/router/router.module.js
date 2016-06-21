@@ -1,7 +1,5 @@
 var Hoek = require('hoek'),
-    Path = require('path'),
     ThemeConfig = require('../../../lib/theme-config'),
-    Url = require('url'),
     internals = {
         options: {
             storeUrl: '',

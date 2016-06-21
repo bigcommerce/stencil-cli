@@ -21,4 +21,4 @@ import 'ng-common/dist/js/ng-common.min';
 import 'script!bcapp-pattern-lab/dist/js/bcapp-pattern-lab';
 
 // main app
-import 'ng-stencil-editor/build/js/ng-stencil-editor';
+import 'ng-stencil-editor/dist/js/ng-stencil-editor.min';

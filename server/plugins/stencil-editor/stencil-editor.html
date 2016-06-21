@@ -17,19 +17,29 @@
 
     angular.module('ng-common.bc-app', [])
         .constant('BC_APP_CONFIG', {
-            cdnPath: '{{{cdnPath}}}',
+            cdnPath: '{{{ cdnPath }}}',
             config: {
-                ShopPath: '{{{shopPath}}}'
+                ShopPath: '{{{ shopPath }}}'
+            },
+            storeInfo: {
+                information: {
+                    name: 'Stencil CLI'
+                }
             },
             isProduction: false
         })
         .constant('BC_SEED_DATA', {
             basePath: '/api',
             svgPath: '/dist/bcapp-pattern-lab/svg/icons/',
-            disableHeartbeat: true
+            disableHeartbeat: true,
+            seedActiveTheme: {
+                themeName: '{{ themeName }}',
+                variationName: '{{ variationName }}',
+                displayVersion: '{{ displayVersion }}'
+            }
         });
 
-    System.import('src/app/app.module.js').then(function() {    
+    System.import('src/app/app.module.js').then(function() {
         angular.bootstrap(document.getElementById('micro-app-ng-stencil-editor'), ['ng-stencil-editor']);
     });
 </script>
