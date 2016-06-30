@@ -82,7 +82,7 @@ internals.registerRoutes = function(server, next) {
             path: internals.paths.staticAssets,
             handler: {
                 directory: {
-                    path: './assets'
+                    path: Path.join(internals.options.themePath, 'assets')
                 }
             },
             config: {

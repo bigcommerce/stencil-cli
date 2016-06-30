@@ -17,15 +17,9 @@ var stencilToken = require('../server/lib/stencil-token');
 var Url = require('url');
 var Wreck = require('wreck');
 var jsonLint = require('../lib/json-lint');
-var themePath = process.cwd();
 var allowedCssCompilers = ['scss', 'less'];
 var browserSyncPort;
 var cssCompilerDir;
-var cssWatchBaseDir = Path.join(themePath, 'assets/');
-var templatePath = Path.join(themePath, 'templates');
-var dotStencilFilePath = Path.join(themePath, '.stencil');
-var stencilConfigFilePath = Path.join(themePath, 'stencil.conf.js');
-var themeConfigPath = Path.join(themePath, 'config.json');
 var dotStencilFile;
 var isTopLevelCssRegex;
 var stencilServerPort;
@@ -40,12 +34,20 @@ Program
     .version(Pkg.version)
     .option('-o, --open', 'Automatically open default browser')
     .option('-v, --variation [name]', 'Set which theme variation to use while developing')
+    .option('-p, --path [path]', 'Path to theme')
     .option('-t, --test', 'Enable QA mode which will bundle all javascript for speed to test locally')
     .option('--tunnel', 'Create a tunnel URL which points to your local server that anyone can use.')
     .option('-e, --theme-editor', 'Run Theme Editor server')
     .option('-n, --no-cache', 'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.')
     .option('--theme-editor-port [port]', 'Run the Theme Editor on a different port')
     .parse(process.argv);
+
+var themePath = Program.path ? Path.resolve(Program.path) : process.cwd();
+var cssWatchBaseDir = Path.join(themePath, 'assets/');
+var templatePath = Path.join(themePath, 'templates');
+var dotStencilFilePath = Path.join(themePath, '.stencil');
+var stencilConfigFilePath = Path.join(themePath, 'stencil.conf.js');
+var themeConfigPath = Path.join(themePath, 'config.json');
 
 if (!fileExist(dotStencilFilePath)) {
     return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
@@ -182,7 +184,8 @@ function startServer() {
         variationIndex: themeConfig.variationIndex || 0,
         stencilEditorEnabled: Program.themeEditor,
         stencilEditorPort: Program.themeEditorPort || 8181,
-        useCache: Program.cache
+        useCache: Program.cache,
+        themePath: themePath
     };
 
     Server(params, function (err) {
@@ -226,7 +229,7 @@ function startServer() {
                     !relativePath.match(/\//) && isTopLevelCssRegex.test(relativePath)
                 ) {
                     basename = Path.basename(file, '.' + configuration.css_compiler);
-                    changedFile = Path.join(process.cwd(), 'assets/css', basename + '.css');
+                    changedFile = Path.join(themePath, 'assets/css', basename + '.css');
                     Bs.reload(changedFile);
                     // Only reload top level files if this is a change event and it's in a sub directory
                 } else if (event === 'change') {
@@ -300,7 +303,7 @@ function startServer() {
     });
 
     if (stencilConfig && typeof(stencilConfig.development) === 'function') {
-        stencilConfig.development(Bs);
+        stencilConfig.development({path: themePath}, Bs);
     }
 }
 
@@ -362,7 +365,7 @@ function reloadTopLevelCss(cssCompilerDir) {
             return isTopLevelCssRegex.test(file);
         }).forEach(function (file) {
             basename = Path.basename(file, '.' + configuration.css_compiler);
-            changedFile = Path.join(process.cwd(), 'assets/css', basename + '.css');
+            changedFile = Path.join(themePath, 'assets/css', basename + '.css');
 
             Bs.reload(changedFile);
         });

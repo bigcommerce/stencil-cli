@@ -22,10 +22,13 @@ module.exports = function(options, callback) {
     config.plugins['./plugins/router/router.module'].apiKey = options.dotStencilFile.apiKey;
     config.plugins['./plugins/router/router.module'].port = options.dotStencilFile.port;
     config.plugins['./plugins/router/router.module'].staplerUrl = options.dotStencilFile.staplerUrl;
+    config.plugins['./plugins/router/router.module'].themePath = options.themePath;
     config.plugins['./plugins/renderer/renderer.module'].useCache = options.useCache;
     config.plugins['./plugins/renderer/renderer.module'].username = options.dotStencilFile.username;
     config.plugins['./plugins/renderer/renderer.module'].token = options.dotStencilFile.token;
+    config.plugins['./plugins/renderer/renderer.module'].themePath = options.themePath;
     config.plugins['./plugins/renderer/renderer.module'].customLayouts = options.dotStencilFile.customLayouts;
+    config.plugins['./plugins/theme-assets/theme-assets.module'].themePath = options.themePath;
 
     Glue.compose(config, {relativeTo: __dirname}, function (err, server) {
         if (err) {
