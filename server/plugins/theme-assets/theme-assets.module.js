@@ -13,6 +13,7 @@ var Boom = require('boom'),
 
 module.exports.register = function (server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);
+    console.log(options);
     internals.options.assetsBasePath = Path.join(internals.options.themePath, 'assets');
 
     internals.stencilStyles = new StencilStyles();
