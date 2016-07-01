@@ -229,7 +229,7 @@ function startServer() {
                     !relativePath.match(/\//) && isTopLevelCssRegex.test(relativePath)
                 ) {
                     basename = Path.basename(file, '.' + configuration.css_compiler);
-                    changedFile = Path.join(themePath, 'assets/css', basename + '.css');
+                    changedFile = Path.join(themePath, 'assets', 'css', basename + '.css');
                     Bs.reload(changedFile);
                     // Only reload top level files if this is a change event and it's in a sub directory
                 } else if (event === 'change') {
