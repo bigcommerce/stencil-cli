@@ -21,7 +21,8 @@ lab.describe('Renderer Plugin', function () {
                 username: 'testUser',
                 token: '6832b1c755bb9de13aa8990216a69a7623043fd7',
                 useCache: false
-            }
+            },
+            themePath: 'test/path'
         },
         server,
         wreckRequestStub,
