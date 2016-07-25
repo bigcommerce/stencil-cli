@@ -11,11 +11,11 @@ module.exports = function (data, assembler) {
             paper,
             templatePath;
 
+        var paper = new Paper(data.context.settings, data.context.theme_settings, assembler);
+
         // Set the environment to dev
         data.context.in_development = true;
         data.context.in_production = false;
-
-        paper = new Paper(assembler);
 
         paper.addDecorator(internals.makeDecorator(request, data.context));
 
