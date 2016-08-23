@@ -267,7 +267,7 @@ internals.getResourceConfig = function (data, request, configuration) {
         frontmatterContent,
         rawTemplate,
         resourcesConfig = {},
-        templatePath = internals.getTemplatePath(request.path, data);
+        templatePath = data.template_file;
 
     // If the requested template is not an array, we parse the Frontmatter
     // If it is an array, then it's an ajax request using `render_with` with multiple components
