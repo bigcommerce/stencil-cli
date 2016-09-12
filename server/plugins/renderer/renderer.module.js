@@ -346,8 +346,17 @@ internals.getTemplatePath = function (path, data) {
 
     if (internals.validCustomTemplatePageTypes.indexOf(pageType) >= 0 && _.isPlainObject(customLayouts[pageType])) {
         templatePath = _.findKey(customLayouts[pageType], function(p) {
-            // remove trailing slashes to compare
-            return p.replace(/\/$/, '') === path.replace(/\/$/, '');
+            // normalize input to an array
+            if (typeof p === 'string') {
+              p = [p];
+            }
+
+            var matches = p.filter(function(url) {
+              // remove trailing slashes to compare
+              return url.replace(/\/$/, '') === path.replace(/\/$/, '');
+            });
+
+            return matches.length > 0;
         });
 
         if (templatePath) {
