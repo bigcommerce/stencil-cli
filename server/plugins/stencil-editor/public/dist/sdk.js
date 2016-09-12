@@ -709,7 +709,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * JavaScript Cookie v2.1.1
+	 * JavaScript Cookie v2.1.2
 	 * https://github.com/js-cookie/js-cookie
 	 *
 	 * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
@@ -803,7 +803,6 @@
 
 				for (; i < cookies.length; i++) {
 					var parts = cookies[i].split('=');
-					var name = parts[0].replace(rdecode, decodeURIComponent);
 					var cookie = parts.slice(1).join('=');
 
 					if (cookie.charAt(0) === '"') {
@@ -811,6 +810,7 @@
 					}
 
 					try {
+						var name = parts[0].replace(rdecode, decodeURIComponent);
 						cookie = converter.read ?
 							converter.read(cookie, name) : converter(cookie, name) ||
 							cookie.replace(rdecode, decodeURIComponent);
@@ -1137,14 +1137,16 @@
 	            return reloadPage();
 	        }
 
-	        function setCookieHandler(trans, data) {
-	            var configurationId = JSON.parse(data).configurationId;
+	        function setCookieHandler(trans, jsonData) {
+	            var data = JSON.parse(jsonData);
+	            var configurationId = data.configurationId;
+	            var versionId = data.versionId;
 
-	            return setCookie(configurationId);
+	            return setCookie(configurationId, versionId);
 	        }
 
 	        function onFocusHandler() {
-	            setCookie(_configurationId);
+	            setCookie(_configurationId, _versionId);
 	        }
 	    }
 
@@ -1238,12 +1240,19 @@
 	    /**
 	     * Sets the cookie
 	     * @param {string} configurationId
+	     * @param {string} versionId
 	     */
-	    function setCookie(configurationId) {
-	        _configurationId = configurationId;
+	    function setCookie(configurationId, versionId) {
+	        if (configurationId) {
+	            _configurationId = configurationId;
+	        }
+
+	        if (versionId) {
+	            _versionId = versionId;
+	        }
 
 	        // Adding a dot because cookie set by bcapp also adds a dot
-	        Cookies.set(_cookieName, _versionId + '@' + configurationId, {
+	        Cookies.set(_cookieName, _versionId + '@' + _configurationId, {
 	            domain: _cookieDomain
 	        });
 	    }

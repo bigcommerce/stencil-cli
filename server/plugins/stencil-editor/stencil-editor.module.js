@@ -4,12 +4,13 @@ var Path = require('path');
 var ThemeConfig = require('../../../lib/theme-config');
 var handlers = {};
 var internals = {
-    options: {}    
+    options: {}
 };
+var themeConfig = ThemeConfig.getInstance();
 
 module.exports.register = function (server, options, next) {
+    var configurationId;
     var variationId;
-    var themeConfig = ThemeConfig.getInstance();
     var routesConfig = {
         state: {
             parse: false // do not parse cookies
@@ -30,6 +31,7 @@ module.exports.register = function (server, options, next) {
     options.themeServer.ext('onRequest', handlers.onRequest);
 
     // When using stencil-cli variationId = configurationId
+    configurationId = themeConfig.variationIndex + 1;
     variationId = themeConfig.variationIndex + 1;
 
     server.route([
@@ -38,7 +40,7 @@ module.exports.register = function (server, options, next) {
             path: '/',
             config: routesConfig,
             handler: function(request, reply) {
-                reply.redirect('/theme-editor/theme/' + variationId);
+                reply.redirect('/theme-editor/theme/' + variationId + '/' + configurationId);
             }
         },
         {
@@ -53,9 +55,19 @@ module.exports.register = function (server, options, next) {
         },
         {
             method: 'GET',
-            path: '/theme-editor/{versionId}/{variationId}',
+            path: '/admin/events/stencil',
             config: routesConfig,
-            handler: handlers.home
+            handler: function(request, reply) {
+                reply().code(204);
+            }
+        },
+        {
+            method: 'GET',
+            path: '/theme-editor/{versionId}/{variationId}/{configurationId}',
+            config: routesConfig,
+            handler: function(request, reply) {
+                handlers.home(request, reply);
+            }
         },
         {
             method: 'GET',
@@ -79,28 +91,36 @@ module.exports.register = function (server, options, next) {
         },
         {
             method: 'GET',
-            path: '/api/variations/{variationId}',
+            path: '/api/themeeditor/variations/{variationId}',
             config: routesConfig,
             handler: require('./api/getVariations')(internals.options, themeConfig)
         },
         {
             method: 'GET',
-            path: '/api/configurations/{configurationId}',
+            path: '/api/themeeditor/configurations/{configurationId}',
             config: routesConfig,
             handler: require('./api/getConfigurations')(internals.options, themeConfig)
         },
         {
             method: 'POST',
-            path: '/api/configurations',
+            path: '/api/themeeditor/configurations',
             config: routesConfig,
             handler: require('./api/postConfigurations')(internals.options, themeConfig)
         },
         {
             method: 'GET',
-            path: '/api/versions/{versionId}',
+            path: '/api/themeeditor/versions/{versionId}',
             config: routesConfig,
             handler: require('./api/getVersions')(internals.options, themeConfig)
-        }
+        },
+        {
+            method: 'GET',
+            path: '/api/marketplace/variations/{variationId}/history',
+            config: routesConfig,
+            handler: function(request, reply) {
+                reply().code(200);
+            }
+        },
     ]);
 
     return next();
@@ -138,7 +158,10 @@ handlers.home = function(request, reply) {
 
     reply.view('stencil-editor', {
         shopPath: shopPath,
-        cdnPath: cdnPath
+        cdnPath: cdnPath,
+        themeName: themeConfig.getName(),
+        variationName: themeConfig.getVariationName(),
+        displayVersion: themeConfig.getVersion()
     });
 };
 

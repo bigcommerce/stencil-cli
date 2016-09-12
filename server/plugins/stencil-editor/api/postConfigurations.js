@@ -31,7 +31,7 @@ module.exports = function (options, themeConfig) {
         }
 
         themeConfig.setVariation(variationIndex);
-            
+
         themeConfig.updateConfig(payload.settings, saveToFile);
 
         Cache.clear();
