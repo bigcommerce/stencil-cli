@@ -923,6 +923,12 @@
 	            domain: _cookieDomain
 	        });
 
+	        if (_cookieDomain.substr(0, 4) === 'www.') {
+	            Cookies.remove(_cookieName, {
+	                domain: _cookieDomain.substr(3, _cookieDomain.length)
+	            });
+	        }
+
 	        reloadPage();
 	    }
 
