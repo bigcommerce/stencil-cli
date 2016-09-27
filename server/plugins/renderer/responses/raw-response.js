@@ -9,17 +9,21 @@ module.exports = function (request, data, headers, statusCode) {
 
     this.respond = function (request, reply) {
         var response;
+        var paylaod = Buffer.isBuffer(data) ? data.toString('utf8') : '';
+
         // TODO This will change when we build the new checkout in SFP.
         if (request.url.path.indexOf('/checkout.php') === 0 || request.url.path.indexOf('/finishorder.php') === 0) {
-            response = reply(internals.appendCss(data));
-        } else {
-            response = reply(data);
+            paylaod = internals.appendCss(paylaod);
         }
 
-        response.statusCode = statusCode;
+        response = reply(paylaod).code(statusCode);
+
+        response.header('content-length', Buffer.byteLength(paylaod));
 
         _.each(headers, function (value, name) {
-            response.header(name, value);
+            if (['transfer-encoding', 'content-length'].indexOf(name) === -1) {
+                response.header(name, value);
+            }
         });
 
         return response;
@@ -28,17 +32,12 @@ module.exports = function (request, data, headers, statusCode) {
 
 /**
  * Append checkout.css to override styles.
- * @param buffer
- * @returns {*}
+ * @param {string} payload
+ * @returns {string}
  */
+internals.appendCss = function (payload) {
+    var dom = cheerio.load(payload);
 
-internals.appendCss = function (buffer) {
-    if (buffer) {
-        var dom = cheerio.load(buffer);
-        dom('head').append('<link href="/stencil/'+ internals.stubActiveVersion + '/' + internals.stubActiveConfig + '/css/checkout.css" type="text/css" rel="stylesheet">');
-        return dom.html();
-    }
-
-    return false;
+    dom('head').append('<link href="/stencil/'+ internals.stubActiveVersion + '/' + internals.stubActiveConfig + '/css/checkout.css" type="text/css" rel="stylesheet">');
+    return dom.html();
 };
-
