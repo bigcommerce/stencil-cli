@@ -183,7 +183,6 @@ internals.parseResponse = function (bcAppData, request, response, responseArgs, 
     if (!_.has(bcAppData, 'pencil_response')) {
         // this is a raw response not emitted by TemplateEngine
         return callback(null, new Responses.RawResponse(
-            request,
             bcAppData,
             response.headers,
             response.statusCode
