@@ -181,6 +181,9 @@ internals.parseResponse = function (bcAppData, request, response, responseArgs, 
     var url = responseArgs.url;
 
     if (!_.has(bcAppData, 'pencil_response')) {
+
+        delete response.headers['x-frame-options'];
+
         // this is a raw response not emitted by TemplateEngine
         return callback(null, new Responses.RawResponse(
             bcAppData,
