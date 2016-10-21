@@ -7,9 +7,14 @@ var Program = require('commander');
 var JspmAssembler = require('../lib/jspm-assembler');
 var ThemeConfig = require('../lib/theme-config');
 var dotStencilFilePath = './.stencil';
+var versionCheck = require('../lib/version-check');
 
 Program
     .version(pkg.version)
     .parse(process.argv);
+
+if (!versionCheck()) {
+    return;
+}
 
 stencilInit(JspmAssembler, ThemeConfig, dotStencilFilePath);

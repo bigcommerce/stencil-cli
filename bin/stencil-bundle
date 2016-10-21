@@ -14,6 +14,7 @@ var Bundle = require('../lib/stencil-bundle');
 var stencilConfig;
 var stencilConfigFilePath = Path.join(themePath, 'stencil.conf.js');
 var themeConfig;
+var versionCheck = require('../lib/version-check');
 
 Program
     .version(pkg.version)
@@ -22,8 +23,11 @@ Program
     .option('-m, --marketplace', 'Runs extra bundle validations for partners who can create marketplace themes')
     .parse(process.argv);
 
-themeConfig = ThemeConfig.getInstance(themePath);
+if (!versionCheck()) {
+    return;
+}
 
+themeConfig = ThemeConfig.getInstance(themePath);
 
 if (fileExist(stencilConfigFilePath)) {
     stencilConfig = require(stencilConfigFilePath);

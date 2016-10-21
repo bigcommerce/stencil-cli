@@ -17,6 +17,7 @@ var stencilToken = require('../server/lib/stencil-token');
 var Url = require('url');
 var Wreck = require('wreck');
 var jsonLint = require('../lib/json-lint');
+var versionCheck = require('../lib/version-check');
 var themePath = process.cwd();
 var allowedCssCompilers = ['scss', 'less'];
 var browserSyncPort;
@@ -46,6 +47,11 @@ Program
     .option('-n, --no-cache', 'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.')
     .option('--theme-editor-port [port]', 'Run the Theme Editor on a different port')
     .parse(process.argv);
+
+
+if (!versionCheck()) {
+    return;
+}
 
 if (!fileExist(dotStencilFilePath)) {
     return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
