@@ -22,6 +22,11 @@ function RawResponse(data, headers, statusCode) {
             payload = appendCss(payload);
         }
 
+        // To be removed when we go to Phase 3
+        if (request.url.path.startsWith('/checkout')) {
+            payload = payload.replace(/http[s]?:\/\/.*?\/optimized-checkout.css/, '/stencil/' + internals.stubActiveVersion + '/' + internals.stubActiveConfig + '/css/optimized-checkout.css');
+        }
+
         response = reply(payload).code(statusCode);
 
         response.header('content-length', Buffer.byteLength(payload));
