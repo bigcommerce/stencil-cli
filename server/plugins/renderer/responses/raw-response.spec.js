@@ -7,12 +7,12 @@ var Lab = require('lab');
 var Path = require('path');
 var sinon = require('sinon');
 var Wreck = require('wreck');
-var RawRespomse = require('./raw-response');
+var RawResponse = require('./raw-response');
 var lab = exports.lab = Lab.script();
 var expect = Code.expect;
 var it = lab.it;
 
-lab.describe('RawRespomse', function () {
+lab.describe('RawResponse', function () {
     var data = new Buffer('<html><head></head><body>hello</body></html>');
 
     var headers = {
@@ -43,9 +43,9 @@ lab.describe('RawRespomse', function () {
     lab.describe('respond()', function () {
 
         it('should respond', function (done) {
-            var rawRespomse = new RawRespomse(data, headers, statusCode);
+            var rawResponse = new RawResponse(data, headers, statusCode);
 
-            rawRespomse.respond(request, reply);
+            rawResponse.respond(request, reply);
 
             expect(reply.called).to.be.true();
 
@@ -54,9 +54,9 @@ lab.describe('RawRespomse', function () {
 
         it('should append checkout css if is the checkout page', function (done) {
             request.url.path = '/checkout.php?blah=blah';
-            var rawRespomse = new RawRespomse(data, headers, statusCode);
+            var rawResponse = new RawResponse(data, headers, statusCode);
 
-            rawRespomse.respond(request, reply);
+            rawResponse.respond(request, reply);
 
             expect(reply.lastCall.args[0]).to.contain('<link href="/stencil/theme/2/css/checkout.css"');
 
@@ -64,9 +64,9 @@ lab.describe('RawRespomse', function () {
         });
 
         it('should not append transfer-encoding header', function (done) {
-            var rawRespomse = new RawRespomse(data, headers, statusCode);
+            var rawResponse = new RawResponse(data, headers, statusCode);
 
-            rawRespomse.respond(request, reply);
+            rawResponse.respond(request, reply);
 
             expect(response.header.neverCalledWith('transfer-encoding')).to.be.true();
             expect(response.header.calledWith('content-length')).to.be.true();

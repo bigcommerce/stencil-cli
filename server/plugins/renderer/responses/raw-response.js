@@ -14,17 +14,22 @@ function RawResponse(data, headers, statusCode) {
 
     this.respond = function (request, reply) {
         var response;
-        var paylaod = Buffer.isBuffer(data) ? data.toString('utf8') : '';
+        var payload = Buffer.isBuffer(data) ? data.toString('utf8') : '';
         internals.stubActiveConfig = request.app.themeConfig.variationIndex + 1;
 
         // TODO This will change when we build the new checkout in SFP.
-        if (request.url.path.indexOf('/checkout.php') === 0 || request.url.path.indexOf('/finishorder.php') === 0) {
-            paylaod = appendCss(paylaod);
+        if (request.url.path.startsWith('/checkout.php') || request.url.path.startsWith('/finishorder.php')) {
+            payload = appendCss(payload);
         }
 
-        response = reply(paylaod).code(statusCode);
+        // To be removed when we go to Phase 3
+        if (request.url.path.startsWith('/checkout')) {
+            payload = payload.replace(/http[s]?:\/\/.*?\/optimized-checkout.css/, '/stencil/' + internals.stubActiveVersion + '/' + internals.stubActiveConfig + '/css/optimized-checkout.css');
+        }
 
-        response.header('content-length', Buffer.byteLength(paylaod));
+        response = reply(payload).code(statusCode);
+
+        response.header('content-length', Buffer.byteLength(payload));
 
         _.each(headers, function (value, name) {
             if (['transfer-encoding', 'content-length'].indexOf(name) === -1) {
