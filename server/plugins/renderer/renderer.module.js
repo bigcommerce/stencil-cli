@@ -390,6 +390,7 @@ internals.getPencilResponse = function (data, request, response, configuration) 
     data.context.settings['cdn_url'] = '';
     data.context.settings['theme_version_id'] = 'theme';
     data.context.settings['theme_config_id'] = request.app.themeConfig.variationIndex + 1;
+    data.context.settings['theme_session_id'] = null;
 
     return new Responses.PencilResponse({
         template_file: internals.getTemplatePath(request.path, data),
