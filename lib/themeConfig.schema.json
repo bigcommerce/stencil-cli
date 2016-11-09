@@ -74,6 +74,9 @@
       },
       "additionalProperties": true
     },
+    "read_only_files": {
+      "type": "array"
+    },
     "variations": {
       "type": "array",
       "items": {
