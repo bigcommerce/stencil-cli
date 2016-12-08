@@ -32,6 +32,9 @@ module.exports.register.attributes = {
     version: '0.0.1'
 };
 
+function isAmpRequest(request) {
+    return /^\/amp\/(.*)/.test(request.path);
+}
 /**
  * Renderer Route Handler
  *
@@ -39,6 +42,8 @@ module.exports.register.attributes = {
  * @param reply
  */
 internals.implementation = function (request, reply) {
+    request.isAmp = /^\/amp\/(.*)/.test(request.path);
+
     internals.getResponse(request, function (err, response) {
         if (err) {
             return reply(Boom.badImplementation(err));
@@ -97,7 +102,7 @@ internals.getResponse = function (request, callback) {
     url = Url.format({
         protocol: staplerUrlObject.protocol,
         host: staplerUrlObject.host,
-        pathname: urlObject.pathname,
+        pathname: request.isAmp ? urlObject.pathname.substr(4) : urlObject.pathname,
         search: urlObject.search
     });
 
@@ -275,6 +280,10 @@ internals.getResourceConfig = function (data, request, configuration) {
     // If it is an array, then it's an ajax request using `render_with` with multiple components
     // which don't have Frontmatter and needs to get it's config from the `stencil-config` header.
     if (templatePath && !_.isArray(templatePath)) {
+        if (request.isAmp) {
+            templatePath = Path.join('amp', templatePath);
+        }
+
         rawTemplate = TemplateAssembler.getTemplateContentSync(templatePath);
 
         frontmatterMatch = rawTemplate.match(frontmatterRegex);
@@ -402,8 +411,9 @@ internals.getPencilResponse = function (data, request, response, configuration) 
         method: request.method,
         acceptLanguage: request.headers['accept-language'],
         headers: response.headers,
-        statusCode: response.statusCode
+        statusCode: response.statusCode,
     }, internals.themeAssembler);
+    return
 };
 
 /**
@@ -422,6 +432,10 @@ internals.getHeaders = function (request, options, config) {
     // If stencil-config header already set, we don't want to overwrite it
     if (!request.headers['stencil-config'] && config) {
         request.headers['stencil-config'] = JSON.stringify(config);
+    }
+
+    if (request.isAmp) {
+        request.headers['x-amp-request'] = true;
     }
 
     // Merge in current stencil-options with passed in options
@@ -455,6 +469,7 @@ internals.getHeaders = function (request, options, config) {
  */
 internals.themeAssembler = {
     getTemplates: function (path, processor, callback) {
+
         TemplateAssembler.assemble(path, function (err, templates) {
             if (templates[path]) {
                 // Check if the string includes frntmatter configutation

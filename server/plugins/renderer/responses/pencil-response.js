@@ -1,7 +1,8 @@
-var _ = require('lodash'),
-    Paper = require('@bigcommerce/stencil-paper'),
-    Url = require('url'),
-    internals = {};
+const Path = require('path');
+const _ = require('lodash');
+const Paper = require('@bigcommerce/stencil-paper');
+const Url = require('url');
+const internals = {};
 
 module.exports = function (data, assembler) {
     this.respond = function (request, reply) {
@@ -82,6 +83,10 @@ module.exports = function (data, assembler) {
 
 internals.getTemplatePath = function (request, data) {
     var path = data.template_file;
+
+    if (request.isAmp) {
+        path = Path.join('amp', path);
+    }
 
     if (request.headers['stencil-options']) {
         var options = JSON.parse(request.headers['stencil-options']);
