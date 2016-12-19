@@ -34,7 +34,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["fully_responsive", "mega_navigation", "multi_tiered_sidebar_menu", "masonry_design", "frontpage_slideshow", "quick_add_to_cart", "switchable_product_view", "product_comparison_table", "complex_search_filtering", "customizable_product_selector", "cart_suggested_products", "free_customer_support", "free_theme_upgrades", "high_res_product_images", "product_filtering", "advanced_quick_view", "product_showcase", "persistent_cart", "one_page_check_out", "product_videos"]
+            "enum": ["fully_responsive", "mega_navigation", "multi_tiered_sidebar_menu", "masonry_design", "frontpage_slideshow", "quick_add_to_cart", "switchable_product_view", "product_comparison_table", "complex_search_filtering", "customizable_product_selector", "cart_suggested_products", "free_customer_support", "free_theme_upgrades", "high_res_product_images", "product_filtering", "advanced_quick_view", "product_showcase", "persistent_cart", "one_page_check_out", "customized_checkout", "product_videos"]
           },
           "uniqueItems": true,
           "minItems": 1
