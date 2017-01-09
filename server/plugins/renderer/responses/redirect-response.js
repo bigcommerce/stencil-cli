@@ -7,8 +7,21 @@ module.exports = function (location, headers, statusCode) {
 
         response.statusCode = statusCode;
 
-        _.each(headers, function (value, name) {
-            if (name !== 'transfer-encoding') {
+        _.each(headers, (value, name) => {
+            switch (name) {
+            case 'transfer-encoding':
+                break;
+
+            case 'set-cookie':
+                response.header('set-cookie', value.map(cookie => {
+                    // remove domain & secure attributes
+                    return cookie
+                        .replace(/; Secure$/, '')
+                        .replace(/; domain=(.+)$/, '');
+                }));
+                break;
+
+            default:
                 response.header(name, value);
             }
         });
