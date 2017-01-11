@@ -7,7 +7,6 @@ module.exports = function (data, assembler) {
     this.respond = function (request, reply) {
         var response,
             output,
-            html,
             paper,
             templatePath;
 
@@ -31,44 +30,7 @@ module.exports = function (data, assembler) {
                 return reply(data.context);
             }
 
-            if (data.remote || _.isArray(templatePath)) {
-
-                if (data.remote) {
-                    data.context = _.extend({}, data.context, data.remote_data);
-                }
-
-                if (templatePath) {
-                    // if multiple render_with
-                    if (_.isArray(templatePath)) {
-                        // if templatePath is an array ( multiple templates using render_with option)
-                        // compile all the template required files into a hash table
-                        html = templatePath.reduce(function(table, file) {
-                            table[file] = paper.render(file, data.context);
-
-                            return table;
-                        }, {});
-                    } else {
-                        html = paper.render(templatePath, data.context);
-                    }
-
-                    if (data.remote) {
-                        // combine the context & rendered html
-                        output = {
-                            data: data.remote_data,
-                            content: html
-                        };
-                    } else {
-                        output = html;
-                    }
-                } else {
-                    output = {
-                        data: data.remote_data
-                    };
-                }
-            } else {
-                output = paper.render(templatePath, data.context);
-            }
-
+            output = paper.renderTheme(templatePath, data);
             response = reply(output);
             response.code(data.statusCode);
 
