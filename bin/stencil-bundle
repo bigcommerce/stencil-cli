@@ -47,13 +47,11 @@ if (!themeConfig.configExists()) {
 
 configuration = themeConfig.getRawConfig();
 
-bundle = new Bundle(
-    themePath,
-    themeConfig,
-    configuration,
-    stencilConfig,
-    {cmd: Program}
-);
+bundle = new Bundle(themePath, themeConfig, configuration, stencilConfig, {
+    marketplace: Program.marketplace,
+    dest: Program.dest,
+    name: Program.name,
+});
 
 /**
  * Check if file exist syncronous
@@ -69,4 +67,10 @@ function fileExist(path) {
     }
 }
 
-bundle.initBundle();
+bundle.initBundle((err, bundlePath) => {
+    if (err) {
+        throw err;
+    }
+
+    console.log(`Bundled saved to: ${bundlePath.cyan}`);
+});

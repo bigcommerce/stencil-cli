@@ -17,7 +17,6 @@ var AsyncStub;
 var jspm = require('jspm');
 var themeConfigStub;
 var rawConfig;
-var options;
 var themeSchema = Fs.readFileSync((Path.join(themePath, 'schema.json'))).toString();
 var Bundle;
 
@@ -31,13 +30,9 @@ describe('Stencil Bundle', function () {
             "version": "1.1.0",
         };
 
-        options = {
-            cmd: {
-                marketplace: false
-            }
-        };
-
-        Bundle = new StencilBundle(themePath, themeConfigStub, rawConfig, null, options);
+        Bundle = new StencilBundle(themePath, themeConfigStub, rawConfig, null, {
+            marketplace: false,
+        });
         done();
     });
 

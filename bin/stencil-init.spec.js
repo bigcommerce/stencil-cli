@@ -7,7 +7,7 @@ var describe = lab.describe;
 var Inquirer = require('inquirer');
 var expect = Code.expect;
 var it = lab.it;
-var StencilInit = require('../../lib/stencil-init');
+var StencilInit = require('../lib/stencil-init');
 
 /**
  * Gets jspm assembler stub
@@ -56,4 +56,3 @@ describe('stencil init', function() {
         done();
     });
 });
-
