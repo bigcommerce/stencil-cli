@@ -1,38 +1,37 @@
 'use strict';
 
-var _ = require('lodash');
-var Code = require('code');
-var Hapi = require('hapi');
-var Lab = require('lab');
-var Path = require('path');
-var sinon = require('sinon');
-var Wreck = require('wreck');
-var RawResponse = require('./raw-response');
-var lab = exports.lab = Lab.script();
-var expect = Code.expect;
-var it = lab.it;
+const _ = require('lodash');
+const Code = require('code');
+const Hapi = require('hapi');
+const Lab = require('lab');
+const Path = require('path');
+const sinon = require('sinon');
+const Wreck = require('wreck');
+const RawResponse = require('./raw-response');
+const lab = exports.lab = Lab.script();
+const expect = Code.expect;
+const it = lab.it;
 
-lab.describe('RawResponse', function () {
-    var data = new Buffer('<html><head></head><body>hello</body></html>');
+lab.describe('RawResponse', () => {
+    const data = new Buffer('<html><head></head><body>hello</body></html>');
 
-    var headers = {
+    const headers = {
         'content-type': 'html/text',
     };
 
-    var statusCode = 200;
-
+    const statusCode = 200;
     var request;
     var response;
     var reply;
 
-    lab.beforeEach(function (done) {
+    lab.beforeEach(done => {
         request = {
             url: {path: '/'},
             app: {themeConfig: {variationIndex: 1}},
         };
 
         response = {
-            code: function () { return response; },
+            code: () => response,
             header: sinon.spy(),
         };
 
@@ -40,9 +39,8 @@ lab.describe('RawResponse', function () {
         done();
     });
 
-    lab.describe('respond()', function () {
-
-        it('should respond', function (done) {
+    lab.describe('respond()', () => {
+        it('should respond', done => {
             var rawResponse = new RawResponse(data, headers, statusCode);
 
             rawResponse.respond(request, reply);
@@ -52,7 +50,7 @@ lab.describe('RawResponse', function () {
             done();
         });
 
-        it('should append checkout css if is the checkout page', function (done) {
+        it('should append checkout css if is the checkout page', done => {
             request.url.path = '/checkout.php?blah=blah';
             var rawResponse = new RawResponse(data, headers, statusCode);
 
@@ -63,13 +61,12 @@ lab.describe('RawResponse', function () {
             done();
         });
 
-        it('should not append transfer-encoding header', function (done) {
+        it('should not append transfer-encoding header', done => {
             var rawResponse = new RawResponse(data, headers, statusCode);
 
             rawResponse.respond(request, reply);
 
             expect(response.header.neverCalledWith('transfer-encoding')).to.be.true();
-            expect(response.header.calledWith('content-length')).to.be.true();
             expect(response.header.calledWith('content-type')).to.be.true();
 
             done();
