@@ -1,16 +1,44 @@
-# Stencil CLI - Stencil Server emulator for local theme development
-[![Build Status](https://travis-ci.org/bigcommerce/stencil-cli.svg?branch=master)](https://travis-ci.org/bigcommerce/stencil-cli)
+# Stencil CLI
+[![npm (scoped)](https://img.shields.io/npm/v/@bigcommerce/stencil-cli.svg)](https://www.npmjs.com/package/@bigcommerce/stencil-cli) [![Build Status](https://travis-ci.org/bigcommerce/stencil-cli.svg?branch=master)](https://travis-ci.org/bigcommerce/stencil-cli)
+## BigCommerce server emulator for local theme development
 
 ### Install
+```
+$ npm install -g @bigcommerce/stencil-cli
+```
 
-`$ npm install -g bigcommerce/stencil-cli`
+For more details visit the [Installation Guide](https://stencil.bigcommerce.com/docs/installing-stencil-cli-1)
 
 ### Usage
+```
+
+  Usage: stencil [options] [command]
+
+
+  Commands:
+
+    init        Interactively create a .stencil file which configures how to run a BigCommerce store locally.
+    start       Starts up BigCommerce store using theme files in the current directory.
+    bundle      Bundles up the theme into a zip file which can be uploaded to BigCommerce.
+    release     Create a new release in the theme's github repository.
+    help [cmd]  display help for [cmd]
+
+  Options:
+
+    -h, --help     output usage information
+    -V, --version  output the version number
+```
 
 `$ stencil init` - Run this at the top level of your Stencil Theme.  It will ask you a few questions to get your started.  
-`$ stencil start` - Run this to start developing your theme.
+
+`$ stencil start` - This will run a local server so you can start developing your theme.
  - Run with `-o` or `--open` to automatically open up a browser.
  - While stencil is running, you can type `rs` and then hit enter to auto-reload all browsers. This is similar to Nodemon's `rs` option.
+ - Run with `-e` to load a local Theme Editor
+
+`$ stencil bundle` - This command will run some validations and then it will create a bundle zip file which can be uploaded to BigCommerce.
+
+`$ stencil release` - This command will tag a new version of your theme, create a [GitHub Release](https://help.github.com/articles/about-releases/) in your theme repository and upload the bundle file to the release assets. This is useful for tracking your changes in your Theme, and is the tool we use to create new releases in BigCommerce [Cornerstone](https://github.com/bigcommerce/stencil) theme
 
 ### BrowserSync
 

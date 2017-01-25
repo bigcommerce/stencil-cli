@@ -144,7 +144,7 @@ Wreck.get(
         } else if (payload.status !== 'ok') {
             console.error(
                 'Error: You are using an outdated version of stencil-cli, please run '.red +
-                '$ npm install -g bigcommerce/stencil-cli'.cyan
+                '$ npm install -g @bigcommerce/stencil-cli'.cyan
             );
         } else {
             stencilToken.getAuth({
