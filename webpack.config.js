@@ -10,6 +10,7 @@ var icons = [
     'ic-add',
     'ic-chevron-left',
     'ic-chevron-right',
+    'ic-delete',
     'ic-remove',
     'ic-phone-iphone',
     'ic-tablet-mac',

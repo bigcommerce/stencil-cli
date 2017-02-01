@@ -18,7 +18,7 @@ import 'angular-cache';
 import 'ng-common/dist/js/ng-common.min';
 
 // pattern lab js
-import 'script!bcapp-pattern-lab/dist/js/bcapp-pattern-lab';
+import 'script!bcapp-pattern-lab/dist/js/bcapp-pattern-lab.min';
 
 // main app
 import 'ng-stencil-editor/dist/js/ng-stencil-editor.min';

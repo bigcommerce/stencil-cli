@@ -48,9 +48,9 @@
 	'use strict';
 
 	window.Channel = __webpack_require__(3);
-	window.Cookies = __webpack_require__(17);
+	window.Cookies = __webpack_require__(41);
 
-	__webpack_require__(18);
+	__webpack_require__(42);
 
 /***/ },
 
@@ -705,22 +705,27 @@
 
 /***/ },
 
-/***/ 17:
+/***/ 41:
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * JavaScript Cookie v2.1.2
+	 * JavaScript Cookie v2.1.3
 	 * https://github.com/js-cookie/js-cookie
 	 *
 	 * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
 	 * Released under the MIT license
 	 */
 	;(function (factory) {
+		var registeredInModuleLoader = false;
 		if (true) {
 			!(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-		} else if (typeof exports === 'object') {
+			registeredInModuleLoader = true;
+		}
+		if (true) {
 			module.exports = factory();
-		} else {
+			registeredInModuleLoader = true;
+		}
+		if (!registeredInModuleLoader) {
 			var OldCookies = window.Cookies;
 			var api = window.Cookies = factory();
 			api.noConflict = function () {
@@ -781,9 +786,9 @@
 
 					return (document.cookie = [
 						key, '=', value,
-						attributes.expires && '; expires=' + attributes.expires.toUTCString(), // use expires attribute, max-age is not supported by IE
-						attributes.path    && '; path=' + attributes.path,
-						attributes.domain  && '; domain=' + attributes.domain,
+						attributes.expires ? '; expires=' + attributes.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+						attributes.path ? '; path=' + attributes.path : '',
+						attributes.domain ? '; domain=' + attributes.domain : '',
 						attributes.secure ? '; secure' : ''
 					].join(''));
 				}
@@ -837,7 +842,7 @@
 
 			api.set = api;
 			api.get = function (key) {
-				return api(key);
+				return api.call(api, key);
 			};
 			api.getJSON = function () {
 				return api.apply({
@@ -863,7 +868,7 @@
 
 /***/ },
 
-/***/ 18:
+/***/ 42:
 /***/ function(module, exports) {
 
 	'use strict';
