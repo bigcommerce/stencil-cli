@@ -1,30 +1,30 @@
-var Handlebars = require('handlebars');
-var Hoek = require('hoek');
-var Path = require('path');
-var ThemeConfig = require('../../../lib/theme-config');
-var handlers = {};
-var internals = {
-    options: {}
+const Handlebars = require('handlebars');
+const Hoek = require('hoek');
+const Path = require('path');
+const ThemeConfig = require('../../../lib/theme-config');
+const handlers = {};
+const internals = {
+    options: {},
 };
-var themeConfig = ThemeConfig.getInstance();
+const themeConfig = ThemeConfig.getInstance();
 
-module.exports.register = function (server, options, next) {
+module.exports.register = (server, options, next) => {
     var configurationId;
     var variationId;
-    var routesConfig = {
+    const routesConfig = {
         state: {
-            parse: false // do not parse cookies
-        }
+            parse: false, // do not parse cookies
+        },
     };
 
     internals.options = Hoek.applyToDefaults(internals.options, options);
 
     server.views({
         engines: {
-            html: Handlebars
+            html: Handlebars,
         },
         relativeTo: __dirname,
-        path: './'
+        path: './',
     });
 
     // On Request event handler to add the SDK to the footer
@@ -39,35 +39,25 @@ module.exports.register = function (server, options, next) {
             method: 'GET',
             path: '/',
             config: routesConfig,
-            handler: function(request, reply) {
-                reply.redirect('/theme-editor/theme/' + variationId + '/' + configurationId);
-            }
+            handler: (request, reply) => reply.redirect(`/theme-editor/theme/${variationId}/${configurationId}`),
         },
         {
             method: 'GET',
             path: '/admin/remote.php',
             config: routesConfig,
-            handler: function(request, reply) {
-                reply({
-                    status: 'ALIVE'
-                });
-            }
+            handler: (request, reply) => reply({ status: 'ALIVE' }),
         },
         {
             method: 'GET',
             path: '/admin/events/stencil',
             config: routesConfig,
-            handler: function(request, reply) {
-                reply().code(204);
-            }
+            handler: (request, reply) => reply().code(204),
         },
         {
             method: 'GET',
             path: '/theme-editor/{versionId}/{variationId}/{configurationId}',
             config: routesConfig,
-            handler: function(request, reply) {
-                handlers.home(request, reply);
-            }
+            handler: (request, reply) => handlers.home(request, reply),
         },
         {
             method: 'GET',
@@ -75,9 +65,9 @@ module.exports.register = function (server, options, next) {
             config: routesConfig,
             handler: {
                 directory: {
-                    path: Path.join(__dirname, './public')
-                }
-            }
+                    path: Path.join(__dirname, './public'),
+                },
+            },
         },
         {
             method: 'GET',
@@ -85,41 +75,45 @@ module.exports.register = function (server, options, next) {
             config: routesConfig,
             handler: {
                 directory: {
-                    path: Path.join(process.cwd(), 'meta')
-                }
-            }
+                    path: Path.join(process.cwd(), 'meta'),
+                },
+            },
         },
         {
             method: 'GET',
             path: '/api/themeeditor/variations/{variationId}',
             config: routesConfig,
-            handler: require('./api/getVariations')(internals.options, themeConfig)
+            handler: require('./api/getVariations')(internals.options, themeConfig),
         },
         {
             method: 'GET',
             path: '/api/themeeditor/configurations/{configurationId}',
             config: routesConfig,
-            handler: require('./api/getConfigurations')(internals.options, themeConfig)
+            handler: require('./api/getConfigurations')(internals.options, themeConfig),
         },
         {
             method: 'POST',
             path: '/api/themeeditor/configurations',
             config: routesConfig,
-            handler: require('./api/postConfigurations')(internals.options, themeConfig)
+            handler: require('./api/postConfigurations')(internals.options, themeConfig),
         },
         {
             method: 'GET',
-            path: '/api/themeeditor/versions/{versionId}',
+            path: '/admin/services/themes/stores/{hash}/versions/{versionId}',
             config: routesConfig,
-            handler: require('./api/getVersions')(internals.options, themeConfig)
+            handler: require('./api/getVersions')(internals.options, themeConfig),
         },
         {
             method: 'GET',
             path: '/api/marketplace/variations/{variationId}/history',
             config: routesConfig,
-            handler: function(request, reply) {
-                reply().code(200);
-            }
+            handler: (request, reply) => reply().code(200),
+        },
+        {
+            method: 'POST',
+            path: '/admin/events/stencil',
+            config: routesConfig,
+            handler: (request, reply) => reply().code(200),
         },
     ]);
 
@@ -132,15 +126,14 @@ module.exports.register = function (server, options, next) {
  * @param request
  * @param reply
  */
-handlers.onRequest = function(request, reply) {
+handlers.onRequest = (request, reply) => {
     request.app.decorators = request.app.decorators || [];
 
     // Only add the SDK if stencilEditor is a query parameter or the cookie preview_config_id is set
     if (request.query.stencilEditor || (request.headers.cookie || '').indexOf('stencil_preview') !== -1) {
-
         request.app.decorators.push(content => {
-            var scriptTags = `<script src="//localhost:${internals.options.stencilEditorPort}/dist/sdk.js"></script>\n`;
-            return content.replace(new RegExp('</body>'), scriptTags + '\n</body>');
+            const scriptTags = `<script src="//localhost:${internals.options.stencilEditorPort}/dist/sdk.js"></script>\n`;
+            return content.replace(new RegExp('</body>'), `${scriptTags}\n</body>`);
         });
     }
 
@@ -153,20 +146,20 @@ handlers.onRequest = function(request, reply) {
  * @param request
  * @param reply
  */
-handlers.home = function(request, reply) {
-    var shopPath = 'http://localhost:' + internals.options.stencilServerPort;
-    var cdnPath = '//localhost:' + internals.options.stencilEditorPort;
+handlers.home = (request, reply) => {
+    const shopPath = `http://localhost:${internals.options.stencilServerPort}`;
+    const cdnPath = `//localhost:${internals.options.stencilEditorPort}`;
 
     reply.view('stencil-editor', {
-        shopPath: shopPath,
-        cdnPath: cdnPath,
+        shopPath,
+        cdnPath,
         themeName: themeConfig.getName(),
         variationName: themeConfig.getVariationName(),
-        displayVersion: themeConfig.getVersion()
+        displayVersion: themeConfig.getVersion(),
     });
 };
 
 module.exports.register.attributes = {
     name: 'stencil-editor',
-    version: '0.0.1'
+    version: '0.0.1',
 };
