@@ -1,6 +1,6 @@
 {
   "name": "@bigcommerce/stencil-cli",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
   "engines": {
@@ -41,6 +41,7 @@
     "colors": "^1.0.3",
     "commander": "^2.7.1",
     "confidence": "^1.0.0",
+    "dateformat": "^2.0.0",
     "decompress-zip": "^0.2.0",
     "eslint": "^2.2.0",
     "eslint-config-airbnb": "^6.0.2",
