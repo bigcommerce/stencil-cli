@@ -19,6 +19,7 @@ module.exports = function (options, themeConfig) {
         var variation;
         var desktopScreenshot;
         var mobileScreenshot;
+        var version = themeConfig.getVersion();
 
         themeConfig.setVariation(variationIndex);
 
@@ -47,7 +48,7 @@ module.exports = function (options, themeConfig) {
                 id: variationIndex + 1,
                 themeName: themeConfig.getName(),
                 themeId: "theme",
-                versionId: themeConfig.getVersion(),
+                versionId: version,
                 variationName: themeConfig.getVariationName(),
                 price: themeConfig.getPrice(),
                 partner: {
@@ -68,7 +69,7 @@ module.exports = function (options, themeConfig) {
                 mobileScreenshot: mobileScreenshot,
                 demoUrl: variation.meta.demo_url,
                 documentationUrl: "string",
-                displayVersion: "string",
+                displayVersion: version,
                 releaseNotes: "string",
                 status: "draft",
                 relatedVariations: getRelatedVarations(options, themeConfig),
