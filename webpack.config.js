@@ -8,6 +8,8 @@ var distPath = Path.join(__dirname, 'server/plugins/stencil-editor/public/dist')
 // Icons used from pattern lab
 var icons = [
     'ic-add',
+    'ic-arrow-drop-up',
+    'ic-arrow-drop-down',
     'ic-chevron-left',
     'ic-chevron-right',
     'ic-delete',
