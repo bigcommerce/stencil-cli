@@ -297,7 +297,7 @@ function startServer() {
     });
 
     if (buildConfig.development) {
-        buildConfig.development(() => Bs.reload());
+        buildConfig.development(Bs);
     }
 }
 
