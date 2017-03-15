@@ -1,41 +1,37 @@
-var Code = require('code');
-var Fs = require('fs');
-var Sinon = require('sinon');
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var Inquirer = require('inquirer');
-var expect = Code.expect;
-var it = lab.it;
-var StencilInit = require('../lib/stencil-init');
+'use strict';
 
-/**
- * Gets jspm assembler stub
- *
- * @returns Sinon
- */
-function getJspmAssemblerStub() {
-    var jspmAssembler = Sinon.stub();
-    return jspmAssembler;
-}
+const Code = require('code');
+const Fs = require('fs');
+const Sinon = require('sinon');
+const Lab = require('lab');
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const Inquirer = require('inquirer');
+const expect = Code.expect;
+const it = lab.it;
+const StencilInit = require('../lib/stencil-init');
 
-/**
- * Gets theme config spy
- *
- * @returns Sinon
- */
-function getThemeConfigStub() {
-    var themeConfig = Sinon.spy();
-    return themeConfig;
-}
+describe('stencil init', () => {
+    let sandbox;
+    
+    lab.beforeEach(done => {
+        sandbox = Sinon.sandbox.create();
+        sandbox.stub(console, 'log');
+        sandbox.stub(console, 'error');
+        done();
+    });
 
-describe('stencil init', function() {
+    lab.afterEach(done => {
+        sandbox.restore();
+        done();
+    });
+
     var inquirer = Sinon.spy(Inquirer, 'prompt');
 
-    it('should call prompt', function(done) {
-        var dotStencilFile = '../_mocks/bin/dotStencilFile.json';
-        var jspmAssembler = getJspmAssemblerStub();
-        var themeConfig = getThemeConfigStub();
+    it('should call prompt', done => {
+        const dotStencilFile = '../_mocks/bin/dotStencilFile.json';
+        const jspmAssembler = Sinon.stub();
+        const themeConfig = Sinon.spy();
 
         StencilInit(jspmAssembler, themeConfig, dotStencilFile);
 
@@ -44,10 +40,10 @@ describe('stencil init', function() {
         done();
     });
 
-    it('should not call prompt with bad JSON from dotStencilFile', function(done) {
-        var dotStencilFile = '../_mocks/malformedSchema.json';
-        var jspmAssembler = getJspmAssemblerStub();
-        var themeConfig = getThemeConfigStub();
+    it('should not call prompt with bad JSON from dotStencilFile', done => {
+        const dotStencilFile = '../_mocks/malformedSchema.json';
+        const jspmAssembler = Sinon.stub();
+        const themeConfig = Sinon.spy();
 
         StencilInit(jspmAssembler, themeConfig, dotStencilFile);
 

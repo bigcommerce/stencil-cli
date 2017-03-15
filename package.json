@@ -7,8 +7,8 @@
     "node": ">= 4.0.0"
   },
   "scripts": {
-    "test": "lab server -t 80 -l -e 'development' -P spec",
-    "test-cov-html": "lab server -r html -o coverage.html -P spec"
+    "test": "lab bin/ server/ lib/ -t 80 -l -e 'development' -P spec",
+    "test-cov-html": "lab bin/ server/ lib/ -r html -o coverage.html -P spec"
   },
   "bin": {
     "stencil": "./bin/stencil",
