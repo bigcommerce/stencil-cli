@@ -45,8 +45,6 @@ if (process.send) {
             production();
         }
     });
-
-    // process.send('ready');
 }
 
 module.exports = { watchOptions };
