@@ -13,6 +13,7 @@ var Pkg = require('../package.json');
 var Program = require('commander');
 var Server = require('../server');
 var ThemeConfig = require('../lib/theme-config');
+var buildConfig = require('../lib/build-config');
 var stencilToken = require('../server/lib/stencil-token');
 var Url = require('url');
 var Wreck = require('wreck');
@@ -25,12 +26,10 @@ var cssCompilerDir;
 var cssWatchBaseDir = Path.join(themePath, 'assets/');
 var templatePath = Path.join(themePath, 'templates');
 var dotStencilFilePath = Path.join(themePath, '.stencil');
-var stencilConfigFilePath = Path.join(themePath, 'stencil.conf.js');
 var themeConfigPath = Path.join(themePath, 'config.json');
 var dotStencilFile;
 var isTopLevelCssRegex;
 var stencilServerPort;
-var stencilConfig;
 var themeConfig;
 var configuration;
 var staplerUrl;
@@ -55,10 +54,6 @@ if (!versionCheck()) {
 
 if (!fileExist(dotStencilFilePath)) {
     return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
-}
-
-if (fileExist(stencilConfigFilePath)) {
-    stencilConfig = require(stencilConfigFilePath);
 }
 
 if (!fileExist(Path.join(themePath, 'config.json'))) {
@@ -220,7 +215,7 @@ function startServer() {
          * When a file in a sub directory changes, we have to recompile all top level files because
          * more than one could have included the changed file.
          */
-        Bs.watch(cssCompilerDir, function (event, file) {
+        Bs.watch(cssCompilerDir, (event, file) => {
             var relativePath,
                 changedFile,
                 basename;
@@ -241,7 +236,7 @@ function startServer() {
             }
         });
 
-        Bs.watch('config.json', function (event) {
+        Bs.watch('config.json', (event) => {
             if (event === 'change') {
                 try {
                     configuration = themeConfig.getConfig();
@@ -253,8 +248,8 @@ function startServer() {
             }
         });
 
-        Bs.watch(templatePath, {ignoreInitial: true}, function () {
-            assembleTemplates(templatePath, function(err, results) {
+        Bs.watch(templatePath, {ignoreInitial: true}, () => {
+            assembleTemplates(templatePath, (err, results) => {
                 if (err) {
                     return console.error(err);
                 }
@@ -267,35 +262,31 @@ function startServer() {
             })
         });
 
-        if (stencilConfig && stencilConfig.watchOptions && stencilConfig.watchOptions.files) {
-            watchFiles = stencilConfig.watchOptions.files;
+        if (buildConfig.watchOptions && buildConfig.watchOptions.files) {
+            watchFiles = buildConfig.watchOptions.files;
         }
 
-        if (stencilConfig && stencilConfig.watchOptions && stencilConfig.watchOptions.ignored) {
-            watchIgnored = stencilConfig.watchOptions.ignored;
+        if (buildConfig.watchOptions && buildConfig.watchOptions.ignored) {
+            watchIgnored = buildConfig.watchOptions.ignored;
         }
 
         Bs.init({
             open: !!Program.open,
             port: browserSyncPort,
-            files: watchFiles.map(function (val) {
-                return Path.join(themePath, val);
-            }),
+            files: watchFiles.map(val => Path.join(themePath, val)),
             watchOptions: {
                 ignoreInitial: true,
-                ignored: watchIgnored.map(function (val) {
-                    return Path.join(themePath, val);
-                })
+                ignored: watchIgnored.map(val => Path.join(themePath, val)),
             },
             proxy: "localhost:" + stencilServerPort,
-            tunnel: !!Program.tunnel
+            tunnel: !!Program.tunnel,
         });
 
         // Handle manual reloading of browsers by typing 'rs';
         // Borrowed from https://github.com/remy/nodemon
         process.stdin.resume();
         process.stdin.setEncoding('utf8');
-        process.stdin.on('data', function (data) {
+        process.stdin.on('data', data => {
             data = (data + '').trim().toLowerCase();
 
             // if the keys entered match the restartable value, then restart!
@@ -305,8 +296,8 @@ function startServer() {
         });
     });
 
-    if (stencilConfig && typeof(stencilConfig.development) === 'function') {
-        stencilConfig.development(Bs);
+    if (buildConfig.development) {
+        buildConfig.development(Bs);
     }
 }
 

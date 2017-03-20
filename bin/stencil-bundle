@@ -11,8 +11,6 @@ var themePath = process.cwd();
 var configuration;
 var bundle;
 var Bundle = require('../lib/stencil-bundle');
-var stencilConfig;
-var stencilConfigFilePath = Path.join(themePath, 'stencil.conf.js');
 var themeConfig;
 var versionCheck = require('../lib/version-check');
 
@@ -29,10 +27,6 @@ if (!versionCheck()) {
 
 themeConfig = ThemeConfig.getInstance(themePath);
 
-if (fileExist(stencilConfigFilePath)) {
-    stencilConfig = require(stencilConfigFilePath);
-}
-
 if (Program.dest === true) {
     return console.error('Error: You have to specify a value for -d or --dest'.red);
 }
@@ -47,7 +41,7 @@ if (!themeConfig.configExists()) {
 
 configuration = themeConfig.getRawConfig();
 
-bundle = new Bundle(themePath, themeConfig, configuration, stencilConfig, {
+bundle = new Bundle(themePath, themeConfig, configuration, {
     marketplace: Program.marketplace,
     dest: Program.dest,
     name: Program.name,

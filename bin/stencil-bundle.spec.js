@@ -1,50 +1,57 @@
-var Code = require('code');
-var Fs = require('fs');
-var Sinon = require('sinon');
-var rewire = require('rewire');
-var Path = require('path');
-var async = require('async');
-var when = require('when');
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var themePath = Path.join(process.cwd(), 'test/_mocks/themes/valid');
-var expect = Code.expect;
-var it = lab.it;
-var StencilBundle = rewire('../lib/stencil-bundle');
-var bundleValidator = require('../lib/bundle-validator');
-var AsyncStub;
-var jspm = require('jspm');
-var themeConfigStub;
-var rawConfig;
-var themeSchema = Fs.readFileSync((Path.join(themePath, 'schema.json'))).toString();
-var Bundle;
+'use strict';
 
-describe('Stencil Bundle', function () {
+const Code = require('code');
+const Fs = require('fs');
+const Sinon = require('sinon');
+const rewire = require('rewire');
+const Path = require('path');
+const async = require('async');
+const when = require('when');
+const Lab = require('lab');
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const themePath = Path.join(process.cwd(), 'test/_mocks/themes/valid');
+const expect = Code.expect;
+const it = lab.it;
+const StencilBundle = rewire('../lib/stencil-bundle');
+const bundleValidator = require('../lib/bundle-validator');
+const jspm = require('jspm');
+const themeSchema = Fs.readFileSync((Path.join(themePath, 'schema.json'))).toString();
 
-    lab.beforeEach(function (done) {
-
+describe('Stencil Bundle', () => {
+    let sandbox;
+    let rawConfig;
+    let Bundle;
+    let AsyncStub;
+    let themeConfigStub;
+    
+    lab.beforeEach(done => {
+        sandbox = Sinon.sandbox.create();
         themeConfigStub = getThemeConfigStub();
         rawConfig = {
             "name": "Cornerstone",
             "version": "1.1.0",
         };
 
-        Bundle = new StencilBundle(themePath, themeConfigStub, rawConfig, null, {
+        sandbox.stub(console, 'log');
+        sandbox.stub(console, 'error');
+
+        Bundle = new StencilBundle(themePath, themeConfigStub, rawConfig, {
             marketplace: false,
         });
         done();
     });
 
-    lab.afterEach(function (done) {
+    lab.afterEach(done => {
         AsyncStub.restore();
+        sandbox.restore();
         done();
     });
 
-    it('should initialize bundling', function (done) {
+    it('should initialize bundling', done => {
         AsyncStub = Sinon.stub(async, 'series');
         AsyncStub.callsArgWith(1, new Error('error'));
-        var throws = function () {
+        const throws = () => {
             Bundle.initBundle();
         };
 
@@ -54,44 +61,44 @@ describe('Stencil Bundle', function () {
         done();
     });
 
-    it('should assemble CSS files', function (done) {
+    it('should assemble CSS files', done => {
         AsyncStub = Sinon.stub(async, 'map');
         AsyncStub.callsArgWith(2, null, ['this is dog']);
 
-        var callback = function (err, result) {
+        const callback = (err, result) => {
             expect(result).to.deep.equal({'theme.scss': 'this is dog'});
             AsyncStub.restore();
             done();
         };
 
-        var task = Bundle.getCssAssembleTask('scss');
+        const task = Bundle.getCssAssembleTask('scss');
 
         task(callback);
 
     });
 
-    it('should error on assemble CSS files', function (done) {
+    it('should error on assemble CSS files', done => {
         AsyncStub = Sinon.stub(async, 'map');
         AsyncStub.callsArgWith(2, 'error');
 
-        var callback = function (err, result) {
+        const callback = (err, result) => {
             expect(err).to.equal('error');
             AsyncStub.restore();
             done();
         };
 
-        var task = Bundle.getCssAssembleTask('scss');
+        const task = Bundle.getCssAssembleTask('scss');
 
         task(callback);
 
     });
 
-    it('should assembleTemplates', function (done) {
+    it('should assembleTemplates', done => {
         AsyncStub = Sinon.stub(async, 'map');
         AsyncStub.callsArgWith(2, null, ['test', 'test2']);
-        var BundleVal = Sinon.stub(bundleValidator.prototype, 'validateObjects').callsArgWith(1, null);
+        const BundleVal = Sinon.stub(bundleValidator.prototype, 'validateObjects').callsArgWith(1, null);
 
-        var callback = function (err, result) {
+        const callback = (err, result) => {
             expect(result).to.deep.equal({page: 'test', page2: 'test2'});
             AsyncStub.restore();
             BundleVal.restore();
@@ -102,12 +109,12 @@ describe('Stencil Bundle', function () {
 
     });
 
-    it('should error when running  assembleTemplates', function (done) {
+    it('should error when running  assembleTemplates', done => {
         AsyncStub = Sinon.stub(async, 'map');
         AsyncStub.callsArgWith(2, 'error');
-        var BundleVal = Sinon.stub(bundleValidator.prototype, 'validateObjects').callsArgWith(1, null);
+        const BundleVal = Sinon.stub(bundleValidator.prototype, 'validateObjects').callsArgWith(1, null);
 
-        var callback = function (err, result) {
+        const callback = (err, result) => {
             expect(err).to.equal('error');
             AsyncStub.restore();
             BundleVal.restore();
@@ -118,8 +125,8 @@ describe('Stencil Bundle', function () {
 
     });
 
-    it('should assemble the Schema', function (done) {
-        var callback = function (err, result) {
+    it('should assemble the Schema', done => {
+        const callback = (err, result) => {
             expect(result).to.deep.equal(themeSchema);
             done();
         };
@@ -128,15 +135,15 @@ describe('Stencil Bundle', function () {
 
     });
 
-    it('should assemble the Lang Files', function (done) {
-        var langStub = Sinon.stub();
+    it('should assemble the Lang Files', done => {
+        const langStub = Sinon.stub();
         langStub.assemble = Sinon.stub().callsArgWith(0, null);
 
         StencilBundle.__set__({
             'LangAssembler': langStub
         });
 
-        var callback = function () {
+        const callback = () => {
             expect(langStub.assemble.calledOnce).to.equal(true);
             done();
         };
@@ -145,15 +152,15 @@ describe('Stencil Bundle', function () {
 
     });
 
-    it('should error on assembling the Lang Files', function (done) {
-        var langStub = Sinon.stub();
+    it('should error on assembling the Lang Files', done => {
+        const langStub = Sinon.stub();
         langStub.assemble = Sinon.stub().callsArgWith(0, 'error');
 
         StencilBundle.__set__({
             'LangAssembler': langStub
         });
 
-        var callback = function (err) {
+        const callback = (err) => {
             expect(langStub.assemble.calledOnce).to.equal(true);
             expect(err).to.equal('error');
             done();
@@ -163,10 +170,10 @@ describe('Stencil Bundle', function () {
 
     });
 
-    it('should bundle JSPM assets', function (done) {
-        var jspmStub = Sinon.stub(jspm, 'bundleSFX').returns(when());
+    it('should bundle JSPM assets', done => {
+        const jspmStub = Sinon.stub(jspm, 'bundleSFX').returns(when());
 
-        var callback = function (err, result) {
+        const callback = (err, result) => {
             expect(result).to.equal(true);
             jspmStub.restore();
             done();
@@ -176,10 +183,10 @@ describe('Stencil Bundle', function () {
 
     });
 
-    it('should fail to bundle JSPM assets', function (done) {
-        var jspmStub = Sinon.stub(jspm, 'bundleSFX').returns(when.reject(false));
+    it('should fail to bundle JSPM assets', done => {
+        const jspmStub = Sinon.stub(jspm, 'bundleSFX').returns(when.reject(false));
 
-        var callback = function (err) {
+        const callback = (err) => {
             expect(err).to.equal(false);
             jspmStub.restore();
             done();
@@ -188,16 +195,16 @@ describe('Stencil Bundle', function () {
         Bundle.getJspmBundleTask(getThemeConfigStub().getRawConfig)(callback);
     });
 
-    it('should generate a manifest of files.', function (done) {
-        var rrStub = Sinon.stub().callsArgWith(2, null, ['test', 'test2']);
-        var FsStub = Sinon.stub().callsArgWith(2, null);
+    it('should generate a manifest of files.', done => {
+        const rrStub = Sinon.stub().callsArgWith(2, null, ['test', 'test2']);
+        const FsStub = Sinon.stub().callsArgWith(2, null);
 
         StencilBundle.__set__({
             'rr': rrStub,
             'Fs.writeFile': FsStub
         });
 
-        var callback = function () {
+        const callback = () => {
             expect(rrStub.calledOnce).to.equal(true);
             expect(Bundle.manifest.templates[0]).to.equal('test');
             expect(Bundle.manifest.templates[1]).to.equal('test2');
@@ -208,16 +215,16 @@ describe('Stencil Bundle', function () {
         Bundle.generateManifest(callback);
     });
 
-    it('should error while reading files to generate a manifest of files.', function (done) {
-        var rrStub = Sinon.stub().callsArgWith(2, 'There was an error', null);
-        var FsStub = Sinon.stub().callsArgWith(2, null);
+    it('should error while reading files to generate a manifest of files.', done => {
+        const rrStub = Sinon.stub().callsArgWith(2, 'There was an error', null);
+        const FsStub = Sinon.stub().callsArgWith(2, null);
 
         StencilBundle.__set__({
             'rr': rrStub,
             'Fs.writeFile': FsStub
         });
 
-        var callback = function (err, result) {
+        const callback = (err, result) => {
             expect(rrStub.calledOnce).to.equal(true);
             expect(FsStub.calledOnce).to.equal(false);
             expect(err).to.equal('There was an error');
@@ -229,8 +236,8 @@ describe('Stencil Bundle', function () {
 });
 
 function getThemeConfigStub() {
-    var themeConfig = Sinon.stub();
-    var rawConfig = {
+    const themeConfig = Sinon.stub();
+    const rawConfig = {
         jspm: {
             dev: {
                 dep_location: 'assets/js/dependency-bundle.js',
