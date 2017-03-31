@@ -66,7 +66,7 @@ describe('Stencil Bundle', () => {
         AsyncStub.callsArgWith(2, null, ['this is dog']);
 
         const callback = (err, result) => {
-            expect(result).to.deep.equal({'theme.scss': 'this is dog'});
+            expect(result).to.equal({'theme.scss': 'this is dog'});
             AsyncStub.restore();
             done();
         };
@@ -124,7 +124,7 @@ describe('Stencil Bundle', () => {
 
     it('should assemble the Schema', done => {
         Bundle.assembleSchema((err, result) => {
-            expect(result).to.deep.equal(themeSchema);
+            expect(result).to.equal(themeSchema);
             done();
         });
     });

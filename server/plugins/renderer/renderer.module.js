@@ -437,8 +437,14 @@ internals.getHeaders = function (request, options, config) {
         'stencil-version': Pkg.config.stencil_version,
         'stencil-options': JSON.stringify(Hoek.applyToDefaults(options, currentOptions)),
         'accept-encoding': 'identity',
-        'Authorization': 'Basic ' + stencilToken.generate(internals.options.username, internals.options.token),
     };
+
+    if (internals.options.clientId && internals.options.accessToken) {
+        headers['X-Auth-Client'] = internals.options.clientId;
+        headers['X-Auth-Token'] = internals.options.accessToken;
+    } else {
+        headers['Authorization'] = 'Basic ' + stencilToken.generate(internals.options.username, internals.options.token);
+    }
 
     // Development
     if (request.app.staplerUrl) {
