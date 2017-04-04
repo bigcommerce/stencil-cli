@@ -1,64 +1,67 @@
 # Stencil CLI
+
 [![npm (scoped)](https://img.shields.io/npm/v/@bigcommerce/stencil-cli.svg)](https://www.npmjs.com/package/@bigcommerce/stencil-cli) [![Build Status](https://travis-ci.org/bigcommerce/stencil-cli.svg?branch=master)](https://travis-ci.org/bigcommerce/stencil-cli)
-## BigCommerce server emulator for local theme development
 
-### Install
+The BigCommerce server emulator for local theme development.
+
+## Install
+
+Run `npm install -g @bigcommerce/stencil-cli`.
+
+Visit the [installation guide](https://stencil.bigcommerce.com/docs/installing-stencil-cli-1) for more details.
+
+## Usage
+
+```text
+Usage: stencil [options] [command]
+
+Commands:
+
+  init        Interactively create a .stencil file which configures how to run a BigCommerce store locally.
+  start       Starts up BigCommerce store using theme files in the current directory.
+  bundle      Bundles up the theme into a zip file which can be uploaded to BigCommerce.
+  release     Create a new release in the theme's github repository.
+  help [cmd]  display help for [cmd]
+
+Options:
+
+  -h, --help     output usage information
+  -V, --version  output the version number
 ```
-$ npm install -g @bigcommerce/stencil-cli
-```
 
-For more details visit the [Installation Guide](https://stencil.bigcommerce.com/docs/installing-stencil-cli-1)
+Run `stencil init` at the top level of your Stencil Theme. It will ask you a few questions to get your started.
 
-### Usage
-```
+Run `stencil start` to run a local server so you can start developing your theme.
 
-  Usage: stencil [options] [command]
+Run with `-o` or `--open` to automatically open up a browser.
 
+- While stencil is running, you can type "rs" and then hit enter to auto-reload all browsers. This is similar to Nodemon's rs option.
+- Run with `-e` to load a local Theme Editor.
 
-  Commands:
+Run `stencil bundle` to validate your code and create a zip bundle file that can be uploaded to BigCommerce.
 
-    init        Interactively create a .stencil file which configures how to run a BigCommerce store locally.
-    start       Starts up BigCommerce store using theme files in the current directory.
-    bundle      Bundles up the theme into a zip file which can be uploaded to BigCommerce.
-    release     Create a new release in the theme's github repository.
-    help [cmd]  display help for [cmd]
+Run `stencil release` to tag a new version of your theme, create a [GitHub release](https://help.github.com/articles/about-releases/) in your theme repository, and upload the zip bundle file to the release assets. This is useful for tracking your changes in your Theme, and is the tool we use to create new releases in BigCommerce [Cornerstone](https://github.com/bigcommerce/stencil) theme.
 
-  Options:
+## BrowserSync
 
-    -h, --help     output usage information
-    -V, --version  output the version number
-```
+Stencil CLI comes packaged with BrowserSync so you can take advantage of all of those amazing goodies! Have a look at their [web site](http://www.browsersync.io/) for more information.
 
-`$ stencil init` - Run this at the top level of your Stencil Theme.  It will ask you a few questions to get your started.  
+## Sass compiling
 
-`$ stencil start` - This will run a local server so you can start developing your theme.
- - Run with `-o` or `--open` to automatically open up a browser.
- - While stencil is running, you can type `rs` and then hit enter to auto-reload all browsers. This is similar to Nodemon's `rs` option.
- - Run with `-e` to load a local Theme Editor
+You can compile Sass (node-sass) scss files in assets/scss into CSS. For example, add an scss file named theme.scss to assets/scss and `{{{stylesheet 'assets/css/theme.css'}}}` to your theme HTML template. Stencil-CLI will compile assets/scss/theme.scss to CSS on the fly.
 
-`$ stencil bundle` - This command will run some validations and then it will create a bundle zip file which can be uploaded to BigCommerce.
+## Autoprefixer
 
-`$ stencil release` - This command will tag a new version of your theme, create a [GitHub Release](https://help.github.com/articles/about-releases/) in your theme repository and upload the bundle file to the release assets. This is useful for tracking your changes in your Theme, and is the tool we use to create new releases in BigCommerce [Cornerstone](https://github.com/bigcommerce/stencil) theme
+Stencil CLI comes packaged with [Autoprefixer](https://github.com/postcss/autoprefixer). You can set which browsers should be targeted, as well as if it should cascade the generated rules in the theme's config.json file with these options:
 
-### BrowserSync
+- `autoprefixer_cascade` - Defaults to `true`.
+- `autoprefixer_browsers` - Defaults to `["> 5% in US"]`.
 
-Stencil CLI comes packaged with BrowserSync so you can take advantage of all of those amazing goodies!  Have a look at their website for more information: http://www.browsersync.io/
+## How to get help or report a bug
 
-### SASS Compiling
+If you need any help or experience any bugs, please create a GitHub issue in this repository.
 
-You are able to compile your CSS using SASS (`node-sass`) by placing  your `.scss` files in `assets/scss/`. For example, add a scss file named `theme.scss` to `assets/scss/` and in your theme add `{{{stylesheet 'assets/css/theme.css'}}}` to your html template. Stencil-CLI will compile `theme.scss` to `css` on the fly.
-
-### Autoprefixer ###
-
-Stencil CLI comes packaged with [Autoprefixer](https://github.com/postcss/autoprefixer).  You can set which browsers that should be targeted as well as if it should cascade the generated rules in the theme's `config.json` file with these options:
- - `autoprefixer_cascade` - Defaults to `true`
- - `autoprefixer_browsers` - Defaults to `["> 5% in US"]`
-
-### How To Get Help or Report A Bug
-
-If you need any help or experience any bugs, please create a GitHub issue in this repo.
-
-### License
+## License
 
 Copyright (c) 2015-2016, BigCommerce Inc.
 All rights reserved.
