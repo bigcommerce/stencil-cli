@@ -7,26 +7,19 @@ var expect = Code.expect;
 var it = lab.it;
 var router = require('./router.module');
 
-describe('Router', function () {
+describe('Router', () => {
     var server = new Hapi.Server(),
         RendererPluginMock = {
             register: function(server, options, next) {
-                server.expose('implementation', function(request, reply) {
-                    return reply('RendererHandlerFired');
-                });
+                server.expose('implementation', (request, reply) => reply('RendererHandlerFired'));
 
                 next();
             }
         },
         ThemeAssetsMock = {
             register: function(server, options, next) {
-                server.expose('cssHandler', function(request, reply) {
-                    return reply('CssHandlerFired');
-                });
-
-                server.expose('assetHandler', function(request, reply) {
-                    return reply('assetHandlerFired');
-                });
+                server.expose('cssHandler', (request, reply) => reply('CssHandlerFired'));
+                server.expose('assetHandler', (request, reply) => reply('assetHandlerFired'));
 
                 next();
             }
@@ -46,26 +39,26 @@ describe('Router', function () {
         port: 3000
     });
 
-    lab.before(function(done) {
+    lab.before(done => {
         server.register([
             RendererPluginMock,
             ThemeAssetsMock,
             router
-        ], function (err) {
+        ], err => {
             expect(err).to.equal(undefined);
             server.start(done);
         });
     });
 
-    lab.after(function(done) {
+    lab.after(done => {
         server.stop(done);
     });
 
-    it('should call the Renderer handler', function (done) {
+    it('should call the Renderer handler', done => {
         server.inject({
             method: 'GET',
             url: '/test'
-        }, function (response) {
+        }, response => {
             expect(response.statusCode).to.equal(200);
             expect(response.payload).to.equal('RendererHandlerFired');
 
@@ -73,11 +66,11 @@ describe('Router', function () {
         });
     });
 
-    it('should call the CSS handler', function (done) {
+    it('should call the CSS handler', done => {
         server.inject({
             method: 'GET',
-            url: '/stencil/123/234/css/file.css'
-        }, function (response) {
+            url: '/stencil/123/css/file.css'
+        }, response => {
             expect(response.statusCode).to.equal(200);
             expect(response.payload).to.equal('CssHandlerFired');
 
@@ -85,11 +78,11 @@ describe('Router', function () {
         });
     });
 
-    it('should call the assets handler', function (done) {
+    it('should call the assets handler', done => {
         server.inject({
             method: 'GET',
-            url: '/stencil/123/234/js/file.js'
-        }, function (response) {
+            url: '/stencil/123/js/file.js'
+        }, response => {
             expect(response.statusCode).to.equal(200);
             expect(response.payload).to.equal('assetHandlerFired');
 
