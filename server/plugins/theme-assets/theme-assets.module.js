@@ -28,21 +28,44 @@ module.exports.register.attributes = {
 };
 
 /**
+ * Get the variation index from the "ConfigId" in the css filename
+ * @param  {string} fileName
+ * @return {number}
+ */
+internals.getVariationIndex = fileName => {
+    const match = fileName.match(/.+-(.+?)$/);
+
+    return match ? parseInt(match[1], 10) - 1 : 0;
+};
+
+/**
+ * Get the original css file name
+ * @param  {string} fileName
+ * @return {string}
+ */
+internals.getOriginalFileNmae = fileName => {
+    const match = fileName.match(/(.+)-.+?$/);
+
+    return match ? match[1] : fileName;
+};
+
+/**
  * CSS Compiler Handler.  This utilises the CSS Assembler to gather all of the CSS files and then the
  * StencilStyles plugin to compile them all.
  * @param request
  * @param reply
  */
 internals.cssHandler = function (request, reply) {
-    var variationIndex = _.parseInt(request.params.configId - 1, 10);
-    var fileParts = Path.parse(request.params.fileName);
+    var variationIndex = internals.getVariationIndex(request.params.fileName);
+    var fileName = internals.getOriginalFileNmae(request.params.fileName);
+    var fileParts = Path.parse(fileName);
     var compiler;
     var basePath;
     var pathToFile;
     var configuration;
 
     if (!request.app.themeConfig.variationExists(variationIndex)) {
-        return reply(Boom.notFound('Variation ' + request.params.configId + ' does not exist.'));
+        return reply(Boom.notFound('Variation ' + (variationIndex + 1) + ' does not exist.'));
     }
 
     // Set the variation to get the right theme configuration
@@ -62,7 +85,7 @@ internals.cssHandler = function (request, reply) {
         var params = {
             data: files[pathToFile],
             files: files,
-            dest: Path.join('/assets/css', request.params.fileName),
+            dest: Path.join('/assets/css', fileName),
             themeSettings: configuration.settings,
             sourceMap: true,
             autoprefixerOptions: {
