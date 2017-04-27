@@ -1,7 +1,13 @@
 language: node_js
 
+os:
+  - linux
+  - osx
+
 node_js:
-- 4.4.7
+  - 4
+  - 6
+  - 7
 
 cache:
   directories:
