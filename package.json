@@ -30,7 +30,7 @@
   "homepage": "https://github.com/bigcommerce/stencil-cli",
   "dependencies": {
     "@bigcommerce/stencil-paper": "^2.0.2",
-    "@bigcommerce/stencil-styles": "^1.0.2",
+    "@bigcommerce/stencil-styles": "git://github.com/mcampa/stencil-styles#ARCH-221-node-sass-fork",
     "accept-language-parser": "^1.0.2",
     "archiver": "^0.14.4",
     "async": "^1.3.0",
