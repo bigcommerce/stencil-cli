@@ -10,10 +10,10 @@ const responseSchema = require('../../../../test/_mocks/api/getVariations.schema
 lab.describe('GET /variations/{id} api endpoint', function() {
     var requestStub = {
         log: function () {},
-        params: {}
+        params: {},
     };
     var options = {
-        themeEditorHost: 'http://localhost:8181'
+        themeEditorHost: 'http://localhost:8181',
     };
 
     var themeConfig = new ThemeConfig.getInstance();
@@ -68,7 +68,7 @@ lab.describe('GET /variations/{id} api endpoint', function() {
                         .to.be.equal(404);
 
                     done();
-                }
+                },
             };
         });
     });

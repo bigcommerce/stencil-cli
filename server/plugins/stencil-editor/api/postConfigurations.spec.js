@@ -18,9 +18,9 @@ lab.describe('POST /configurations/{id} api endpoint', function () {
                 variationId: 1,
                 preview: 1,
                 settings: {
-                    a: 1
-                }
-            }
+                    a: 1,
+                },
+            },
         };
 
         PostConfigurations({}, themeConfig)(requestStub, function (response) {
@@ -48,9 +48,9 @@ lab.describe('POST /configurations/{id} api endpoint', function () {
             payload: {
                 variationId: 2,
                 settings: {
-                    b: 1
-                }
-            }
+                    b: 1,
+                },
+            },
         };
 
         PostConfigurations({}, themeConfig)(requestStub, function (response) {
@@ -79,9 +79,9 @@ lab.describe('POST /configurations/{id} api endpoint', function () {
                 reset: true,
                 variationId: 1,
                 settings: {
-                    b: 1
-                }
-            }
+                    b: 1,
+                },
+            },
         };
 
         PostConfigurations({}, themeConfig)(requestStub, function(response) {
@@ -107,7 +107,7 @@ lab.describe('POST /configurations/{id} api endpoint', function () {
                     Code.expect(code).to.be.equal(405);
 
                     done();
-                }
+                },
             };
         });
     });

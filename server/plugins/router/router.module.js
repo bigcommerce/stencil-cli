@@ -5,7 +5,7 @@ var Hoek = require('hoek'),
             storeUrl: '',
             apiKey: '',
             staplerUrl: '',
-            port: ''
+            port: '',
         },
         paths: {
             renderer: '/{url*}',
@@ -15,8 +15,8 @@ var Hoek = require('hoek'),
             cssFiles: '/stencil/{versionId}/css/{fileName}.css',
             favicon: '/favicon.ico',
             stencilEditor: '/stencil-editor',
-            updateParam: '/stencil-editor/update-param'
-        }
+            updateParam: '/stencil-editor/update-param',
+        },
     };
 
 module.exports.register = function(server, options, next) {
@@ -44,10 +44,10 @@ internals.registerRoutes = function(server, next) {
             config: {
                 cors: true,
                 state: {
-                    failAction: 'log'
-                }
+                    failAction: 'log',
+                },
             },
-            handler: server.plugins.Renderer.implementation
+            handler: server.plugins.Renderer.implementation,
         },
         {
             method: ['POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -57,13 +57,13 @@ internals.registerRoutes = function(server, next) {
                 payload: {
                     output: 'stream',
                     parse: false,
-                    maxBytes: 20971520 // 20MB
+                    maxBytes: 20971520, // 20MB
                 },
                 state: {
-                    failAction: 'log'
-                }
+                    failAction: 'log',
+                },
             },
-            handler: server.plugins.Renderer.implementation
+            handler: server.plugins.Renderer.implementation,
         },
         {
             method: 'GET',
@@ -71,23 +71,23 @@ internals.registerRoutes = function(server, next) {
             handler: server.plugins.ThemeAssets.assetHandler,
             config: {
                 state: {
-                    failAction: 'log'
-                }
-            }
+                    failAction: 'log',
+                },
+            },
         },
         {
             method: 'GET',
             path: internals.paths.staticAssets,
             handler: {
                 directory: {
-                    path: './assets'
-                }
+                    path: './assets',
+                },
             },
             config: {
                 state: {
-                    failAction: 'log'
-                }
-            }
+                    failAction: 'log',
+                },
+            },
         },
         {
             method: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -100,25 +100,25 @@ internals.registerRoutes = function(server, next) {
                     port: 443,
                     passThrough: true,
                     xforward: true,
-                }
+                },
             },
             config: {
                 state: {
-                    failAction: 'log'
-                }
-            }
+                    failAction: 'log',
+                },
+            },
         },
         {
             method: 'GET',
             path: internals.paths.favicon,
             handler: {
-                file: './assets/favicon.ico'
+                file: './assets/favicon.ico',
             },
             config: {
                 state: {
-                    failAction: 'log'
-                }
-            }
+                    failAction: 'log',
+                },
+            },
         },
         {
             method: 'GET',
@@ -126,10 +126,10 @@ internals.registerRoutes = function(server, next) {
             handler: server.plugins.ThemeAssets.cssHandler,
             config: {
                 state: {
-                    failAction: 'log'
-                }
-            }
-        }
+                    failAction: 'log',
+                },
+            },
+        },
     ]);
 
     return next();
@@ -137,5 +137,5 @@ internals.registerRoutes = function(server, next) {
 
 module.exports.register.attributes = {
     name: 'Router',
-    version: '0.0.1'
+    version: '0.0.1',
 };

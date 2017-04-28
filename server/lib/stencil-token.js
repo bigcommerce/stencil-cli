@@ -33,9 +33,9 @@ module.exports = {
             var httpsOpts = {
                 rejectUnauthorized: false,
                 headers: {
-                    'Authorization': 'Basic ' + self.generate(options.username, options.token)
+                    'Authorization': 'Basic ' + self.generate(options.username, options.token),
 
-                }
+                },
             };
 
         } catch (e) {
@@ -55,5 +55,5 @@ module.exports = {
                 return callback(null, {authorized: false,  statusCode: authRepsonse.statusCode})
             }
         })
-    }
+    },
 };

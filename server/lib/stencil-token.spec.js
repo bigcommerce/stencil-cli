@@ -12,7 +12,7 @@ describe('stencilToken', function () {
     var options = {
         username: 'testUser',
         token: '12345689DEADBEEF',
-        validToken: 'dGVzdFVzZXI6MTIzNDU2ODlERUFEQkVFRg=='
+        validToken: 'dGVzdFVzZXI6MTIzNDU2ODlERUFEQkVFRg==',
     };
 
 
@@ -35,12 +35,12 @@ describe('stencilToken', function () {
         var wreckStub = sinon.stub(Wreck, 'request');
 
         wreckStub.callsArgWith(3, null, {
-            statusCode: 200
+            statusCode: 200,
         });
 
         stencilToken.getAuth({
             username: options.username,
-            token: options.token
+            token: options.token,
         }, function (err, response) {
             console.log(response);
             expect(response.authorized).to.equal(true);
@@ -54,12 +54,12 @@ describe('stencilToken', function () {
         var wreckStub = sinon.stub(Wreck, 'request');
 
         wreckStub.callsArgWith(3, null, {
-            statusCode: 401
+            statusCode: 401,
         });
 
         stencilToken.getAuth({
             username: options.username,
-            token: options.token
+            token: options.token,
         }, function (err, response) {
             expect(response.authorized).to.equal(false);
             wreckStub.restore();
@@ -75,7 +75,7 @@ describe('stencilToken', function () {
 
         stencilToken.getAuth({
             username: options.username,
-            token: options.token
+            token: options.token,
         }, function (err, response) {
             expect(err).to.not.be.undefined();
             expect(response).to.be.undefined();

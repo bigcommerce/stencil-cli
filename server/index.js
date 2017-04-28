@@ -52,7 +52,7 @@ internals.startThemeEditor = function(options, callback) {
     var stencilEditorConfig = {
         connections: [{
             host: 'localhost',
-            port: options.stencilEditorPort
+            port: options.stencilEditorPort,
         }],
         plugins: {
             './plugins/stencil-editor/stencil-editor.module': {
@@ -60,9 +60,9 @@ internals.startThemeEditor = function(options, callback) {
                 stencilServerPort: options.dotStencilFile.stencilServerPort,
                 stencilEditorPort: options.stencilEditorPort,
                 themeEditorHost: themeEditorHost,
-                themeServer: options.themeServer
-            }
-        }
+                themeServer: options.themeServer,
+            },
+        },
     };
 
     Glue.compose(stencilEditorConfig, {relativeTo: __dirname}, function (err, server) {

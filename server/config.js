@@ -10,22 +10,22 @@ config = {
     $meta: 'Config file',
     server: {
         host: 'localhost',
-        port: 3000
+        port: 3000,
     },
     good: {
         opsInterval: 1000,
         reporters: [{
             reporter: require('good-console'),
-            args: [{log: '*', request: '*'}]
-        }]
+            args: [{log: '*', request: '*'}],
+        }],
     },
     themeAssets: {
-        assetsBasePath: Path.join(process.cwd(), 'assets')
-    }
+        assetsBasePath: Path.join(process.cwd(), 'assets'),
+    },
 };
 
 criteria = {
-    env: process.env.NODE_ENV || 'development'
+    env: process.env.NODE_ENV || 'development',
 };
 
 store = new Confidence.Store(config);

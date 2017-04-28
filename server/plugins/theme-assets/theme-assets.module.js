@@ -6,7 +6,7 @@ const StencilStyles = require('@bigcommerce/stencil-styles');
 const internals = {
     options: {
         cssBasePath: '',
-    }
+    },
 };
 
 module.exports.register = function (server, options, next) {
@@ -22,7 +22,7 @@ module.exports.register = function (server, options, next) {
 
 module.exports.register.attributes = {
     name: 'ThemeAssets',
-    version: '0.0.1'
+    version: '0.0.1',
 };
 
 /**
@@ -88,8 +88,8 @@ internals.cssHandler = function (request, reply) {
             sourceMap: true,
             autoprefixerOptions: {
                 cascade: configuration.autoprefixer_cascade,
-                browsers: configuration.autoprefixer_browsers
-            }
+                browsers: configuration.autoprefixer_browsers,
+            },
         };
 
         internals.stencilStyles.compileCss(compiler, params, function (err, css) {

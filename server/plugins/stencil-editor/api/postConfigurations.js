@@ -24,9 +24,9 @@ module.exports = function (options, themeConfig) {
                     {
                         type: 'not_available',
                         title: 'Reset is not available',
-                        detail: 'Reset Is not possible while using stencil-cli.'
-                    }
-                ]
+                        detail: 'Reset Is not possible while using stencil-cli.',
+                    },
+                ],
             }).code(405);
         }
 
@@ -38,9 +38,9 @@ module.exports = function (options, themeConfig) {
 
         reply({
             data: {
-                configurationId: variationIndex + 1
+                configurationId: variationIndex + 1,
             },
-            meta: {}
+            meta: {},
         });
     };
 };

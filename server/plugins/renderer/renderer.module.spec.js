@@ -17,8 +17,8 @@ lab.describe('Renderer Plugin', function () {
                 port: 4000,
                 username: 'testUser',
                 token: '6832b1c755bb9de13aa8990216a69a7623043fd7',
-                useCache: false
-            }
+                useCache: false,
+            },
         },
         server,
         wreckRequestStub,
@@ -58,7 +58,7 @@ lab.describe('Renderer Plugin', function () {
     it('should handle fatal errors in the BCApp request', function (done) {
         var options = {
             method: "GET",
-            url: "/test"
+            url: "/test",
         };
 
         wreckRequestStub.callsArgWith(3, new Error('failure'));
@@ -74,11 +74,11 @@ lab.describe('Renderer Plugin', function () {
     it('should handle responses of a 500 in the BCApp request', function (done) {
         var options = {
             method: "GET",
-            url: "/"
+            url: "/",
         };
 
         wreckRequestStub.callsArgWith(3, null, {
-            statusCode: 500
+            statusCode: 500,
         });
 
         server.inject(options, function(response) {
@@ -91,14 +91,14 @@ lab.describe('Renderer Plugin', function () {
     it('should handle redirects in the BCApp request', function (done) {
         var options = {
             method: "GET",
-            url: "/"
+            url: "/",
         };
 
         wreckRequestStub.callsArgWith(3, null, {
             statusCode: 301,
             headers: {
-                location: 'http://www.example.com/'
-            }
+                location: 'http://www.example.com/',
+            },
         });
 
         server.inject(options, function(response) {
@@ -112,14 +112,14 @@ lab.describe('Renderer Plugin', function () {
     it('should handle unauthorized in the Stapler Request', function (done) {
         var options = {
             method: "GET",
-            url: "/"
+            url: "/",
         };
 
         wreckRequestStub.callsArgWith(3, null, {
             statusCode: 401,
             headers: {
-                location: 'http://www.example.com/'
-            }
+                location: 'http://www.example.com/',
+            },
         });
 
         server.inject(options, function(response) {

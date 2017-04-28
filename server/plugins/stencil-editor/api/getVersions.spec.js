@@ -10,7 +10,7 @@ const responseSchema = require('../../../../test/_mocks/api/getVersions.schema')
 
 lab.describe('GET /versions/{id} api endpoint', function() {
     var requestStub = {
-        log: function () {}
+        log: function () {},
     };
     var options = {
         themeEditorHost: 'http://localhost:8181',
@@ -98,7 +98,7 @@ lab.describe('GET /versions/{id} api endpoint', function() {
                     Code.expect(code).to.be.equal(400);
 
                     done();
-                }
+                },
             };
         });
     });

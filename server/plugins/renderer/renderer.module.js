@@ -29,7 +29,7 @@ module.exports.register = function (server, options, next) {
 
 module.exports.register.attributes = {
     name: 'Renderer',
-    version: '0.0.1'
+    version: '0.0.1',
 };
 
 /**
@@ -76,7 +76,7 @@ internals.getResponse = function (request, callback) {
         httpOpts = {
             rejectUnauthorized: false,
             headers: internals.getHeaders(request, {get_template_file: true, get_data_only: true}),
-            payload: request.payload
+            payload: request.payload,
         },
         httpOptsSignature,
         responseArgs,
@@ -98,13 +98,13 @@ internals.getResponse = function (request, callback) {
         protocol: staplerUrlObject.protocol,
         host: staplerUrlObject.host,
         pathname: urlObject.pathname,
-        search: urlObject.search
+        search: urlObject.search,
     });
 
     responseArgs = {
         httpOpts: httpOpts,
         staplerUrlObject: staplerUrlObject,
-        url: url
+        url: url,
     };
 
     // create request signature for caching
@@ -402,7 +402,7 @@ internals.getPencilResponse = function (data, request, response, configuration) 
         method: request.method,
         acceptLanguage: request.headers['accept-language'],
         headers: response.headers,
-        statusCode: response.statusCode
+        statusCode: response.statusCode,
     }, internals.themeAssembler);
 };
 
@@ -438,7 +438,7 @@ internals.getHeaders = function (request, options, config) {
         'stencil-version': Pkg.config.stencil_version,
         'stencil-options': JSON.stringify(Hoek.applyToDefaults(options, currentOptions)),
         'accept-encoding': 'identity',
-        'Authorization': 'Basic ' + stencilToken.generate(internals.options.username, internals.options.token)
+        'Authorization': 'Basic ' + stencilToken.generate(internals.options.username, internals.options.token),
     };
 
     // Development
@@ -473,5 +473,5 @@ internals.themeAssembler = {
         LangAssembler.assemble(function (err, translations) {
             callback(null, _.mapValues(translations, locales => JSON.parse(locales)));
         });
-    }
+    },
 };

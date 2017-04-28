@@ -135,7 +135,7 @@ describe('Stencil Bundle', () => {
         langStub.assemble = Sinon.stub().callsArgWith(0, null);
 
         StencilBundle.__set__({
-            'LangAssembler': langStub
+            'LangAssembler': langStub,
         });
 
         const callback = () => {
@@ -152,7 +152,7 @@ describe('Stencil Bundle', () => {
         langStub.assemble = Sinon.stub().callsArgWith(0, 'error');
 
         StencilBundle.__set__({
-            'LangAssembler': langStub
+            'LangAssembler': langStub,
         });
 
         const callback = (err) => {
@@ -196,7 +196,7 @@ describe('Stencil Bundle', () => {
 
         StencilBundle.__set__({
             'rr': rrStub,
-            'Fs.writeFile': FsStub
+            'Fs.writeFile': FsStub,
         });
 
         const callback = () => {
@@ -216,7 +216,7 @@ describe('Stencil Bundle', () => {
 
         StencilBundle.__set__({
             'rr': rrStub,
-            'Fs.writeFile': FsStub
+            'Fs.writeFile': FsStub,
         });
 
         const callback = (err) => {
@@ -236,17 +236,17 @@ function getThemeConfigStub() {
         jspm: {
             dev: {
                 dep_location: 'assets/js/dependency-bundle.js',
-                bootstrap: 'js/**/* - [js/**/*]'
+                bootstrap: 'js/**/* - [js/**/*]',
             },
             bootstrap: 'js/app',
             bundle_location: 'assets/js/bundle.js',
-            jspm_packages_path: 'assets/jspm_packages'
+            jspm_packages_path: 'assets/jspm_packages',
         },
         meta: {
             "author_name": "Emilio Esteves",
             "author_email": "Emilio@work.net",
-            "author_support_url": "http://emilio.net"
-        }
+            "author_support_url": "http://emilio.net",
+        },
     };
 
     themeConfig.configExists = Sinon.stub().returns(true);

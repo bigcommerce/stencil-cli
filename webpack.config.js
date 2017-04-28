@@ -30,43 +30,43 @@ var config = {
     },
     output: {
         filename: '[name].js',
-        path: distPath
+        path: distPath,
     },
     module: {
         loaders: [{
             test: /\.js$/,
             exclude: /(node_modules|ng-stencil-editor)/,
-            loader: 'babel?presets[]=es2015'
-        }]
+            loader: 'babel?presets[]=es2015',
+        }],
     },
     plugins: [
 
         new CleanWebpackPlugin(['*'], {
-            root: distPath
+            root: distPath,
         }),
 
         new LiveReloadPlugin({
             appendScriptTag: true,
-            host: 'localhost'
+            host: 'localhost',
         }),
 
         new CopyWebpackPlugin([{
                 context: 'node_modules/bcapp-pattern-lab/dist',
                 from: 'svg/icons/{' + icons + '}.svg',
-                to: Path.join(distPath, 'bcapp-pattern-lab')
+                to: Path.join(distPath, 'bcapp-pattern-lab'),
             },
             {
                 context: 'node_modules/bcapp-pattern-lab/dist',
                 from: 'css/**/*.css',
-                to: Path.join(distPath, 'bcapp-pattern-lab')
+                to: Path.join(distPath, 'bcapp-pattern-lab'),
             },
             {
                 context: 'node_modules/ng-stencil-editor/dist',
                 from: '**/*.{css,svg}',
-                to: Path.join(distPath, 'ng-stencil-editor')
-            }
-        ])
-    ]
+                to: Path.join(distPath, 'ng-stencil-editor'),
+            },
+        ]),
+    ],
 };
 
 if (process.argv.indexOf('--deploy') > 0) {
