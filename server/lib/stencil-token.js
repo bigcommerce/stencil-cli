@@ -1,8 +1,6 @@
 var wreck = require('wreck');
-var url = require('url');
 
 module.exports = {
-
     /**
      * Simple function to create the needed base64 token for Stencil Authorization
      * @param {string} username

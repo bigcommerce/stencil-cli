@@ -1,7 +1,6 @@
 'use strict';
 
 const Code = require('code');
-const Fs = require('fs');
 const Sinon = require('sinon');
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
@@ -13,7 +12,7 @@ const StencilInit = require('../lib/stencil-init');
 
 describe('stencil init', () => {
     let sandbox;
-    
+
     lab.beforeEach(done => {
         sandbox = Sinon.sandbox.create();
         sandbox.stub(console, 'log');

@@ -1,7 +1,6 @@
-var _ = require('lodash'),
-    Paper = require('@bigcommerce/stencil-paper'),
-    Url = require('url'),
-    internals = {};
+const _ = require('lodash');
+const Paper = require('@bigcommerce/stencil-paper');
+const internals = {};
 
 module.exports = function (data, assembler) {
     this.respond = function (request, reply) {

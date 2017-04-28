@@ -24,7 +24,7 @@ describe('Stencil Bundle', () => {
     let Bundle;
     let AsyncStub;
     let themeConfigStub;
-    
+
     lab.beforeEach(done => {
         sandbox = Sinon.sandbox.create();
         themeConfigStub = getThemeConfigStub();
@@ -81,7 +81,7 @@ describe('Stencil Bundle', () => {
         AsyncStub = Sinon.stub(async, 'map');
         AsyncStub.callsArgWith(2, 'error');
 
-        const callback = (err, result) => {
+        const callback = (err) => {
             expect(err).to.equal('error');
             AsyncStub.restore();
             done();
@@ -94,45 +94,40 @@ describe('Stencil Bundle', () => {
     });
 
     it('should assembleTemplates', done => {
-        AsyncStub = Sinon.stub(async, 'map');
-        AsyncStub.callsArgWith(2, null, ['test', 'test2']);
-        const BundleVal = Sinon.stub(bundleValidator.prototype, 'validateObjects').callsArgWith(1, null);
+        Sinon.stub(async, 'map').callsArgWith(2, null, ['test', 'test2']);
+        Sinon.stub(bundleValidator.prototype, 'validateObjects').callsArgWith(1, null);
 
-        const callback = (err, result) => {
-            expect(result).to.deep.equal({page: 'test', page2: 'test2'});
-            AsyncStub.restore();
-            BundleVal.restore();
+        Bundle.assembleTemplatesTask((err, result) => {
+            console.log('result', result);
+            expect(err).to.be.null();
+            expect(result.page).to.equal('test');
+            expect(result.page2).to.equal('test2');
+
+            async.map.restore();
+            bundleValidator.prototype.validateObjects.restore();
             done();
-        };
-
-        Bundle.assembleTemplatesTask(callback);
+        });
 
     });
 
-    it('should error when running  assembleTemplates', done => {
+    it('should error when running assembleTemplates', done => {
         AsyncStub = Sinon.stub(async, 'map');
         AsyncStub.callsArgWith(2, 'error');
         const BundleVal = Sinon.stub(bundleValidator.prototype, 'validateObjects').callsArgWith(1, null);
 
-        const callback = (err, result) => {
+        Bundle.assembleTemplatesTask((err) => {
             expect(err).to.equal('error');
             AsyncStub.restore();
             BundleVal.restore();
             done();
-        };
-
-        Bundle.assembleTemplatesTask(callback);
-
+        });
     });
 
     it('should assemble the Schema', done => {
-        const callback = (err, result) => {
+        Bundle.assembleSchema((err, result) => {
             expect(result).to.deep.equal(themeSchema);
             done();
-        };
-
-        Bundle.assembleSchema(callback);
-
+        });
     });
 
     it('should assemble the Lang Files', done => {
@@ -224,7 +219,7 @@ describe('Stencil Bundle', () => {
             'Fs.writeFile': FsStub
         });
 
-        const callback = (err, result) => {
+        const callback = (err) => {
             expect(rrStub.calledOnce).to.equal(true);
             expect(FsStub.calledOnce).to.equal(false);
             expect(err).to.equal('There was an error');

@@ -1,11 +1,11 @@
-var Fs = require('fs'),
-    Glue = require('glue'),
-    Hoek = require('hoek'),
-    Path = require('path'),
-    Url = require('url'),
-    manifest = require('./manifest'),
-    logo = require('./lib/show-logo'),
-    internals = {};
+'use strict';
+
+const Glue = require('glue');
+const Hoek = require('hoek');
+const Url = require('url');
+const manifest = require('./manifest');
+const logo = require('./lib/show-logo');
+const internals = {};
 
 require('colors');
 

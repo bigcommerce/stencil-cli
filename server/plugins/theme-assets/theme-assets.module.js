@@ -1,15 +1,13 @@
-var Boom = require('boom'),
-    CssAssembler = require('../../../lib/css-assembler'),
-    Hoek = require('hoek'),
-    Path = require('path'),
-    StencilStyles = require('@bigcommerce/stencil-styles'),
-    Fs = require('fs'),
-    _ = require('lodash'),
-    internals = {
-        options: {
-            cssBasePath: ''
-        }
-    };
+const Boom = require('boom');
+const CssAssembler = require('../../../lib/css-assembler');
+const Hoek = require('hoek');
+const Path = require('path');
+const StencilStyles = require('@bigcommerce/stencil-styles');
+const internals = {
+    options: {
+        cssBasePath: '',
+    }
+};
 
 module.exports.register = function (server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);

@@ -83,7 +83,6 @@ module.exports = function (options, themeConfig) {
 };
 
 function getRelatedVarations(options, themeConfig) {
-    var currentVariationIndex = themeConfig.variationIndex;
     var relatedVariations = [];
     var variation;
     var screenshot;

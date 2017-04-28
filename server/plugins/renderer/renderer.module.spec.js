@@ -1,16 +1,13 @@
 'use strict';
 
-var _ = require('lodash');
-var Code = require('code');
-var Hapi = require('hapi');
-var Lab = require('lab');
-var Path = require('path');
-var sinon = require('sinon');
-var Wreck = require('wreck');
-var StencilCLI = require('../../index');
-var lab = exports.lab = Lab.script();
-var expect = Code.expect;
-var it = lab.it;
+const Code = require('code');
+const Lab = require('lab');
+const sinon = require('sinon');
+const Wreck = require('wreck');
+const StencilCLI = require('../../index');
+const lab = exports.lab = Lab.script();
+const expect = Code.expect;
+const it = lab.it;
 
 lab.describe('Renderer Plugin', function () {
     var options = {

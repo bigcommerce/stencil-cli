@@ -1,11 +1,10 @@
 'use strict';
 
-var Confidence = require('confidence'),
-    Fs = require('fs'),
-    Path = require('path'),
-    criteria,
-    store,
-    config;
+const Confidence = require('confidence');
+const Path = require('path');
+var criteria;
+var store;
+var config;
 
 config = {
     $meta: 'Config file',

@@ -471,11 +471,7 @@ internals.themeAssembler = {
     },
     getTranslations: function (callback) {
         LangAssembler.assemble(function (err, translations) {
-            translations = _.mapValues(translations, function (locales, lang) {
-                return JSON.parse(locales);
-            });
-
-            callback(null, translations);
+            callback(null, _.mapValues(translations, locales => JSON.parse(locales)));
         });
     }
 };
