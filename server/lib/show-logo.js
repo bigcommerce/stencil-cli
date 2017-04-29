@@ -1,6 +1,6 @@
 require('colors');
 
-const logo = '\n';
+var logo = '\n';
 logo += "                                     `+h\n".blue;
 logo += "                                   `+ddd\n".blue;
 logo += "                                 .oddddd\n".blue;

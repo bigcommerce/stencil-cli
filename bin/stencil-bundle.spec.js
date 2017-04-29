@@ -98,7 +98,6 @@ describe('Stencil Bundle', () => {
         Sinon.stub(bundleValidator.prototype, 'validateObjects').callsArgWith(1, null);
 
         Bundle.assembleTemplatesTask((err, result) => {
-            console.log('result', result);
             expect(err).to.be.null();
             expect(result.page).to.equal('test');
             expect(result.page2).to.equal('test2');
