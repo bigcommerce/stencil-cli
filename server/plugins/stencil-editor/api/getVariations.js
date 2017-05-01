@@ -33,9 +33,9 @@ module.exports = function (options, themeConfig) {
                     {
                         type: "not_found",
                         title: "Not Found",
-                        detail: "Variation ID not found"
-                    }
-                ]
+                        detail: "Variation ID not found",
+                    },
+                ],
             }).code(404);
         }
 
@@ -55,7 +55,7 @@ module.exports = function (options, themeConfig) {
                     id: "string",
                     name: "string",
                     contactUrl: "string",
-                    contactEmail: "string"
+                    contactEmail: "string",
                 },
                 description: themeConfig.getDescription(),
                 industries: variation.meta.industries,
@@ -64,7 +64,7 @@ module.exports = function (options, themeConfig) {
                 screenshot: {
                     largePreview: desktopScreenshot,
                     largeThumb: desktopScreenshot,
-                    smallThumb: desktopScreenshot
+                    smallThumb: desktopScreenshot,
                 },
                 mobileScreenshot: mobileScreenshot,
                 demoUrl: variation.meta.demo_url,
@@ -75,15 +75,14 @@ module.exports = function (options, themeConfig) {
                 relatedVariations: getRelatedVarations(options, themeConfig),
                 configurationId: variationIndex + 1,
                 defaultConfigurationId: variationIndex + 1,
-                isCurrent: options.variationIndex === variationIndex
+                isCurrent: options.variationIndex === variationIndex,
             },
-            meta: variation.meta
+            meta: variation.meta,
         });
     };
 };
 
 function getRelatedVarations(options, themeConfig) {
-    var currentVariationIndex = themeConfig.variationIndex;
     var relatedVariations = [];
     var variation;
     var screenshot;
@@ -99,10 +98,10 @@ function getRelatedVarations(options, themeConfig) {
             screenshot: {
                 largePreview: screenshot,
                 largeThumb: screenshot,
-                smallThumb: screenshot
+                smallThumb: screenshot,
             },
             configurationId: index + 1,
-            isCurrent: options.variationIndex === index
+            isCurrent: options.variationIndex === index,
         });
     };
 

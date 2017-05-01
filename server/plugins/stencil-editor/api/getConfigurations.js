@@ -22,9 +22,9 @@ module.exports = function (options, themeConfig) {
                 id: themeConfig.variationIndex + 1,
                 variationId: themeConfig.variationIndex + 1,
                 storeHash: 'hash',
-                settings: themeConfig.getConfig().settings
+                settings: themeConfig.getConfig().settings,
             },
-            meta: {}
+            meta: {},
         });
     };
 };

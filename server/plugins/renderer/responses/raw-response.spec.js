@@ -1,12 +1,8 @@
 'use strict';
 
-const _ = require('lodash');
 const Code = require('code');
-const Hapi = require('hapi');
 const Lab = require('lab');
-const Path = require('path');
 const sinon = require('sinon');
-const Wreck = require('wreck');
 const RawResponse = require('./raw-response');
 const lab = exports.lab = Lab.script();
 const expect = Code.expect;

@@ -1,8 +1,6 @@
 var wreck = require('wreck');
-var url = require('url');
 
 module.exports = {
-
     /**
      * Simple function to create the needed base64 token for Stencil Authorization
      * @param {string} username
@@ -35,9 +33,9 @@ module.exports = {
             var httpsOpts = {
                 rejectUnauthorized: false,
                 headers: {
-                    'Authorization': 'Basic ' + self.generate(options.username, options.token)
+                    'Authorization': 'Basic ' + self.generate(options.username, options.token),
 
-                }
+                },
             };
 
         } catch (e) {
@@ -57,5 +55,5 @@ module.exports = {
                 return callback(null, {authorized: false,  statusCode: authRepsonse.statusCode})
             }
         })
-    }
+    },
 };

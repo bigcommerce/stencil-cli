@@ -1,17 +1,16 @@
-var Code = require('code');
-var Fs = require('fs');
-var Lab = require('lab');
-var Path = require('path');
-var Sinon = require('sinon');
-var lab = exports.lab = Lab.script();
-var validator = new (require('jsonschema').Validator)();
-var ThemeConfig = require('../../../../lib/theme-config');
-var GetVersions = require('./getVersions');
-var responseSchema = require('../../../../test/_mocks/api/getVersions.schema');
+const Code = require('code');
+const Lab = require('lab');
+const Path = require('path');
+const Sinon = require('sinon');
+const lab = exports.lab = Lab.script();
+const validator = new (require('jsonschema').Validator)();
+const ThemeConfig = require('../../../../lib/theme-config');
+const GetVersions = require('./getVersions');
+const responseSchema = require('../../../../test/_mocks/api/getVersions.schema');
 
 lab.describe('GET /versions/{id} api endpoint', function() {
     var requestStub = {
-        log: function () {}
+        log: function () {},
     };
     var options = {
         themeEditorHost: 'http://localhost:8181',
@@ -99,7 +98,7 @@ lab.describe('GET /versions/{id} api endpoint', function() {
                     Code.expect(code).to.be.equal(400);
 
                     done();
-                }
+                },
             };
         });
     });

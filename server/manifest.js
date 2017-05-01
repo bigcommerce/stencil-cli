@@ -1,7 +1,7 @@
 var Confidence = require('confidence'),
     config = require('./config'),
     criteria = {
-        env: process.env.NODE_ENV
+        env: process.env.NODE_ENV,
     },
     store,
     manifest;
@@ -12,7 +12,7 @@ manifest = {
         host: config.get('/server/host'),
         port: config.get('/server/port'),
         options: config.get('/server/options'),
-        tls: config.get('/server/tls')
+        tls: config.get('/server/tls'),
     }],
     plugins: {
         // Third Party Plugins
@@ -20,8 +20,8 @@ manifest = {
         // First Party Plugins
         './plugins/renderer/renderer.module': {},
         './plugins/router/router.module': {},
-        './plugins/theme-assets/theme-assets.module': config.get('/themeAssets')
-    }
+        './plugins/theme-assets/theme-assets.module': config.get('/themeAssets'),
+    },
 };
 
 store = new Confidence.Store(manifest);

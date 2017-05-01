@@ -1,7 +1,6 @@
-var _ = require('lodash'),
-    Paper = require('@bigcommerce/stencil-paper'),
-    Url = require('url'),
-    internals = {};
+const _ = require('lodash');
+const Paper = require('@bigcommerce/stencil-paper');
+const internals = {};
 
 module.exports = function (data, assembler) {
     this.respond = function (request, reply) {
@@ -99,20 +98,16 @@ internals.makeDecorator = function (request, context) {
 /**
  * Scape html entities
  */
-internals.escapeHtml = function () {
-    var charsToReplace = {
+internals.escapeHtml = function (html) {
+    const charsToReplace = {
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
-        '"': '&#34;'
+        '"': '&#34;',
     };
 
-    return function (html) {
-        return html.replace(/[&<>"]/g, function (tag) {
-            return charsToReplace[tag] || tag;
-        });
-    }
-}();
+    return html.replace(/[&<>"]/g, tag => charsToReplace[tag] || tag);
+}
 
 /**
  * Scape special characters for regular expression

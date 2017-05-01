@@ -22,9 +22,9 @@ module.exports = function (options, themeConfig) {
                         {
                             type: 'parse_error',
                             title: 'Parse Error',
-                            detail: err.message
-                        }
-                    ]
+                            detail: err.message,
+                        },
+                    ],
                 }).code(400);
             }
 
@@ -43,9 +43,9 @@ module.exports = function (options, themeConfig) {
                     status: 'draft',
                     numVariations: themeConfig.getVariationCount(),
                     defaultVariationId: themeConfig.variationIndex + 1,
-                    screenshot: getScreenshotUrl(options, themeConfig.getComposedImage())
+                    screenshot: getScreenshotUrl(options, themeConfig.getComposedImage()),
                 },
-                meta: themeConfig.getMeta()
+                meta: themeConfig.getMeta(),
             });
         });
     };

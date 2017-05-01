@@ -1,15 +1,13 @@
-var Boom = require('boom'),
-    CssAssembler = require('../../../lib/css-assembler'),
-    Hoek = require('hoek'),
-    Path = require('path'),
-    StencilStyles = require('@bigcommerce/stencil-styles'),
-    Fs = require('fs'),
-    _ = require('lodash'),
-    internals = {
-        options: {
-            cssBasePath: ''
-        }
-    };
+const Boom = require('boom');
+const CssAssembler = require('../../../lib/css-assembler');
+const Hoek = require('hoek');
+const Path = require('path');
+const StencilStyles = require('@bigcommerce/stencil-styles');
+const internals = {
+    options: {
+        cssBasePath: '',
+    },
+};
 
 module.exports.register = function (server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);
@@ -24,7 +22,7 @@ module.exports.register = function (server, options, next) {
 
 module.exports.register.attributes = {
     name: 'ThemeAssets',
-    version: '0.0.1'
+    version: '0.0.1',
 };
 
 /**
@@ -90,8 +88,8 @@ internals.cssHandler = function (request, reply) {
             sourceMap: true,
             autoprefixerOptions: {
                 cascade: configuration.autoprefixer_cascade,
-                browsers: configuration.autoprefixer_browsers
-            }
+                browsers: configuration.autoprefixer_browsers,
+            },
         };
 
         internals.stencilStyles.compileCss(compiler, params, function (err, css) {

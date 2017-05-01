@@ -14,7 +14,7 @@ describe('Router', () => {
                 server.expose('implementation', (request, reply) => reply('RendererHandlerFired'));
 
                 next();
-            }
+            },
         },
         ThemeAssetsMock = {
             register: function(server, options, next) {
@@ -22,28 +22,28 @@ describe('Router', () => {
                 server.expose('assetHandler', (request, reply) => reply('assetHandlerFired'));
 
                 next();
-            }
+            },
         };
 
     RendererPluginMock.register.attributes = {
         name: 'Renderer',
-        version: '0.0.1'
+        version: '0.0.1',
     };
 
     ThemeAssetsMock.register.attributes = {
         name: 'ThemeAssets',
-        version: '0.0.1'
+        version: '0.0.1',
     };
 
     server.connection({
-        port: 3000
+        port: 3000,
     });
 
     lab.before(done => {
         server.register([
             RendererPluginMock,
             ThemeAssetsMock,
-            router
+            router,
         ], err => {
             expect(err).to.equal(undefined);
             server.start(done);
@@ -57,7 +57,7 @@ describe('Router', () => {
     it('should call the Renderer handler', done => {
         server.inject({
             method: 'GET',
-            url: '/test'
+            url: '/test',
         }, response => {
             expect(response.statusCode).to.equal(200);
             expect(response.payload).to.equal('RendererHandlerFired');
@@ -69,7 +69,7 @@ describe('Router', () => {
     it('should call the CSS handler', done => {
         server.inject({
             method: 'GET',
-            url: '/stencil/123/css/file.css'
+            url: '/stencil/123/css/file.css',
         }, response => {
             expect(response.statusCode).to.equal(200);
             expect(response.payload).to.equal('CssHandlerFired');
@@ -81,7 +81,7 @@ describe('Router', () => {
     it('should call the assets handler', done => {
         server.inject({
             method: 'GET',
-            url: '/stencil/123/js/file.js'
+            url: '/stencil/123/js/file.js',
         }, response => {
             expect(response.statusCode).to.equal(200);
             expect(response.payload).to.equal('assetHandlerFired');

@@ -1,0 +1,2 @@
+server/plugins/stencil-editor/public/**/*.js
+server/plugins/stencil-editor/js/*.js
