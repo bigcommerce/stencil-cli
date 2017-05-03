@@ -3,6 +3,7 @@ const Hoek = require('hoek');
 const Path = require('path');
 const ThemeConfig = require('../../../lib/theme-config');
 const handlers = {};
+const querystring = require('querystring');
 const internals = {
     options: {},
 };
@@ -40,6 +41,15 @@ module.exports.register = (server, options, next) => {
             path: '/',
             config: routesConfig,
             handler: (request, reply) => reply.redirect(`/theme-editor/theme/${variationId}/${configurationId}`),
+        },
+        {
+            method: 'GET',
+            path: '/manage/theme-editor',
+            config: routesConfig,
+            handler: (request, reply) => {
+                const params = querystring.stringify(request.query);
+                reply.redirect(`/theme-editor/theme/${variationId}/${configurationId}?${params}`)
+            },
         },
         {
             method: 'GET',
