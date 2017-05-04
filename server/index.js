@@ -26,6 +26,7 @@ module.exports = function(options, callback) {
     config.plugins['./plugins/renderer/renderer.module'].username = options.dotStencilFile.username;
     config.plugins['./plugins/renderer/renderer.module'].token = options.dotStencilFile.token;
     config.plugins['./plugins/renderer/renderer.module'].customLayouts = options.dotStencilFile.customLayouts;
+    config.plugins['./plugins/renderer/renderer.module'].stencilEditorPort = options.stencilEditorPort;
 
     Glue.compose(config, {relativeTo: __dirname}, function (err, server) {
         if (err) {
