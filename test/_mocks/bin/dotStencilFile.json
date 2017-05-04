@@ -1,4 +1,6 @@
 {
-  "normalStoreUrl": "http://www.example.com",
-  "port": 4000
+  "normalStoreUrl": "https://www.example.com",
+  "port": 4000,
+  "clientId": "clientId",
+  "accessToken": "accessToken"
 }
