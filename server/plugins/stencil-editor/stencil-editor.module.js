@@ -81,6 +81,16 @@ module.exports.register = (server, options, next) => {
         },
         {
             method: 'GET',
+            path: '/bower/ng-stencil-editor/dist/svg/{path*}',
+            config: routesConfig,
+            handler: {
+                directory: {
+                    path: Path.join(__dirname, './public/dist/ng-stencil-editor/svg/'),
+                },
+            },
+        },
+        {
+            method: 'GET',
             path: '/meta/{path*}',
             config: routesConfig,
             handler: {
