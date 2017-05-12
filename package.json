@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "test": "npm run lint && npm run run-tests",
     "run-tests": "lab bin/ server/ lib/ -t 80 -l -e 'development' -P spec",
-    "test-cov-html": "lab bin/ server/ lib/ -r html -o coverage.html -P spec"
+    "test-cov-html": "lab bin/ server/ lib/ -r html -o coverage.html -P spec",
+    "dev": "webpack",
+    "deploy": "webpack --deploy"
   },
   "bin": {
     "stencil": "./bin/stencil",
@@ -102,6 +104,7 @@
     "jschannel": "git@github.com:bigcommerce-labs/jschannel.git",
     "ng-common": "git@github.com:bigcommerce-labs/ng-common.git",
     "ng-stencil-editor": "git@github.com:bigcommerce-labs/ng-stencil-editor.git",
+    "stencil-preview-sdk": "git@github.com:bigcommerce-labs/stencil-preview-sdk.git",
     "script-loader": "^0.7.0",
     "webpack": "^1.13.0",
     "webpack-livereload-plugin": "^0.8.1"

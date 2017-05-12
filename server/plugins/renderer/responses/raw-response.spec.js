@@ -4,6 +4,7 @@ const Code = require('code');
 const Lab = require('lab');
 const sinon = require('sinon');
 const RawResponse = require('./raw-response');
+const Utils = require('../../../lib/utils');
 const lab = exports.lab = Lab.script();
 const expect = Code.expect;
 const it = lab.it;
@@ -52,7 +53,7 @@ lab.describe('RawResponse', () => {
 
             rawResponse.respond(request, reply);
 
-            expect(reply.lastCall.args[0]).to.contain('<link href="/stencil/theme/2/css/checkout.css"');
+            expect(reply.lastCall.args[0]).to.contain(`<link href="/stencil/${Utils.int2uuid(1)}/${Utils.int2uuid(2)}/css/checkout.css"`);
 
             done();
         });

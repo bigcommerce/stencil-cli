@@ -3,6 +3,7 @@ const Lab = require('lab');
 const Sinon = require('sinon');
 const lab = exports.lab = Lab.script();
 const validator = new (require('jsonschema').Validator)();
+const Utils = require('../../../lib/utils');
 const PostConfigurations = require('./postConfigurations');
 const responseSchema = require('../../../../test/_mocks/api/postConfigurations.schema');
 
@@ -15,8 +16,8 @@ lab.describe('POST /configurations/{id} api endpoint', function () {
         };
         var requestStub = {
             payload: {
-                variationId: 1,
-                preview: 1,
+                variationId: Utils.int2uuid(1),
+                preview: true,
                 settings: {
                     a: 1,
                 },
@@ -46,7 +47,7 @@ lab.describe('POST /configurations/{id} api endpoint', function () {
         };
         var requestStub = {
             payload: {
-                variationId: 2,
+                variationId: Utils.int2uuid(2),
                 settings: {
                     b: 1,
                 },
@@ -77,7 +78,7 @@ lab.describe('POST /configurations/{id} api endpoint', function () {
         var requestStub = {
             payload: {
                 reset: true,
-                variationId: 1,
+                variationId: Utils.int2uuid(1),
                 settings: {
                     b: 1,
                 },

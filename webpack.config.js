@@ -26,7 +26,6 @@ var config = {
     watch: true,
     entry: {
         app: './server/plugins/stencil-editor/js/app.js',
-        sdk: './server/plugins/stencil-editor/js/sdk.js',
     },
     output: {
         filename: '[name].js',
@@ -64,6 +63,11 @@ var config = {
                 context: 'node_modules/ng-stencil-editor/dist',
                 from: '**/*.{css,svg}',
                 to: Path.join(distPath, 'ng-stencil-editor'),
+            },
+            {
+                context: 'node_modules/stencil-preview-sdk/dist',
+                from: 'js/stencil-preview-sdk.js',
+                to: distPath,
             },
         ]),
     ],
