@@ -1,5 +1,5 @@
-var Cache = require('memory-cache');
-var _ = require('lodash');
+const Cache = require('memory-cache');
+const Utils = require('../../../lib/utils');
 
 /**
  * Returns a request handler for POST /api/configurations
@@ -15,7 +15,7 @@ module.exports = function (options, themeConfig) {
      */
     return function (request, reply) {
         var payload = request.payload || {};
-        var variationIndex = _.parseInt(payload.variationId - 1, 10);
+        var variationIndex = Utils.uuid2int(payload.variationId) - 1;
         var saveToFile = !payload.preview;
 
         if (payload.reset || payload.publish) {
@@ -38,7 +38,7 @@ module.exports = function (options, themeConfig) {
 
         reply({
             data: {
-                configurationId: variationIndex + 1,
+                configurationId: Utils.int2uuid(variationIndex + 1),
             },
             meta: {},
         });

@@ -1,5 +1,6 @@
 const Boom = require('boom');
 const CssAssembler = require('../../../lib/css-assembler');
+const Utils = require('../../lib/utils');
 const Hoek = require('hoek');
 const Path = require('path');
 const StencilStyles = require('@bigcommerce/stencil-styles');
@@ -31,9 +32,9 @@ module.exports.register.attributes = {
  * @return {number}
  */
 internals.getVariationIndex = fileName => {
-    const match = fileName.match(/.+-(.+?)$/);
+    const match = fileName.match(new RegExp(`.+-(${Utils.uuidRegExp})$`));
 
-    return match ? parseInt(match[1], 10) - 1 : 0;
+    return match ? Utils.uuid2int(match[1]) - 1 : 0;
 };
 
 /**
@@ -42,7 +43,7 @@ internals.getVariationIndex = fileName => {
  * @return {string}
  */
 internals.getOriginalFileNmae = fileName => {
-    const match = fileName.match(/(.+)-.+?$/);
+    const match = fileName.match(new RegExp(`(.+)-${Utils.uuidRegExp}$`));
 
     return match ? match[1] : fileName;
 };

@@ -1,5 +1,6 @@
-var _ = require('lodash'),
-    Url = require('url');
+const _ = require('lodash');
+const Url = require('url');
+const uuidRegExp = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-([0-9a-f]{12})';
 
 /**
  * Strip domain from cookies
@@ -7,7 +8,7 @@ var _ = require('lodash'),
  * @param cookies
  * @returns {Array}
  */
-module.exports.stripDomainFromCookies = function(cookies) {
+function stripDomainFromCookies(cookies) {
     var fixedCookies = [];
 
     _.forEach(cookies, function(cookie) {
@@ -15,7 +16,7 @@ module.exports.stripDomainFromCookies = function(cookies) {
     });
 
     return fixedCookies;
-};
+}
 
 /**
  * Strip domain from redirectUrl if it matches the current storeUrl, if not, leave it.
@@ -24,7 +25,7 @@ module.exports.stripDomainFromCookies = function(cookies) {
  * @param redirectUrl
  * @returns {string}
  */
-module.exports.normalizeRedirectUrl = function(request, redirectUrl) {
+function normalizeRedirectUrl(request, redirectUrl) {
     var storeHost = Url.parse(request.app.normalStoreUrl).host,
         secureStoreHost = Url.parse(request.app.storeUrl).host,
         redirectUrlObj = Url.parse(redirectUrl),
@@ -39,4 +40,39 @@ module.exports.normalizeRedirectUrl = function(request, redirectUrl) {
     } else {
         return redirectUrl;
     }
-};
+}
+
+/**
+ * Convert a number to uuid
+ *
+ * @param {Number} number
+ * @returns {String}
+ */
+function int2uuid(number) {
+    const id = `000000000000${number}`.substr(-12);
+    return `00000000-0000-0000-0000-${id}`;
+}
+
+/**
+ * Convert a uuid to int
+ *
+ * @param {String} uuid
+ * @returns {Number}
+ */
+function uuid2int(uuid) {
+    const match = uuid.match(new RegExp(uuidRegExp));
+
+    if (!match) {
+        throw new Error(`Not uuid match for ${uuid}`);
+    }
+
+    return match ? parseInt(match[1], 10) : 0;
+}
+
+module.exports = {
+    stripDomainFromCookies,
+    normalizeRedirectUrl,
+    int2uuid,
+    uuid2int,
+    uuidRegExp,
+}

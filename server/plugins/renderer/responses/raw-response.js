@@ -1,8 +1,9 @@
 const _ = require('lodash');
 const cheerio = require('cheerio');
+const Utils = require('../../../lib/utils');
 const internals = {
-    stubActiveVersion: 'theme',
-    stubActiveConfig: 1,
+    stubActiveVersion: Utils.int2uuid(1),
+    stubActiveConfig: Utils.int2uuid(1),
 };
 
 /**
@@ -15,7 +16,7 @@ function RawResponse(data, headers, statusCode) {
 
     this.respond = function (request, reply) {
         var payload = data;
-        internals.stubActiveConfig = request.app.themeConfig.variationIndex + 1;
+        internals.stubActiveConfig = Utils.int2uuid(request.app.themeConfig.variationIndex + 1);
 
         if (request.url.path.startsWith('/checkout.php') || request.url.path.startsWith('/finishorder.php')) {
             payload = appendCss(payload.toString('utf8'));

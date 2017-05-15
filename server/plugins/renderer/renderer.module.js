@@ -1,23 +1,23 @@
-var _ = require('lodash'),
-    Boom = require('boom'),
-    Cache = require('memory-cache'),
-    Crypto = require('crypto'),
-    Frontmatter = require('front-matter'),
-    Hoek = require('hoek'),
-    Path = require('path'),
-    LangAssembler = require('../../../lib/lang-assembler'),
-    Pkg = require('../../../package.json'),
-    Responses = require('./responses/responses'),
-    TemplateAssembler = require('../../../lib/template-assembler'),
-    Url = require('url'),
-    Utils = require('../../lib/utils'),
-    stencilToken = require('../../lib/stencil-token'),
-    Wreck = require('wreck'),
-    internals = {
-        options: {},
-        cacheTTL: 1000 * 15, // 15 seconds
-        validCustomTemplatePageTypes: ['brand', 'category', 'page', 'product'],
-    };
+const  _ = require('lodash');
+const Boom = require('boom');
+const Cache = require('memory-cache');
+const Crypto = require('crypto');
+const Frontmatter = require('front-matter');
+const Hoek = require('hoek');
+const Path = require('path');
+const LangAssembler = require('../../../lib/lang-assembler');
+const Pkg = require('../../../package.json');
+const Responses = require('./responses/responses');
+const TemplateAssembler = require('../../../lib/template-assembler');
+const Url = require('url');
+const Utils = require('../../lib/utils');
+const stencilToken = require('../../lib/stencil-token');
+const Wreck = require('wreck');
+const internals = {
+    options: {},
+    cacheTTL: 1000 * 15, // 15 seconds
+    validCustomTemplatePageTypes: ['brand', 'category', 'page', 'product'],
+};
 
 module.exports.register = function (server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);
@@ -69,18 +69,16 @@ internals.sha1sum = function (input) {
  * @param callback
  */
 internals.getResponse = function (request, callback) {
-    var staplerUrlObject = request.app.staplerUrl ? Url.parse(request.app.staplerUrl) : Url.parse(request.app.storeUrl),
-        urlObject = _.clone(request.url, true),
-        url,
-        requestSignature,
-        httpOpts = {
-            rejectUnauthorized: false,
-            headers: internals.getHeaders(request, {get_template_file: true, get_data_only: true}),
-            payload: request.payload,
-        },
-        httpOptsSignature,
-        responseArgs,
-        cachedResponse;
+    const staplerUrlObject = request.app.staplerUrl ? Url.parse(request.app.staplerUrl) : Url.parse(request.app.storeUrl);
+    const urlObject = _.clone(request.url, true);
+    const httpOpts = {
+        rejectUnauthorized: false,
+        headers: internals.getHeaders(request, {
+            get_template_file: true,
+            get_data_only: true,
+        }),
+        payload: request.payload,
+    };
 
     // Set host to stapler host
     httpOpts.headers.host = staplerUrlObject.host;
@@ -94,24 +92,24 @@ internals.getResponse = function (request, callback) {
         return key;
     });
 
-    url = Url.format({
+    const url = Url.format({
         protocol: staplerUrlObject.protocol,
         host: staplerUrlObject.host,
         pathname: urlObject.pathname,
         search: urlObject.search,
     });
 
-    responseArgs = {
+    const responseArgs = {
         httpOpts: httpOpts,
         staplerUrlObject: staplerUrlObject,
         url: url,
     };
 
     // create request signature for caching
-    httpOptsSignature = _.cloneDeep(httpOpts.headers);
+    const httpOptsSignature = _.cloneDeep(httpOpts.headers);
     delete httpOptsSignature.cookie;
-    requestSignature = internals.sha1sum(request.method) + internals.sha1sum(url) + internals.sha1sum(httpOptsSignature);
-    cachedResponse = Cache.get(requestSignature);
+    const requestSignature = internals.sha1sum(request.method) + internals.sha1sum(url) + internals.sha1sum(httpOptsSignature);
+    const cachedResponse = Cache.get(requestSignature);
 
     // check request signature and use cache, if available
     if (cachedResponse && 'get' === request.method && internals.options.useCache) {
@@ -387,11 +385,11 @@ internals.getPencilResponse = function (data, request, response, configuration) 
     data.context.theme_settings = configuration.settings;
 
     // change cdn settings to serve local assets
-    data.context.settings['cdn_url'] = '';
-    data.context.settings['theme_version_id'] = 'theme';
-    data.context.settings['theme_config_id'] = request.app.themeConfig.variationIndex + 1;
-    data.context.settings['theme_session_id'] = null;
-    data.context.settings['maintenance'] = {secure_path: `http://localhost:${internals.options.stencilEditorPort}`};
+    data.context.settings.cdn_url = '';
+    data.context.settings.theme_version_id = Utils.int2uuid(1);
+    data.context.settings.theme_config_id = Utils.int2uuid(request.app.themeConfig.variationIndex + 1);
+    data.context.settings.theme_session_id = null;
+    data.context.settings.maintenance = {secure_path: `http://localhost:${internals.options.stencilEditorPort}`};
 
     return new Responses.PencilResponse({
         template_file: internals.getTemplatePath(request.path, data),

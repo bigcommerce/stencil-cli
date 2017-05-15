@@ -2,6 +2,7 @@ const Handlebars = require('handlebars');
 const Hoek = require('hoek');
 const Path = require('path');
 const ThemeConfig = require('../../../lib/theme-config');
+const Utils = require('../../lib/utils');
 const handlers = {};
 const querystring = require('querystring');
 const internals = {
@@ -32,8 +33,8 @@ module.exports.register = (server, options, next) => {
     options.themeServer.ext('onRequest', handlers.onRequest);
 
     // When using stencil-cli variationId = configurationId
-    configurationId = themeConfig.variationIndex + 1;
-    variationId = themeConfig.variationIndex + 1;
+    configurationId = Utils.int2uuid(themeConfig.variationIndex + 1);
+    variationId = Utils.int2uuid(themeConfig.variationIndex + 1);
 
     server.route([
         {
@@ -152,7 +153,7 @@ handlers.onRequest = (request, reply) => {
     // Only add the SDK if stencilEditor is a query parameter or the cookie preview_config_id is set
     if (request.query.stencilEditor || (request.headers.cookie || '').indexOf('stencil_preview') !== -1) {
         request.app.decorators.push(content => {
-            const scriptTags = `<script src="//localhost:${internals.options.stencilEditorPort}/dist/sdk.js"></script>\n`;
+            const scriptTags = `<script src="//localhost:${internals.options.stencilEditorPort}/dist/stencil-preview-sdk.js"></script>\n`;
             return content.replace(new RegExp('</body>'), `${scriptTags}\n</body>`);
         });
     }

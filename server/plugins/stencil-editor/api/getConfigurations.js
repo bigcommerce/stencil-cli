@@ -1,4 +1,4 @@
-var _ = require('lodash');
+const Utils = require('../../../lib/utils');
 
 /**
  * Returns a request handler for GET /api/configurations/{configurationId}
@@ -13,14 +13,14 @@ module.exports = function (options, themeConfig) {
      * @param  {Object} reply
      */
     return function (request, reply) {
-        var variationIndex = _.parseInt(request.params.configurationId - 1, 10);
+        var variationIndex = Utils.uuid2int(request.params.configurationId) - 1;
 
         themeConfig.setVariation(variationIndex);
 
         reply({
             data: {
-                id: themeConfig.variationIndex + 1,
-                variationId: themeConfig.variationIndex + 1,
+                id: Utils.int2uuid(themeConfig.variationIndex + 1),
+                variationId: Utils.int2uuid(themeConfig.variationIndex + 1),
                 storeHash: 'hash',
                 settings: themeConfig.getConfig().settings,
             },

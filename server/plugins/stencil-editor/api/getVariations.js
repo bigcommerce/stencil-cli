@@ -1,6 +1,6 @@
 var Path = require('path');
 var Url = require('url');
-var _ = require('lodash');
+const Utils = require('../../../lib/utils');
 
 /**
  * Returns a request handler for GET /api/variations/{variationId}
@@ -15,7 +15,7 @@ module.exports = function (options, themeConfig) {
      * @param  {Object} reply
      */
     return function (request, reply) {
-        var variationIndex = _.parseInt(request.params.variationId - 1, 10);
+        var variationIndex = Utils.uuid2int(request.params.variationId) - 1;
         var variation;
         var desktopScreenshot;
         var mobileScreenshot;
@@ -45,7 +45,7 @@ module.exports = function (options, themeConfig) {
 
         reply({
             data: {
-                id: variationIndex + 1,
+                id: Utils.int2uuid(variationIndex + 1),
                 themeName: themeConfig.getName(),
                 themeId: "theme",
                 versionId: version,
@@ -73,8 +73,8 @@ module.exports = function (options, themeConfig) {
                 releaseNotes: "string",
                 status: "draft",
                 relatedVariations: getRelatedVarations(options, themeConfig),
-                configurationId: variationIndex + 1,
-                defaultConfigurationId: variationIndex + 1,
+                configurationId: Utils.int2uuid(variationIndex + 1),
+                defaultConfigurationId: Utils.int2uuid(variationIndex + 1),
                 isCurrent: options.variationIndex === variationIndex,
             },
             meta: variation.meta,
@@ -93,14 +93,14 @@ function getRelatedVarations(options, themeConfig) {
         screenshot = getScreenshotUrl(options, variation.meta.desktop_screenshot);
 
         relatedVariations.push({
-            id: index + 1,
+            id: Utils.int2uuid(index + 1),
             variationName: variation.name,
             screenshot: {
                 largePreview: screenshot,
                 largeThumb: screenshot,
                 smallThumb: screenshot,
             },
-            configurationId: index + 1,
+            configurationId: Utils.int2uuid(index + 1),
             isCurrent: options.variationIndex === index,
         });
     };
