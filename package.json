@@ -49,7 +49,6 @@
     "dateformat": "^2.0.0",
     "decompress-zip": "^0.2.0",
     "eslint": "^2.2.0",
-    "eslint-config-airbnb": "^6.0.2",
     "front-matter": "^1.0.0",
     "github": "^8.1.0",
     "glob": "^5.0.14",
