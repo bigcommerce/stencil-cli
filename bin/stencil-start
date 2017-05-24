@@ -20,15 +20,11 @@ var Wreck = require('wreck');
 var jsonLint = require('../lib/json-lint');
 var versionCheck = require('../lib/version-check');
 var themePath = process.cwd();
-var allowedCssCompilers = ['scss', 'less'];
 var browserSyncPort;
-var cssCompilerDir;
-var cssWatchBaseDir = Path.join(themePath, 'assets/');
 var templatePath = Path.join(themePath, 'templates');
 var dotStencilFilePath = Path.join(themePath, '.stencil');
 var themeConfigPath = Path.join(themePath, 'config.json');
 var dotStencilFile;
-var isTopLevelCssRegex;
 var stencilServerPort;
 var themeConfig;
 var configuration;
@@ -86,14 +82,8 @@ try {
     return console.error(e.stack);
 }
 
-if (allowedCssCompilers.indexOf(configuration.css_compiler) === -1) {
-    return console.error('Error: Only %s are allowed as CSS Compilers'.red, allowedCssCompilers.join(', '));
-}
-
 browserSyncPort = dotStencilFile.port;
 stencilServerPort = ++dotStencilFile.port;
-cssCompilerDir = cssWatchBaseDir + configuration.css_compiler;
-isTopLevelCssRegex = new RegExp('^(?!_).+\.(?:' + configuration.css_compiler + ')$');
 
 if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
     return console.error(
@@ -206,33 +196,10 @@ function startServer() {
         // Display Set up information
         console.log(startUpInformation());
 
-        /**
-         * Watch the appropriate css directory based on which compiler was chosen.
-         * This will run on each file (and files in sub-directories) when the server starts
-         * up. We only want to run compilation on top level files as the ones in sub directories
-         * are most likely include files and will be pulled in by the top level files.
-         *
-         * When a file in a sub directory changes, we have to recompile all top level files because
-         * more than one could have included the changed file.
-         */
-        Bs.watch(cssCompilerDir, (event, file) => {
-            var relativePath,
-                changedFile,
-                basename;
-
-            if (event === 'add' || event === 'change') {
-                relativePath = Path.relative(cssCompilerDir, file);
-                // Only run it through if it's a top level file
-                if (
-                    !relativePath.match(/\//) && isTopLevelCssRegex.test(relativePath)
-                ) {
-                    basename = Path.basename(file, '.' + configuration.css_compiler);
-                    changedFile = Path.join(process.cwd(), 'assets/css', basename + '.css');
-                    Bs.reload(changedFile);
-                    // Only reload top level files if this is a change event and it's in a sub directory
-                } else if (event === 'change') {
-                    reloadTopLevelCss(cssCompilerDir);
-                }
+        // Watch sccs directory and automatically reload all css files if a file changes
+        Bs.watch(Path.join(themePath, 'assets/scss'), event => {
+            if (event === 'change') {
+                Bs.reload(`stencil/*.css`);
             }
         });
 
@@ -342,32 +309,7 @@ function assembleTemplates(templatePath, callback) {
 }
 
 /**
- * Reloads all top level scss/less files that aren't prefixed with an underscore.
- *
- * @param cssCompilerDir
- */
-function reloadTopLevelCss(cssCompilerDir) {
-    var changedFile,
-        basename;
-
-    Fs.readdir(cssCompilerDir, function (err, files) {
-        if (err) {
-            return console.error(err);
-        }
-
-        files.filter(function (file) {
-            return isTopLevelCssRegex.test(file);
-        }).forEach(function (file) {
-            basename = Path.basename(file, '.' + configuration.css_compiler);
-            changedFile = Path.join(process.cwd(), 'assets/css', basename + '.css');
-
-            Bs.reload(changedFile);
-        });
-    });
-}
-
-/**
- * Check if file exist syncronous
+ * Check if file exist synchronous
  * @param  {string} path
  * @return {boolean}
  */
