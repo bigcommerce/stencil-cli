@@ -106,11 +106,15 @@ if (dotStencilFile.staplerUrl) {
 Wreck.get(
     Url.resolve(staplerUrl, '/stencil-version-check?v=' + Pkg.version),
     {
-        headers: headers
+        headers: headers,
+        rejectUnauthorized: false,
     },
     function (err, res, payload) {
         var retError = err !== null,
-            bundleTask;
+            bundleTask,
+            options = {
+                sslUrl: payload.sslUrl
+            }
 
         try {
             payload = jsonLint.parse(payload);
@@ -132,34 +136,24 @@ Wreck.get(
                 '$ npm install -g @bigcommerce/stencil-cli'.cyan
             );
         } else {
-            stencilToken.getAuth({
-                username: dotStencilFile.username,
-                token: dotStencilFile.token,
-                host: payload.sslUrl
-            }, function (err, response) {
-                if (response.authorized) {
-                    dotStencilFile.storeUrl = payload.sslUrl;
-                    dotStencilFile.normalStoreUrl = payload.baseUrl;
-                    dotStencilFile.stencilServerPort = stencilServerPort;
+            dotStencilFile.storeUrl = payload.sslUrl;
+            dotStencilFile.normalStoreUrl = payload.baseUrl;
+            dotStencilFile.stencilServerPort = stencilServerPort;
 
-                    if (configuration.jspm && Program.test) {
-                        bundleTask = JspmAssembler.assemble(
-                            {
-                                bootstrap: configuration.jspm.bootstrap
-                            },
-                            themePath
-                        );
+            if (configuration.jspm && Program.test) {
+                bundleTask = JspmAssembler.assemble(
+                    {
+                        bootstrap: configuration.jspm.bootstrap
+                    },
+                    themePath
+                );
 
-                        bundleTask(function (result) {
-                            return startServer();
-                        });
-                    } else {
-                        return startServer();
-                    }
-                } else {
-                    return console.error('Unauthorized, please use a valid username/token'.red);
-                }
-            })
+                bundleTask(function (result) {
+                    return startServer();
+                });
+            } else {
+                return startServer();
+            }
         }
     }
 );
