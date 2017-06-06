@@ -1,29 +1,29 @@
-var Code = require('code');
-var Hapi = require('hapi');
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var expect = Code.expect;
-var it = lab.it;
-var router = require('./router.module');
+const Code = require('code');
+const Hapi = require('hapi');
+const Lab = require('lab');
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const expect = Code.expect;
+const it = lab.it;
+const router = require('./router.module');
 
 describe('Router', () => {
-    var server = new Hapi.Server(),
-        RendererPluginMock = {
-            register: function(server, options, next) {
-                server.expose('implementation', (request, reply) => reply('RendererHandlerFired'));
+    var server = new Hapi.Server();
+    const RendererPluginMock = {
+        register: function(server, options, next) {
+            server.expose('implementation', (request, reply) => reply('RendererHandlerFired'));
 
-                next();
-            },
+            next();
         },
-        ThemeAssetsMock = {
-            register: function(server, options, next) {
-                server.expose('cssHandler', (request, reply) => reply('CssHandlerFired'));
-                server.expose('assetHandler', (request, reply) => reply('assetHandlerFired'));
+    };
+    const ThemeAssetsMock = {
+        register: function(server, options, next) {
+            server.expose('cssHandler', (request, reply) => reply('CssHandlerFired'));
+            server.expose('assetHandler', (request, reply) => reply('assetHandlerFired'));
 
-                next();
-            },
-        };
+            next();
+        },
+    };
 
     RendererPluginMock.register.attributes = {
         name: 'Renderer',

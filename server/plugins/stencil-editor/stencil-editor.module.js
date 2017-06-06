@@ -96,7 +96,7 @@ module.exports.register = (server, options, next) => {
             config: routesConfig,
             handler: {
                 directory: {
-                    path: Path.join(process.cwd(), 'meta'),
+                    path: Path.join(internals.options.themePath, 'meta'),
                 },
             },
         },

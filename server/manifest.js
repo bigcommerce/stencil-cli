@@ -20,7 +20,7 @@ manifest = {
         // First Party Plugins
         './plugins/renderer/renderer.module': {},
         './plugins/router/router.module': {},
-        './plugins/theme-assets/theme-assets.module': config.get('/themeAssets'),
+        './plugins/theme-assets/theme-assets.module': {},
     },
 };
 

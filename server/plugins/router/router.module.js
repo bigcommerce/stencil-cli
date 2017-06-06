@@ -1,23 +1,23 @@
-var Hoek = require('hoek'),
-    ThemeConfig = require('../../../lib/theme-config'),
-    internals = {
-        options: {
+const Hoek = require('hoek');
+const ThemeConfig = require('../../../lib/theme-config');
+const internals = {
+    options: {
             storeUrl: '',
             apiKey: '',
             staplerUrl: '',
             port: '',
-        },
-        paths: {
-            renderer: '/{url*}',
-            staticAssets: '/assets/{path*}',
-            internalApi: '/internalapi/{path*}',
-            cdnAssets: '/stencil/{versionId}/{fileName*}',
-            cssFiles: '/stencil/{versionId}/css/{fileName}.css',
-            favicon: '/favicon.ico',
-            stencilEditor: '/stencil-editor',
-            updateParam: '/stencil-editor/update-param',
-        },
-    };
+    },
+    paths: {
+        renderer: '/{url*}',
+        staticAssets: '/assets/{path*}',
+        internalApi: '/internalapi/{path*}',
+        cdnAssets: '/stencil/{versionId}/{fileName*}',
+        cssFiles: '/stencil/{versionId}/css/{fileName}.css',
+        favicon: '/favicon.ico',
+        stencilEditor: '/stencil-editor',
+        updateParam: '/stencil-editor/update-param',
+    },
+};
 
 module.exports.register = function(server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);

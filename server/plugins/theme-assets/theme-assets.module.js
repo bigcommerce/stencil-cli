@@ -5,9 +5,7 @@ const Hoek = require('hoek');
 const Path = require('path');
 const StencilStyles = require('@bigcommerce/stencil-styles');
 const internals = {
-    options: {
-        cssBasePath: '',
-    },
+    options: {},
 };
 
 module.exports.register = function (server, options, next) {
@@ -42,7 +40,7 @@ internals.getVariationIndex = fileName => {
  * @param  {string} fileName
  * @return {string}
  */
-internals.getOriginalFileNmae = fileName => {
+internals.getOriginalFileName = fileName => {
     const match = fileName.match(new RegExp(`(.+)-${Utils.uuidRegExp}$`));
 
     return match ? match[1] : fileName;
@@ -55,13 +53,7 @@ internals.getOriginalFileNmae = fileName => {
  * @param reply
  */
 internals.cssHandler = function (request, reply) {
-    var variationIndex = internals.getVariationIndex(request.params.fileName);
-    var fileName = internals.getOriginalFileNmae(request.params.fileName);
-    var fileParts = Path.parse(fileName);
-    var compiler;
-    var basePath;
-    var pathToFile;
-    var configuration;
+    const variationIndex = internals.getVariationIndex(request.params.fileName);
 
     if (!request.app.themeConfig.variationExists(variationIndex)) {
         return reply(Boom.notFound('Variation ' + (variationIndex + 1) + ' does not exist.'));
@@ -71,16 +63,14 @@ internals.cssHandler = function (request, reply) {
     request.app.themeConfig.setVariation(variationIndex);
 
     // Get the theme configuration
-    configuration = request.app.themeConfig.getConfig();
+    const fileName = internals.getOriginalFileName(request.params.fileName);
+    const fileParts = Path.parse(fileName);
+    const pathToFile = Path.join(fileParts.dir, fileParts.name + '.scss');
+    const basePath = Path.join(internals.getThemeAssetsPath(), 'scss');
 
-    // The compiler could be 'sass' or 'less'
-    compiler = configuration.css_compiler;
-    basePath = Path.join(internals.options.assetsBasePath, compiler);
+    CssAssembler.assemble(pathToFile, basePath, 'scss', (err, files) => {
+        const configuration = request.app.themeConfig.getConfig();
 
-    // Get the path to the sass|less file
-    pathToFile = Path.join(fileParts.dir, fileParts.name + '.' + compiler);
-
-    CssAssembler.assemble(pathToFile, basePath, compiler, function(err, files) {
         var params = {
             data: files[pathToFile],
             files: files,
@@ -93,7 +83,7 @@ internals.cssHandler = function (request, reply) {
             },
         };
 
-        internals.stencilStyles.compileCss(compiler, params, function (err, css) {
+        internals.stencilStyles.compileCss('scss', params, (err, css) => {
             if (err) {
                 console.error(err);
                 return reply(Boom.badData(err));
@@ -111,7 +101,12 @@ internals.cssHandler = function (request, reply) {
  * @param reply
  */
 internals.assetHandler = function (request, reply) {
-    var filePath = Path.join(internals.options.assetsBasePath, request.params.fileName);
+    var filePath = Path.join(internals.getThemeAssetsPath(), request.params.fileName);
 
     reply.file(filePath);
+};
+
+
+internals.getThemeAssetsPath = () => {
+    return Path.join(internals.options.themePath, 'assets');
 };

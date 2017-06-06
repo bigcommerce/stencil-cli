@@ -14,7 +14,6 @@ const themePath = Path.join(process.cwd(), 'test/_mocks/themes/valid');
 const expect = Code.expect;
 const it = lab.it;
 const StencilBundle = rewire('../lib/stencil-bundle');
-const bundleValidator = require('../lib/bundle-validator');
 const jspm = require('jspm');
 const themeSchema = Fs.readFileSync((Path.join(themePath, 'schema.json'))).toString();
 
@@ -94,30 +93,21 @@ describe('Stencil Bundle', () => {
     });
 
     it('should assembleTemplates', done => {
-        Sinon.stub(async, 'map').callsArgWith(2, null, ['test', 'test2']);
-        Sinon.stub(bundleValidator.prototype, 'validateObjects').callsArgWith(1, null);
-
         Bundle.assembleTemplatesTask((err, result) => {
             expect(err).to.be.null();
-            expect(result.page).to.equal('test');
-            expect(result.page2).to.equal('test2');
-
-            async.map.restore();
-            bundleValidator.prototype.validateObjects.restore();
+            expect(result['pages/page']).to.include(['pages/page', 'components/a']);
+            expect(result['pages/page2']).to.include(['pages/page2', 'components/b']);
             done();
         });
-
     });
 
     it('should error when running assembleTemplates', done => {
         AsyncStub = Sinon.stub(async, 'map');
         AsyncStub.callsArgWith(2, 'error');
-        const BundleVal = Sinon.stub(bundleValidator.prototype, 'validateObjects').callsArgWith(1, null);
 
         Bundle.assembleTemplatesTask((err) => {
             expect(err).to.equal('error');
             AsyncStub.restore();
-            BundleVal.restore();
             done();
         });
     });
