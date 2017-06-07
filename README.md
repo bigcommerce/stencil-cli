@@ -10,6 +10,8 @@ Run `npm install -g @bigcommerce/stencil-cli`.
 
 Visit the [installation guide](https://stencil.bigcommerce.com/docs/installing-stencil-cli-1) for more details.
 
+**Note:** `stencil-cli` doesn't work with Node.js version 6 and 7.
+
 ## Usage
 
 ```text
