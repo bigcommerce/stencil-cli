@@ -1,3 +1,5 @@
+'use strict';
+
 const Cache = require('memory-cache');
 const Utils = require('../../../lib/utils');
 
