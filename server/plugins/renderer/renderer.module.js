@@ -1,3 +1,5 @@
+'use strict';
+
 const  _ = require('lodash');
 const Boom = require('boom');
 const Cache = require('memory-cache');
@@ -273,7 +275,7 @@ internals.getResourceConfig = function (data, request, configuration) {
     // If it is an array, then it's an ajax request using `render_with` with multiple components
     // which don't have Frontmatter and needs to get it's config from the `stencil-config` header.
     if (templatePath && !_.isArray(templatePath)) {
-        rawTemplate = TemplateAssembler.getTemplateContentSync(templatePath);
+        rawTemplate = TemplateAssembler.getTemplateContentSync(internals.getThemeTemplatesPath(), templatePath);
 
         frontmatterMatch = rawTemplate.match(frontmatterRegex);
         if (frontmatterMatch !== null) {
@@ -459,11 +461,10 @@ internals.getHeaders = function (request, options, config) {
  * @type {Object}
  */
 internals.themeAssembler = {
-    getTemplates: function (path, processor, callback) {
-        TemplateAssembler.assemble(path, function (err, templates) {
+    getTemplates: (path, processor, callback) => {
+        TemplateAssembler.assemble(internals.getThemeTemplatesPath(), path, (err, templates) => {
             if (templates[path]) {
-                // Check if the string includes frntmatter configutation
-                // and remove it
+                // Check if the string includes frontmatter configuration and remove it
                 var match = templates[path].match(/---\r?\n[\S\s]*\r?\n---\r?\n([\S\s]*)$/);
 
                 if (_.isObject(match) && match[1]) {
@@ -474,9 +475,13 @@ internals.themeAssembler = {
             callback(null, processor(templates));
         });
     },
-    getTranslations: function (callback) {
-        LangAssembler.assemble(function (err, translations) {
+    getTranslations: (callback) => {
+        LangAssembler.assemble((err, translations) => {
             callback(null, _.mapValues(translations, locales => JSON.parse(locales)));
         });
     },
+};
+
+internals.getThemeTemplatesPath = () => {
+    return Path.join(internals.options.themePath, 'templates');
 };

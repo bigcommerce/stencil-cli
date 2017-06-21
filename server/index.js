@@ -9,10 +9,10 @@ const internals = {};
 
 require('colors');
 
-module.exports = function(options, callback) {
-    var config = manifest.get('/'),
-        parsedSecureUrl = Url.parse(options.dotStencilFile.storeUrl), //The url to a secure page (prompted as login page)
-        parsedNormalUrl = Url.parse(options.dotStencilFile.normalStoreUrl); //The host url of the homepage;
+module.exports = (options, callback) => {
+    const config = manifest.get('/');
+    const parsedSecureUrl = Url.parse(options.dotStencilFile.storeUrl); //The url to a secure page (prompted as login page)
+    const parsedNormalUrl = Url.parse(options.dotStencilFile.normalStoreUrl); //The host url of the homepage;
 
     callback = Hoek.nextTick(callback);
 
@@ -29,13 +29,15 @@ module.exports = function(options, callback) {
     config.plugins['./plugins/renderer/renderer.module'].accessToken = options.dotStencilFile.accessToken;
     config.plugins['./plugins/renderer/renderer.module'].customLayouts = options.dotStencilFile.customLayouts;
     config.plugins['./plugins/renderer/renderer.module'].stencilEditorPort = options.stencilEditorPort;
+    config.plugins['./plugins/renderer/renderer.module'].themePath = options.themePath;
+    config.plugins['./plugins/theme-assets/theme-assets.module'].themePath = options.themePath;
 
-    Glue.compose(config, {relativeTo: __dirname}, function (err, server) {
+    Glue.compose(config, {relativeTo: __dirname}, (err, server) => {
         if (err) {
             return callback(err);
         }
 
-        server.start(function () {
+        server.start(() => {
             console.log(logo);
 
             if (options.stencilEditorEnabled) {
@@ -50,9 +52,9 @@ module.exports = function(options, callback) {
     });
 };
 
-internals.startThemeEditor = function(options, callback) {
-    var themeEditorHost = 'http://localhost:' + options.stencilEditorPort;
-    var stencilEditorConfig = {
+internals.startThemeEditor = (options, callback) => {
+    const themeEditorHost = 'http://localhost:' + options.stencilEditorPort;
+    const stencilEditorConfig = {
         connections: [{
             host: 'localhost',
             port: options.stencilEditorPort,
@@ -64,16 +66,17 @@ internals.startThemeEditor = function(options, callback) {
                 stencilEditorPort: options.stencilEditorPort,
                 themeEditorHost: themeEditorHost,
                 themeServer: options.themeServer,
+                themePath: options.themePath,
             },
         },
     };
 
-    Glue.compose(stencilEditorConfig, {relativeTo: __dirname}, function (err, server) {
+    Glue.compose(stencilEditorConfig, {relativeTo: __dirname}, (err, server) => {
         if (err) {
             return callback(err);
         }
 
-        server.start(function () {
+        server.start(() => {
             console.log('Theme Editor:', themeEditorHost.cyan);
             return callback();
         });

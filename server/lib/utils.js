@@ -1,3 +1,5 @@
+'use strict';
+
 const _ = require('lodash');
 const Url = require('url');
 const uuidRegExp = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-([0-9a-f]{12})';
@@ -9,7 +11,7 @@ const uuidRegExp = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-([0-9a-f]{12
  * @returns {Array}
  */
 function stripDomainFromCookies(cookies) {
-    var fixedCookies = [];
+    const fixedCookies = [];
 
     _.forEach(cookies, function(cookie) {
         fixedCookies.push(cookie.replace(/(?:;\s)?domain=(?:.+?)(;|$)/, '$1'));
@@ -26,10 +28,10 @@ function stripDomainFromCookies(cookies) {
  * @returns {string}
  */
 function normalizeRedirectUrl(request, redirectUrl) {
-    var storeHost = Url.parse(request.app.normalStoreUrl).host,
-        secureStoreHost = Url.parse(request.app.storeUrl).host,
-        redirectUrlObj = Url.parse(redirectUrl),
-        stripHost = false;
+    const storeHost = Url.parse(request.app.normalStoreUrl).host;
+    const secureStoreHost = Url.parse(request.app.storeUrl).host;
+    const redirectUrlObj = Url.parse(redirectUrl);
+    let stripHost = false;
 
     if (! redirectUrlObj.host || redirectUrlObj.host === storeHost || redirectUrlObj.host === secureStoreHost) {
         stripHost = true;
@@ -75,4 +77,4 @@ module.exports = {
     int2uuid,
     uuid2int,
     uuidRegExp,
-}
+};

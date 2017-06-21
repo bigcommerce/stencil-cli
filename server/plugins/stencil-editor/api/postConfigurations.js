@@ -1,3 +1,5 @@
+'use strict';
+
 const Cache = require('memory-cache');
 const Utils = require('../../../lib/utils');
 
@@ -14,11 +16,10 @@ module.exports = function (options, themeConfig) {
      * @param  {Object} reply
      */
     return function (request, reply) {
-        var payload = request.payload || {};
-        var variationIndex = Utils.uuid2int(payload.variationId) - 1;
-        var saveToFile = !payload.preview;
+        const payload = request.payload || {};
+        const saveToFile = !payload.preview;
 
-        if (payload.reset || payload.publish) {
+        if (!payload.variationId || payload.reset || payload.publish) {
             return reply({
                 errors: [
                     {
@@ -30,6 +31,7 @@ module.exports = function (options, themeConfig) {
             }).code(405);
         }
 
+        const variationIndex = Utils.uuid2int(payload.variationId) - 1;
         themeConfig.setVariation(variationIndex);
 
         themeConfig.updateConfig(payload.settings, saveToFile);

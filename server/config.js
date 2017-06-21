@@ -1,12 +1,8 @@
 'use strict';
 
 const Confidence = require('confidence');
-const Path = require('path');
-var criteria;
-var store;
-var config;
 
-config = {
+const config = {
     $meta: 'Config file',
     server: {
         host: 'localhost',
@@ -19,16 +15,13 @@ config = {
             args: [{log: '*', request: '*'}],
         }],
     },
-    themeAssets: {
-        assetsBasePath: Path.join(process.cwd(), 'assets'),
-    },
 };
 
-criteria = {
+const criteria = {
     env: process.env.NODE_ENV || 'development',
 };
 
-store = new Confidence.Store(config);
+const store = new Confidence.Store(config);
 
 exports.get = function(key) {
 
