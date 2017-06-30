@@ -107,29 +107,18 @@ Wreck.get(
     Url.resolve(staplerUrl, '/stencil-version-check?v=' + Pkg.version),
     {
         headers: headers,
+        json: true,
         rejectUnauthorized: false,
     },
     function (err, res, payload) {
-        var retError = err !== null,
-            bundleTask,
-            options = {
-                sslUrl: payload.sslUrl
-            }
+        var bundleTask;
 
-        try {
-            payload = jsonLint.parse(payload);
-
-            if (payload.error) {
-                return console.error(payload.error.red);
-            }
-        } catch (e) {
-            retError = true;
-        }
-
-        if (retError) {
+        if (err || !payload) {
             console.error(
                 'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'.red
             );
+        } else if (payload.error) {
+            return console.error(payload.error.red);
         } else if (payload.status !== 'ok') {
             console.error(
                 'Error: You are using an outdated version of stencil-cli, please run '.red +
@@ -259,7 +248,7 @@ function startServer() {
     });
 
     if (buildConfig.development) {
-        buildConfig.development(Bs);
+        buildConfig.initWorker().development(Bs);
     }
 }
 
