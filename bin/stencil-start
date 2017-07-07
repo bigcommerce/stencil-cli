@@ -283,7 +283,7 @@ function assembleTemplates(templatePath, callback) {
             return file.replace(templatePath + Path.sep, '').replace('.html', '');
         });
 
-        Async.map(files, templateAssembler.assemble, function (err, results) {
+        Async.map(files, templateAssembler.assemble.bind(null, templatePath), function (err, results) {
             if (err) {
                 callback(err);
             }
