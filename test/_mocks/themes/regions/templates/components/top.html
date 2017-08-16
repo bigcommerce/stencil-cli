@@ -1,0 +1,8 @@
+<div class="top">
+    {{#block "top"}} {{/block}}
+    <ul>
+        {{#each something.something}}
+            {{dynamicComponent 'components/dynamic'}}
+        {{/each}}
+    </ul>
+</div>

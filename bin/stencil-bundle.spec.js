@@ -36,6 +36,7 @@ describe('Stencil Bundle', () => {
         Bundle = new StencilBundle(themePath, themeConfigStub, rawConfig, {
             marketplace: false,
         });
+
         done();
     });
 
@@ -73,7 +74,7 @@ describe('Stencil Bundle', () => {
     it('should error on assemble CSS files', done => {
         sandbox.stub(async, 'map').callsArgWith(2, 'error');
 
-        const callback = (err) => {
+        const callback = err => {
             expect(err).to.equal('error');
             done();
         };
@@ -96,7 +97,7 @@ describe('Stencil Bundle', () => {
     it('should error when running assembleTemplates', done => {
         sandbox.stub(async, 'map').callsArgWith(2, 'error');
 
-        Bundle.assembleTemplatesTask((err) => {
+        Bundle.assembleTemplatesTask(err => {
             expect(err).to.equal('error');
             done();
         });
@@ -124,7 +125,7 @@ describe('Stencil Bundle', () => {
     it('should error on assembling the Lang Files', done => {
         sandbox.stub(LangAssembler, 'assemble').callsArgWith(0, 'error');
 
-        const callback = (err) => {
+        const callback = err => {
             expect(LangAssembler.assemble.calledOnce).to.equal(true);
             expect(err).to.equal('error');
             done();
@@ -149,7 +150,7 @@ describe('Stencil Bundle', () => {
     it('should fail to bundle JSPM assets', done => {
         sandbox.stub(jspm, 'bundleSFX').returns(when.reject(false));
 
-        const callback = (err) => {
+        const callback = err => {
             expect(err).to.equal(false);
             done();
         };
@@ -158,17 +159,18 @@ describe('Stencil Bundle', () => {
     });
 
     it('should generate a manifest of files.', done => {
-        const callback = () => {
-            expect(Bundle.manifest.templates).to.contain(['components/a', 'components/b']);
-            done();
-        };
-
-        Bundle.generateManifest(callback);
+        Bundle.assembleTemplatesTask((err, templates) => {
+            const results = { templates };
+            Bundle.generateManifest(results, () => {
+                expect(results.manifest.templates).to.contain(['components/a', 'components/b']);
+                done();
+            });
+        });
     });
 
     it('should error while reading files to generate a manifest of files.', done => {
-        Bundle.templatesBasePath = 'invalid/path';
-        Bundle.generateManifest((err) => {
+        Bundle.templatesPath = 'invalid/path';
+        Bundle.generateManifest({}, err => {
             expect(Fs.writeFile.calledOnce).to.equal(false);
             expect(err instanceof Error).to.be.true();
             expect(err.message).to.contain('no such file or directory');
