@@ -161,8 +161,9 @@ describe('Stencil Bundle', () => {
     it('should generate a manifest of files.', done => {
         Bundle.assembleTemplatesTask((err, templates) => {
             const results = { templates };
-            Bundle.generateManifest(results, () => {
-                expect(results.manifest.templates).to.contain(['components/a', 'components/b']);
+            Bundle.generateManifest(results, (err, manifest) => {
+                expect(err).to.be.null();
+                expect(manifest.templates).to.contain(['components/a', 'components/b']);
                 done();
             });
         });
