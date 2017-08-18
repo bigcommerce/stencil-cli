@@ -47,20 +47,6 @@ bundle = new Bundle(themePath, themeConfig, configuration, {
     name: Program.name,
 });
 
-/**
- * Check if file exist syncronous
- * @param  {string} path
- * @return {boolean}
- */
-function fileExist(path) {
-    try {
-        return !!Fs.statSync(path);
-    }
-    catch (e) {
-        return false;
-    }
-}
-
 bundle.initBundle((err, bundlePath) => {
     if (err) {
         throw err;

@@ -9,7 +9,7 @@
     "node": true
   },
   "globals": {
-
+    "Set": true
   },
   "rules": {
     "curly": 2,
