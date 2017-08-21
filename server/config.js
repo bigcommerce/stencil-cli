@@ -9,11 +9,15 @@ const config = {
         port: 3000,
     },
     good: {
-        opsInterval: 1000,
-        reporters: [{
-            reporter: require('good-console'),
-            args: [{log: '*', request: '*'}],
-        }],
+        ops: {
+            interval: 1000,
+        },
+        reporters: {
+            goodConsoleReporter: [{
+                module: 'good-console',
+                args: [{log: '*', request: '*'}],
+            }],
+        },
     },
 };
 

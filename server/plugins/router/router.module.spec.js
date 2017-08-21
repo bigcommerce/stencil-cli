@@ -41,6 +41,8 @@ describe('Router', () => {
 
     lab.before(done => {
         server.register([
+            require('inert'),
+            require('h2o2'),
             RendererPluginMock,
             ThemeAssetsMock,
             router,

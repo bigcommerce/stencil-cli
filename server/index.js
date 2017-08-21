@@ -17,38 +17,67 @@ module.exports = (options, callback) => {
     callback = Hoek.nextTick(callback);
 
     config.connections[0].port = options.dotStencilFile.port;
-    config.plugins['./plugins/router/router.module'].storeUrl = parsedSecureUrl.protocol + '//' + parsedSecureUrl.host;
-    config.plugins['./plugins/router/router.module'].normalStoreUrl = parsedNormalUrl.protocol + '//' + parsedNormalUrl.host;
-    config.plugins['./plugins/router/router.module'].apiKey = options.dotStencilFile.apiKey;
-    config.plugins['./plugins/router/router.module'].port = options.dotStencilFile.port;
-    config.plugins['./plugins/router/router.module'].staplerUrl = options.dotStencilFile.staplerUrl;
-    config.plugins['./plugins/renderer/renderer.module'].useCache = options.useCache;
-    config.plugins['./plugins/renderer/renderer.module'].username = options.dotStencilFile.username;
-    config.plugins['./plugins/renderer/renderer.module'].token = options.dotStencilFile.token;
-    config.plugins['./plugins/renderer/renderer.module'].clientId = options.dotStencilFile.clientId;
-    config.plugins['./plugins/renderer/renderer.module'].accessToken = options.dotStencilFile.accessToken;
-    config.plugins['./plugins/renderer/renderer.module'].customLayouts = options.dotStencilFile.customLayouts;
-    config.plugins['./plugins/renderer/renderer.module'].stencilEditorPort = options.stencilEditorPort;
-    config.plugins['./plugins/renderer/renderer.module'].themePath = options.themePath;
-    config.plugins['./plugins/theme-assets/theme-assets.module'].themePath = options.themePath;
 
-    Glue.compose(config, {relativeTo: __dirname}, (err, server) => {
+    Glue.compose(config, { relativeTo: __dirname }, (err, server) => {
         if (err) {
             return callback(err);
         }
 
-        server.start(() => {
-            console.log(logo);
-
-            if (options.stencilEditorEnabled) {
-                options.themeServer = server;
-
-                return internals.startThemeEditor(options, callback);
-            } else {
-                return callback(null, server);
+        server.register([
+            // Third Party Plugins
+            {
+                register: require('good'),
+                options: require('./config').get('/good'),
+            },
+            require('inert'),
+            require('h2o2'),
+            // First Party Plugins
+            {
+                register: require('./plugins/renderer/renderer.module'),
+                options: {
+                    useCache: options.useCache,
+                    username: options.dotStencilFile.username,
+                    token: options.dotStencilFile.token,
+                    clientId: options.dotStencilFile.clientId,
+                    accessToken: options.dotStencilFile.accessToken,
+                    customLayouts: options.dotStencilFile.customLayouts,
+                    stencilEditorPort: options.stencilEditorPort,
+                    themePath: options.themePath,
+                },
+            },
+            {
+                register: require('./plugins/router/router.module'),
+                options: {
+                    storeUrl: parsedSecureUrl.protocol + '//' + parsedSecureUrl.host,
+                    normalStoreUrl: parsedNormalUrl.protocol + '//' + parsedNormalUrl.host,
+                    apiKey: options.dotStencilFile.apiKey,
+                    port: options.dotStencilFile.port,
+                    staplerUrl: options.dotStencilFile.staplerUrl,
+                },
+            },
+            {
+                register: require('./plugins/theme-assets/theme-assets.module'),
+                options: {
+                    themePath: options.themePath,
+                },
+            },
+        ], (error) => {
+            if (error) {
+                throw error;
             }
-        });
 
+            server.start(() => {
+                console.log(logo);
+
+                if (options.stencilEditorEnabled) {
+                    options.themeServer = server;
+
+                    return internals.startThemeEditor(options, callback);
+                } else {
+                    return callback(null, server);
+                }
+            });
+        });
     });
 };
 
@@ -59,26 +88,35 @@ internals.startThemeEditor = (options, callback) => {
             host: 'localhost',
             port: options.stencilEditorPort,
         }],
-        plugins: {
-            './plugins/stencil-editor/stencil-editor.module': {
-                variationIndex: options.variationIndex,
-                stencilServerPort: options.dotStencilFile.stencilServerPort,
-                stencilEditorPort: options.stencilEditorPort,
-                themeEditorHost: themeEditorHost,
-                themeServer: options.themeServer,
-                themePath: options.themePath,
-            },
-        },
     };
 
-    Glue.compose(stencilEditorConfig, {relativeTo: __dirname}, (err, server) => {
+    Glue.compose(stencilEditorConfig, { relativeTo: __dirname }, (err, server) => {
         if (err) {
             return callback(err);
         }
 
-        server.start(() => {
-            console.log('Theme Editor:', themeEditorHost.cyan);
-            return callback();
-        });
+        server.register([
+            require('vision'),
+            require('inert'),
+            {
+                register: require('./plugins/stencil-editor/stencil-editor.module'),
+                options: {
+                    variationIndex: options.variationIndex,
+                    stencilServerPort: options.dotStencilFile.stencilServerPort,
+                    stencilEditorPort: options.stencilEditorPort,
+                    themeEditorHost: themeEditorHost,
+                    themeServer: options.themeServer,
+                    themePath: options.themePath,
+                },
+            }], (error) => {
+                if (error) {
+                    throw error;
+                }
+
+                server.start(() => {
+                    console.log('Theme Editor:', themeEditorHost.cyan);
+                    return callback();
+                });
+            });
     });
 };

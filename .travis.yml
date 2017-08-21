@@ -13,3 +13,6 @@ install:
   - npm install --production
 script:
   - npm test
+
+sudo: false
+dist: trusty
