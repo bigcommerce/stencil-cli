@@ -35,7 +35,7 @@ var config = {
         loaders: [{
             test: /\.js$/,
             exclude: /(node_modules|ng-stencil-editor)/,
-            loader: 'babel?presets[]=es2015',
+            loader: 'babel-loader?presets[]=es2015',
         }],
     },
     plugins: [
@@ -73,9 +73,11 @@ var config = {
     ],
 };
 
-if (process.argv.indexOf('--deploy') > 0) {
-    config.devtool = null;
-    config.watch = false;
-}
+module.exports = function(env) {
+    if (env.deploy) {
+        config.devtool = false;
+        config.watch = false;
+    }
 
-module.exports = config;
+    return config;
+};
