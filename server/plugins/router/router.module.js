@@ -1,4 +1,6 @@
 const Hoek = require('hoek');
+const Inert = require('inert');
+const h2o2 = require('h2o2');
 const ThemeConfig = require('../../../lib/theme-config');
 const internals = {
     options: {
@@ -31,6 +33,9 @@ module.exports.register = function(server, options, next) {
 
         reply.continue();
     });
+
+    server.register(Inert, function () {});
+    server.register(h2o2, function () {});
 
     server.dependency(['Renderer', 'ThemeAssets'], internals.registerRoutes);
     return next();
