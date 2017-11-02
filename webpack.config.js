@@ -74,7 +74,7 @@ var config = {
 };
 
 module.exports = function(env) {
-    if (env.deploy) {
+    if (env && env.deploy) {
         config.devtool = false;
         config.watch = false;
     }
