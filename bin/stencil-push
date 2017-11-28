@@ -25,6 +25,9 @@ stencilPush(Object.assign({}, options, {
 }), (err, result) => {
     if (err) {
         console.log('not ok'.red + ` -- ${err}`);
+        if (err === 'StoreHashReadError: Response Error: 503 Service Unavailable') {
+            console.log('ensure your normalStoreUrl value does not have a backslash at the end');
+        }
         console.log('Please try again. If this error persists, please visit https://github.com/bigcommerce/stencil-cli/issues and submit an issue.');
     } else {
         console.log('ok'.green + ` -- ${result}`);
