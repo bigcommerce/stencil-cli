@@ -65,7 +65,7 @@ If you need any help or experience any bugs, please create a GitHub issue in thi
 
 ## License
 
-Copyright (c) 2015-2017, BigCommerce Inc.
+Copyright (c) 2015-present, BigCommerce Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

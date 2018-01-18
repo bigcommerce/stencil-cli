@@ -14,14 +14,6 @@ manifest = {
         options: config.get('/server/options'),
         tls: config.get('/server/tls'),
     }],
-    plugins: {
-        // Third Party Plugins
-        'good': config.get('/good'),
-        // First Party Plugins
-        './plugins/renderer/renderer.module': {},
-        './plugins/router/router.module': {},
-        './plugins/theme-assets/theme-assets.module': {},
-    },
 };
 
 store = new Confidence.Store(manifest);

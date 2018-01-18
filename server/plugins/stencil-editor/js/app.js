@@ -11,14 +11,14 @@ import 'angular';
 import 'angular-cookies';
 import 'angular-animate';
 import 'angular-sanitize';
-import 'angular-ui-router';
+import "@uirouter/angularjs";
 import 'angular-gettext';
 import 'angular-cache';
 
 import 'ng-common/dist/js/ng-common.min';
 
 // pattern lab js
-import 'script!bcapp-pattern-lab/dist/js/bcapp-pattern-lab.min';
+import 'script-loader!bcapp-pattern-lab/dist/js/bcapp-pattern-lab.min';
 
 // main app
-import 'ng-stencil-editor/dist/js/ng-stencil-editor.min';
+import 'script-loader!ng-stencil-editor/dist/js/ng-stencil-editor.min';
