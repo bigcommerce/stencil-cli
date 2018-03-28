@@ -22,7 +22,8 @@ if (!versionCheck()) {
 
 stencilPush(Object.assign({}, options, {
     apiHost: Program.host || apiHost,
-    bundleZipPath: Program.file
+    bundleZipPath: Program.file,
+    saveBundleName: Program.save
 }), (err, result) => {
     if (err) {
         console.log('not ok'.red + ` -- ${err}`);
