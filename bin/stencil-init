@@ -9,12 +9,18 @@ var ThemeConfig = require('../lib/theme-config');
 var dotStencilFilePath = './.stencil';
 var versionCheck = require('../lib/version-check');
 
-Program
+var program = Program
     .version(pkg.version)
+    .option('-a, --auto [filename]', 'name of the credentials.txt file')
     .parse(process.argv);
 
 if (!versionCheck()) {
     return;
 }
 
-stencilInit(JspmAssembler, ThemeConfig, dotStencilFilePath);
+if (program.auto === true) {
+    console.log('Please specify a filename when using the auto command');
+    return;
+}
+
+stencilInit(JspmAssembler, ThemeConfig, dotStencilFilePath, program.auto);
