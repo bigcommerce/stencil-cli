@@ -6,6 +6,7 @@
 The BigCommerce server emulator for local theme development.
 
 ## Install
+_Note: Stencil requires the Node.js runtime environment, version 4.x through 7.x._
 
 Run `npm install -g @bigcommerce/stencil-cli`.
 
