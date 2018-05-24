@@ -90,7 +90,7 @@ internals.cssHandler = function (request, reply) {
     const url = Url.format({
         protocol: staplerUrlObject.protocol,
         host: staplerUrlObject.host,
-        pathname: '/'
+        pathname: '/',
     });
 
     Wreck.get(url, httpOpts, function (err, response, data) {
