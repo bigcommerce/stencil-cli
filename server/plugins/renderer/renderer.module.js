@@ -392,6 +392,8 @@ internals.getPencilResponse = function (data, request, response, configuration) 
     data.context.settings.theme_config_id = Utils.int2uuid(request.app.themeConfig.variationIndex + 1);
     data.context.settings.theme_session_id = null;
     data.context.settings.maintenance = {secure_path: `http://localhost:${internals.options.stencilEditorPort}`};
+    data.context.settings.base_url = `http://${request.info.host}`;
+    data.context.settings.secure_base_url = `http://${request.info.host}`;
 
     return new Responses.PencilResponse({
         template_file: internals.getTemplatePath(request.path, data),
