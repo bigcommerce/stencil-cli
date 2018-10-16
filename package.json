@@ -73,7 +73,6 @@
     "less": "^2.5.0",
     "lodash": "^3.9.0",
     "memory-cache": "^0.1.4",
-    "npm": "^2.7.5",
     "recursive-readdir": "^1.3.0",
     "progress": "^2.0.0",
     "request": "^2.81.0",
