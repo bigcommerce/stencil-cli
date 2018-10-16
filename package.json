@@ -89,7 +89,7 @@
   "devDependencies": {
     "angular": "1.5.6",
     "angular-animate": "1.5.6",
-    "angular-cache": "3.2.4",
+    "angular-cache": "4.6.0",
     "angular-cookies": "1.5.6",
     "angular-gettext": "1.1.4",
     "angular-sanitize": "1.5.6",
