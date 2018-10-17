@@ -1,6 +1,6 @@
 {
   "name": "@bigcommerce/stencil-cli",
-  "version": "1.15.2",
+  "version": "1.15.3",
   "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
   "engines": {
@@ -36,7 +36,7 @@
   "homepage": "https://github.com/bigcommerce/stencil-cli",
   "dependencies": {
     "@bigcommerce/stencil-paper": "^2.0.9",
-    "@bigcommerce/stencil-styles": "1.1.0",
+    "@bigcommerce/stencil-styles": "git://github.com/bigcommerce/stencil-styles.git#update_node-sass",
     "accept-language-parser": "^1.0.2",
     "archiver": "^0.14.4",
     "async": "^2.4.0",
