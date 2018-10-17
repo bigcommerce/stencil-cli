@@ -14,3 +14,4 @@ install:
   - npm install bigcommerce-labs/node-sass#support_node10 
   - npm install --production
 script:
+  - npm test
