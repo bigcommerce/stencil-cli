@@ -2,6 +2,9 @@ language: node_js
 os:
   - linux
   - osx
+addons:
+  ssh_known_hosts:
+    - github.com 
 node_js:
   - 6
   - 8
