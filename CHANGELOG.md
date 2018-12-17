@@ -1,3 +1,10 @@
+<a name="1.15.4"></a>
+## <small>1.15.4 (2018-12-17)</small>
+
+* docs: changelog + readme ([6b177b0](https://github.com/bigcommerce/stencil-cli/commit/6b177b0))
+
+
+
 <a name="1.15.3"></a>
 ## <small>1.15.3 (2018-12-11)</small>
 
