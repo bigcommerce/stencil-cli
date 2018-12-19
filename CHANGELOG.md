@@ -1,3 +1,10 @@
+<a name="1.15.5"></a>
+## <small>1.15.5 (2018-12-19)</small>
+
+* feat: gulp tasks ([bba911b](https://github.com/bigcommerce/stencil-cli/commit/bba911b))
+
+
+
 <a name="1.15.4"></a>
 ## <small>1.15.4 (2018-12-17)</small>
 
