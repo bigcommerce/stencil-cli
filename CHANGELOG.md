@@ -1,7 +1,7 @@
 <a name="1.15.4"></a>
 ## <small>1.15.4 (2018-12-17)</small>
 
-* docs: changelog + readme ([6b177b0](https://github.com/bigcommerce/stencil-cli/commit/6b177b0))
+* fix(cp): STRF-5614 Add enhanced_ecommerce to theme config schema. ([58c6fb9](https://github.com/bigcommerce/stencil-cli/commit/58c6fb9))
 
 
 
@@ -9,7 +9,6 @@
 ## <small>1.15.3 (2018-12-11)</small>
 
 * added release script include auto generate of changelog ([4d773ad](https://github.com/bigcommerce/stencil-cli/commit/4d773ad))
-* fix(cp): STRF-5614 Add enhanced_ecommerce to theme config schema. ([58c6fb9](https://github.com/bigcommerce/stencil-cli/commit/58c6fb9))
 * upgrade paper package to 2.0.10 ([b4ec832](https://github.com/bigcommerce/stencil-cli/commit/b4ec832))
 * Proper error handling for bundle task ([a4dc6c9](https://github.com/bigcommerce/stencil-cli/commit/a4dc6c9))
 * PROJECT-1897: Card Management - List, Delete, Edit, Add Cards ([44022a0](https://github.com/bigcommerce/stencil-cli/commit/44022a0))
