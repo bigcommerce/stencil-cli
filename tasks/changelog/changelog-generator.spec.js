@@ -9,7 +9,6 @@ const expect = Code.expect;
 const it = lab.it;
 const path = require('path');
 
-
 describe('ChangelogGenerator', () => {
     let changelogGenerator;
     let commandExecutor;

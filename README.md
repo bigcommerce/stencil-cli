@@ -65,7 +65,7 @@ Stencil CLI comes packaged with [Autoprefixer](https://github.com/postcss/autopr
 If you need any help or experience any bugs, please create a GitHub issue in this repository.
 
 ## Release stencil-cli
-In order to release stencil-cli you should first use the `Squash and merge` option on GitHub, This step is important for generating the `CHANGELOG.md` file. After the changes are merged to master, pull the latest to your local environment, run `gulp release` and follow the prompts. NOTE: It is required that all commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) structure.
+In order to release stencil-cli you should first use the `Squash and merge` option on GitHub, This step is important for generating the `CHANGELOG.md` file with the pr link attached (if not using `Squash and merge`, the changes will be logged only with links to the commits). After the changes are merged to master, pull the latest to your local environment, run `gulp release` and follow the prompts. NOTE: It is required that all commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) structure.
 
 ## License
 
