@@ -18,6 +18,12 @@ let remote;
 let responses;
 let targetVersion;
 
+function installPrivateDependencies() {
+    return gulp.src('package.json')
+        .pipe(exec('npm run private-dependencies'), logError)
+        .on('error', logError);
+}
+
 function bumpTask() {
     const questions = [{
         type: 'list',
@@ -81,6 +87,12 @@ function bumpTask() {
         .on('error', logError);
 }
 
+function deployWebpack() {
+    return gulp.src('package.json')
+        .pipe(exec('npm run deploy'), logError)
+        .on('error', logError);
+}
+
 function pushTask() {
     return gulp.src(['package.json', 'CHANGELOG.md'])
         // Add files
@@ -102,8 +114,10 @@ function logError(err) {
     }
 }
 
+gulp.task('install-private-dependencies', installPrivateDependencies);
 gulp.task('bump', bumpTask);
+gulp.task('deploy-webpack', deployWebpack);
 gulp.task('changelog', (done) => changelog.changelogTask({}, done));
 gulp.task('push', pushTask);
-gulp.task('release', gulp.series('bump', 'changelog', 'push'));
+gulp.task('release', gulp.series('install-private-dependencies', 'bump', 'deploy-webpack', 'changelog', 'push'));
 
