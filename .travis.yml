@@ -12,6 +12,6 @@ cache:
   directories:
     - node_modules
 install:
-  - npm install --production
+  - npm install 
 script:
   - npm test

@@ -32,6 +32,7 @@ Unsure where to begin contributing to Stencil CLI? Check our [forums](https://fo
 
 ### Git Commit Messages
 
+* Commit message should follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) structure
 * Use the present tense ("Add feature" not "Added feature")
 * Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
 * Limit the first line to 72 characters or less
