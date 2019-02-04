@@ -11,8 +11,6 @@ const internals = {
 module.exports.register = function (server, options, next) {
     internals.options = Hoek.applyToDefaults(internals.options, options);
 
-    internals.stencilStyles = new StencilStyles();
-
     server.expose('cssHandler', internals.cssHandler);
     server.expose('assetHandler', internals.assetHandler);
 
@@ -83,7 +81,8 @@ internals.cssHandler = function (request, reply) {
             },
         };
 
-        internals.stencilStyles.compileCss('scss', params, (err, css) => {
+        let stencilStyles = new StencilStyles();
+        stencilStyles.compileCss('scss', params, (err, css) => {
             if (err) {
                 console.error(err);
                 return reply(Boom.badData(err));
