@@ -1,3 +1,19 @@
+<a name="1.15.5"></a>
+## <small>1.15.5 (2019-02-05)</small>
+
+* fix: added fix for scss compilation issue ([e6a20a2](https://github.com/bigcommerce/stencil-cli/commit/e6a20a2))
+* fix(cp): STRF-5614 Add enhanced_ecommerce to theme config schema. ([58c6fb9](https://github.com/bigcommerce/stencil-cli/commit/58c6fb9))
+* feat: changelog generator (#431) ([9e6e225](https://github.com/bigcommerce/stencil-cli/commit/9e6e225))
+* Increase timeout for build worker process to be ready ([794e796](https://github.com/bigcommerce/stencil-cli/commit/794e796))
+* log push errors to the console ([a9aca72](https://github.com/bigcommerce/stencil-cli/commit/a9aca72))
+* PROJECT-1897: Card Management - List, Delete, Edit, Add Cards ([44022a0](https://github.com/bigcommerce/stencil-cli/commit/44022a0))
+* Proper error handling for bundle task ([a4dc6c9](https://github.com/bigcommerce/stencil-cli/commit/a4dc6c9))
+* update paper npm version ([d5f78a4](https://github.com/bigcommerce/stencil-cli/commit/d5f78a4))
+* Update README ([298beaa](https://github.com/bigcommerce/stencil-cli/commit/298beaa))
+* upgrade paper package to 2.0.10 ([b4ec832](https://github.com/bigcommerce/stencil-cli/commit/b4ec832))
+
+
+
 <a name="1.15.4"></a>
 ## <small>1.15.4 (2018-12-17)</small>
 
