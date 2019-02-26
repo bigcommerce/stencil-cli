@@ -96,6 +96,7 @@ function deployWebpack() {
 function uninstallPrivateDependencies() {
     return gulp.src('package.json')
         .pipe(exec('npm run uninstall-private-dependencies'), logError)
+        .pipe(exec('rm package-lock.json'))
         .on('error', logError);
 }
 
