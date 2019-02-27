@@ -1,13 +1,3 @@
-<a name="1.15.6"></a>
-## <small>1.15.6 (2019-02-26)</small>
-
-* docs: updated paper to 2.0.11 + checked package-lock (#446) ([54ddad0](https://github.com/bigcommerce/stencil-cli/commit/54ddad0))
-* fix: revert paper_2.0.11 pr (#445) ([adf424f](https://github.com/bigcommerce/stencil-cli/commit/adf424f))
-* Docs: upgraded paper (#441) ([26b3937](https://github.com/bigcommerce/stencil-cli/commit/26b3937))
-* feat(theme): add csrf protection to the list of valid features ([fe4b795](https://github.com/bigcommerce/stencil-cli/commit/fe4b795))
-
-
-
 <a name="1.15.5"></a>
 ## <small>1.15.5 (2019-02-05)</small>
 
