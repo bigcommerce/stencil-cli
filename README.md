@@ -10,7 +10,7 @@ _Note: Stencil requires the Node.js runtime environment, version 6.x or later. W
 
 Run `npm install -g @bigcommerce/stencil-cli`.
 
-Visit the [installation guide](https://stencil.bigcommerce.com/docs/installing-stencil-cli-1) for more details.
+Visit the [installation guide](https://developer.bigcommerce.com/stencil-docs/getting-started/installing-stencil) for more details.
 
 ## Usage
 
