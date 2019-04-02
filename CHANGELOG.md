@@ -1,3 +1,12 @@
+<a name="1.15.8"></a>
+## <small>1.15.8 (2019-04-02)</small>
+
+* ci: updated paper to 2.0.12 (#451) ([5e83f64](https://github.com/bigcommerce/stencil-cli/commit/5e83f64))
+* docs: Update stencil cli installation link ([834fee2](https://github.com/bigcommerce/stencil-cli/commit/834fee2))
+* feat: Add support for base_url and secure_base_url ([cc3ca08](https://github.com/bigcommerce/stencil-cli/commit/cc3ca08))
+
+
+
 <a name="1.15.7"></a>
 ## <small>1.15.7 (2019-03-26)</small>
 
