@@ -76,6 +76,14 @@ internals.makeDecorator = function (request, context) {
         var regex,
             debugBar;
 
+        if (context.settings) {
+            regex = new RegExp(internals.escapeRegex(context.settings.base_url), 'g');
+            content = content.replace(regex, '');
+
+            regex = new RegExp(internals.escapeRegex(context.settings.secure_base_url), 'g');
+            content = content.replace(regex, '');
+        }
+
         if (request.query.debug === 'bar') {
             debugBar = '<pre style="background-color:#EEE; word-wrap:break-word;">';
             debugBar += internals.escapeHtml(JSON.stringify(context, null, 2)) + '</pre>';
