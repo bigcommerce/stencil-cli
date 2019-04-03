@@ -1,3 +1,11 @@
+<a name="1.15.9"></a>
+## <small>1.15.9 (2019-04-03)</small>
+
+* fix: added browser-sync to package-lock (#454) ([dcc4795](https://github.com/bigcommerce/stencil-cli/commit/dcc4795))
+* Revert "feat: Add support for base_url and secure_base_url" (#453) ([74d1122](https://github.com/bigcommerce/stencil-cli/commit/74d1122))
+
+
+
 <a name="1.15.8"></a>
 ## <small>1.15.8 (2019-04-02)</small>
 
