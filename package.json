@@ -4,7 +4,7 @@
   "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
   "engines": {
-    "node": ">= 6.0.0"
+    "node": ">= 6.0.0 <9.0.0"
   },
   "scripts": {
     "lint": "eslint .",
