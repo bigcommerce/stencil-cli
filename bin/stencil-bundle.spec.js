@@ -121,6 +121,21 @@ describe('Stencil Bundle', () => {
         Bundle.assembleLangTask(callback);
 
     });
+    
+    it('should fail if dist folder does not exist', done => {
+        const result = Bundle.distFolderCheck();
+        expect(result).to.equal(false);
+        done();
+    });
+
+    it('should pass if dist folder exists', done => {
+        const distFolder = `${themePath}/assets/dist`;
+        Fs.mkdirSync(distFolder);
+        const result = Bundle.distFolderCheck();
+        expect(result).to.equal(true);
+        Fs.rmdirSync(distFolder);
+        done();
+    });
 
     it('should error on assembling the Lang Files', done => {
         sandbox.stub(LangAssembler, 'assemble').callsArgWith(0, 'error');
