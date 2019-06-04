@@ -1,3 +1,13 @@
+<a name="1.16.0"></a>
+## 1.16.0 (2019-06-04)
+
+* Remove Node 6 from Travis ([1cab37f](https://github.com/bigcommerce/stencil-cli/commit/1cab37f))
+* fix: strf-6383 add check for template size for stencil bundling ([f674c05](https://github.com/bigcommerce/stencil-cli/commit/f674c05))
+* fix: update engines for node in package.json ([70ae9a3](https://github.com/bigcommerce/stencil-cli/commit/70ae9a3))
+* feat: strf-6687 update stencil-paper to add font-display support ([3af5562](https://github.com/bigcommerce/stencil-cli/commit/3af5562))
+
+
+
 <a name="1.15.9"></a>
 ## <small>1.15.9 (2019-04-03)</small>
 
