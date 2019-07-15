@@ -1,3 +1,11 @@
+<a name="1.17.0"></a>
+## 1.17.0 (2019-07-15)
+
+* feat: update stencil-paper to add getImageSrcset helper ([892fbfd](https://github.com/bigcommerce/stencil-cli/commit/892fbfd))
+* Update README ([73898c0](https://github.com/bigcommerce/stencil-cli/commit/73898c0))
+
+
+
 <a name="1.16.0"></a>
 ## 1.16.0 (2019-06-04)
 
