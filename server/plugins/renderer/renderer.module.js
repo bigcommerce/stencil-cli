@@ -13,7 +13,6 @@ const Responses = require('./responses/responses');
 const TemplateAssembler = require('../../../lib/template-assembler');
 const Url = require('url');
 const Utils = require('../../lib/utils');
-const stencilToken = require('../../lib/stencil-token');
 const Wreck = require('wreck');
 const internals = {
     options: {},
@@ -441,11 +440,9 @@ internals.getHeaders = function (request, options, config) {
         'accept-encoding': 'identity',
     };
 
-    if (internals.options.clientId && internals.options.accessToken) {
-        headers['X-Auth-Client'] = internals.options.clientId;
+    if (internals.options.accessToken) {
+        headers['X-Auth-Client'] = 'stencil-cli';
         headers['X-Auth-Token'] = internals.options.accessToken;
-    } else {
-        headers['Authorization'] = 'Basic ' + stencilToken.generate(internals.options.username, internals.options.token);
     }
 
     // Development

@@ -14,7 +14,6 @@ var Program = require('commander');
 var Server = require('../server');
 var ThemeConfig = require('../lib/theme-config');
 var buildConfig = require('../lib/build-config');
-var stencilToken = require('../server/lib/stencil-token');
 var Url = require('url');
 var Wreck = require('wreck');
 var jsonLint = require('../lib/json-lint');
