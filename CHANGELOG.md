@@ -1,3 +1,12 @@
+<a name="1.18.0"></a>
+## 1.18.0 (2019-08-01)
+
+* feat: bump paper to 2.0.18 ([fa71b05](https://github.com/bigcommerce/stencil-cli/commit/fa71b05))
+* feat: remove client id from required fields ([0cbc093](https://github.com/bigcommerce/stencil-cli/commit/0cbc093))
+* fix: strf-7023 move browser-sync back to master ([c3db4db](https://github.com/bigcommerce/stencil-cli/commit/c3db4db))
+
+
+
 <a name="1.17.0"></a>
 ## 1.17.0 (2019-07-15)
 
