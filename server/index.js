@@ -25,7 +25,6 @@ module.exports = (options, callback) => {
     config.plugins['./plugins/renderer/renderer.module'].useCache = options.useCache;
     config.plugins['./plugins/renderer/renderer.module'].username = options.dotStencilFile.username;
     config.plugins['./plugins/renderer/renderer.module'].token = options.dotStencilFile.token;
-    config.plugins['./plugins/renderer/renderer.module'].clientId = options.dotStencilFile.clientId;
     config.plugins['./plugins/renderer/renderer.module'].accessToken = options.dotStencilFile.accessToken;
     config.plugins['./plugins/renderer/renderer.module'].customLayouts = options.dotStencilFile.customLayouts;
     config.plugins['./plugins/renderer/renderer.module'].stencilEditorPort = options.stencilEditorPort;
