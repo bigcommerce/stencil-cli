@@ -1,3 +1,11 @@
+<a name="1.19.0"></a>
+## 1.19.0 (2019-08-07)
+
+* fix: bump paper to 3.0.0-rc20 ([e9c7691](https://github.com/bigcommerce/stencil-cli/commit/e9c7691))
+* feat: strf-7175 bump paper to 3.0.0-rc.19 ([eb5ef78](https://github.com/bigcommerce/stencil-cli/commit/eb5ef78))
+
+
+
 <a name="1.18.0"></a>
 ## 1.18.0 (2019-08-01)
 
