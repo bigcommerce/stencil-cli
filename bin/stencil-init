@@ -11,10 +11,13 @@ var versionCheck = require('../lib/version-check');
 
 Program
     .version(pkg.version)
+    .option('-u, --url [url]', 'Store URL')
+    .option('-t, --token [token]', 'Access Token')
+    .option('-p, --port [port]', 'Port')
     .parse(process.argv);
 
 if (!versionCheck()) {
     return;
 }
 
-stencilInit(JspmAssembler, ThemeConfig, dotStencilFilePath);
+stencilInit(JspmAssembler, ThemeConfig, dotStencilFilePath, Program.url, Program.token, Program.port);
