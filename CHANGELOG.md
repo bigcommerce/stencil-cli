@@ -1,3 +1,10 @@
+<a name="1.20.0"></a>
+## 1.20.0 (2019-08-16)
+
+* feat: accept url and token as arguments on stencil init ([b69a9fe](https://github.com/bigcommerce/stencil-cli/commit/b69a9fe))
+
+
+
 <a name="1.19.0"></a>
 ## 1.19.0 (2019-08-07)
 
