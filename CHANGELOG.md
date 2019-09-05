@@ -1,3 +1,10 @@
+<a name="1.20.1"></a>
+## <small>1.20.1 (2019-09-05)</small>
+
+* Revert "Merge pull request #491 from bookernath/browser-sync-master" ([020ca91](https://github.com/bigcommerce/stencil-cli/commit/020ca91))
+
+
+
 <a name="1.20.0"></a>
 ## 1.20.0 (2019-08-16)
 
