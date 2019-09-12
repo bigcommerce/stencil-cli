@@ -1,3 +1,12 @@
+<a name="1.20.2"></a>
+## <small>1.20.2 (2019-09-12)</small>
+
+* fix: bump paper to 2.0.19 ([670a7ad](https://github.com/bigcommerce/stencil-cli/commit/670a7ad))
+* Revert "Merge pull request #500 from bc-williamkwon/changePaperBranch" ([3e195e8](https://github.com/bigcommerce/stencil-cli/commit/3e195e8))
+* Revert "Merge pull request #506 from bookernath/paper-rc.20" ([5ada1b4](https://github.com/bigcommerce/stencil-cli/commit/5ada1b4))
+
+
+
 <a name="1.20.1"></a>
 ## <small>1.20.1 (2019-09-05)</small>
 
