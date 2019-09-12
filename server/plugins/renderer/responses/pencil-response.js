@@ -4,7 +4,12 @@ const internals = {};
 
 module.exports = function (data, assembler) {
     this.respond = function (request, reply) {
-        const paper = new Paper(data.context.settings, data.context.theme_settings, assembler, "handlebars-v3");
+        var response,
+            output,
+            paper,
+            templatePath;
+
+        var paper = new Paper(data.context.settings, data.context.theme_settings, assembler);
 
         // Set the environment to dev
         data.context.in_development = true;
@@ -17,21 +22,21 @@ module.exports = function (data, assembler) {
             paper.addDecorator(decorator);
         })
 
-        const templatePath = internals.getTemplatePath(request, data);
+        templatePath = internals.getTemplatePath(request, data);
 
-        paper.loadTheme(templatePath, data.acceptLanguage).then(() => {
+        paper.loadTheme(templatePath, data.acceptLanguage, function () {
             if (request.query.debug === 'context') {
                 return reply(data.context);
             }
 
-            const output = paper.renderTheme(templatePath, data);
-            const response = reply(output);
+            output = paper.renderTheme(templatePath, data);
+            response = reply(output);
             response.code(data.statusCode);
 
             if (data.headers['set-cookie']) {
                 response.header('set-cookie', data.headers['set-cookie']);
             }
-        }).catch(err => console.error(err.message.red));
+        });
     };
 };
 
