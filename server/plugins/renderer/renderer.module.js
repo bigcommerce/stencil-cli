@@ -458,24 +458,33 @@ internals.getHeaders = function (request, options, config) {
  * @type {Object}
  */
 internals.themeAssembler = {
-    getTemplates: (path, processor, callback) => {
-        TemplateAssembler.assemble(internals.getThemeTemplatesPath(), path, (err, templates) => {
-            if (templates[path]) {
-                // Check if the string includes frontmatter configuration and remove it
-                var match = templates[path].match(/---\r?\n[\S\s]*\r?\n---\r?\n([\S\s]*)$/);
-
-                if (_.isObject(match) && match[1]) {
-                    templates[path] = match[1];
+    getTemplates: (path, processor) => {
+        return new Promise((resolve, reject) => {
+            TemplateAssembler.assemble(internals.getThemeTemplatesPath(), path, (err, templates) => {
+                if (err) {
+                    return reject(err);
                 }
-            }
+                if (templates[path]) {
+                    // Check if the string includes frontmatter configuration and remove it
+                    const match = templates[path].match(/---\r?\n[\S\s]*\r?\n---\r?\n([\S\s]*)$/);
 
-            callback(null, processor(templates));
-        });
+                    if (_.isObject(match) && match[1]) {
+                        templates[path] = match[1];
+                    }
+                }
+                return resolve(processor(templates));
+            });
+        })
     },
-    getTranslations: (callback) => {
-        LangAssembler.assemble((err, translations) => {
-            callback(null, _.mapValues(translations, locales => JSON.parse(locales)));
-        });
+    getTranslations: () => {
+        return new Promise((resolve, reject) => {
+            LangAssembler.assemble((err, translations) => {
+                if (err) {
+                    return reject(err);
+                }
+                return resolve(_.mapValues(translations, locales => JSON.parse(locales)));
+            });
+        })
     },
 };
 
