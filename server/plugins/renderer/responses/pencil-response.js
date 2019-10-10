@@ -4,12 +4,7 @@ const internals = {};
 
 module.exports = function (data, assembler) {
     this.respond = function (request, reply) {
-        var response,
-            output,
-            paper,
-            templatePath;
-
-        var paper = new Paper(data.context.settings, data.context.theme_settings, assembler);
+        const paper = new Paper(data.context.settings, data.context.theme_settings, assembler, "handlebars-v3");
 
         // Set the environment to dev
         data.context.in_development = true;
@@ -20,23 +15,27 @@ module.exports = function (data, assembler) {
         // Plugins have the opportunity to add/modify the response by using decorators
         _.each(request.app.decorators, function (decorator) {
             paper.addDecorator(decorator);
-        })
-
-        templatePath = internals.getTemplatePath(request, data);
-
-        paper.loadTheme(templatePath, data.acceptLanguage, function () {
-            if (request.query.debug === 'context') {
-                return reply(data.context);
-            }
-
-            output = paper.renderTheme(templatePath, data);
-            response = reply(output);
-            response.code(data.statusCode);
-
-            if (data.headers['set-cookie']) {
-                response.header('set-cookie', data.headers['set-cookie']);
-            }
         });
+
+        const templatePath = internals.getTemplatePath(request, data);
+
+        paper.loadTheme(templatePath, data.acceptLanguage)
+            .then(() => {
+                if (request.query.debug === 'context') {
+                    return reply(data.context);
+                }
+            })
+            .catch(err => console.error(err.message.red))
+            .then(() => paper.renderTheme(templatePath, data))
+            .catch(err => console.error(err.message.red))
+            .then(output => {
+                const response = reply(output);
+                response.code(data.statusCode);
+                if (data.headers['set-cookie']) {
+                    response.header('set-cookie', data.headers['set-cookie']);
+                }
+                return response;
+            }).catch(err => console.error(err.message.red));
     };
 };
 
