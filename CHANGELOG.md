@@ -1,3 +1,10 @@
+<a name="1.20.3"></a>
+## <small>1.20.3 (2019-10-10)</small>
+
+* feat: strf-7393 make cli work with paper 3.x branch ([7ba9688](https://github.com/bigcommerce/stencil-cli/commit/7ba9688))
+
+
+
 <a name="1.20.2"></a>
 ## <small>1.20.2 (2019-09-12)</small>
 
