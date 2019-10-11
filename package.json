@@ -4,7 +4,7 @@
   "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
   "engines": {
-    "node": ">= 8.0.0 <11.0.0"
+    "node": ">= 8.0.0 <13.0.0"
   },
   "scripts": {
     "lint": "eslint .",
@@ -60,7 +60,7 @@
     "glue": "^2.0.0",
     "good": "^5.1.2",
     "good-console": "^4.1.0",
-    "graceful-fs": "^4.1.11",
+    "graceful-fs": "^4.2.2",
     "handlebars": "^3.0.3",
     "hapi": "^8.4.0",
     "hoek": "^2.12.0",
@@ -69,7 +69,7 @@
     "install": "^0.1.8",
     "jsonlint": "^1.6.2",
     "jsonschema": "^1.0.2",
-    "jspm": "^0.15.7",
+    "jspm": "^0.16.55",
     "jspm-git": "^0.6.0",
     "lab": "^5.5.1",
     "less": "^2.5.0",
@@ -118,7 +118,7 @@
     "gulp-prompt": "0.1.2",
     "gulp-sass": "4.0.2",
     "gulp-sass-lint": "1.1.1",
-    "gulp-util": "3.0.7",
+    "gulp-util": "3.0.8",
     "husky": "^1.2.0",
     "jest": "^21.2.1",
     "js-cookie": "^2.1.1",
@@ -126,7 +126,7 @@
     "object-to-spawn-args": "^1.1.1",
     "script-loader": "^0.7.0",
     "sinon": "^7.1.1",
-    "webpack": "^1.13.0",
+    "webpack": "^1.15.0",
     "webpack-livereload-plugin": "^0.8.1"
   },
   "husky": {
