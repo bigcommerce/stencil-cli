@@ -1,3 +1,10 @@
+<a name="1.21.0"></a>
+## 1.21.0 (2019-10-14)
+
+* Adding Support for Node 10 (#525) ([3013fb4](https://github.com/bigcommerce/stencil-cli/commit/3013fb4))
+
+
+
 <a name="1.20.3"></a>
 ## <small>1.20.3 (2019-10-10)</small>
 
