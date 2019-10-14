@@ -7,6 +7,8 @@ addons:
     - github.com 
 node_js:
   - 8
+  - 10
+
 cache:
   directories:
     - node_modules
