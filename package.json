@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/bigcommerce/stencil-cli",
   "dependencies": {
-    "@bigcommerce/stencil-paper": "^3.0.0-rc.24",
+    "@bigcommerce/stencil-paper": "^3.0.0-rc.26",
     "@bigcommerce/stencil-styles": "1.2.0-rc1",
     "accept-language-parser": "^1.0.2",
     "archiver": "^0.14.4",
