@@ -1,3 +1,10 @@
+<a name="1.21.1"></a>
+## <small>1.21.1 (2019-10-22)</small>
+
+* fix: update paper to 3.0.0-rc.26 ([32ef114](https://github.com/bigcommerce/stencil-cli/commit/32ef114))
+
+
+
 <a name="1.21.0"></a>
 ## 1.21.0 (2019-10-14)
 
