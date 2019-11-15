@@ -1,3 +1,10 @@
+<a name="1.21.2"></a>
+## <small>1.21.2 (2019-11-15)</small>
+
+* fix: bump stencil-styles to 1.2.0 ([97389b9](https://github.com/bigcommerce/stencil-cli/commit/97389b9))
+
+
+
 <a name="1.21.1"></a>
 ## <small>1.21.1 (2019-10-22)</small>
 
