@@ -16,6 +16,7 @@ const internals = {
         favicon: '/favicon.ico',
         stencilEditor: '/stencil-editor',
         updateParam: '/stencil-editor/update-param',
+        graphQL: '/graphql',
     },
 };
 
@@ -124,6 +125,33 @@ internals.registerRoutes = function(server, next) {
             method: 'GET',
             path: internals.paths.cssFiles,
             handler: server.plugins.ThemeAssets.cssHandler,
+            config: {
+                state: {
+                    failAction: 'log',
+                },
+            },
+        },
+        {
+            method: ['GET', 'POST'],
+            path: internals.paths.graphQL,
+            handler: {
+                proxy: {
+                    mapUri: function (req, cb) {
+                        return cb(
+                            null,
+                            `${internals.options.storeUrl}${req.path}`,
+                            Object.assign( // Add 'origin' and 'host' headers to request before proxying
+                                req.headers,
+                                {
+                                    origin: internals.options.storeUrl,
+                                    host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
+                                }
+                            )
+                        );
+                    },
+                    passThrough: true,
+                },
+            },
             config: {
                 state: {
                     failAction: 'log',

@@ -89,4 +89,21 @@ describe('Router', () => {
             done();
         });
     });
+
+    it('should inject host and origin headers for GraphQL requests', done => {
+        server.inject({
+            method: 'POST',
+            url: '/graphql',
+            headers: { 'authorization': 'abc123' },
+        }, response => {
+            expect(response.request.payload.headers).to.include(
+                {
+                    authorization: 'abc123',
+                    origin: 'https://store-abc123.mybigcommerce.com',
+                    host: 'store-abc123.mybigcommerce.com',
+                }
+            );
+            done();
+        });
+    });
 });
