@@ -14,7 +14,7 @@ describe('stencil init', () => {
     let sandbox;
 
     lab.beforeEach(done => {
-        sandbox = Sinon.sandbox.create();
+        sandbox = Sinon.createSandbox();
         sandbox.stub(console, 'log');
         sandbox.stub(console, 'error');
         done();
