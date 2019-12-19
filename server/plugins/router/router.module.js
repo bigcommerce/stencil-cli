@@ -11,6 +11,7 @@ const internals = {
         renderer: '/{url*}',
         staticAssets: '/assets/{path*}',
         internalApi: '/internalapi/{path*}',
+        storefrontAPI: '/api/storefront/{path*}',
         cdnAssets: '/stencil/{versionId}/{fileName*}',
         cssFiles: '/stencil/{versionId}/css/{fileName}.css',
         favicon: '/favicon.ico',
@@ -93,6 +94,25 @@ internals.registerRoutes = function(server, next) {
         {
             method: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
             path: internals.paths.internalApi,
+            handler: {
+                proxy: {
+                    host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
+                    rejectUnauthorized: false,
+                    protocol: 'https',
+                    port: 443,
+                    passThrough: true,
+                    xforward: true,
+                },
+            },
+            config: {
+                state: {
+                    failAction: 'log',
+                },
+            },
+        },
+        {
+            method: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+            path: internals.paths.storefrontAPI,
             handler: {
                 proxy: {
                     host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
