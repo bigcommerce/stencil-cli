@@ -1,3 +1,12 @@
+<a name="1.21.3"></a>
+## <small>1.21.3 (2019-12-20)</small>
+
+* fix: avoid caching of storefront api responses ([9974a07](https://github.com/bigcommerce/stencil-cli/commit/9974a07))
+* fix: correcting url for deploy issues docs ([44ef5e9](https://github.com/bigcommerce/stencil-cli/commit/44ef5e9))
+* fix: fix origin sent with graphql requests (#541) ([8f3f02c](https://github.com/bigcommerce/stencil-cli/commit/8f3f02c))
+
+
+
 <a name="1.21.2"></a>
 ## <small>1.21.2 (2019-11-15)</small>
 
