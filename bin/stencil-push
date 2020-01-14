@@ -16,6 +16,7 @@ Program
     .option('-f, --file [filename]', 'specify the filename of the bundle to upload')
     .option('-s, --save [filename]', 'specify the filename to save the bundle as')
     .option('-a, --activate [variationname]', 'specify the variation of the theme to activate')
+    .option('-d, --delete', 'delete oldest private theme if upload limit reached')
     .parse(process.argv);
 
 if (!versionCheck()) {
@@ -26,7 +27,8 @@ stencilPush(Object.assign({}, options, {
     apiHost: Program.host || apiHost,
     bundleZipPath: Program.file,
     activate: Program.activate,
-    saveBundleName: Program.save
+    saveBundleName: Program.save,
+    deleteOldest: Program.delete,
 }), (err, result) => {
     if (err) {
         console.log("\n\n" + 'not ok'.red + ` -- ${err} see details below:`);
