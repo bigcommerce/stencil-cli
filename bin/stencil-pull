@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+
+require('colors');
+const apiHost = 'https://api.bigcommerce.com';
+const dotStencilFilePath = './.stencil';
+const options = { dotStencilFilePath };
+const pkg = require('../package.json');
+const Program = require('commander');
+const stencilPull = require('../lib/stencil-pull');
+const versionCheck = require('../lib/version-check');
+const themeApiClient = require('../lib/theme-api-client');
+
+Program
+    .version(pkg.version)
+    .option('--host [hostname]', 'specify the api host', apiHost)
+    .option('--save [filename]', 'specify the filename to save the config as', 'config.json')
+    .parse(process.argv);
+
+if (!versionCheck()) {
+    return;
+}
+
+stencilPull(Object.assign({}, options, {
+    apiHost: Program.host || apiHost,
+    saveConfigName: Program.save,
+}), (err, result) => {
+    if (err) {
+        console.log("\n\n" + 'not ok'.red + ` -- ${err} see details below:`);
+        themeApiClient.printErrorMessages(err.messages);
+        console.log('If this error persists, please visit https://github.com/bigcommerce/stencil-cli/issues and submit an issue.');
+    } else {
+        console.log('ok'.green + ` -- Pulled active theme config to ${result.saveConfigName}`);
+    }
+});
