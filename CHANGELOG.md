@@ -1,3 +1,13 @@
+<a name="1.21.5"></a>
+## <small>1.21.5 (2020-01-30)</small>
+
+* feat: add flag to auto-delete oldest theme during push ([ea93793](https://github.com/bigcommerce/stencil-cli/commit/ea93793))
+* feat: bump paper to 3.0.0-rc.27 ([86e4f74](https://github.com/bigcommerce/stencil-cli/commit/86e4f74))
+* fix: more detailed theme variation error ([96e3a30](https://github.com/bigcommerce/stencil-cli/commit/96e3a30))
+* fix: schema.json formatting ([73c8a26](https://github.com/bigcommerce/stencil-cli/commit/73c8a26))
+
+
+
 <a name="1.21.4"></a>
 ## <small>1.21.4 (2019-12-20)</small>
 
