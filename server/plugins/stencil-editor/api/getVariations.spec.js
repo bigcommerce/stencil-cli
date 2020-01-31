@@ -2,7 +2,7 @@ const Code = require('code');
 const Lab = require('lab');
 const Path = require('path');
 const lab = exports.lab = Lab.script();
-const validator = new (require('jsonschema').Validator)();
+const validator = new (require('ajv'))();
 const Utils = require('../../../lib/utils');
 const ThemeConfig = require('../../../../lib/theme-config');
 const GetVariations = require('./getVariations');
@@ -26,8 +26,8 @@ lab.describe('GET /variations/{id} api endpoint', function() {
 
         GetVariations(options, themeConfig)(requestStub, function(response) {
             // Validate the response schema against the theme-registry schema
-            Code.expect(validator.validate(response, responseSchema).errors)
-                .to.be.empty();
+            validator.validate(responseSchema, response);
+            Code.expect(validator.errors).to.be.null();
 
             Code.expect(response.data.screenshot.smallThumb)
                 .to.be.equal('http://localhost:8181/meta/desktop_bold.jpg');

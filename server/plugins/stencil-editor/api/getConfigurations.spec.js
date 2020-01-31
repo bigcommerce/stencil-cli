@@ -2,7 +2,7 @@ const Code = require('code');
 const Lab = require('lab');
 const Path = require('path');
 const lab = exports.lab = Lab.script();
-const validator = new (require('jsonschema').Validator)();
+const validator = new (require('ajv'))();
 const Utils = require('../../../lib/utils');
 const themePath = Path.join(process.cwd(), 'test/_mocks/themes/valid');
 const ThemeConfig = require('../../../../lib/theme-config');
@@ -23,8 +23,8 @@ lab.describe('GET /configurations/{id} api endpoint', function () {
         GetConfigurations({}, themeConfig)(request, function (response) {
 
             // Validate the response schema against the theme-registry schema
-            Code.expect(validator.validate(response, responseSchema).errors)
-                .to.be.empty();
+            validator.validate(responseSchema, response);
+            Code.expect(validator.errors).to.be.null();
 
             Code.expect(response.data.settings.select)
                 .to.be.equal('first');
@@ -47,8 +47,8 @@ lab.describe('GET /configurations/{id} api endpoint', function () {
 
         GetConfigurations({}, themeConfig)(request, function (response) {
             // Validate the response schema against the theme-registry schema
-            Code.expect(validator.validate(response, responseSchema).errors)
-                .to.be.empty();
+            validator.validate(responseSchema, response);
+            Code.expect(validator.errors).to.be.null();
 
             Code.expect(response.data.settings.select)
                 .to.be.equal('second');

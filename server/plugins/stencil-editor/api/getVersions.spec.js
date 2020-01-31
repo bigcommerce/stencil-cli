@@ -3,7 +3,7 @@ const Lab = require('lab');
 const Path = require('path');
 const Sinon = require('sinon');
 const lab = exports.lab = Lab.script();
-const validator = new (require('jsonschema').Validator)();
+const validator = new (require('ajv'))();
 const ThemeConfig = require('../../../../lib/theme-config');
 const GetVersions = require('./getVersions');
 const responseSchema = require('../../../../test/_mocks/api/getVersions.schema');
@@ -25,8 +25,8 @@ lab.describe('GET /versions/{id} api endpoint', function() {
         GetVersions(options, themeConfig)(requestStub, function(response) {
 
             // Validate the response schema against the theme-registry schema
-            Code.expect(validator.validate(response, responseSchema).errors)
-                .to.be.empty();
+            validator.validate(responseSchema, response);
+            Code.expect(validator.errors).to.be.null();
 
             // expect theme schema to be included
             Code.expect(response.data.editorSchema)
@@ -61,8 +61,8 @@ lab.describe('GET /versions/{id} api endpoint', function() {
         GetVersions(options, themeConfig)(requestStub, function(response) {
 
             // Validate the response schema against the theme-registry schema
-            Code.expect(validator.validate(response, responseSchema).errors)
-                .to.be.empty();
+            validator.validate(responseSchema, response);
+            Code.expect(validator.errors).to.be.null();
 
             // expect theme schema to be included
             Code.expect(response.data.editorSchema)

@@ -1,10 +1,9 @@
 [
   {
-    "name": "i18n.Test",
+    "name": "Test",
     "settings": [
       {
-        "type": "heading",
-        "content": "Heading"
+        "type": "heading"
       },
       {
         "type": "paragraph",
@@ -14,28 +13,6 @@
         "type": "color",
         "label": "Color",
         "id": "color"
-      },
-      {
-        "type": "font",
-        "label": "Font",
-        "id": "font",
-        "options": [
-          {
-            "group": "Karla",
-            "label": "Karla",
-            "value": "Google_Karla_400"
-          },
-          {
-            "group": "Roboto",
-            "label": "Roboto",
-            "value": "Google_Roboto_400"
-          },
-          {
-            "group": "Source Sans Pro",
-            "label": "Source Sans Pro",
-            "value": "Google_Source+Sans+Pro_400"
-          }
-        ]
       },
       {
         "type": "select",

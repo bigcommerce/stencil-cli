@@ -2,7 +2,7 @@ const Code = require('code');
 const Lab = require('lab');
 const Sinon = require('sinon');
 const lab = exports.lab = Lab.script();
-const validator = new (require('jsonschema').Validator)();
+const validator = new (require('ajv'))();
 const Utils = require('../../../lib/utils');
 const PostConfigurations = require('./postConfigurations');
 const responseSchema = require('../../../../test/_mocks/api/postConfigurations.schema');
@@ -27,8 +27,8 @@ lab.describe('POST /configurations/{id} api endpoint', function () {
         PostConfigurations({}, themeConfig)(requestStub, function (response) {
 
             // Validate the response schema against the theme-registry schema
-            Code.expect(validator.validate(response, responseSchema).errors)
-                .to.be.empty();
+            validator.validate(responseSchema, response);
+            Code.expect(validator.errors).to.be.null();
 
             Code.expect(themeConfig.updateConfig.calledWith(requestStub.payload.settings, false))
                 .to.be.true();
@@ -57,8 +57,8 @@ lab.describe('POST /configurations/{id} api endpoint', function () {
         PostConfigurations({}, themeConfig)(requestStub, function (response) {
 
             // Validate the response schema against the theme-registry schema
-            Code.expect(validator.validate(response, responseSchema).errors)
-                .to.be.empty();
+            validator.validate(response, responseSchema);
+            Code.expect(validator.errors).to.be.null();
 
             Code.expect(themeConfig.updateConfig.calledWith(requestStub.payload.settings, true))
                 .to.be.true();

@@ -41,7 +41,7 @@ function RawResponse(data, headers, statusCode) {
 
         return response;
     };
-};
+}
 
 /**
  * Append checkout.css to override styles.
