@@ -60,7 +60,8 @@
 							"pixel_pop",
 							"account_payment_methods",
               "enhanced_ecommerce",
-              "csrf_protection"
+              "csrf_protection",
+              "account_payment_methods_v2"
 						]
 					},
 					"uniqueItems": true,
