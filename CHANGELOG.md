@@ -1,3 +1,12 @@
+<a name="1.21.6"></a>
+## <small>1.21.6 (2020-02-04)</small>
+
+* Add feature to allow pulling live config files (#550) ([43558fc](https://github.com/bigcommerce/stencil-cli/commit/43558fc))
+* fix: add account_payment_methods_v2 to theme config schema ([373a485](https://github.com/bigcommerce/stencil-cli/commit/373a485))
+* feat(dependencies): remove dateformat as a direct dependecy ([6044e91](https://github.com/bigcommerce/stencil-cli/commit/6044e91))
+
+
+
 <a name="1.21.5"></a>
 ## <small>1.21.5 (2020-01-30)</small>
 
