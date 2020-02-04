@@ -10,4 +10,5 @@ program
     .command('bundle', 'Bundles up the theme into a zip file which can be uploaded to BigCommerce.')
     .command('release', 'Create a new release in the theme\'s github repository.')
     .command('push', 'Bundles up the theme into a zip file and uploads it to your store.')
+    .command('pull', 'Pulls currently active theme config files and overwrites local copy')
     .parse(process.argv);
