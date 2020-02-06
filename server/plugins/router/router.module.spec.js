@@ -101,7 +101,7 @@ describe('Router', () => {
                     authorization: 'abc123',
                     origin: 'https://store-abc123.mybigcommerce.com',
                     host: 'store-abc123.mybigcommerce.com',
-                }
+                },
             );
             done();
         });

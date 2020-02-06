@@ -17,7 +17,7 @@ describe('ChangelogGenerator', () => {
 
     lab.beforeEach( done => {
         fs = {
-            statSync: function() { return true },
+            statSync: function() { return true; },
         };
 
         commandExecutor = new CommandExecutor(require('child_process'));
@@ -37,7 +37,7 @@ describe('ChangelogGenerator', () => {
                     config: path.join(__dirname, 'default-config.js'),
                     infile: path.join('/src', 'CHANGELOG.md'),
                     sameFile: true,
-                }
+                },
             )).to.equal(true);
 
             done();
@@ -55,7 +55,7 @@ describe('ChangelogGenerator', () => {
                 infile: path.join('/src', 'CHANGELOG.md'),
                 preset: 'angular',
                 sameFile: true,
-            }
+            },
             )).to.equal(true);
 
             done();
@@ -75,9 +75,9 @@ describe('ChangelogGenerator', () => {
                 infile: path.join('/src', 'CHANGELOG.md'),
                 releaseCount: 0,
                 sameFile: true,
-            }
+            },
             )).to.equal(true);
-            
+
             done();
         });
     });

@@ -87,7 +87,7 @@ internals.getResponse = function (request, callback) {
     // Convert QueryParams with array values to php compatible names (brackets [])
     urlObject.query = _.mapKeys(urlObject.query, function (value, key) {
         if (_.isArray(value)) {
-            return key + '[]'
+            return key + '[]';
         }
 
         return key;
@@ -187,7 +187,7 @@ internals.parseResponse = function (bcAppData, request, response, responseArgs, 
         return callback(null, new Responses.RawResponse(
             bcAppData,
             response.headers,
-            response.statusCode
+            response.statusCode,
         ));
     }
 
@@ -330,7 +330,7 @@ internals.redirect = function (response, request, callback) {
     return callback(null, new Responses.RedirectResponse(
         response.headers.location,
         response.headers,
-        response.statusCode
+        response.statusCode,
     ));
 };
 
@@ -474,7 +474,7 @@ internals.themeAssembler = {
                 }
                 return resolve(processor(templates));
             });
-        })
+        });
     },
     getTranslations: () => {
         return new Promise((resolve, reject) => {
@@ -484,7 +484,7 @@ internals.themeAssembler = {
                 }
                 return resolve(_.mapValues(translations, locales => JSON.parse(locales)));
             });
-        })
+        });
     },
 };
 

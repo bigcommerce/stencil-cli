@@ -15,7 +15,7 @@ lab.describe('Renderer Plugin', () => {
     let wreckRequestStub;
     let wreckReadStub;
 
-    lab.before((done) => {
+    lab.before(done => {
         const options = {
             dotStencilFile: {
                 storeUrl: "https://store-abc123.mybigcommerce.com",
@@ -44,21 +44,21 @@ lab.describe('Renderer Plugin', () => {
         });
     });
 
-    lab.beforeEach((done) => {
+    lab.beforeEach(done => {
         wreckRequestStub = sinon.stub(Wreck, 'request');
         wreckReadStub = sinon.stub(Wreck, 'read');
 
         done();
     });
 
-    lab.afterEach((done) => {
+    lab.afterEach(done => {
         wreckRequestStub.restore();
         wreckReadStub.restore();
 
         server.stop(done);
     });
 
-    it('should handle fatal errors in the BCApp request', (done) => {
+    it('should handle fatal errors in the BCApp request', done => {
         var options = {
             method: "GET",
             url: "/test",
@@ -66,14 +66,14 @@ lab.describe('Renderer Plugin', () => {
 
         wreckRequestStub.callsArgWith(3, new Error('failure'));
 
-        server.inject(options, (response) => {
+        server.inject(options, response => {
             expect(response.statusCode).to.equal(500);
 
             done();
         });
     });
 
-    it('should handle responses of a 500 in the BCApp request', (done) => {
+    it('should handle responses of a 500 in the BCApp request', done => {
         var options = {
             method: "GET",
             url: "/",
@@ -83,14 +83,14 @@ lab.describe('Renderer Plugin', () => {
             statusCode: 500,
         });
 
-        server.inject(options, (response) => {
+        server.inject(options, response => {
             expect(response.statusCode).to.equal(500);
 
             done();
         });
     });
 
-    it('should handle redirects in the BCApp request', (done) => {
+    it('should handle redirects in the BCApp request', done => {
         var options = {
             method: "GET",
             url: "/",
@@ -103,7 +103,7 @@ lab.describe('Renderer Plugin', () => {
             },
         });
 
-        server.inject(options, (response) => {
+        server.inject(options, response => {
             expect(response.statusCode).to.equal(301);
             expect(response.headers.location).to.equal('http://www.example.com/');
 
@@ -111,7 +111,7 @@ lab.describe('Renderer Plugin', () => {
         });
     });
 
-    it('should handle unauthorized in the Stapler Request', (done) => {
+    it('should handle unauthorized in the Stapler Request', done => {
         var options = {
             method: "GET",
             url: "/",
@@ -124,7 +124,7 @@ lab.describe('Renderer Plugin', () => {
             },
         });
 
-        server.inject(options, (response) => {
+        server.inject(options, response => {
             expect(response.statusCode).to.equal(401);
 
             done();

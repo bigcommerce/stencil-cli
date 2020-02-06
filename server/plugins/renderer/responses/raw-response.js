@@ -27,7 +27,7 @@ function RawResponse(data, headers, statusCode) {
             payload = payload.toString('utf8')
                 .replace(
                     /http[s]?:\/\/.*?\/optimized-checkout.css/,
-                    `/stencil/${internals.stubActiveVersion}/${internals.stubActiveConfig}/css/optimized-checkout.css`
+                    `/stencil/${internals.stubActiveVersion}/${internals.stubActiveConfig}/css/optimized-checkout.css`,
                 );
         }
 

@@ -130,7 +130,7 @@ function logError(err) {
 gulp.task('install-private-dependencies', installPrivateDependencies);
 gulp.task('bump', bumpTask);
 gulp.task('deploy-webpack', deployWebpack);
-gulp.task('changelog', (done) => changelog.changelogTask({}, done));
+gulp.task('changelog', done => changelog.changelogTask({}, done));
 gulp.task('uninstall-private-dependencies', uninstallPrivateDependencies);
 gulp.task('push', pushTask);
 gulp.task('release', gulp.series('install-private-dependencies', 'bump', 'deploy-webpack', 'changelog', 'uninstall-private-dependencies', 'push'));
