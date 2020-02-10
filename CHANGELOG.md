@@ -1,3 +1,17 @@
+<a name="1.22.0"></a>
+## 1.22.0 (2020-02-10)
+
+* feat(dependencies): remove compression as a dependency ([2c02e9e](https://github.com/bigcommerce/stencil-cli/commit/2c02e9e))
+* feat(dependencies): remove decompress-zip as a dependency ([34c7fde](https://github.com/bigcommerce/stencil-cli/commit/34c7fde))
+* feat(dependencies): remove express as a dependecy since it is not used ([ba1c2c5](https://github.com/bigcommerce/stencil-cli/commit/ba1c2c5))
+* feat(dependencies): remove gulp git, sass, sass-lint dependency ([14dceeb](https://github.com/bigcommerce/stencil-cli/commit/14dceeb))
+* feat(dependencies): remove install as a dependency since it is not used ([1c2549c](https://github.com/bigcommerce/stencil-cli/commit/1c2549c))
+* feat(dependencies): remove npm as a dependency ([4733649](https://github.com/bigcommerce/stencil-cli/commit/4733649))
+* feat(dependencies): remove script-loader as a direct dependecy ([9a2b817](https://github.com/bigcommerce/stencil-cli/commit/9a2b817))
+* feat(dependencies): update dev dependency ([d5bdfe3](https://github.com/bigcommerce/stencil-cli/commit/d5bdfe3))
+
+
+
 <a name="1.21.6"></a>
 ## <small>1.21.6 (2020-02-04)</small>
 
