@@ -2,9 +2,7 @@
 
 require('colors');
 
-var Fs = require('fs');
 var Program = require('commander');
-var Path = require('path');
 var ThemeConfig = require('../lib/theme-config');
 var pkg = require('../package.json');
 var themePath = process.cwd();
