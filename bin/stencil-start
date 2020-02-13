@@ -163,13 +163,12 @@ function startServer() {
         var watchFiles = [
             '/assets',
             '/templates',
-            '/lang'
+            '/lang',
         ];
         var watchIgnored = [
             '/assets/scss',
-            '/assets/less',
             '/assets/css',
-            '/assets/jspm_packages'
+            '/assets/jspm_packages',
         ];
 
         if (err) {
