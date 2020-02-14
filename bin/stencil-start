@@ -28,6 +28,7 @@ var themeConfig;
 var configuration;
 var staplerUrl;
 var headers;
+let tunnel;
 require('colors');
 
 Program
@@ -35,10 +36,9 @@ Program
     .option('-o, --open', 'Automatically open default browser')
     .option('-v, --variation [name]', 'Set which theme variation to use while developing')
     .option('-t, --test', 'Enable QA mode which will bundle all javascript for speed to test locally')
-    .option('--tunnel', 'Create a tunnel URL which points to your local server that anyone can use.')
+    .option('--tunnel [name]', 'Create a tunnel URL which points to your local server that anyone can use.')
     .option('-e, --theme-editor', 'Run Theme Editor server')
     .option('-n, --no-cache', 'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.')
-    .option('--theme-editor-port [port]', 'Run the Theme Editor on a different port')
     .parse(process.argv);
 
 
@@ -218,6 +218,11 @@ function startServer() {
             watchIgnored = buildConfig.watchOptions.ignored;
         }
 
+        // check for tunnel argument
+        if (typeof Program.tunnel === 'undefined') { tunnel = false; }
+        else if (Program.tunnel === true)  { tunnel = true; }
+        else { tunnel = Program.tunnel; }
+
         Bs.init({
             open: !!Program.open,
             port: browserSyncPort,
@@ -227,7 +232,7 @@ function startServer() {
                 ignored: watchIgnored.map(val => Path.join(themePath, val)),
             },
             proxy: "localhost:" + stencilServerPort,
-            tunnel: !!Program.tunnel,
+            tunnel: tunnel,
         });
 
         // Handle manual reloading of browsers by typing 'rs';
