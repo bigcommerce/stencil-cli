@@ -19,12 +19,6 @@ let remote;
 let responses;
 let targetVersion;
 
-function installPrivateDependencies() {
-    return gulp.src('package.json')
-        .pipe(exec('npm run install-private-dependencies'), logError)
-        .on('error', logError);
-}
-
 function bumpTask() {
     const questions = [{
         type: 'list',
@@ -94,20 +88,8 @@ function bumpTask() {
         .on('error', logError);
 }
 
-function deployWebpack() {
-    return gulp.src('package.json')
-        .pipe(exec('npm run deploy'), logError)
-        .on('error', logError);
-}
-
-function uninstallPrivateDependencies() {
-    return gulp.src('package.json')
-        .pipe(exec('npm run uninstall-private-dependencies'), logError)
-        .on('error', logError);
-}
-
 function pushTask() {
-    return gulp.src(['package.json', 'package-lock.json', 'CHANGELOG.md', 'server/plugins/stencil-editor/public/dist/app.js', 'server/plugins/stencil-editor/public/dist/ng-stencil-editor/css/ng-stencil-editor.min.css', 'server/plugins/stencil-editor/public/dist/stencil-preview-sdk.js'])
+    return gulp.src(['package.json', 'package-lock.json', 'CHANGELOG.md'])
         // Add files
         .pipe(git.add())
         // Commit the changed version number
@@ -127,10 +109,7 @@ function logError(err) {
     }
 }
 
-gulp.task('install-private-dependencies', installPrivateDependencies);
 gulp.task('bump', bumpTask);
-gulp.task('deploy-webpack', deployWebpack);
 gulp.task('changelog', done => changelog.changelogTask({}, done));
-gulp.task('uninstall-private-dependencies', uninstallPrivateDependencies);
 gulp.task('push', pushTask);
-gulp.task('release', gulp.series('install-private-dependencies', 'bump', 'deploy-webpack', 'changelog', 'uninstall-private-dependencies', 'push'));
+gulp.task('release', gulp.series('bump', 'changelog', 'push'));
