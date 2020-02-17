@@ -1,3 +1,20 @@
+<a name="1.23.0"></a>
+## 1.23.0 (2020-02-17)
+
+* fix: move code to dev dependency ([f1fd570](https://github.com/bigcommerce/stencil-cli/commit/f1fd570))
+* fix: remove less dependency and ref since it is not supported or used ([c586dd8](https://github.com/bigcommerce/stencil-cli/commit/c586dd8))
+* fix: tunnel issues and add support for tunnel names ([820fa4d](https://github.com/bigcommerce/stencil-cli/commit/820fa4d))
+* fix: update readme to reflect node 8 is no longer supported ([6e793a9](https://github.com/bigcommerce/stencil-cli/commit/6e793a9))
+* feat: drop node 8 support ([5aa1624](https://github.com/bigcommerce/stencil-cli/commit/5aa1624))
+* feat: move lab to dev deps and update it to 14.3.3 ([0f57631](https://github.com/bigcommerce/stencil-cli/commit/0f57631))
+* feat: remove hapi as a direct dependecy ([3164fbc](https://github.com/bigcommerce/stencil-cli/commit/3164fbc))
+* feat: update browser sync to use latest master ([0916991](https://github.com/bigcommerce/stencil-cli/commit/0916991))
+* feat: update colors dependency ([b488557](https://github.com/bigcommerce/stencil-cli/commit/b488557))
+* feat: upgrade lodash dependency ([640c61d](https://github.com/bigcommerce/stencil-cli/commit/640c61d))
+* feat(dependencies): update eslint to the latest and fix lint errors ([5a2fd85](https://github.com/bigcommerce/stencil-cli/commit/5a2fd85))
+
+
+
 <a name="1.22.0"></a>
 ## 1.22.0 (2020-02-10)
 
