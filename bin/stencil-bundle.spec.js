@@ -177,7 +177,7 @@ describe('Stencil Bundle', () => {
             expect(err.message).to.contain('no such file or directory');
             done();
         });
-    })
+    });
 
     function getThemeConfigStub() {
         const rawConfig = {

@@ -17,7 +17,7 @@ function CommandExecutor(childProcess) {
         const command = createCommand(executable, argv, options);
         
         childProcess.spawn(command.executable, command.args, command.options)
-            .on('close', (code) => {
+            .on('close', code => {
                 done(code ? new Error(`Exit code: ${code}`) : undefined);
             });
     }

@@ -165,8 +165,8 @@ internals.registerRoutes = function(server, next) {
                                 {
                                     origin: internals.options.storeUrl,
                                     host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
-                                }
-                            )
+                                },
+                            ),
                         );
                     },
                     passThrough: true,

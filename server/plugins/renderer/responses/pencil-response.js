@@ -91,7 +91,7 @@ internals.makeDecorator = function (request, context) {
         }
 
         return content;
-    }
+    };
 };
 
 /**
@@ -106,7 +106,7 @@ internals.escapeHtml = function (html) {
     };
 
     return html.replace(/[&<>"]/g, tag => charsToReplace[tag] || tag);
-}
+};
 
 /**
  * Scape special characters for regular expression

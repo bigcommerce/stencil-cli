@@ -1,9 +1,10 @@
 {
   "parserOptions": {
-    "ecmaVersion": 8
-  },
-  "ecmaFeatures": {
-    "modules": true
+    "ecmaVersion": 8,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "impliedStrict": true
+    }
   },
   "env": {
     "es6": true,
@@ -20,6 +21,8 @@
     "dot-notation": 0,
     "no-debugger": 2,
     "no-undef": 2,
-    "no-unused-vars": 2
+    "no-unused-vars": 2,
+    "semi": 2,
+    "arrow-parens": [2, "as-needed"]
   }
 }

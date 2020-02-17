@@ -49,7 +49,7 @@ module.exports.register = (server, options, next) => {
             config: routesConfig,
             handler: (request, reply) => {
                 const params = querystring.stringify(request.query);
-                reply.redirect(`/theme-editor/theme/${variationId}/${configurationId}?${params}`)
+                reply.redirect(`/theme-editor/theme/${variationId}/${configurationId}?${params}`);
             },
         },
         {
