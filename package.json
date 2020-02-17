@@ -63,7 +63,7 @@
     "jsonlint": "^1.6.2",
     "jsonschema": "^1.0.2",
     "jspm": "^0.16.55",
-    "lodash": "^3.9.0",
+    "lodash": "^4.17.15",
     "memory-cache": "^0.1.4",
     "progress": "^2.0.0",
     "recursive-readdir": "^1.3.0",
