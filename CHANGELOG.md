@@ -1,3 +1,10 @@
+<a name="1.23.1"></a>
+## <small>1.23.1 (2020-02-18)</small>
+
+* fix: add hapi as a direct dependency to lock down hapi version ([3b9a258](https://github.com/bigcommerce/stencil-cli/commit/3b9a258))
+
+
+
 <a name="1.23.0"></a>
 ## 1.23.0 (2020-02-17)
 
