@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "http://json-schema.org/draft-04/schema#",
+  "title": "Theme translations",
+  "description": "Translations of strings in schema.json file of a theme",
+  "type": "object",
+  "patternProperties": {
+    "^i18n.": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "patternProperties": {
+        "^[a-z]{2}$": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "default"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
