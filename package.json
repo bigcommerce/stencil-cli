@@ -40,6 +40,7 @@
     "@bigcommerce/stencil-paper": "^3.0.0-rc.27",
     "@bigcommerce/stencil-styles": "1.2.0",
     "accept-language-parser": "^1.0.2",
+    "ajv": "^6.11.0",
     "archiver": "^0.14.4",
     "async": "^2.4.0",
     "boom": "^2.7.0",

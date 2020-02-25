@@ -1,0 +1,199 @@
+{
+  "$id": "http://themes.bigcommerce.com/theme_packages/editorSchema",
+  "type": "array",
+  "default": [],
+  "items": {
+    "title": "Items",
+    "type": "object",
+    "required": [
+      "name",
+      "settings"
+    ],
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "minLength": 1
+      },
+      "settings": {
+        "title": "Settings",
+        "type": "array",
+        "default": [],
+        "items": {
+          "title": "Items",
+          "type": "object",
+          "properties": {
+            "type": {
+              "title": "Type",
+              "type": "string",
+              "enum": [
+                "heading",
+                "paragraph",
+                "color",
+                "font",
+                "select",
+                "checkbox",
+                "imageDimension",
+                "text",
+                "optimizedCheckout-image",
+                "input"
+              ]
+            },
+            "content": {
+              "title": "Content",
+              "type": "string"
+            },
+            "label": {
+              "title": "Label",
+              "type": "string"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string",
+              "minLength": 1
+            },
+            "reference": {
+              "title": "Reference",
+              "type": "string",
+              "minLength": 1
+            },
+            "reference_default": {
+              "title": "Reference",
+              "type": [
+                "string",
+                "boolean"
+              ],
+              "description": "This should match parent id."
+            },
+            "force_reload": {
+              "type": "boolean",
+              "description": "Force reload the browser"
+            },
+            "options": {
+              "title": "Options",
+              "type": "array",
+              "items": {
+                "title": "Items",
+                "type": "object",
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "properties": {
+                  "group": {
+                    "title": "Group",
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "label": {
+                    "title": "Label",
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "value": {
+                    "title": "Value",
+                    "type": [
+                      "string",
+                      "number"
+                    ],
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "type": {
+                        "const": "heading"
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "type": {
+                        "const": "paragraph"
+                      }
+                    }
+                  }
+                ]
+              },
+              "then": {
+                "required": [
+                  "content"
+                ]
+              }
+            },
+            {
+              "if": {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "type": {
+                        "const": "select"
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "type": {
+                        "const": "imageDimension"
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "type": {
+                        "const": "font"
+                      }
+                    }
+                  }
+                ]
+              },
+              "then": {
+                "required": [
+                  "label",
+                  "id",
+                  "options"
+                ]
+              }
+            },
+            {
+              "if": {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "type": {
+                        "const": "color"
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "type": {
+                        "const": "checkbox"
+                      }
+                    }
+                  }
+                ]
+              },
+              "then": {
+                "required": [
+                  "label",
+                  "id"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
