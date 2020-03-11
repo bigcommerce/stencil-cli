@@ -11,4 +11,5 @@ program
     .command('release', 'Create a new release in the theme\'s github repository.')
     .command('push', 'Bundles up the theme into a zip file and uploads it to your store.')
     .command('pull', 'Pulls currently active theme config files and overwrites local copy')
+    .command('download', 'Downloads all the theme files')
     .parse(process.argv);
