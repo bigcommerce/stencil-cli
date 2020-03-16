@@ -5,7 +5,6 @@ const Hoek = require('hoek');
 const Url = require('url');
 const manifest = require('./manifest');
 const logo = require('./lib/show-logo');
-const internals = {};
 
 require('colors');
 
@@ -27,7 +26,6 @@ module.exports = (options, callback) => {
     config.plugins['./plugins/renderer/renderer.module'].token = options.dotStencilFile.token;
     config.plugins['./plugins/renderer/renderer.module'].accessToken = options.dotStencilFile.accessToken;
     config.plugins['./plugins/renderer/renderer.module'].customLayouts = options.dotStencilFile.customLayouts;
-    config.plugins['./plugins/renderer/renderer.module'].stencilEditorPort = options.stencilEditorPort;
     config.plugins['./plugins/renderer/renderer.module'].themePath = options.themePath;
     config.plugins['./plugins/theme-assets/theme-assets.module'].themePath = options.themePath;
 
@@ -38,46 +36,8 @@ module.exports = (options, callback) => {
 
         server.start(() => {
             console.log(logo);
-
-            if (options.stencilEditorEnabled) {
-                options.themeServer = server;
-
-                return internals.startThemeEditor(options, callback);
-            } else {
-                return callback(null, server);
-            }
+            return callback(null, server);
         });
 
-    });
-};
-
-internals.startThemeEditor = (options, callback) => {
-    const themeEditorHost = 'http://localhost:' + options.stencilEditorPort;
-    const stencilEditorConfig = {
-        connections: [{
-            host: 'localhost',
-            port: options.stencilEditorPort,
-        }],
-        plugins: {
-            './plugins/stencil-editor/stencil-editor.module': {
-                variationIndex: options.variationIndex,
-                stencilServerPort: options.dotStencilFile.stencilServerPort,
-                stencilEditorPort: options.stencilEditorPort,
-                themeEditorHost: themeEditorHost,
-                themeServer: options.themeServer,
-                themePath: options.themePath,
-            },
-        },
-    };
-
-    Glue.compose(stencilEditorConfig, {relativeTo: __dirname}, (err, server) => {
-        if (err) {
-            return callback(err);
-        }
-
-        server.start(() => {
-            console.log('Theme Editor:', themeEditorHost.cyan);
-            return callback();
-        });
     });
 };

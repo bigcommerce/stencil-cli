@@ -39,7 +39,6 @@ Run `stencil start` to run a local server so you can start developing your theme
 Run with `-o` or `--open` to automatically open up a browser.
 
 - While stencil is running, you can type "rs" and then hit enter to auto-reload all browsers. This is similar to Nodemon's rs option.
-- Run with `-e` to load a local Theme Editor.
 
 Run `stencil bundle` to validate your code and create a zip bundle file that can be uploaded to BigCommerce.
 
