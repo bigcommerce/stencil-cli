@@ -1,3 +1,16 @@
+<a name="2.0.0"></a>
+## 2.0.0 (2020-03-24)
+
+* fix: address chrome cookie SameSite issue ([5938ce1](https://github.com/bigcommerce/stencil-cli/commit/5938ce1))
+* feat: add schema validation to bundle process ([b86d440](https://github.com/bigcommerce/stencil-cli/commit/b86d440))
+* feat: bump paper ([f1d2b5a](https://github.com/bigcommerce/stencil-cli/commit/f1d2b5a))
+* feat: deprecate theme editor ([c0466dc](https://github.com/bigcommerce/stencil-cli/commit/c0466dc))
+* feat(translate): added the translationsSchema.json file into a bundle ([ba04cd6](https://github.com/bigcommerce/stencil-cli/commit/ba04cd6))
+* feat(translate): added validation for schemaTranslations.json ([fccafe2](https://github.com/bigcommerce/stencil-cli/commit/fccafe2))
+* feat(translate): fixed regarding reviewers notes ([0a1f43d](https://github.com/bigcommerce/stencil-cli/commit/0a1f43d))
+
+
+
 <a name="1.23.1"></a>
 ## <small>1.23.1 (2020-02-18)</small>
 
