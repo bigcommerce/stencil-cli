@@ -246,6 +246,10 @@ internals.parseResponse = function (bcAppData, request, response, responseArgs, 
                     response: response,
                 }, internals.cacheTTL);
 
+                if (response.headers['set-cookie']) {
+                    response.headers['set-cookie'] = Utils.stripDomainFromCookies(response.headers['set-cookie']);
+                }
+
                 return callback(null, internals.getPencilResponse(data, request, response, configuration));
             });
         }
