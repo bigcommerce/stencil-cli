@@ -230,6 +230,7 @@ function startServer() {
             },
             proxy: "localhost:" + stencilServerPort,
             tunnel: tunnel,
+            https: Url.parse(staplerUrl).protocol === 'https:'
         });
 
         // Handle manual reloading of browsers by typing 'rs';
