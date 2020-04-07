@@ -29,6 +29,7 @@ var configuration;
 var staplerUrl;
 var headers;
 let tunnel;
+
 require('colors');
 
 Program
@@ -230,7 +231,8 @@ function startServer() {
             },
             proxy: "localhost:" + stencilServerPort,
             tunnel: tunnel,
-            https: Url.parse(staplerUrl).protocol === 'https:'
+            https: Url.parse(staplerUrl).protocol === 'https:',
+            plugins: ["stencil-cli-browser-sync-plugin"],
         });
 
         // Handle manual reloading of browsers by typing 'rs';

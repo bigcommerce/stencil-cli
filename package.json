@@ -67,6 +67,7 @@
     "request": "^2.81.0",
     "semver": "^5.3.0",
     "simple-git": "^1.65.0",
+    "stencil-cli-browser-sync-plugin": "file:../plugins/stencil-cli-browser-sync-plugin",
     "tarjan-graph": "^0.3.0",
     "tmp": "0.0.26",
     "upath": "^0.1.7",
