@@ -12,6 +12,7 @@ var Pkg = require('../package.json');
 var Program = require('commander');
 var Server = require('../server');
 var ThemeConfig = require('../lib/theme-config');
+var StencilBS = require("stencil-cli-browser-sync-plugin");
 var buildConfig = require('../lib/build-config');
 var Url = require('url');
 var Wreck = require('wreck');
@@ -19,9 +20,9 @@ var jsonLint = require('../lib/json-lint');
 var versionCheck = require('../lib/version-check');
 var themePath = process.cwd();
 var browserSyncPort;
-var templatePath = Path.join(themePath, 'templates');
-var dotStencilFilePath = Path.join(themePath, '.stencil');
-var themeConfigPath = Path.join(themePath, 'config.json');
+var templatePath = Path.join(themePath, "templates");
+var dotStencilFilePath = Path.join(themePath, ".stencil");
+var themeConfigPath = Path.join(themePath, "config.json");
 var dotStencilFile;
 var stencilServerPort;
 var themeConfig;
@@ -41,38 +42,51 @@ Program
     .option('-n, --no-cache', 'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.')
     .parse(process.argv);
 
-
 if (!versionCheck()) {
     return;
 }
 
 if (!fileExist(dotStencilFilePath)) {
-    return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
+    return console.error(
+        "Error: Please run".red + " $ stencil init".cyan + " first.".red
+    );
 }
 
-if (!fileExist(Path.join(themePath, 'config.json'))) {
-    return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
+if (!fileExist(Path.join(themePath, "config.json"))) {
+    return console.error(
+        "Error: You must have a ".red +
+            "config.json".cyan +
+            " file in your top level theme directory."
+    );
 }
 
 // If the value is true it means that no variation was passed in.
 if (Program.variation === true) {
-    return console.error('Error: You have to specify a value for -v or --variation'.red);
+    return console.error(
+        "Error: You have to specify a value for -v or --variation".red
+    );
 }
 
 // Instantiate themeConfig
 themeConfig = ThemeConfig.getInstance(themePath);
 
+storefrontConfig = StencilBS.StorefrontConfig.getInstance(themePath);
+
 if (Program.variation) {
     try {
         themeConfig.setVariationByName(Program.variation);
     } catch (err) {
-        return console.error('Error: The variation '.red + Program.variation + ' does not exists in your config.json file'.red);
+        return console.error(
+            "Error: The variation ".red +
+                Program.variation +
+                " does not exists in your config.json file".red
+        );
     }
 }
 
 configuration = themeConfig.getConfig();
 
-dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
+dotStencilFile = Fs.readFileSync(dotStencilFilePath, { encoding: "utf-8" });
 
 try {
     dotStencilFile = jsonLint.parse(dotStencilFile, dotStencilFilePath);
@@ -83,10 +97,11 @@ try {
 browserSyncPort = dotStencilFile.port;
 stencilServerPort = ++dotStencilFile.port;
 
-if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
+if (!dotStencilFile.normalStoreUrl || !dotStencilFile.customLayouts) {
     return console.error(
-        'Error: Your stencil config is outdated. Please run'.red +
-        ' $ stencil init'.cyan + ' again.'.red
+        "Error: Your stencil config is outdated. Please run".red +
+            " $ stencil init".cyan +
+            " again.".red
     );
 }
 
@@ -96,13 +111,13 @@ headers = {
 
 if (dotStencilFile.staplerUrl) {
     staplerUrl = dotStencilFile.staplerUrl;
-    headers['stencil-store-url'] = dotStencilFile.normalStoreUrl;
+    headers["stencil-store-url"] = dotStencilFile.normalStoreUrl;
 } else {
     staplerUrl = dotStencilFile.normalStoreUrl;
 }
 
 Wreck.get(
-    Url.resolve(staplerUrl, '/stencil-version-check?v=' + Pkg.version),
+    Url.resolve(staplerUrl, "/stencil-version-check?v=" + Pkg.version),
     {
         headers: headers,
         json: true,
@@ -113,14 +128,15 @@ Wreck.get(
 
         if (err || !payload) {
             console.error(
-                'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'.red
+                "The BigCommerce Store you are pointing to either does not exist or is not available at this time."
+                    .red
             );
         } else if (payload.error) {
             return console.error(payload.error.red);
-        } else if (payload.status !== 'ok') {
+        } else if (payload.status !== "ok") {
             console.error(
-                'Error: You are using an outdated version of stencil-cli, please run '.red +
-                '$ npm install -g @bigcommerce/stencil-cli'.cyan
+                "Error: You are using an outdated version of stencil-cli, please run "
+                    .red + "$ npm install -g @bigcommerce/stencil-cli".cyan
             );
         } else {
             dotStencilFile.storeUrl = payload.sslUrl;
@@ -182,8 +198,9 @@ function startServer() {
             }
         });
 
-        Bs.watch('config.json', (event) => {
-            if (event === 'change') {
+        Bs.watch("config.json", (event) => {
+            console.log("adsfasdfds");
+            if (event === "change") {
                 try {
                     configuration = themeConfig.getConfig();
                 } catch (e) {
@@ -194,7 +211,13 @@ function startServer() {
             }
         });
 
-        Bs.watch(templatePath, {ignoreInitial: true}, () => {
+        Bs.watch(".config/storefront.json", (event) => {
+            if (event === "change") {
+                Bs.reload();
+            }
+        });
+
+        Bs.watch(templatePath, { ignoreInitial: true }, () => {
             assembleTemplates(templatePath, (err, results) => {
                 if (err) {
                     return console.error(err);
@@ -205,7 +228,7 @@ function startServer() {
                 } catch (e) {
                     console.error(e);
                 }
-            })
+            });
         });
 
         if (buildConfig.watchOptions && buildConfig.watchOptions.files) {
@@ -224,10 +247,21 @@ function startServer() {
         Bs.init({
             open: !!Program.open,
             port: browserSyncPort,
-            files: watchFiles.map(val => Path.join(themePath, val)),
+            files: watchFiles.map((val) => Path.join(themePath, val)),
             watchOptions: {
                 ignoreInitial: true,
-                ignored: watchIgnored.map(val => Path.join(themePath, val)),
+                ignored: watchIgnored.map((val) => Path.join(themePath, val)),
+            },
+            proxy: {
+                target: "localhost:" + stencilServerPort,
+                proxyReq: [
+                    function (proxyReq) {
+                        proxyReq.setHeader(
+                            "Accept-Language",
+                            storefrontConfig.getConfiguredLanguage()
+                        );
+                    },
+                ],
             },
             proxy: "localhost:" + stencilServerPort,
             tunnel: tunnel,
@@ -238,12 +272,12 @@ function startServer() {
         // Handle manual reloading of browsers by typing 'rs';
         // Borrowed from https://github.com/remy/nodemon
         process.stdin.resume();
-        process.stdin.setEncoding('utf8');
-        process.stdin.on('data', data => {
-            data = (data + '').trim().toLowerCase();
+        process.stdin.setEncoding("utf8");
+        process.stdin.on("data", (data) => {
+            data = (data + "").trim().toLowerCase();
 
             // if the keys entered match the restartable value, then restart!
-            if (data === 'rs') {
+            if (data === "rs") {
                 Bs.reload();
             }
         });
@@ -262,15 +296,16 @@ function startServer() {
 function assembleTemplates(templatePath, callback) {
     recursiveRead(templatePath, ['!*.html'], (err, files) => {
         files = files.map(function (file) {
-            return file.replace(templatePath + Path.sep, '').replace('.html', '');
+            return file
+                .replace(templatePath + Path.sep, "")
+                .replace(".html", "");
         });
 
         Async.map(files, templateAssembler.assemble.bind(null, templatePath), (err, results) => {
             if (err) {
                 callback(err);
             }
-            callback(null, results);
-        })
+        );
     });
 }
 
@@ -282,8 +317,7 @@ function assembleTemplates(templatePath, callback) {
 function fileExist(path) {
     try {
         return !!Fs.statSync(path);
-    }
-    catch (e) {
+    } catch (e) {
         return false;
     }
 }
@@ -295,20 +329,20 @@ function fileExist(path) {
 function startUpInformation() {
     let information = '\n';
 
-    information += '-----------------Startup Information-------------\n'.gray;
-    information += '\n';
-    information += '.stencil location: ' + dotStencilFilePath.cyan + '\n';
-    information += 'config.json location: ' + themeConfigPath.cyan + '\n';
-    information += 'Store URL: ' + dotStencilFile.normalStoreUrl.cyan + '\n';
+    information += "-----------------Startup Information-------------\n".gray;
+    information += "\n";
+    information += ".stencil location: " + dotStencilFilePath.cyan + "\n";
+    information += "config.json location: " + themeConfigPath.cyan + "\n";
+    information += "Store URL: " + dotStencilFile.normalStoreUrl.cyan + "\n";
 
     if (dotStencilFile.staplerUrl) {
-        information += 'Stapler URL: ' + staplerUrl.cyan + '\n';
+        information += "Stapler URL: " + staplerUrl.cyan + "\n";
     }
 
-    information += 'SSL Store URL: ' + dotStencilFile.storeUrl.cyan + '\n';
-    information += 'Node Version: ' + process.version.cyan + '\n';
-    information += '\n';
-    information += '-------------------------------------------------\n'.gray;
+    information += "SSL Store URL: " + dotStencilFile.storeUrl.cyan + "\n";
+    information += "Node Version: " + process.version.cyan + "\n";
+    information += "\n";
+    information += "-------------------------------------------------\n".gray;
 
     return information;
 }
