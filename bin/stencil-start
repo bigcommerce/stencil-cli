@@ -12,7 +12,7 @@ var Pkg = require('../package.json');
 var Program = require('commander');
 var Server = require('../server');
 var ThemeConfig = require('../lib/theme-config');
-var StencilBS = require("stencil-cli-browser-sync-plugin");
+var StorefrontPlugin = require("@bigcommerce/stencil-cli-storefront-plugin")
 var buildConfig = require('../lib/build-config');
 var Url = require('url');
 var Wreck = require('wreck');
@@ -70,7 +70,7 @@ if (Program.variation === true) {
 // Instantiate themeConfig
 themeConfig = ThemeConfig.getInstance(themePath);
 
-storefrontConfig = StencilBS.StorefrontConfig.getInstance(themePath);
+storefrontConfig = StorefrontPlugin.getInstance(themePath);
 
 if (Program.variation) {
     try {
@@ -199,7 +199,6 @@ function startServer() {
         });
 
         Bs.watch("config.json", (event) => {
-            console.log("adsfasdfds");
             if (event === "change") {
                 try {
                     configuration = themeConfig.getConfig();
@@ -266,7 +265,7 @@ function startServer() {
             proxy: "localhost:" + stencilServerPort,
             tunnel: tunnel,
             https: Url.parse(staplerUrl).protocol === 'https:',
-            plugins: ["stencil-cli-browser-sync-plugin"],
+            plugins: ["@bigcommerce/stencil-cli-storefront-plugin"],
         });
 
         // Handle manual reloading of browsers by typing 'rs';
