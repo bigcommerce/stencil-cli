@@ -6,7 +6,7 @@ var pkg = require('../package.json');
 var Program = require('commander');
 var JspmAssembler = require('../lib/jspm-assembler');
 var ThemeConfig = require('../lib/theme-config');
-// var StencilBS = require("stencil-cli-browser-sync-plugin");
+var StencilBS = require("stencil-cli-browser-sync-plugin");
 var dotStencilFilePath = './.stencil';
 var versionCheck = require('../lib/version-check');
 
@@ -21,4 +21,4 @@ if (!versionCheck()) {
     return;
 }
 
-stencilInit(JspmAssembler, ThemeConfig, dotStencilFilePath, Program.url, Program.token, Program.port);
+stencilInit(JspmAssembler, ThemeConfig, StencilBS.StorefrontConfig, dotStencilFilePath, Program.url, Program.token, Program.port);
