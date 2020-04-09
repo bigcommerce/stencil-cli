@@ -12,6 +12,7 @@ var Pkg = require('../package.json');
 var Program = require('commander');
 var Server = require('../server');
 var ThemeConfig = require('../lib/theme-config');
+var StorefrontConfig = require("@bigcommerce/stencil-cli-storefront-plugin")
 var buildConfig = require('../lib/build-config');
 var Url = require('url');
 var Wreck = require('wreck');
@@ -160,6 +161,7 @@ function startServer() {
             '/assets',
             '/templates',
             '/lang',
+            '/.config'
         ];
         var watchIgnored = [
             '/assets/scss',
@@ -189,6 +191,12 @@ function startServer() {
                     return console.error(e);
                 }
 
+                Bs.reload();
+            }
+        });
+
+        Bs.watch(".config/storefront.json", (event) => {
+            if (event === "change") {
                 Bs.reload();
             }
         });
@@ -228,9 +236,21 @@ function startServer() {
                 ignoreInitial: true,
                 ignored: watchIgnored.map(val => Path.join(themePath, val)),
             },
-            proxy: "localhost:" + stencilServerPort,
+            proxy: {
+                target: "localhost:" + stencilServerPort,
+                proxyReq: [
+                    function (proxyReq) {
+                        proxyReq.setHeader(
+                            "Accept-Language",
+                            StorefrontConfig.getInstance(themePath).getConfiguredLanguage()
+                        );
+                    },
+                ],
+            },
             tunnel: tunnel,
-            https: Url.parse(staplerUrl).protocol === 'https:'
+            // TODO this causes errors and start doesn't work
+            // https: Url.parse(staplerUrl).protocol === 'https:',
+            plugins:['@bigcommerce/stencil-cli-storefront-plugin']
         });
 
         // Handle manual reloading of browsers by typing 'rs';
