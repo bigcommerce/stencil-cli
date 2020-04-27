@@ -1,3 +1,10 @@
+<a name="2.1.0"></a>
+## 2.1.0 (2020-04-27)
+
+* feat: added re-integration script with new command download ([dc6df02](https://github.com/bigcommerce/stencil-cli/commit/dc6df02))
+
+
+
 <a name="2.0.0"></a>
 ## 2.0.0 (2020-03-24)
 
