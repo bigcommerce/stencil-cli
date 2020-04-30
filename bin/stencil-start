@@ -160,6 +160,7 @@ function startServer() {
             '/assets',
             '/templates',
             '/lang',
+            '/.config'
         ];
         var watchIgnored = [
             '/assets/scss',
@@ -189,6 +190,18 @@ function startServer() {
                     return console.error(e);
                 }
 
+                Bs.reload();
+            }
+        });
+
+        Bs.watch('.config/storefront.json', (event, file) => {
+            if (event === 'change') {
+                console.log("storefront json changed");
+                Bs.emitter.emit("storefront_config_file:changed", {
+                    event: event,
+                    path: file,
+                    namespace: ""
+                });
                 Bs.reload();
             }
         });
@@ -230,7 +243,6 @@ function startServer() {
             },
             proxy: "localhost:" + stencilServerPort,
             tunnel: tunnel,
-            https: Url.parse(staplerUrl).protocol === 'https:'
         });
 
         // Handle manual reloading of browsers by typing 'rs';
