@@ -1,3 +1,11 @@
+<a name="2.1.1"></a>
+## <small>2.1.1 (2020-06-12)</small>
+
+* feat: bump paper ([91acd1c](https://github.com/bigcommerce/stencil-cli/commit/91acd1c))
+* feat: watch storefront config file ([e7b43d9](https://github.com/bigcommerce/stencil-cli/commit/e7b43d9))
+
+
+
 <a name="2.1.0"></a>
 ## 2.1.0 (2020-04-27)
 
