@@ -1,4 +1,4 @@
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 const CssAssembler = require('../../../lib/css-assembler');
 const Utils = require('../../lib/utils');
 const Hoek = require('hoek');
