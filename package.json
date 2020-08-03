@@ -35,6 +35,7 @@
   "dependencies": {
     "@bigcommerce/stencil-paper": "^3.0.0-rc.29",
     "@bigcommerce/stencil-styles": "1.2.0",
+    "@octokit/rest": "^18.0.3",
     "accept-language-parser": "^1.0.2",
     "ajv": "^6.11.0",
     "archiver": "^5.0.0",
@@ -47,7 +48,6 @@
     "confidence": "^1.0.0",
     "eslint": "^6.8.0",
     "front-matter": "^1.0.0",
-    "github": "^8.1.0",
     "glob": "^5.0.14",
     "glue": "^2.0.0",
     "good": "^5.1.2",
