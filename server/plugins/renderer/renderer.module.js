@@ -1,7 +1,7 @@
 'use strict';
 
 const  _ = require('lodash');
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 const Cache = require('memory-cache');
 const Crypto = require('crypto');
 const Frontmatter = require('front-matter');
