@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
 require('colors');
-const apiHost = 'https://api.bigcommerce.com';
-const dotStencilFilePath = './.stencil';
-const options = { dotStencilFilePath };
-const pkg = require('../package.json');
+const inquirer = require('inquirer');
 const Program = require('commander');
+const { promisify } = require("util");
+
+const pkg = require('../package.json');
 const stencilDownload = require('../lib/stencil-download');
 const versionCheck = require('../lib/version-check');
 const themeApiClient = require('../lib/theme-api-client');
-const inquirer = require('inquirer');
+
+const apiHost = 'https://api.bigcommerce.com';
 
 Program
     .version(pkg.version)
@@ -22,41 +23,41 @@ if (!versionCheck()) {
     process.exit(2);
 }
 
-const overwriteType = Program.file ? Program.file : 'files';
+const extraExclude = Program.exclude ? [Program.exclude] : [];
+const options = {
+    dotStencilFilePath: './.stencil',
+    exclude: ['parsed', 'manifest.json', ...extraExclude],
+    apiHost: Program.host || apiHost,
+    file: Program.file,
+};
 
-Object.assign(options, {
-    exclude: ['parsed', 'manifest.json'],
-});
+run(options);
 
-inquirer.prompt([{
-    message: `${'Warning'.yellow} -- overwrite local with remote ${overwriteType}?`,
-    name: 'overwrite',
-    type: 'checkbox',
-    choices: ['Yes', 'No'],
-}], answers => {
+async function run (opts) {
+    const overwriteType = opts.file ? opts.file : 'files';
 
-    if (answers.overwrite.indexOf('Yes') > -1) {
-        console.log(`${'ok'.green} -- ${overwriteType} will be overwritten by change`);
+    const answers = await inquirer.prompt([{
+        message: `${'Warning'.yellow} -- overwrite local with remote ${overwriteType}?`,
+        name: 'overwrite',
+        type: 'checkbox',
+        choices: ['Yes', 'No'],
+    }]);
 
-        if (Program.exclude) {
-            options.exclude.push(Program.exclude);
-        }
-
-        stencilDownload(Object.assign({}, options, {
-            apiHost: Program.host || apiHost,
-            file: Program.file,
-            // eslint-disable-next-line no-unused-vars
-        }), (err, result) => {
-            if (err) {
-                console.log("\n\n" + 'not ok'.red + ` -- ${err} see details below:`);
-                themeApiClient.printErrorMessages(err.messages);
-                console.log('If this error persists, please visit https://github.com/bigcommerce/stencil-cli/issues and submit an issue.');
-            } else {
-                console.log('ok'.green + ` -- Theme file(s) updated from remote`);
-            }
-        });
-
-    } else {
+    if (!answers.overwrite.includes('Yes')) {
         console.log('Request cancelled by user '+ ('No'.red));
+        return;
     }
-});
+
+    console.log(`${'ok'.green} -- ${overwriteType} will be overwritten by change`);
+
+    try {
+        await promisify(stencilDownload)(opts);
+    } catch (err) {
+        console.log("\n\n" + 'not ok'.red + ` -- ${err} see details below:`);
+        themeApiClient.printErrorMessages(err.messages);
+        console.log('If this error persists, please visit https://github.com/bigcommerce/stencil-cli/issues and submit an issue.');
+        return;
+    }
+
+    console.log('ok'.green + ` -- Theme file(s) updated from remote`);
+}
