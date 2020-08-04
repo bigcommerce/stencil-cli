@@ -1,17 +1,13 @@
 {
   "parserOptions": {
-    "ecmaVersion": 8,
     "sourceType": "module",
     "ecmaFeatures": {
       "impliedStrict": true
     }
   },
   "env": {
-    "es6": true,
+    "es2020": true,
     "node": true
-  },
-  "globals": {
-    "Set": true
   },
   "rules": {
     "curly": 2,
