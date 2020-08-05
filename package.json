@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "npm run lint && npm run run-tests",
-    "run-tests": "lab bin/ server/ lib/ tasks/ -t 80 -l -e 'development' -P spec",
+    "run-tests": "lab bin/ server/ lib/ tasks/ -t 80 -l -e 'development' -P spec --verbose",
     "test-cov-html": "lab bin/ server/ lib/ -r html -o coverage.html -P spec"
   },
   "bin": {
