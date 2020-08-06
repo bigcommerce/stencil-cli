@@ -1,7 +1,7 @@
 'use strict';
 
 const Code = require('code');
-const Lab = require('lab');
+const Lab = require('@hapi/lab');
 const sinon = require('sinon');
 const RawResponse = require('./raw-response');
 const Utils = require('../../../lib/utils');
@@ -17,11 +17,11 @@ lab.describe('RawResponse', () => {
     };
 
     const statusCode = 200;
-    var request;
-    var response;
-    var reply;
+    let request;
+    let response;
+    let reply;
 
-    lab.beforeEach(done => {
+    lab.beforeEach(() => {
         request = {
             url: {path: '/'},
             app: {themeConfig: {variationIndex: 1}},
@@ -33,40 +33,33 @@ lab.describe('RawResponse', () => {
         };
 
         reply = sinon.stub().returns(response);
-        done();
     });
 
     lab.describe('respond()', () => {
-        it('should respond', done => {
-            var rawResponse = new RawResponse(data, headers, statusCode);
+        it('should respond', () => {
+            const rawResponse = new RawResponse(data, headers, statusCode);
 
             rawResponse.respond(request, reply);
 
             expect(reply.called).to.be.true();
-
-            done();
         });
 
-        it('should append checkout css if is the checkout page', done => {
+        it('should append checkout css if is the checkout page', () => {
             request.url.path = '/checkout.php?blah=blah';
-            var rawResponse = new RawResponse(data, headers, statusCode);
+            const rawResponse = new RawResponse(data, headers, statusCode);
 
             rawResponse.respond(request, reply);
 
             expect(reply.lastCall.args[0]).to.contain(`<link href="/stencil/${Utils.int2uuid(1)}/${Utils.int2uuid(2)}/css/checkout.css"`);
-
-            done();
         });
 
-        it('should not append transfer-encoding header', done => {
-            var rawResponse = new RawResponse(data, headers, statusCode);
+        it('should not append transfer-encoding header', () => {
+            const rawResponse = new RawResponse(data, headers, statusCode);
 
             rawResponse.respond(request, reply);
 
             expect(response.header.neverCalledWith('transfer-encoding')).to.be.true();
             expect(response.header.calledWith('content-type')).to.be.true();
-
-            done();
         });
     });
 });
