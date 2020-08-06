@@ -1,14 +1,17 @@
 const Code = require('code');
 const Hapi = require('hapi');
-const Lab = require('lab');
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const expect = Code.expect;
-const it = lab.it;
+const Lab = require('@hapi/lab');
+const { promisify } = require('util');
+
 const router = require('./router.module');
 
+const expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+
 describe('Router', () => {
-    var server = new Hapi.Server();
+    const server = new Hapi.Server();
     const RendererPluginMock = {
         register: function(server, options, next) {
             server.expose('implementation', (request, reply) => reply('RendererHandlerFired'));
@@ -39,71 +42,79 @@ describe('Router', () => {
         port: 3000,
     });
 
-    lab.before(done => {
-        server.register([
+    lab.before(async () => {
+        await promisify(server.register.bind(server))([
             RendererPluginMock,
             ThemeAssetsMock,
             router,
-        ], err => {
-            expect(err).to.equal(undefined);
-            server.start(done);
-        });
+        ]);
+
+        await promisify(server.start.bind(server))();
     });
 
-    lab.after(done => {
-        server.stop(done);
+    lab.after(async () => {
+        await promisify(server.stop.bind(server))();
     });
 
-    it('should call the Renderer handler', done => {
-        server.inject({
+    it('should call the Renderer handler', async () => {
+        const options = {
             method: 'GET',
             url: '/test',
-        }, response => {
-            expect(response.statusCode).to.equal(200);
-            expect(response.payload).to.equal('RendererHandlerFired');
+        };
 
-            done();
-        });
+        const response = await new Promise(resolve =>
+            server.inject(options, resolve),
+        );
+
+        expect(response.statusCode).to.equal(200);
+        expect(response.payload).to.equal('RendererHandlerFired');
     });
 
-    it('should call the CSS handler', done => {
-        server.inject({
+    it('should call the CSS handler', async () => {
+        const options = {
             method: 'GET',
             url: '/stencil/123/css/file.css',
-        }, response => {
-            expect(response.statusCode).to.equal(200);
-            expect(response.payload).to.equal('CssHandlerFired');
+        };
 
-            done();
-        });
+        const response = await new Promise(resolve =>
+            server.inject(options, resolve),
+        );
+
+        expect(response.statusCode).to.equal(200);
+        expect(response.payload).to.equal('CssHandlerFired');
     });
 
-    it('should call the assets handler', done => {
-        server.inject({
+    it('should call the assets handler', async () => {
+        const options = {
             method: 'GET',
             url: '/stencil/123/js/file.js',
-        }, response => {
-            expect(response.statusCode).to.equal(200);
-            expect(response.payload).to.equal('assetHandlerFired');
+        };
 
-            done();
-        });
+        const response = await new Promise(resolve =>
+            server.inject(options, resolve),
+        );
+
+        expect(response.statusCode).to.equal(200);
+        expect(response.payload).to.equal('assetHandlerFired');
     });
 
-    it('should inject host and origin headers for GraphQL requests', done => {
-        server.inject({
+    it('should inject host and origin headers for GraphQL requests', async () => {
+        const options = {
             method: 'POST',
             url: '/graphql',
             headers: { 'authorization': 'abc123' },
-        }, response => {
-            expect(response.request.payload.headers).to.include(
-                {
-                    authorization: 'abc123',
-                    origin: 'https://store-abc123.mybigcommerce.com',
-                    host: 'store-abc123.mybigcommerce.com',
-                },
-            );
-            done();
-        });
+        };
+
+        const response = await new Promise(resolve =>
+            server.inject(options, resolve),
+        );
+
+        expect(response.request.payload.headers).to.include(
+            {
+                authorization: 'abc123',
+                origin: 'https://store-abc123.mybigcommerce.com',
+                host: 'store-abc123.mybigcommerce.com',
+            },
+        );
     });
 });

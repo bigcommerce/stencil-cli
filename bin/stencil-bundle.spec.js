@@ -4,9 +4,10 @@ const Code = require('code');
 const Fs = require('fs');
 const Sinon = require('sinon');
 const Path = require('path');
+const { promisify } = require('util');
 const async = require('async');
 const when = require('when');
-const Lab = require('lab');
+const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
 const themePath = Path.join(process.cwd(), 'test/_mocks/themes/valid');
@@ -21,7 +22,7 @@ describe('Stencil Bundle', () => {
     let sandbox;
     let Bundle;
 
-    lab.beforeEach(done => {
+    lab.beforeEach(() => {
         sandbox = Sinon.createSandbox();
         const themeConfigStub = getThemeConfigStub();
         const rawConfig = {
@@ -36,16 +37,13 @@ describe('Stencil Bundle', () => {
         Bundle = new StencilBundle(themePath, themeConfigStub, rawConfig, {
             marketplace: false,
         });
-
-        done();
     });
 
-    lab.afterEach(done => {
+    lab.afterEach(() => {
         sandbox.restore();
-        done();
     });
 
-    it('should initialize bundling', done => {
+    it('should initialize bundling', () => {
         sandbox.stub(async, 'series').callsArgWith(1, new Error('error'));
         const throws = () => {
             Bundle.initBundle();
@@ -53,130 +51,121 @@ describe('Stencil Bundle', () => {
 
         expect(throws).to.throw(Error);
         expect(async.series.calledOnce).to.equal(true);
-        done();
     });
 
-    it('should assemble CSS files', done => {
+    it('should assemble CSS files', async () => {
         sandbox.stub(async, 'map').callsArgWith(2, null, ['this is dog']);
 
-        const callback = (err, result) => {
-            expect(result).to.equal({'theme.scss': 'this is dog'});
-
-            done();
-        };
-
         const task = Bundle.getCssAssembleTask('scss');
+        const result = await promisify(task.bind(Bundle))();
 
-        task(callback);
-
+        expect(result).to.equal({'theme.scss': 'this is dog'});
     });
 
-    it('should error on assemble CSS files', done => {
-        sandbox.stub(async, 'map').callsArgWith(2, 'error');
+    it('should error on assemble CSS files', async () => {
+        sandbox.stub(async, 'map').callsArgWith(2, 'our_error');
 
-        const callback = err => {
-            expect(err).to.equal('error');
-            done();
-        };
-
-        const task = Bundle.getCssAssembleTask('scss');
-
-        task(callback);
-
+       let error;
+        try {
+            const task = Bundle.getCssAssembleTask('scss');
+            await promisify(task.bind(Bundle))();
+        } catch (err) {
+            error = err;
+        }
+        expect(error).to.equal('our_error');
     });
 
-    it('should assembleTemplates', done => {
-        Bundle.assembleTemplatesTask((err, result) => {
-            expect(err).to.be.null();
-            expect(result['pages/page']).to.include(['pages/page', 'components/a']);
-            expect(result['pages/page2']).to.include(['pages/page2', 'components/b']);
-            done();
-        });
+    it('should assembleTemplates', async () => {
+        const result = await promisify(Bundle.assembleTemplatesTask.bind(Bundle))();
+
+        expect(result['pages/page']).to.include(['pages/page', 'components/a']);
+        expect(result['pages/page2']).to.include(['pages/page2', 'components/b']);
     });
 
-    it('should error when running assembleTemplates', done => {
-        sandbox.stub(async, 'map').callsArgWith(2, 'error');
+    it('should error when running assembleTemplates', async () => {
+        sandbox.stub(async, 'map').callsArgWith(2, 'our_error');
 
-        Bundle.assembleTemplatesTask(err => {
-            expect(err).to.equal('error');
-            done();
-        });
+        let error;
+        try {
+            await promisify(Bundle.assembleTemplatesTask.bind(Bundle))();
+        } catch (err) {
+            error = err;
+        }
+
+        expect(error).to.equal('our_error');
     });
 
-    it('should assemble the Schema', done => {
-        Bundle.assembleSchema((err, result) => {
-            expect(result).to.equal(themeSchema);
-            done();
-        });
+    it('should assemble the Schema', async () => {
+        const result = await promisify(Bundle.assembleSchema.bind(Bundle))();
+
+        expect(result).to.equal(themeSchema);
     });
 
-    it('should assemble the Lang Files', done => {
+    it('should assemble the Lang Files', async () => {
         sandbox.stub(LangAssembler, 'assemble').callsArgWith(0, null);
 
-        const callback = () => {
-            expect(LangAssembler.assemble.calledOnce).to.equal(true);
-            done();
-        };
+        await promisify(Bundle.assembleLangTask.bind(Bundle))();
 
-        Bundle.assembleLangTask(callback);
-
+        expect(LangAssembler.assemble.calledOnce).to.equal(true);
     });
 
-    it('should error on assembling the Lang Files', done => {
-        sandbox.stub(LangAssembler, 'assemble').callsArgWith(0, 'error');
+    it('should error on assembling the Lang Files', async () => {
+        sandbox.stub(LangAssembler, 'assemble').callsArgWith(0, 'our_error');
 
-        const callback = err => {
-            expect(LangAssembler.assemble.calledOnce).to.equal(true);
-            expect(err).to.equal('error');
-            done();
-        };
+        let error;
+        try {
+            await promisify(Bundle.assembleLangTask.bind(Bundle))();
+        } catch (err) {
+            error = err;
+        }
 
-        Bundle.assembleLangTask(callback);
-
+        expect(LangAssembler.assemble.calledOnce).to.equal(true);
+        expect(error).to.equal('our_error');
     });
 
-    it('should bundle JSPM assets', done => {
+    it('should bundle JSPM assets', async () => {
         sandbox.stub(jspm, 'bundleSFX').returns(when());
 
-        const callback = (err, result) => {
-            expect(result).to.equal(true);
-            done();
-        };
+        const jspmBundleTask = Bundle.getJspmBundleTask(getThemeConfigStub().getRawConfig);
+        const result = await promisify(jspmBundleTask.bind(Bundle))();
 
-        Bundle.getJspmBundleTask(getThemeConfigStub().getRawConfig)(callback);
-
+        expect(result).to.equal(true);
     });
 
-    it('should fail to bundle JSPM assets', done => {
-        sandbox.stub(jspm, 'bundleSFX').returns(when.reject(false));
+    it('should fail to bundle JSPM assets', async () => {
+        sandbox.stub(jspm, 'bundleSFX').returns(when.reject('SFX Bundle input error'));
 
-        const callback = err => {
-            expect(err).to.equal(false);
-            done();
-        };
+        let error;
+        try {
+            const jspmBundleTask = Bundle.getJspmBundleTask(getThemeConfigStub().getRawConfig);
+            await promisify(jspmBundleTask.bind(Bundle))();
+        } catch (err) {
+            error = err;
+        }
 
-        Bundle.getJspmBundleTask(getThemeConfigStub().getRawConfig)(callback);
+        expect(error).to.equal('SFX Bundle input error');
     });
 
-    it('should generate a manifest of files.', done => {
-        Bundle.assembleTemplatesTask((err, templates) => {
-            const results = { templates };
-            Bundle.generateManifest(results, (err, manifest) => {
-                expect(err).to.be.null();
-                expect(manifest.templates).to.contain(['components/a', 'components/b']);
-                done();
-            });
-        });
+    it('should generate a manifest of files.', async () => {
+        const templates = await promisify(Bundle.assembleTemplatesTask.bind(Bundle))();
+        const manifest = await promisify(Bundle.generateManifest.bind(Bundle))({ templates });
+
+        expect(manifest.templates).to.contain(['components/a', 'components/b']);
     });
 
-    it('should error while reading files to generate a manifest of files.', done => {
+    it('should error while reading files to generate a manifest of files.', async () => {
         Bundle.templatesPath = 'invalid/path';
-        Bundle.generateManifest({}, err => {
-            expect(Fs.writeFile.calledOnce).to.equal(false);
-            expect(err instanceof Error).to.be.true();
-            expect(err.message).to.contain('no such file or directory');
-            done();
-        });
+
+        let error;
+        try {
+           await promisify(Bundle.generateManifest.bind(Bundle))({});
+        } catch (err) {
+            error = err;
+        }
+
+        expect(Fs.writeFile.calledOnce).to.equal(false);
+        expect(error instanceof Error).to.be.true();
+        expect(error.message).to.contain('no such file or directory');
     });
 
     function getThemeConfigStub() {

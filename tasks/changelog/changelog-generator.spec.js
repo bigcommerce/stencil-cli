@@ -1,13 +1,14 @@
 const ChangelogGenerator = require('./changelog-generator');
 const CommandExecutor = require('./command-executor');
 const Code = require('code');
-const Lab = require('lab');
+const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
 const sinon = require('sinon');
 const expect = Code.expect;
 const it = lab.it;
 const path = require('path');
+const { promisify } = require('util');
 
 describe('ChangelogGenerator', () => {
     let changelogGenerator;
@@ -15,7 +16,7 @@ describe('ChangelogGenerator', () => {
     let fs;
     let executeCommandSpy;
 
-    lab.beforeEach( done => {
+    lab.beforeEach( () => {
         fs = {
             statSync: function() { return true; },
         };
@@ -24,30 +25,36 @@ describe('ChangelogGenerator', () => {
         executeCommandSpy = sinon.spy(commandExecutor, "executeCommand");
 
         changelogGenerator = new ChangelogGenerator(fs, '/src', commandExecutor);
-
-        done();
     });
 
-    it('executes `conventional-changelog` command', done => {
-        changelogGenerator.generateChangelog({}, () => {
-            expect(executeCommandSpy.secondCall.calledWith(
-                'conventional-changelog',
-                [],
-                {
-                    config: path.join(__dirname, 'default-config.js'),
-                    infile: path.join('/src', 'CHANGELOG.md'),
-                    sameFile: true,
-                },
-            )).to.equal(true);
+    it('executes `conventional-changelog` command', async() => {
+        try {
+            await promisify(changelogGenerator.generateChangelog.bind(changelogGenerator))({});
 
-            done();
-        });
+            // The generator will throw an error since '/src' doesn't exist, but we don't care,
+            //  just need to make sure that executeCommandSpy was called properly
+        } catch (err) {}
+
+        expect(executeCommandSpy.secondCall.calledWith(
+            'conventional-changelog',
+            [],
+            {
+                config: path.join(__dirname, 'default-config.js'),
+                infile: path.join('/src', 'CHANGELOG.md'),
+                sameFile: true,
+            },
+        )).to.equal(true);
     });
 
-    it('executes `conventional-changelog` command with a preset if it is provided', done => {
-        changelogGenerator.generateChangelog({ preset: 'angular' }, () => {
+    it('executes `conventional-changelog` command with a preset if it is provided', async() => {
+        try {
+            await promisify(changelogGenerator.generateChangelog.bind(changelogGenerator))({ preset: 'angular' });
 
-            expect(executeCommandSpy.secondCall.calledWith(
+        // The generator will throw an error since '/src' doesn't exist, but we don't care,
+        //  just need to make sure that executeCommandSpy was called properly
+        } catch (err) {}
+
+        expect(executeCommandSpy.secondCall.calledWith(
             'conventional-changelog',
             [],
             {
@@ -56,16 +63,18 @@ describe('ChangelogGenerator', () => {
                 preset: 'angular',
                 sameFile: true,
             },
-            )).to.equal(true);
-
-            done();
-        });
+        )).to.equal(true);
     });
 
-    it('executes `conventional-changelog` command from scratch if CHANGELOG does not exist', done => {
-        var changelogGeneratorWithoutFs = new ChangelogGenerator({}, '/src', commandExecutor);
+    it('executes `conventional-changelog` command from scratch if CHANGELOG does not exist', async() => {
+        const changelogGeneratorWithoutFs = new ChangelogGenerator({}, '/src', commandExecutor);
 
-        changelogGeneratorWithoutFs.generateChangelog({}, () => {
+        try {
+            await promisify(changelogGeneratorWithoutFs.generateChangelog.bind(changelogGeneratorWithoutFs))({});
+
+            // The generator will throw an error since '/src' doesn't exist, but we don't care,
+            //  just need to make sure that executeCommandSpy was called properly
+        } catch (err) {}
 
         expect(executeCommandSpy.secondCall.calledWith(
             'conventional-changelog',
@@ -76,9 +85,6 @@ describe('ChangelogGenerator', () => {
                 releaseCount: 0,
                 sameFile: true,
             },
-            )).to.equal(true);
-
-            done();
-        });
+        )).to.equal(true);
     });
 });
