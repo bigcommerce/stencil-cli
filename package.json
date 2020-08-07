@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "npm run lint && npm run run-tests",
-    "run-tests": "lab bin/ server/ lib/ tasks/ -t 80 -l -e 'development' -P spec",
+    "run-tests": "lab bin/ server/ lib/ tasks/ -t 80 -l -e 'development' -P spec --verbose",
     "test-cov-html": "lab bin/ server/ lib/ -r html -o coverage.html -P spec"
   },
   "bin": {
@@ -56,7 +56,7 @@
     "hapi": "^8.4.0",
     "hoek": "^2.12.0",
     "image-size": "^0.4.0",
-    "inquirer": "^0.8.2",
+    "inquirer": "^7.3.3",
     "jsonlint": "^1.6.2",
     "jsonschema": "^1.0.2",
     "jspm": "^0.16.55",

@@ -3,45 +3,60 @@
 const Code = require('code');
 const Sinon = require('sinon');
 const Lab = require('@hapi/lab');
+const Fs = require('fs');
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
 const Inquirer = require('inquirer');
 const expect = Code.expect;
 const it = lab.it;
 const StencilInit = require('../lib/stencil-init');
+const JspmAssembler = require('../lib/jspm-assembler');
+const ThemeConfig = require('../lib/theme-config');
 
 describe('stencil init', () => {
     let sandbox;
+    let consoleErrorStub;
+    let JspmAssemblerStub;
+    let ThemeConfigStub;
+    let inquirerPromptStub;
 
     lab.beforeEach(() => {
         sandbox = Sinon.createSandbox();
+
         sandbox.stub(console, 'log');
-        sandbox.stub(console, 'error');
+        consoleErrorStub = sandbox.stub(console, 'error');
+
+        inquirerPromptStub = sandbox.stub(Inquirer, 'prompt');
+        inquirerPromptStub.returns({});
+
+        ThemeConfigStub = sandbox.stub(ThemeConfig);
+        ThemeConfigStub.getInstance = sandbox.stub().returns({
+            getConfig: sandbox.stub().returns({}),
+        });
+        JspmAssemblerStub = sandbox.stub(JspmAssembler);
+
+        sandbox.stub(Fs, 'writeFileSync');
     });
 
     lab.afterEach(() => {
         sandbox.restore();
     });
 
-    var inquirer = Sinon.spy(Inquirer, 'prompt');
+    it('Should call prompt on run and not log errors if the .stencil file is valid', async () => {
+        const dotStencilFilePath = './test/_mocks/bin/dotStencilFile.json';
 
-    it('should call prompt', () => {
-        const dotStencilFile = '../_mocks/bin/dotStencilFile.json';
-        const jspmAssembler = Sinon.stub();
-        const themeConfig = Sinon.spy();
+        await StencilInit.run(JspmAssemblerStub, ThemeConfigStub, dotStencilFilePath);
 
-        StencilInit(jspmAssembler, themeConfig, dotStencilFile);
-
-        expect(inquirer.calledOnce).to.be.true();
+        expect(consoleErrorStub.calledOnce).to.be.false();
+        expect(inquirerPromptStub.calledOnce).to.be.true();
     });
 
-    it('should not call prompt with bad JSON from dotStencilFile', () => {
-        const dotStencilFile = '../_mocks/malformedSchema.json';
-        const jspmAssembler = Sinon.stub();
-        const themeConfig = Sinon.spy();
+    it('Should inform the user if the .stencil file is broken but continue running', async () => {
+        const dotStencilFilePath = './test/_mocks/malformedSchema.json';
 
-        StencilInit(jspmAssembler, themeConfig, dotStencilFile);
+        await StencilInit.run(JspmAssemblerStub, ThemeConfigStub, dotStencilFilePath);
 
-        expect(inquirer.calledOnce).to.be.false();
+        expect(consoleErrorStub.calledOnce).to.be.true();
+        expect(inquirerPromptStub.calledOnce).to.be.true();
     });
 });
