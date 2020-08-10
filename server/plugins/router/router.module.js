@@ -1,4 +1,4 @@
-const Hoek = require('hoek');
+const _ = require('lodash');
 const ThemeConfig = require('../../../lib/theme-config');
 const internals = {
     options: {
@@ -20,7 +20,7 @@ const internals = {
 };
 
 module.exports.register = function(server, options, next) {
-    internals.options = Hoek.applyToDefaults(internals.options, options);
+    internals.options = _.defaultsDeep(options, internals.options);
 
     server.ext('onRequest', function(request, reply) {
         request.app.storeUrl = internals.options.storeUrl;

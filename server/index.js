@@ -1,7 +1,6 @@
 'use strict';
 
 const Glue = require('glue');
-const Hoek = require('hoek');
 const Url = require('url');
 const manifest = require('./manifest');
 const logo = require('./lib/show-logo');
@@ -12,8 +11,6 @@ module.exports = (options, callback) => {
     const config = manifest.get('/');
     const parsedSecureUrl = Url.parse(options.dotStencilFile.storeUrl); //The url to a secure page (prompted as login page)
     const parsedNormalUrl = Url.parse(options.dotStencilFile.normalStoreUrl); //The host url of the homepage;
-
-    callback = Hoek.nextTick(callback);
 
     config.connections[0].port = options.dotStencilFile.port;
     config.plugins['./plugins/router/router.module'].storeUrl = parsedSecureUrl.protocol + '//' + parsedSecureUrl.host;
@@ -38,6 +35,5 @@ module.exports = (options, callback) => {
             console.log(logo);
             return callback(null, server);
         });
-
     });
 };
