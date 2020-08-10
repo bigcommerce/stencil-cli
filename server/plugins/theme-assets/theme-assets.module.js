@@ -1,7 +1,7 @@
+const _ = require('lodash');
 const Boom = require('@hapi/boom');
 const CssAssembler = require('../../../lib/css-assembler');
 const Utils = require('../../lib/utils');
-const Hoek = require('hoek');
 const Path = require('path');
 const StencilStyles = require('@bigcommerce/stencil-styles');
 const internals = {
@@ -9,7 +9,7 @@ const internals = {
 };
 
 module.exports.register = function (server, options, next) {
-    internals.options = Hoek.applyToDefaults(internals.options, options);
+    internals.options = _.defaultsDeep(options, internals.options);
 
     server.expose('cssHandler', internals.cssHandler);
     server.expose('assetHandler', internals.assetHandler);

@@ -5,7 +5,6 @@ const Boom = require('@hapi/boom');
 const Cache = require('memory-cache');
 const Crypto = require('crypto');
 const Frontmatter = require('front-matter');
-const Hoek = require('hoek');
 const Path = require('path');
 const LangAssembler = require('../../../lib/lang-assembler');
 const Pkg = require('../../../package.json');
@@ -21,7 +20,7 @@ const internals = {
 };
 
 module.exports.register = function (server, options, next) {
-    internals.options = Hoek.applyToDefaults(internals.options, options);
+    internals.options = _.defaultsDeep(options, internals.options);
 
     server.expose('implementation', internals.implementation);
 
@@ -440,7 +439,7 @@ internals.getHeaders = function (request, options, config) {
     headers = {
         'stencil-cli': Pkg.version,
         'stencil-version': Pkg.config.stencil_version,
-        'stencil-options': JSON.stringify(Hoek.applyToDefaults(options, currentOptions)),
+        'stencil-options': JSON.stringify(_.defaultsDeep(currentOptions, options)),
         'accept-encoding': 'identity',
     };
 
@@ -454,7 +453,7 @@ internals.getHeaders = function (request, options, config) {
         headers['stencil-store-url'] = request.app.storeUrl;
     }
 
-    return Hoek.applyToDefaults(request.headers, headers);
+    return { ...request.headers, ...headers };
 };
 
 /**
