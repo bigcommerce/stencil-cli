@@ -1,26 +1,22 @@
 const _ = require('lodash');
 const Boom = require('@hapi/boom');
+const StencilStyles = require('@bigcommerce/stencil-styles');
+const Path = require('path');
+const { promisify } = require("util");
+
 const CssAssembler = require('../../../lib/css-assembler');
 const Utils = require('../../lib/utils');
-const Path = require('path');
-const StencilStyles = require('@bigcommerce/stencil-styles');
+
 const internals = {
     options: {},
 };
 
-module.exports.register = function (server, options, next) {
+function register (server, options) {
     internals.options = _.defaultsDeep(options, internals.options);
 
     server.expose('cssHandler', internals.cssHandler);
     server.expose('assetHandler', internals.assetHandler);
-
-    return next();
-};
-
-module.exports.register.attributes = {
-    name: 'ThemeAssets',
-    version: '0.0.1',
-};
+}
 
 /**
  * Get the variation index from the "ConfigId" in the css filename
@@ -48,13 +44,13 @@ internals.getOriginalFileName = fileName => {
  * CSS Compiler Handler.  This utilises the CSS Assembler to gather all of the CSS files and then the
  * StencilStyles plugin to compile them all.
  * @param request
- * @param reply
+ * @param h
  */
-internals.cssHandler = function (request, reply) {
+internals.cssHandler = async function (request, h) {
     const variationIndex = internals.getVariationIndex(request.params.fileName);
 
     if (!request.app.themeConfig.variationExists(variationIndex)) {
-        return reply(Boom.notFound('Variation ' + (variationIndex + 1) + ' does not exist.'));
+        throw Boom.notFound('Variation ' + (variationIndex + 1) + ' does not exist.');
     }
 
     // Set the variation to get the right theme configuration
@@ -66,46 +62,59 @@ internals.cssHandler = function (request, reply) {
     const pathToFile = Path.join(fileParts.dir, fileParts.name + '.scss');
     const basePath = Path.join(internals.getThemeAssetsPath(), 'scss');
 
-    CssAssembler.assemble(pathToFile, basePath, 'scss', (err, files) => {
-        const configuration = request.app.themeConfig.getConfig();
+    let files;
+    try {
+        files = await promisify(CssAssembler.assemble)(pathToFile, basePath, 'scss');
+    } catch (err) {
+        console.error(err);
+        throw Boom.badData(err);
+    }
 
-        var params = {
-            data: files[pathToFile],
-            files: files,
-            dest: Path.join('/assets/css', fileName),
-            themeSettings: configuration.settings,
-            sourceMap: true,
-            autoprefixerOptions: {
-                cascade: configuration.autoprefixer_cascade,
-                browsers: configuration.autoprefixer_browsers,
-            },
-        };
+    const configuration = request.app.themeConfig.getConfig();
 
-        let stencilStyles = new StencilStyles();
-        stencilStyles.compileCss('scss', params, (err, css) => {
-            if (err) {
-                console.error(err);
-                return reply(Boom.badData(err));
-            }
+    const params = {
+        data: files[pathToFile],
+        files: files,
+        dest: Path.join('/assets/css', fileName),
+        themeSettings: configuration.settings,
+        sourceMap: true,
+        autoprefixerOptions: {
+            cascade: configuration.autoprefixer_cascade,
+            browsers: configuration.autoprefixer_browsers,
+        },
+    };
+    const stencilStyles = new StencilStyles();
 
-            reply(css).type('text/css');
-        });
-    });
+    let css;
+    try {
+        css = await promisify(stencilStyles.compileCss.bind(stencilStyles))('scss', params);
+    } catch (err) {
+        console.error(err);
+        throw Boom.badData(err);
+    }
+
+    return h.response(css).type('text/css');
 };
 
 /**
  * Assets handler
  *
  * @param request
- * @param reply
+ * @param h
  */
-internals.assetHandler = function (request, reply) {
-    var filePath = Path.join(internals.getThemeAssetsPath(), request.params.fileName);
+internals.assetHandler = function (request, h) {
+    const filePath = Path.join(internals.getThemeAssetsPath(), request.params.fileName);
 
-    reply.file(filePath);
+    return h.file(filePath);
 };
 
 
 internals.getThemeAssetsPath = () => {
     return Path.join(internals.options.themePath, 'assets');
+};
+
+module.exports = {
+    register,
+    name: 'ThemeAssets',
+    version: '0.0.1',
 };

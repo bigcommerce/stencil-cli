@@ -5,9 +5,8 @@ const Lab = require('@hapi/lab');
 const sinon = require('sinon');
 const Wreck = require('wreck');
 const Path = require('path');
-const { promisify } = require('util');
 
-const createStencilCLIServer = require('../../index');
+const Server = require('../../../server');
 
 const lab = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -31,14 +30,14 @@ lab.describe('Renderer Plugin', () => {
             themePath: Path.join(process.cwd(), 'test/_mocks/themes/valid'),
         };
 
-        server = await promisify(createStencilCLIServer)(options);
+        server = await Server.create(options);
 
         // Don't log errors during the test
-        server.ext('onPostHandler', (request, reply) => {
+        server.ext('onPostHandler', (request, h) => {
             if (request.response.isBoom) {
-                return reply().code(500);
+                return h.response().code(500);
             }
-            reply.continue();
+            return h.continue;
         });
     });
 
@@ -53,7 +52,7 @@ lab.describe('Renderer Plugin', () => {
     });
 
     lab.after(async () => {
-        await promisify(server.stop.bind(server))();
+        await server.stop();
     });
 
     it('should handle fatal errors in the BCApp request', async () => {
@@ -64,9 +63,7 @@ lab.describe('Renderer Plugin', () => {
 
         wreckRequestStub.callsArgWith(3, new Error('failure'));
 
-        const response = await new Promise(resolve =>
-            server.inject(options, resolve),
-        );
+        const response = await server.inject(options);
 
         expect(response.statusCode).to.equal(500);
     });
@@ -78,9 +75,7 @@ lab.describe('Renderer Plugin', () => {
         };
         wreckRequestStub.callsArgWith(3, null, { statusCode: 500 });
 
-        const response = await new Promise(resolve =>
-            server.inject(options, resolve),
-        );
+        const response = await server.inject(options);
 
         expect(response.statusCode).to.equal(500);
     });
@@ -97,9 +92,7 @@ lab.describe('Renderer Plugin', () => {
             },
         });
 
-        const response = await new Promise(resolve =>
-            server.inject(options, resolve),
-        );
+        const response = await server.inject(options);
 
         expect(response.statusCode).to.equal(301);
         expect(response.headers.location).to.equal('http://www.example.com/');
@@ -117,9 +110,7 @@ lab.describe('Renderer Plugin', () => {
             },
         });
 
-        const response = await new Promise(resolve =>
-            server.inject(options, resolve),
-        );
+        const response = await server.inject(options);
 
         expect(response.statusCode).to.equal(401);
     });

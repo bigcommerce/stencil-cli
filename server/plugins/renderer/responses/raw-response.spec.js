@@ -19,11 +19,12 @@ lab.describe('RawResponse', () => {
     const statusCode = 200;
     let request;
     let response;
-    let reply;
+    let h;
 
     lab.beforeEach(() => {
         request = {
-            url: {path: '/'},
+            url: {},
+            path: '/',
             app: {themeConfig: {variationIndex: 1}},
         };
 
@@ -32,31 +33,33 @@ lab.describe('RawResponse', () => {
             header: sinon.spy(),
         };
 
-        reply = sinon.stub().returns(response);
+        h = {
+            response: sinon.stub().returns(response),
+        };
     });
 
     lab.describe('respond()', () => {
         it('should respond', () => {
             const rawResponse = new RawResponse(data, headers, statusCode);
 
-            rawResponse.respond(request, reply);
+            rawResponse.respond(request, h);
 
-            expect(reply.called).to.be.true();
+            expect(h.response.called).to.be.true();
         });
 
         it('should append checkout css if is the checkout page', () => {
-            request.url.path = '/checkout.php?blah=blah';
+            request.path = '/checkout.php?blah=blah';
             const rawResponse = new RawResponse(data, headers, statusCode);
 
-            rawResponse.respond(request, reply);
+            rawResponse.respond(request, h);
 
-            expect(reply.lastCall.args[0]).to.contain(`<link href="/stencil/${Utils.int2uuid(1)}/${Utils.int2uuid(2)}/css/checkout.css"`);
+            expect(h.response.lastCall.args[0]).to.contain(`<link href="/stencil/${Utils.int2uuid(1)}/${Utils.int2uuid(2)}/css/checkout.css"`);
         });
 
         it('should not append transfer-encoding header', () => {
             const rawResponse = new RawResponse(data, headers, statusCode);
 
-            rawResponse.respond(request, reply);
+            rawResponse.respond(request, h);
 
             expect(response.header.neverCalledWith('transfer-encoding')).to.be.true();
             expect(response.header.calledWith('content-type')).to.be.true();

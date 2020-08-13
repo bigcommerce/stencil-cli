@@ -5,51 +5,49 @@ const Boom = require('@hapi/boom');
 const Cache = require('memory-cache');
 const Crypto = require('crypto');
 const Frontmatter = require('front-matter');
+const Wreck = require('wreck');
 const Path = require('path');
+const { promisify } = require('util');
+const Url = require('url');
+
 const LangAssembler = require('../../../lib/lang-assembler');
 const Pkg = require('../../../package.json');
 const Responses = require('./responses/responses');
 const TemplateAssembler = require('../../../lib/template-assembler');
-const Url = require('url');
 const Utils = require('../../lib/utils');
-const Wreck = require('wreck');
+
 const internals = {
     options: {},
     cacheTTL: 1000 * 15, // 15 seconds
     validCustomTemplatePageTypes: ['brand', 'category', 'page', 'product'],
 };
 
-module.exports.register = function (server, options, next) {
+function register (server, options) {
     internals.options = _.defaultsDeep(options, internals.options);
 
     server.expose('implementation', internals.implementation);
-
-    next();
-};
-
-module.exports.register.attributes = {
-    name: 'Renderer',
-    version: '0.0.1',
-};
+}
 
 /**
  * Renderer Route Handler
  *
  * @param request
- * @param reply
+ * @param h
  */
-internals.implementation = function (request, reply) {
-    internals.getResponse(request, function (err, response) {
-        if (err) {
-            return reply(Boom.badImplementation(err));
-        }
+internals.implementation = async function (request, h) {
+    let response;
 
-        if (response.statusCode === 401) {
-            return reply(response).code(401);
-        }
+    try {
+        response = await internals.getResponse(request);
+    } catch (err) {
+        throw Boom.badImplementation(err);
+    }
 
-        response.respond(request, reply);
-    });
+    if (response.statusCode === 401) {
+        return h.response(response).code(401);
+    }
+
+    return response.respond(request, h);
 };
 
 /**
@@ -66,11 +64,11 @@ internals.sha1sum = function (input) {
  * Fetches data from Stapler
  *
  * @param request
- * @param callback
  */
-internals.getResponse = function (request, callback) {
-    const staplerUrlObject = request.app.staplerUrl ? Url.parse(request.app.staplerUrl) : Url.parse(request.app.storeUrl);
-    const urlObject = _.clone(request.url, true);
+internals.getResponse = async function (request) {
+    const staplerUrlObject = request.app.staplerUrl
+        ? Url.parse(request.app.staplerUrl)
+        : Url.parse(request.app.storeUrl);
     const httpOpts = {
         rejectUnauthorized: false,
         headers: internals.getHeaders(request, {
@@ -83,20 +81,11 @@ internals.getResponse = function (request, callback) {
     // Set host to stapler host
     httpOpts.headers.host = staplerUrlObject.host;
 
-    // Convert QueryParams with array values to php compatible names (brackets [])
-    urlObject.query = _.mapKeys(urlObject.query, function (value, key) {
-        if (_.isArray(value)) {
-            return key + '[]';
-        }
-
-        return key;
-    });
-
     const url = Url.format({
         protocol: staplerUrlObject.protocol,
         host: staplerUrlObject.host,
-        pathname: urlObject.pathname,
-        search: urlObject.search,
+        pathname: request.url.pathname,
+        search: request.url.search,
     });
 
     const responseArgs = {
@@ -114,49 +103,45 @@ internals.getResponse = function (request, callback) {
     // check request signature and use cache, if available
     if (cachedResponse && 'get' === request.method && internals.options.useCache) {
         // if GET request, return with cached response
-        return internals.parseResponse(cachedResponse.bcAppData, request, cachedResponse.response, responseArgs, callback);
+        return await internals.parseResponse(cachedResponse.bcAppData, request, cachedResponse.response, responseArgs);
     } else if ('get' !== request.method) {
         // clear when making a non-get request
         Cache.clear();
     }
 
-    Wreck.request(request.method, url, httpOpts, function (err, response) {
-        if (err) {
-            return callback(err);
-        }
+    const response = await promisify(Wreck.request.bind(Wreck))(request.method, url, httpOpts);
 
-        if (response.statusCode === 401) {
-            return callback(null, response);
-        }
+    if (response.statusCode === 401) {
+        return response;
+    }
 
-        if (response.statusCode === 500) {
-            return callback(new Error('The BigCommerce server responded with a 500 error'));
-        }
+    if (response.statusCode === 500) {
+        throw new Error('The BigCommerce server responded with a 500 error');
+    }
 
-        if (response.headers['set-cookie']) {
-            response.headers['set-cookie'] = Utils.stripDomainFromCookies(response.headers['set-cookie']);
-        }
+    if (response.headers['set-cookie']) {
+        response.headers['set-cookie'] = Utils.stripDomainFromCookies(response.headers['set-cookie']);
+    }
 
-        // Response is a redirect
-        if (response.statusCode >= 301 && response.statusCode <= 303) {
-            return internals.redirect(response, request, callback);
-        }
+    // Response is a redirect
+    if (response.statusCode >= 301 && response.statusCode <= 303) {
+        return await internals.redirect(response, request);
+    }
 
-        // parse response
-        Wreck.read(response, {json: true}, function (err, bcAppData) {
-            if (err) {
-                return callback(err);
-            }
+    // parse response
+    const bcAppData = await promisify(Wreck.read.bind(Wreck))(response, {json: true});
 
-            // cache response
-            Cache.put(requestSignature, {
-                bcAppData: bcAppData,
-                response: response,
-            }, internals.cacheTTL);
+    // cache response
+    Cache.put(
+        requestSignature,
+        {
+            bcAppData: bcAppData,
+            response: response,
+        },
+        internals.cacheTTL,
+    );
 
-            internals.parseResponse(bcAppData, request, response, responseArgs, callback);
-        });
-    });
+    return await internals.parseResponse(bcAppData, request, response, responseArgs);
 };
 
 /**
@@ -166,34 +151,32 @@ internals.getResponse = function (request, callback) {
  * @param request
  * @param response
  * @param responseArgs
- * @param callback
  * @returns {*}
  */
-internals.parseResponse = function (bcAppData, request, response, responseArgs, callback) {
-    var resourcesConfig;
-    var dataRequestSignature;
-    var httpOptsSignature;
-    var configuration = request.app.themeConfig.getConfig();
-    var httpOpts = responseArgs.httpOpts;
-    var staplerUrlObject = responseArgs.staplerUrlObject;
-    var url = responseArgs.url;
+internals.parseResponse = async function (bcAppData, request, response, responseArgs) {
+    let resourcesConfig;
+    let dataRequestSignature;
+    let httpOptsSignature;
+    const configuration = request.app.themeConfig.getConfig();
+    const httpOpts = responseArgs.httpOpts;
+    const staplerUrlObject = responseArgs.staplerUrlObject;
+    const url = responseArgs.url;
 
     if (!_.has(bcAppData, 'pencil_response')) {
-
         delete response.headers['x-frame-options'];
 
         // this is a raw response not emitted by TemplateEngine
-        return callback(null, new Responses.RawResponse(
+        return new Responses.RawResponse(
             bcAppData,
             response.headers,
             response.statusCode,
-        ));
+        );
     }
 
     // If a remote call, no need to do a second call to get the data,
     // it has already come back
     if (bcAppData.remote) {
-        return callback(null, internals.getPencilResponse(bcAppData, request, response, configuration));
+        return internals.getPencilResponse(bcAppData, request, response, configuration);
     } else {
         resourcesConfig = internals.getResourceConfig(bcAppData, request, configuration);
 
@@ -208,49 +191,44 @@ internals.parseResponse = function (bcAppData, request, response, responseArgs, 
 
         // check request signature and use cache, if available
         if (internals.options.useCache && Cache.get(dataRequestSignature)) {
-            var cache = Cache.get(dataRequestSignature);
+            const cache = Cache.get(dataRequestSignature);
 
-            return callback(null, internals.getPencilResponse(cache.data, request, cache.response, configuration));
-
+            return internals.getPencilResponse(cache.data, request, cache.response, configuration);
         } else {
-            Wreck.get(url, httpOpts, function (err, response, data) {
-                if (err) {
-                    return callback(err);
-                }
+            const { res, payload } = await Wreck.get(url, httpOpts);
 
-                // Response is a redirect
-                if (response.statusCode >= 301 && response.statusCode <= 303) {
-                    return internals.redirect(response, request, callback);
-                }
+            // Response is a redirect
+            if (res.statusCode >= 301 && res.statusCode <= 303) {
+                return internals.redirect(res, request);
+            }
 
-                // Response is bad
-                if (response.statusCode === 500) {
-                    return callback(new Error('The BigCommerce server responded with a 500 error'));
-                }
+            // Response is bad
+            if (res.statusCode === 500) {
+                throw new Error('The BigCommerce server responded with a 500 error');
+            }
 
-                try {
-                    data = JSON.parse(data);
-                } catch (e) {
-                    return callback(e);
-                }
+            let data = JSON.parse(payload);
 
-                // Data response is bad
-                if (data.statusCode && data.statusCode === 500) {
-                    return callback(new Error('The BigCommerce server responded with a 500 error'));
-                }
+            // Data response is bad
+            if (data.statusCode && data.statusCode === 500) {
+                throw new Error('The BigCommerce server responded with a 500 error');
+            }
 
-                // Cache data
-                Cache.put(dataRequestSignature, {
+            // Cache data
+            Cache.put(
+                dataRequestSignature,
+                {
                     data: data,
-                    response: response,
-                }, internals.cacheTTL);
+                    response: res,
+                },
+                internals.cacheTTL,
+            );
 
-                if (response.headers['set-cookie']) {
-                    response.headers['set-cookie'] = Utils.stripDomainFromCookies(response.headers['set-cookie']);
-                }
+            if (res.headers['set-cookie']) {
+                res.headers['set-cookie'] = Utils.stripDomainFromCookies(res.headers['set-cookie']);
+            }
 
-                return callback(null, internals.getPencilResponse(data, request, response, configuration));
-            });
+            return internals.getPencilResponse(data, request, res, configuration);
         }
     }
 };
@@ -264,27 +242,23 @@ internals.parseResponse = function (bcAppData, request, response, responseArgs, 
  * @return {Object}
  */
 internals.getResourceConfig = function (data, request, configuration) {
-    var frontmatter,
-        frontmatterRegex = /---\r?\n(?:.|\s)*?\r?\n---\r?\n/g,
-        missingThemeSettingsRegex = /{{\\s*?theme_settings\\..+?\\s*?}}/g,
-        frontmatterMatch,
-        frontmatterContent,
-        rawTemplate,
-        resourcesConfig = {},
-        templatePath = data.template_file;
+    const frontmatterRegex = /---\r?\n(?:.|\s)*?\r?\n---\r?\n/g;
+    const missingThemeSettingsRegex = /{{\\s*?theme_settings\\..+?\\s*?}}/g;
+    let resourcesConfig = {};
+    const templatePath = data.template_file;
 
     // If the requested template is not an array, we parse the Frontmatter
     // If it is an array, then it's an ajax request using `render_with` with multiple components
     // which don't have Frontmatter and needs to get it's config from the `stencil-config` header.
     if (templatePath && !_.isArray(templatePath)) {
-        rawTemplate = TemplateAssembler.getTemplateContentSync(internals.getThemeTemplatesPath(), templatePath);
+        let rawTemplate = TemplateAssembler.getTemplateContentSync(internals.getThemeTemplatesPath(), templatePath);
 
-        frontmatterMatch = rawTemplate.match(frontmatterRegex);
+        const frontmatterMatch = rawTemplate.match(frontmatterRegex);
         if (frontmatterMatch !== null) {
-            frontmatterContent = frontmatterMatch[0];
+            let frontmatterContent = frontmatterMatch[0];
             // Interpolate theme settings for frontmatter
             _.forOwn(configuration.settings, function (val, key) {
-                var regex = '{{\\s*?theme_settings\\.' + key + '\\s*?}}';
+                const regex = '{{\\s*?theme_settings\\.' + key + '\\s*?}}';
 
                 frontmatterContent = frontmatterContent.replace(new RegExp(regex, 'g'), val);
             });
@@ -295,8 +269,7 @@ internals.getResourceConfig = function (data, request, configuration) {
             rawTemplate = rawTemplate.replace(frontmatterRegex, frontmatterContent);
         }
 
-        frontmatter = Frontmatter(rawTemplate);
-        // Set the config
+        const frontmatter = Frontmatter(rawTemplate); // Set the config
         resourcesConfig = frontmatter.attributes;
         // Merge the frontmatter config  with the global resource config
         if (_.isObject(configuration.resources)) {
@@ -319,22 +292,21 @@ internals.getResourceConfig = function (data, request, configuration) {
  *
  * @param response
  * @param request
- * @param callback
  * @returns {*}
  */
-internals.redirect = function (response, request, callback) {
+internals.redirect = async function (response, request) {
     if (!response.headers.location) {
-        return callback(new Error('StatusCode is set to 30x but there is no location header to redirect to.'));
+        throw new Error('StatusCode is set to 30x but there is no location header to redirect to.');
     }
 
     response.headers.location = Utils.normalizeRedirectUrl(request, response.headers.location);
 
     // return a redirect response
-    return callback(null, new Responses.RedirectResponse(
+    return new Responses.RedirectResponse(
         response.headers.location,
         response.headers,
         response.statusCode,
-    ));
+    );
 };
 
 /**
@@ -344,20 +316,20 @@ internals.redirect = function (response, request, callback) {
  * @returns {string}
  */
 internals.getTemplatePath = function (path, data) {
-    var customLayouts = internals.options.customLayouts || {};
-    var pageType = data.page_type;
-    var templatePath;
+    const customLayouts = internals.options.customLayouts || {};
+    const pageType = data.page_type;
+    let templatePath;
 
     if (internals.validCustomTemplatePageTypes.indexOf(pageType) >= 0 && _.isPlainObject(customLayouts[pageType])) {
         templatePath = _.findKey(customLayouts[pageType], function(p) {
             // normalize input to an array
             if (typeof p === 'string') {
-              p = [p];
+                p = [p];
             }
 
-            var matches = p.filter(function(url) {
-              // remove trailing slashes to compare
-              return url.replace(/\/$/, '') === path.replace(/\/$/, '');
+            const matches = p.filter(function(url) {
+                // remove trailing slashes to compare
+                return url.replace(/\/$/, '') === path.replace(/\/$/, '');
             });
 
             return matches.length > 0;
@@ -417,9 +389,6 @@ internals.getPencilResponse = function (data, request, response, configuration) 
  * @param config
  */
 internals.getHeaders = function (request, options, config) {
-    var currentOptions = {},
-        headers;
-
     options = options || {};
 
     // If stencil-config header already set, we don't want to overwrite it
@@ -428,6 +397,7 @@ internals.getHeaders = function (request, options, config) {
     }
 
     // Merge in current stencil-options with passed in options
+    let currentOptions = {};
     if (request.headers['stencil-options']) {
         try {
             currentOptions = JSON.parse(request.headers['stencil-options']);
@@ -436,7 +406,7 @@ internals.getHeaders = function (request, options, config) {
         }
     }
 
-    headers = {
+    const headers = {
         'stencil-cli': Pkg.version,
         'stencil-version': Pkg.config.stencil_version,
         'stencil-options': JSON.stringify(_.defaultsDeep(currentOptions, options)),
@@ -493,4 +463,10 @@ internals.themeAssembler = {
 
 internals.getThemeTemplatesPath = () => {
     return Path.join(internals.options.themePath, 'templates');
+};
+
+module.exports = {
+    register,
+    name: 'Renderer',
+    version: '0.0.1',
 };

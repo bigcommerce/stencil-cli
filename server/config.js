@@ -1,6 +1,7 @@
 'use strict';
 
 const Confidence = require('confidence');
+const GoodConsole = require('@hapi/good-console');
 
 const config = {
     $meta: 'Config file',
@@ -9,11 +10,15 @@ const config = {
         port: 3000,
     },
     good: {
-        opsInterval: 1000,
-        reporters: [{
-            reporter: require('good-console'),
-            args: [{log: '*', request: '*'}],
-        }],
+        ops: {
+            interval: 1000,
+        },
+        reporters: {
+            goodConsoleReporter: [{
+                module: GoodConsole,
+                args: [{log: '*', request: '*'}],
+            }],
+        },
     },
 };
 
@@ -24,11 +29,9 @@ const criteria = {
 const store = new Confidence.Store(config);
 
 exports.get = function(key) {
-
     return store.get(key, criteria);
 };
 
 exports.meta = function(key) {
-
     return store.meta(key, criteria);
 };

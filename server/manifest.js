@@ -1,37 +1,36 @@
-var Confidence = require('confidence'),
-    config = require('./config'),
-    criteria = {
-        env: process.env.NODE_ENV,
-    },
-    store,
-    manifest;
+const Confidence = require('confidence');
+const config = require('./config');
 
-manifest = {
+const criteria = {
+    env: process.env.NODE_ENV,
+};
+
+const manifest = {
     $meta: 'Stencil',
-    connections: [{
+    server: {
         host: config.get('/server/host'),
         port: config.get('/server/port'),
-        options: config.get('/server/options'),
-        tls: config.get('/server/tls'),
-    }],
-    plugins: {
-        // Third Party Plugins
-        'good': config.get('/good'),
-        // First Party Plugins
-        './plugins/renderer/renderer.module': {},
-        './plugins/router/router.module': {},
-        './plugins/theme-assets/theme-assets.module': {},
+    },
+    register: {
+        plugins: {
+            // Third Party Plugins
+            '@hapi/good': config.get('/good'),
+            '@hapi/inert': {},
+            '@hapi/h2o2': {},
+            // First Party Plugins
+            './plugins/renderer/renderer.module': {},
+            './plugins/router/router.module': {},
+            './plugins/theme-assets/theme-assets.module': {},
+        },
     },
 };
 
-store = new Confidence.Store(manifest);
+const store = new Confidence.Store(manifest);
 
 exports.get = function (key) {
-
     return store.get(key, criteria);
 };
 
 exports.meta = function (key) {
-
     return store.meta(key, criteria);
 };

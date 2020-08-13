@@ -3,7 +3,7 @@ const Paper = require('@bigcommerce/stencil-paper');
 const internals = {};
 
 module.exports = function (data, assembler) {
-    this.respond = function (request, reply) {
+    this.respond = function (request, h) {
         const paper = new Paper(data.context.settings, data.context.theme_settings, assembler, "handlebars-v3");
 
         // Set the environment to dev
@@ -19,32 +19,34 @@ module.exports = function (data, assembler) {
 
         const templatePath = internals.getTemplatePath(request, data);
 
-        paper.loadTheme(templatePath, data.acceptLanguage)
+        return paper.loadTheme(templatePath, data.acceptLanguage)
             .then(() => {
                 if (request.query.debug === 'context') {
-                    return reply(data.context);
+                    return data.context;
                 }
             })
             .catch(err => console.error(err.message.red))
             .then(() => paper.renderTheme(templatePath, data))
             .catch(err => console.error(err.message.red))
             .then(output => {
-                const response = reply(output);
-                response.code(data.statusCode);
+                const response = h.response(output).code(data.statusCode);
+
                 if (data.headers['set-cookie']) {
                     response.header('set-cookie', data.headers['set-cookie']);
                 }
+
                 return response;
-            }).catch(err => console.error(err.message.red));
+            })
+            .catch(err => console.error(err.message.red));
     };
 };
 
 
 internals.getTemplatePath = function (request, data) {
-    var path = data.template_file;
+    let path = data.template_file;
 
     if (request.headers['stencil-options']) {
-        var options = JSON.parse(request.headers['stencil-options']);
+        const options = JSON.parse(request.headers['stencil-options']);
 
         if (options['render_with'] && typeof options['render_with'] === 'string') {
 
@@ -72,7 +74,7 @@ internals.getTemplatePath = function (request, data) {
  */
 internals.makeDecorator = function (request, context) {
     return function(content) {
-        var regex,
+        let regex,
             debugBar;
 
         if (context.settings) {
