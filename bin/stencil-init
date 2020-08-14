@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 require('colors');
+const Program = require('commander');
+const _ = require('lodash');
+
 const StencilInit = require('../lib/stencil-init');
 const pkg = require('../package.json');
-const Program = require('commander');
-const dotStencilFilePath = './.stencil';
 const versionCheck = require('../lib/version-check');
 
 Program
@@ -18,4 +19,7 @@ if (!versionCheck()) {
     return;
 }
 
-StencilInit.run(dotStencilFilePath, Program.url, Program.token, Program.port);
+const dotStencilFilePath = './.stencil';
+const cliOptions = _.pick(Program, ['url', 'token', 'port']);
+
+new StencilInit().run(dotStencilFilePath, cliOptions);

@@ -2,4 +2,14 @@ const path = require('path');
 const packagePath = path.join(process.cwd(), 'package.json');
 const packageInfo = require(packagePath);
 
-module.exports =  { packageInfo };
+const DEFAULT_CUSTOM_LAYOUTS_CONFIG = {
+    'brand': {},
+    'category': {},
+    'page': {},
+    'product': {},
+};
+
+module.exports =  {
+    packageInfo,
+    DEFAULT_CUSTOM_LAYOUTS_CONFIG,
+};
