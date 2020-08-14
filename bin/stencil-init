@@ -4,8 +4,6 @@ require('colors');
 const StencilInit = require('../lib/stencil-init');
 const pkg = require('../package.json');
 const Program = require('commander');
-const JspmAssembler = require('../lib/jspm-assembler');
-const ThemeConfig = require('../lib/theme-config');
 const dotStencilFilePath = './.stencil';
 const versionCheck = require('../lib/version-check');
 
@@ -20,4 +18,4 @@ if (!versionCheck()) {
     return;
 }
 
-StencilInit.run(JspmAssembler, ThemeConfig, dotStencilFilePath, Program.url, Program.token, Program.port);
+StencilInit.run(dotStencilFilePath, Program.url, Program.token, Program.port);

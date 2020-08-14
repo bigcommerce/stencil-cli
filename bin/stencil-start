@@ -11,7 +11,6 @@ const Url = require('url');
 
 const Cycles = require('../lib/cycles');
 const templateAssembler = require('../lib/template-assembler');
-const JspmAssembler = require('../lib/jspm-assembler');
 const Pkg = require('../package.json');
 const Program = require('commander');
 const Server = require('../server');
@@ -29,7 +28,6 @@ Program
     .version(Pkg.version)
     .option('-o, --open', 'Automatically open default browser')
     .option('-v, --variation [name]', 'Set which theme variation to use while developing')
-    .option('-t, --test', 'Enable QA mode which will bundle all javascript for speed to test locally')
     .option('--tunnel [name]', 'Create a tunnel URL which points to your local server that anyone can use.')
     .option('-n, --no-cache', 'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.')
     .parse(process.argv);
@@ -121,20 +119,7 @@ Wreck.get(
             dotStencilFile.normalStoreUrl = payload.baseUrl;
             dotStencilFile.stencilServerPort = stencilServerPort;
 
-            if (configuration.jspm && Program.test) {
-                bundleTask = JspmAssembler.assemble(
-                    {
-                        bootstrap: configuration.jspm.bootstrap,
-                    },
-                    themePath
-                );
-
-                bundleTask(function () {
-                    return startServer();
-                });
-            } else {
-                return startServer();
-            }
+            return startServer();
         }
     }
 );
@@ -159,7 +144,6 @@ async function startServer() {
     let watchIgnored = [
         '/assets/scss',
         '/assets/css',
-        '/assets/jspm_packages',
     ];
 
     // Display Set up information
