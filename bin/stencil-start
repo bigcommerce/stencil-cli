@@ -1,27 +1,29 @@
 #!/usr/bin/env node
 
+require('colors');
 const Bs = require('browser-sync').create();
-const Cycles = require('../lib/cycles');
 const recursiveRead = require('recursive-readdir');
 const Async = require('async');
-const templateAssembler = require('../lib/template-assembler');
+const Wreck = require('wreck');
 const Fs = require('fs');
-const JspmAssembler = require('../lib/jspm-assembler');
 const Path = require('path');
+const Url = require('url');
+
+const Cycles = require('../lib/cycles');
+const templateAssembler = require('../lib/template-assembler');
+const JspmAssembler = require('../lib/jspm-assembler');
 const Pkg = require('../package.json');
 const Program = require('commander');
 const Server = require('../server');
 const ThemeConfig = require('../lib/theme-config');
 const buildConfig = require('../lib/build-config');
-const Url = require('url');
-const Wreck = require('wreck');
 const jsonLint = require('../lib/json-lint');
 const versionCheck = require('../lib/version-check');
-let themePath = process.cwd();
-let templatePath = Path.join(themePath, 'templates');
-let dotStencilFilePath = Path.join(themePath, '.stencil');
-let themeConfigPath = Path.join(themePath, 'config.json');
-require('colors');
+
+const themePath = process.cwd();
+const templatePath = Path.join(themePath, 'templates');
+const dotStencilFilePath = Path.join(themePath, '.stencil');
+const themeConfigPath = Path.join(themePath, 'config.json');
 
 Program
     .version(Pkg.version)
@@ -32,6 +34,11 @@ Program
     .option('-n, --no-cache', 'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.')
     .parse(process.argv);
 
+// tunnel value should be true/false or a string with name
+// https://browsersync.io/docs/options#option-tunnel
+const tunnel = typeof Program.tunnel === 'string'
+    ? Program.tunnel
+    : Boolean(Program.tunnel) // convert undefined/true -> false/true
 
 if (!versionCheck()) {
     return;
@@ -210,12 +217,6 @@ async function startServer() {
     if (buildConfig.watchOptions && buildConfig.watchOptions.ignored) {
         watchIgnored = buildConfig.watchOptions.ignored;
     }
-
-    const tunnel = typeof Program.tunnel === 'undefined'
-        ? false
-        : Program.tunnel === true
-            ? true
-            : Program.tunnel;
 
     Bs.init({
         open: !!Program.open,
