@@ -14,7 +14,6 @@ const manifest = {
     register: {
         plugins: {
             // Third Party Plugins
-            '@hapi/good': config.get('/good'),
             '@hapi/inert': {},
             '@hapi/h2o2': {},
             // First Party Plugins
