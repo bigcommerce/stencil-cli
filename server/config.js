@@ -1,24 +1,12 @@
 'use strict';
 
 const Confidence = require('confidence');
-const GoodConsole = require('@hapi/good-console');
 
 const config = {
     $meta: 'Config file',
     server: {
         host: 'localhost',
         port: 3000,
-    },
-    good: {
-        ops: {
-            interval: 1000,
-        },
-        reporters: {
-            goodConsoleReporter: [{
-                module: GoodConsole,
-                args: [{log: '*', request: '*'}],
-            }],
-        },
     },
 };
 
