@@ -2,10 +2,10 @@ const _ = require('lodash');
 const ThemeConfig = require('../../../lib/theme-config');
 const internals = {
     options: {
-            storeUrl: '',
-            apiKey: '',
-            staplerUrl: '',
-            port: '',
+        storeUrl: '',
+        apiKey: '',
+        staplerUrl: '',
+        port: '',
     },
     paths: {
         renderer: '/{url*}',
@@ -19,29 +19,28 @@ const internals = {
     },
 };
 
-module.exports.register = function(server, options, next) {
+function register (server, options) {
     internals.options = _.defaultsDeep(options, internals.options);
 
-    server.ext('onRequest', function(request, reply) {
+    server.ext('onRequest', (request, h) => {
         request.app.storeUrl = internals.options.storeUrl;
         request.app.normalStoreUrl = internals.options.normalStoreUrl;
         request.app.apiKey = internals.options.apiKey;
         request.app.staplerUrl = internals.options.staplerUrl;
         request.app.themeConfig = ThemeConfig.getInstance();
 
-        reply.continue();
+        return h.continue;
     });
 
-    server.dependency(['Renderer', 'ThemeAssets'], internals.registerRoutes);
-    return next();
-};
+    server.dependency(['inert', 'h2o2', 'Renderer', 'ThemeAssets'], internals.registerRoutes);
+}
 
-internals.registerRoutes = function(server, next) {
+internals.registerRoutes = function(server) {
     server.route([
         {
             method: 'GET',
             path: internals.paths.renderer,
-            config: {
+            options: {
                 cors: true,
                 state: {
                     failAction: 'log',
@@ -52,7 +51,7 @@ internals.registerRoutes = function(server, next) {
         {
             method: ['POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
             path: internals.paths.renderer,
-            config: {
+            options: {
                 cors: true,
                 payload: {
                     output: 'stream',
@@ -69,7 +68,7 @@ internals.registerRoutes = function(server, next) {
             method: 'GET',
             path: internals.paths.cdnAssets,
             handler: server.plugins.ThemeAssets.assetHandler,
-            config: {
+            options: {
                 state: {
                     failAction: 'log',
                 },
@@ -83,7 +82,7 @@ internals.registerRoutes = function(server, next) {
                     path: './assets',
                 },
             },
-            config: {
+            options: {
                 state: {
                     failAction: 'log',
                 },
@@ -102,7 +101,7 @@ internals.registerRoutes = function(server, next) {
                     xforward: true,
                 },
             },
-            config: {
+            options: {
                 state: {
                     failAction: 'log',
                 },
@@ -121,7 +120,7 @@ internals.registerRoutes = function(server, next) {
                     xforward: true,
                 },
             },
-            config: {
+            options: {
                 state: {
                     failAction: 'log',
                 },
@@ -133,7 +132,7 @@ internals.registerRoutes = function(server, next) {
             handler: {
                 file: './assets/favicon.ico',
             },
-            config: {
+            options: {
                 state: {
                     failAction: 'log',
                 },
@@ -143,7 +142,7 @@ internals.registerRoutes = function(server, next) {
             method: 'GET',
             path: internals.paths.cssFiles,
             handler: server.plugins.ThemeAssets.cssHandler,
-            config: {
+            options: {
                 state: {
                     failAction: 'log',
                 },
@@ -154,34 +153,31 @@ internals.registerRoutes = function(server, next) {
             path: internals.paths.graphQL,
             handler: {
                 proxy: {
-                    mapUri: function (req, cb) {
-                        return cb(
-                            null,
-                            `${internals.options.storeUrl}${req.path}`,
-                            Object.assign( // Add 'origin' and 'host' headers to request before proxying
-                                req.headers,
-                                {
-                                    origin: internals.options.storeUrl,
-                                    host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
-                                },
-                            ),
-                        );
-                    },
+                    mapUri: req => ({
+                        uri: `${internals.options.storeUrl}${req.path}`,
+                        // Note, that we should modify the original req.headers to make it work
+                        headers: Object.assign( // Add 'origin' and 'host' headers to request before proxying
+                            req.headers,
+                            {
+                                origin: internals.options.storeUrl,
+                                host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
+                            },
+                        ),
+                    }),
                     passThrough: true,
                 },
             },
-            config: {
+            options: {
                 state: {
                     failAction: 'log',
                 },
             },
         },
     ]);
-
-    return next();
 };
 
-module.exports.register.attributes = {
+module.exports = {
+    register,
     name: 'Router',
     version: '0.0.1',
 };

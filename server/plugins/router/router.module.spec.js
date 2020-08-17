@@ -1,7 +1,6 @@
 const Code = require('code');
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const Lab = require('@hapi/lab');
-const { promisify } = require('util');
 
 const router = require('./router.module');
 
@@ -11,49 +10,46 @@ const describe = lab.describe;
 const it = lab.it;
 
 describe('Router', () => {
-    const server = new Hapi.Server();
+    const SERVER_OPTIONS = {
+        port: 3000,
+    };
+    const ROUTER_OPTIONS = {
+        storeUrl: 'https://store-abc124.mybigcommerce.com',
+        normalStoreUrl: 'http://s1234567890.mybigcommerce.com',
+        port: SERVER_OPTIONS.port,
+    };
+
+    const server = new Hapi.Server(SERVER_OPTIONS);
     const RendererPluginMock = {
-        register: function(server, options, next) {
-            server.expose('implementation', (request, reply) => reply('RendererHandlerFired'));
-
-            next();
+        register (server) {
+            server.expose('implementation', (request, h) => h.response('RendererHandlerFired'));
         },
-    };
-    const ThemeAssetsMock = {
-        register: function(server, options, next) {
-            server.expose('cssHandler', (request, reply) => reply('CssHandlerFired'));
-            server.expose('assetHandler', (request, reply) => reply('assetHandlerFired'));
-
-            next();
-        },
-    };
-
-    RendererPluginMock.register.attributes = {
         name: 'Renderer',
         version: '0.0.1',
     };
-
-    ThemeAssetsMock.register.attributes = {
+    const ThemeAssetsMock = {
+        register (server) {
+            server.expose('cssHandler', (request, h) => h.response('CssHandlerFired'));
+            server.expose('assetHandler', (request, h) => h.response('assetHandlerFired'));
+        },
         name: 'ThemeAssets',
         version: '0.0.1',
     };
 
-    server.connection({
-        port: 3000,
-    });
-
     lab.before(async () => {
-        await promisify(server.register.bind(server))([
+        await server.register([
+            require('@hapi/inert'),
+            require('@hapi/h2o2'),
             RendererPluginMock,
             ThemeAssetsMock,
-            router,
+            { plugin: router, options: ROUTER_OPTIONS },
         ]);
 
-        await promisify(server.start.bind(server))();
+        await server.start();
     });
 
     lab.after(async () => {
-        await promisify(server.stop.bind(server))();
+        await server.stop();
     });
 
     it('should call the Renderer handler', async () => {
@@ -62,9 +58,7 @@ describe('Router', () => {
             url: '/test',
         };
 
-        const response = await new Promise(resolve =>
-            server.inject(options, resolve),
-        );
+        const response = await server.inject(options);
 
         expect(response.statusCode).to.equal(200);
         expect(response.payload).to.equal('RendererHandlerFired');
@@ -76,9 +70,7 @@ describe('Router', () => {
             url: '/stencil/123/css/file.css',
         };
 
-        const response = await new Promise(resolve =>
-            server.inject(options, resolve),
-        );
+        const response = await server.inject(options);
 
         expect(response.statusCode).to.equal(200);
         expect(response.payload).to.equal('CssHandlerFired');
@@ -90,9 +82,7 @@ describe('Router', () => {
             url: '/stencil/123/js/file.js',
         };
 
-        const response = await new Promise(resolve =>
-            server.inject(options, resolve),
-        );
+        const response = await server.inject(options);
 
         expect(response.statusCode).to.equal(200);
         expect(response.payload).to.equal('assetHandlerFired');
@@ -102,19 +92,15 @@ describe('Router', () => {
         const options = {
             method: 'POST',
             url: '/graphql',
-            headers: { 'authorization': 'abc123' },
+            headers: { 'authorization': 'auth123' },
         };
 
-        const response = await new Promise(resolve =>
-            server.inject(options, resolve),
-        );
+        const response = await server.inject(options);
 
-        expect(response.request.payload.headers).to.include(
-            {
-                authorization: 'abc123',
-                origin: 'https://store-abc123.mybigcommerce.com',
-                host: 'store-abc123.mybigcommerce.com',
-            },
-        );
+        expect(response.request.payload.headers).to.include({
+            authorization: 'auth123',
+            origin: 'https://store-abc124.mybigcommerce.com',
+            host: 'store-abc124.mybigcommerce.com',
+        });
     });
 });
