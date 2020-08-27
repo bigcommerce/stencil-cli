@@ -2,9 +2,14 @@
 
 Thanks for showing interest in contributing!
 
-The following is a set of guidelines for contributing to the Stencil CLI. These are just guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
+The following is a set of guidelines for contributing to the Stencil CLI. These are just guidelines, not rules.
+Use your best judgment, and feel free to propose changes to this document in a pull request.
 
-By contributing to Stencil CLI, you agree that your contributions will be licensed as listed under the [README.md](https://github.com/bigcommerce/stencil-cli/blob/master/README.md).
+At the moment some parts of the project may be outdated and not follow these recommendations.
+They should be gradually refactored with time.
+
+By contributing to Stencil CLI, you agree that your contributions will be licensed as listed under the 
+[README.md](https://github.com/bigcommerce/stencil-cli/blob/master/README.md).
 
 #### Table of Contents
 
@@ -13,20 +18,35 @@ By contributing to Stencil CLI, you agree that your contributions will be licens
 [How Can I Contribute?](#how-can-i-contribute)
   * [Your First Code Contribution](#your-first-code-contribution)
   * [Pull Requests](#pull-requests)
+  * [Release stencil-cli](#release-stencil-cli)
 
 [Styleguides](#styleguides)
   * [Git Commit Messages](#git-commit-messages)
   * [JavaScript Styleguide](#javascript-styleguide)
+  * [Project best practices](#project-best-practices)
+
+[Implementation details](#implementation-details)
+  * [Project structure](#project-structure)
+
+## How Can I Contribute?
 
 ### Your First Code Contribution
 
-Unsure where to begin contributing to Stencil CLI? Check our [forums](https://forum.bigcommerce.com/s/group/0F91300000029tpCAA) or our [stackoverflow](https://stackoverflow.com/questions/tagged/bigcommerce) tag. 
+Unsure where to begin contributing to Stencil CLI? Check our [forums](https://forum.bigcommerce.com/s/group/0F91300000029tpCAA),
+[Github issues](https://github.com/bigcommerce/stencil-cli/issues), or our
+[stackoverflow](https://stackoverflow.com/questions/tagged/bigcommerce) tag. 
 
 ### Pull Requests
 
 * Fill in [the required template](https://github.com/bigcommerce/stencil-cli/pull/new/master)
 * Include screenshots and animated GIFs in your pull request whenever possible.
 * End files with a newline.
+
+### Release stencil-cli
+In order to release stencil-cli you should first use the `Squash and merge` option on GitHub, This step is important
+for generating the `CHANGELOG.md` file with the PR link attached (if not using `Squash and merge`, the changes will
+be logged only with links to the commits). After the changes are merged to master, pull the latest to your local
+environment, run `gulp release` and follow the prompts.
 
 ## Styleguides
 
@@ -41,3 +61,41 @@ Unsure where to begin contributing to Stencil CLI? Check our [forums](https://fo
 ### JavaScript Styleguide
 
 All JavaScript must adhere to [AirBnB Javascript Styleguide](https://github.com/airbnb/javascript).
+
+Additionally:
+- Prefer async/await to callbacks.
+- Class dependencies with side effects (e.g. "fs" has side effects, "lodash" - hasn't) should be
+explicitly passed to the constructor so that they can be mocked in unit tests.
+
+### Project best practices
+
+**CLI commands:**
+
+Entry point is located at `/bin`. The file with entry point should only read the CLI arguments and
+call a corresponding CLI-command-class with the implementation located at `/lib`. CLI-command-class uses
+dependency injection throughout constructor, the main method runs other methods-tasks. Tasks are aimed to be pure and
+use context (this) only for external dependencies (logger, fs, etc).
+
+Shared logic and tasks should be moved out from the CLI-command-classes to separate service classes.
+
+E.g.: [stencil-init](/bin/stencil-init).
+
+**Local server:**
+
+Hapi server plugins located at `/server/plugins` should have controller logic only. Business logic should be moved out to
+common entities located at `/lib`.
+
+## Implementation details
+
+### Project structure
+
+```
+.
+├── .github                  Templates for github documents
+├── bin                      Entry points for CLI commands
+├── server                   Local server
+├── tasks                    Gulp tasks
+├── test                     Common entities and helpers used for tests
+├── lib                      Source code for all other entities
+└── constants.js             Common constants
+```
