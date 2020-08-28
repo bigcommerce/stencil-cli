@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/bigcommerce/stencil-cli",
   "dependencies": {
-    "@bigcommerce/stencil-paper": "^3.0.0-rc.30",
+    "@bigcommerce/stencil-paper": "^3.0.0-rc.31",
     "@bigcommerce/stencil-styles": "1.2.1",
     "@hapi/boom": "^8.0.1",
     "@hapi/glue": "^6.2.0",
