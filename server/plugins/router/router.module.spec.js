@@ -1,13 +1,6 @@
-const Code = require('code');
 const Hapi = require('@hapi/hapi');
-const Lab = require('@hapi/lab');
 
 const router = require('./router.module');
-
-const expect = Code.expect;
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
 
 describe('Router', () => {
     const SERVER_OPTIONS = {
@@ -36,7 +29,7 @@ describe('Router', () => {
         version: '0.0.1',
     };
 
-    lab.before(async () => {
+    beforeAll(async () => {
         await server.register([
             require('@hapi/inert'),
             require('@hapi/h2o2'),
@@ -48,7 +41,7 @@ describe('Router', () => {
         await server.start();
     });
 
-    lab.after(async () => {
+    afterAll(async () => {
         await server.stop();
     });
 
@@ -60,8 +53,8 @@ describe('Router', () => {
 
         const response = await server.inject(options);
 
-        expect(response.statusCode).to.equal(200);
-        expect(response.payload).to.equal('RendererHandlerFired');
+        expect(response.statusCode).toEqual(200);
+        expect(response.payload).toEqual('RendererHandlerFired');
     });
 
     it('should call the CSS handler', async () => {
@@ -72,8 +65,8 @@ describe('Router', () => {
 
         const response = await server.inject(options);
 
-        expect(response.statusCode).to.equal(200);
-        expect(response.payload).to.equal('CssHandlerFired');
+        expect(response.statusCode).toEqual(200);
+        expect(response.payload).toEqual('CssHandlerFired');
     });
 
     it('should call the assets handler', async () => {
@@ -84,8 +77,8 @@ describe('Router', () => {
 
         const response = await server.inject(options);
 
-        expect(response.statusCode).to.equal(200);
-        expect(response.payload).to.equal('assetHandlerFired');
+        expect(response.statusCode).toEqual(200);
+        expect(response.payload).toEqual('assetHandlerFired');
     });
 
     it('should inject host and origin headers for GraphQL requests', async () => {
@@ -97,7 +90,7 @@ describe('Router', () => {
 
         const response = await server.inject(options);
 
-        expect(response.request.payload.headers).to.include({
+        expect(response.request.payload.headers).toMatchObject({
             authorization: 'auth123',
             origin: 'https://store-abc124.mybigcommerce.com',
             host: 'store-abc124.mybigcommerce.com',

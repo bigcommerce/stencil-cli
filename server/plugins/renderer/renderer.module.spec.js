@@ -1,23 +1,19 @@
 'use strict';
 
-const Code = require('code');
-const Lab = require('@hapi/lab');
-const sinon = require('sinon');
 const Wreck = require('wreck');
 const Path = require('path');
 
 const Server = require('../../../server');
 
-const lab = exports.lab = Lab.script();
-const expect = Code.expect;
-const it = lab.it;
-
-lab.describe('Renderer Plugin', () => {
+describe('Renderer Plugin', () => {
     let server;
     let wreckRequestStub;
-    let wreckReadStub;
 
-    lab.before(async () => {
+    beforeAll(async () => {
+        // Prevent littering the console
+        jest.spyOn(console, 'log').mockImplementation(jest.fn());
+        jest.spyOn(console, 'error').mockImplementation(jest.fn());
+
         const options = {
             dotStencilFile: {
                 storeUrl: "https://store-abc123.mybigcommerce.com",
@@ -39,19 +35,16 @@ lab.describe('Renderer Plugin', () => {
             }
             return h.continue;
         });
+
+        wreckRequestStub = jest.spyOn(Wreck, 'request').mockImplementation(jest.fn());
+        jest.spyOn(Wreck, 'read').mockImplementation(jest.fn());
     });
 
-    lab.beforeEach(() => {
-        wreckRequestStub = sinon.stub(Wreck, 'request');
-        wreckReadStub = sinon.stub(Wreck, 'read');
+    afterEach(() => {
+        jest.resetAllMocks();
     });
 
-    lab.afterEach(async () => {
-        wreckRequestStub.restore();
-        wreckReadStub.restore();
-    });
-
-    lab.after(async () => {
+    afterAll(async () => {
         await server.stop();
     });
 
@@ -60,12 +53,11 @@ lab.describe('Renderer Plugin', () => {
             method: "GET",
             url: "/test",
         };
-
-        wreckRequestStub.callsArgWith(3, new Error('failure'));
+        wreckRequestStub.mockImplementation((method, url, options, cb) => cb(new Error('failure')));
 
         const response = await server.inject(options);
 
-        expect(response.statusCode).to.equal(500);
+        expect(response.statusCode).toEqual(500);
     });
 
     it('should handle responses of a 500 in the BCApp request', async () => {
@@ -73,11 +65,11 @@ lab.describe('Renderer Plugin', () => {
             method: "GET",
             url: "/",
         };
-        wreckRequestStub.callsArgWith(3, null, { statusCode: 500 });
+        wreckRequestStub.mockImplementation((method, url, options, cb) => cb(null, { statusCode: 500 }));
 
         const response = await server.inject(options);
 
-        expect(response.statusCode).to.equal(500);
+        expect(response.statusCode).toEqual(500);
     });
 
     it('should handle redirects in the BCApp request', async () => {
@@ -85,17 +77,18 @@ lab.describe('Renderer Plugin', () => {
             method: "GET",
             url: "/",
         };
-        wreckRequestStub.callsArgWith(3, null, {
+        const redirectResponse = {
             statusCode: 301,
             headers: {
                 location: 'http://www.example.com/',
             },
-        });
+        };
+        wreckRequestStub.mockImplementation((method, url, options, cb) => cb(null, redirectResponse));
 
         const response = await server.inject(options);
 
-        expect(response.statusCode).to.equal(301);
-        expect(response.headers.location).to.equal('http://www.example.com/');
+        expect(response.statusCode).toEqual(301);
+        expect(response.headers.location).toEqual('http://www.example.com/');
     });
 
     it('should handle unauthorized in the Stapler Request', async () => {
@@ -103,15 +96,16 @@ lab.describe('Renderer Plugin', () => {
             method: "GET",
             url: "/",
         };
-        wreckRequestStub.callsArgWith(3, null, {
+        const unauthorizedResponse = {
             statusCode: 401,
             headers: {
                 location: 'http://www.example.com/',
             },
-        });
+        };
+        wreckRequestStub.mockImplementation((method, url, options, cb) => cb(null, unauthorizedResponse));
 
         const response = await server.inject(options);
 
-        expect(response.statusCode).to.equal(401);
+        expect(response.statusCode).toEqual(401);
     });
 });

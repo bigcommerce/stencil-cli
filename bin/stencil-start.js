@@ -15,7 +15,7 @@ const Pkg = require('../package.json');
 const Program = require('commander');
 const Server = require('../server');
 const ThemeConfig = require('../lib/theme-config');
-const buildConfig = require('../lib/build-config');
+const BuildConfigManager = require('../lib/BuildConfigManager');
 const jsonLint = require('../lib/json-lint');
 const versionCheck = require('../lib/version-check');
 
@@ -36,23 +36,26 @@ Program
 // https://browsersync.io/docs/options#option-tunnel
 const tunnel = typeof Program.tunnel === 'string'
     ? Program.tunnel
-    : Boolean(Program.tunnel) // convert undefined/true -> false/true
+    : Boolean(Program.tunnel); // convert undefined/true -> false/true
 
 if (!versionCheck()) {
-    return;
+    process.exit(2);
 }
 
 if (!fileExist(dotStencilFilePath)) {
-    return console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
+    console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
+    process.exit(2);
 }
 
 if (!fileExist(Path.join(themePath, 'config.json'))) {
-    return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
+    console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
+    process.exit(2);
 }
 
 // If the value is true it means that no variation was passed in.
 if (Program.variation === true) {
-    return console.error('Error: You have to specify a value for -v or --variation'.red);
+    console.error('Error: You have to specify a value for -v or --variation'.red);
+    process.exit(2);
 }
 
 // Instantiate themeConfig
@@ -61,25 +64,27 @@ if (Program.variation) {
     try {
         themeConfig.setVariationByName(Program.variation);
     } catch (err) {
-        return console.error('Error: The variation '.red + Program.variation + ' does not exists in your config.json file'.red);
+        console.error('Error: The variation '.red + Program.variation + ' does not exists in your config.json file'.red);
+        process.exit(2);
     }
 }
 
-let configuration = themeConfig.getConfig();
-let dotStencilFile = Fs.readFileSync(dotStencilFilePath, {encoding: 'utf-8'});
+let dotStencilFile = Fs.readFileSync(dotStencilFilePath, { encoding: 'utf-8' });
 try {
     dotStencilFile = jsonLint.parse(dotStencilFile, dotStencilFilePath);
 } catch (e) {
-    return console.error(e.stack);
+    console.error(e.stack);
+    process.exit(2);
 }
 
 let browserSyncPort = dotStencilFile.port;
 let stencilServerPort = ++dotStencilFile.port;
 if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
-    return console.error(
+    console.error(
         'Error: Your stencil config is outdated. Please run'.red +
-        ' $ stencil init'.cyan + ' again.'.red
+        ' $ stencil init'.cyan + ' again.'.red,
     );
+    process.exit(2);
 }
 
 let staplerUrl;
@@ -101,18 +106,16 @@ Wreck.get(
         rejectUnauthorized: false,
     },
     function (err, res, payload) {
-        let bundleTask;
-
         if (err || !payload) {
             console.error(
-                'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'.red
+                'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'.red,
             );
         } else if (payload.error) {
             return console.error(payload.error.red);
         } else if (payload.status !== 'ok') {
             console.error(
                 'Error: You are using an outdated version of stencil-cli, please run '.red +
-                '$ npm install -g @bigcommerce/stencil-cli'.cyan
+                '$ npm install -g @bigcommerce/stencil-cli'.cyan,
             );
         } else {
             dotStencilFile.storeUrl = payload.sslUrl;
@@ -121,7 +124,7 @@ Wreck.get(
 
             return startServer();
         }
-    }
+    },
 );
 
 /**
@@ -135,11 +138,12 @@ async function startServer() {
         themePath: themePath,
     });
 
+    const buildConfigManger = new BuildConfigManager();
     let watchFiles = [
         '/assets',
         '/templates',
         '/lang',
-        '/.config'
+        '/.config',
     ];
     let watchIgnored = [
         '/assets/scss',
@@ -156,25 +160,13 @@ async function startServer() {
         }
     });
 
-    Bs.watch('config.json', (event) => {
-        if (event === 'change') {
-            try {
-                configuration = themeConfig.getConfig();
-            } catch (e) {
-                return console.error(e);
-            }
-
-            Bs.reload();
-        }
-    });
-
     Bs.watch('.config/storefront.json', (event, file) => {
         if (event === 'change') {
             console.log("storefront json changed");
             Bs.emitter.emit("storefront_config_file:changed", {
                 event: event,
                 path: file,
-                namespace: ""
+                namespace: "",
             });
             Bs.reload();
         }
@@ -191,15 +183,15 @@ async function startServer() {
             } catch (e) {
                 console.error(e);
             }
-        })
+        });
     });
 
-    if (buildConfig.watchOptions && buildConfig.watchOptions.files) {
-        watchFiles = buildConfig.watchOptions.files;
+    if (buildConfigManger.watchOptions && buildConfigManger.watchOptions.files) {
+        watchFiles = buildConfigManger.watchOptions.files;
     }
 
-    if (buildConfig.watchOptions && buildConfig.watchOptions.ignored) {
-        watchIgnored = buildConfig.watchOptions.ignored;
+    if (buildConfigManger.watchOptions && buildConfigManger.watchOptions.ignored) {
+        watchIgnored = buildConfigManger.watchOptions.ignored;
     }
 
     Bs.init({
@@ -227,8 +219,8 @@ async function startServer() {
         }
     });
 
-    if (buildConfig.development) {
-        buildConfig.initWorker().development(Bs);
+    if (buildConfigManger.development) {
+        buildConfigManger.initWorker().development(Bs);
     }
 }
 
@@ -248,7 +240,7 @@ function assembleTemplates(templatePath, callback) {
                 callback(err);
             }
             callback(null, results);
-        })
+        });
     });
 }
 

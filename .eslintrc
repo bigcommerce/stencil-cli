@@ -5,8 +5,14 @@
       "impliedStrict": true
     }
   },
+  "plugins": ["jest"],
+  "extends": [
+    "plugin:jest/recommended",
+    "plugin:jest/style"
+  ],
   "env": {
     "es2020": true,
+    "jest/globals": true,
     "node": true
   },
   "rules": {

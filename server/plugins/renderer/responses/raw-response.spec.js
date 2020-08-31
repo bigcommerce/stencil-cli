@@ -1,15 +1,9 @@
 'use strict';
 
-const Code = require('code');
-const Lab = require('@hapi/lab');
-const sinon = require('sinon');
 const RawResponse = require('./raw-response');
 const Utils = require('../../../lib/utils');
-const lab = exports.lab = Lab.script();
-const expect = Code.expect;
-const it = lab.it;
 
-lab.describe('RawResponse', () => {
+describe('RawResponse', () => {
     const data = new Buffer('<html><head></head><body>hello</body></html>');
 
     const headers = {
@@ -21,7 +15,7 @@ lab.describe('RawResponse', () => {
     let response;
     let h;
 
-    lab.beforeEach(() => {
+    beforeEach(() => {
         request = {
             url: {},
             path: '/',
@@ -30,30 +24,35 @@ lab.describe('RawResponse', () => {
 
         response = {
             code: () => response,
-            header: sinon.spy(),
+            header: jest.fn(),
         };
 
         h = {
-            response: sinon.stub().returns(response),
+            response: jest.fn().mockReturnValue(response),
         };
     });
 
-    lab.describe('respond()', () => {
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    describe('respond()', () => {
         it('should respond', () => {
             const rawResponse = new RawResponse(data, headers, statusCode);
 
             rawResponse.respond(request, h);
 
-            expect(h.response.called).to.be.true();
+            expect(h.response).toHaveBeenCalled();
         });
 
         it('should append checkout css if is the checkout page', () => {
             request.path = '/checkout.php?blah=blah';
             const rawResponse = new RawResponse(data, headers, statusCode);
+            const expectedCss = `<link href="/stencil/${Utils.int2uuid(1)}/${Utils.int2uuid(2)}/css/checkout.css"`;
 
             rawResponse.respond(request, h);
 
-            expect(h.response.lastCall.args[0]).to.contain(`<link href="/stencil/${Utils.int2uuid(1)}/${Utils.int2uuid(2)}/css/checkout.css"`);
+            expect(h.response).toHaveBeenCalledWith(expect.stringContaining(expectedCss));
         });
 
         it('should not append transfer-encoding header', () => {
@@ -61,8 +60,8 @@ lab.describe('RawResponse', () => {
 
             rawResponse.respond(request, h);
 
-            expect(response.header.neverCalledWith('transfer-encoding')).to.be.true();
-            expect(response.header.calledWith('content-type')).to.be.true();
+            expect(response.header).not.toHaveBeenCalledWith('transfer-encoding');
+            expect(response.header.mock.calls[0]).toContain('content-type');
         });
     });
 });

@@ -16,7 +16,7 @@ Program
     .parse(process.argv);
 
 if (!versionCheck()) {
-    return;
+    process.exit(2);
 }
 
 const dotStencilFilePath = './.stencil';

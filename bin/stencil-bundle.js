@@ -20,21 +20,24 @@ Program
     .parse(process.argv);
 
 if (!versionCheck()) {
-    return;
+    process.exit(2);
 }
 
 themeConfig = ThemeConfig.getInstance(themePath);
 
 if (Program.dest === true) {
-    return console.error('Error: You have to specify a value for -d or --dest'.red);
+    console.error('Error: You have to specify a value for -d or --dest'.red);
+    process.exit(2);
 }
 
 if (Program.name === true) {
-    return console.error('Error: You have to specify a value for -n or --name'.red);
+    console.error('Error: You have to specify a value for -n or --name'.red);
+    process.exit(2);
 }
 
 if (!themeConfig.configExists()) {
-    return console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
+    console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
+    process.exit(2);
 }
 
 configuration = themeConfig.getRawConfig();
