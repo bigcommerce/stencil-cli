@@ -1,30 +1,29 @@
-const ChangelogGenerator = require('./changelog-generator');
-const CommandExecutor = require('./command-executor');
-const Code = require('code');
-const Lab = require('@hapi/lab');
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const sinon = require('sinon');
-const expect = Code.expect;
-const it = lab.it;
 const path = require('path');
 const { promisify } = require('util');
+
+const ChangelogGenerator = require('./changelog-generator');
+const CommandExecutor = require('./command-executor');
 
 describe('ChangelogGenerator', () => {
     let changelogGenerator;
     let commandExecutor;
-    let fs;
+    let fsMock;
     let executeCommandSpy;
 
-    lab.beforeEach( () => {
-        fs = {
+    beforeEach( () => {
+        fsMock = {
             statSync: function() { return true; },
         };
 
         commandExecutor = new CommandExecutor(require('child_process'));
-        executeCommandSpy = sinon.spy(commandExecutor, "executeCommand");
+        executeCommandSpy = jest.spyOn(commandExecutor, "executeCommand")
+            .mockImplementation((executable, argv, options, done) => done());
 
-        changelogGenerator = new ChangelogGenerator(fs, '/src', commandExecutor);
+        changelogGenerator = new ChangelogGenerator(fsMock, '/src', commandExecutor);
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('executes `conventional-changelog` command', async() => {
@@ -35,7 +34,8 @@ describe('ChangelogGenerator', () => {
             //  just need to make sure that executeCommandSpy was called properly
         } catch (err) {}
 
-        expect(executeCommandSpy.secondCall.calledWith(
+        expect(executeCommandSpy).toHaveBeenNthCalledWith(
+            2,
             'conventional-changelog',
             [],
             {
@@ -43,7 +43,8 @@ describe('ChangelogGenerator', () => {
                 infile: path.join('/src', 'CHANGELOG.md'),
                 sameFile: true,
             },
-        )).to.equal(true);
+            expect.any(Function),
+        );
     });
 
     it('executes `conventional-changelog` command with a preset if it is provided', async() => {
@@ -54,7 +55,8 @@ describe('ChangelogGenerator', () => {
         //  just need to make sure that executeCommandSpy was called properly
         } catch (err) {}
 
-        expect(executeCommandSpy.secondCall.calledWith(
+        expect(executeCommandSpy).toHaveBeenNthCalledWith(
+            2,
             'conventional-changelog',
             [],
             {
@@ -63,7 +65,8 @@ describe('ChangelogGenerator', () => {
                 preset: 'angular',
                 sameFile: true,
             },
-        )).to.equal(true);
+            expect.any(Function),
+        );
     });
 
     it('executes `conventional-changelog` command from scratch if CHANGELOG does not exist', async() => {
@@ -76,7 +79,8 @@ describe('ChangelogGenerator', () => {
             //  just need to make sure that executeCommandSpy was called properly
         } catch (err) {}
 
-        expect(executeCommandSpy.secondCall.calledWith(
+        expect(executeCommandSpy).toHaveBeenNthCalledWith(
+            2,
             'conventional-changelog',
             [],
             {
@@ -85,6 +89,7 @@ describe('ChangelogGenerator', () => {
                 releaseCount: 0,
                 sameFile: true,
             },
-        )).to.equal(true);
+            expect.any(Function),
+        );
     });
 });

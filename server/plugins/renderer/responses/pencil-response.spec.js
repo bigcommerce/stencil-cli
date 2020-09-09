@@ -1,15 +1,6 @@
-const Code = require('code');
-const Lab = require('@hapi/lab');
-const sinon = require('sinon');
-
 const PencilResponse = require('./pencil-response');
 
-const lab = exports.lab = Lab.script();
-const expect = Code.expect;
-const it = lab.it;
-
-
-lab.describe('PencilResponse', () => {
+describe('PencilResponse', () => {
     const assembler = {
         getTemplates: path => new Promise(resolve => resolve({ path })),
         getTranslations: () => new Promise(resolve => resolve([])),
@@ -20,8 +11,7 @@ lab.describe('PencilResponse', () => {
     let response;
     let h;
 
-
-    lab.beforeEach(() => {
+    beforeEach(() => {
         data = {
             context: {
                 settings: {},
@@ -33,7 +23,7 @@ lab.describe('PencilResponse', () => {
             remote: true,
             remote_data: '',
         };
-    
+
         request = {
             url: {},
             path: '/',
@@ -47,32 +37,33 @@ lab.describe('PencilResponse', () => {
         };
 
         h = {
-            response: sinon.stub().returns(response),
+            response: jest.fn().mockReturnValue(response),
         };
-
     });
 
     it('should return error, when the wrong template_engine is sent', () => {
         data.context.template_engine = "handlebars";
+
         const pencilResponse = new PencilResponse(data, assembler);
+
         expect(
             () => pencilResponse.respond(request, h),
-        ).to.throw(Error, 'Provided Handlebars version is not supported! Please use:handlebars-v3, handlebars-v4');
+        ).toThrow('Provided Handlebars version is not supported! Please use:handlebars-v3, handlebars-v4');
     });
 
     it('should render successfully with supported template_engine', async () => {
         const pencilResponse = new PencilResponse(data, assembler);
         await pencilResponse.respond(request, h);
-        console.log(h.response.called);
-        expect(h.response.called).to.be.true();
+
+        expect(h.response).toHaveBeenCalledTimes(1);
     });
 
     it('should default to handlebars_v3 when the template_engine doesn\'t exist', async () => {
         delete data.context.template_engine;
-        console.log(data.context);
+
         const pencilResponse = new PencilResponse(data, assembler);
         await pencilResponse.respond(request, h);
-        console.log(h.response.called);
-        expect(h.response.called).to.be.true();
+
+        expect(h.response).toHaveBeenCalledTimes(1);
     });
 });

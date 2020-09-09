@@ -1,12 +1,6 @@
-const CommandExecutor = require('./command-executor');
 const { promisify } = require('util');
-const Code = require('code');
-const Lab = require('@hapi/lab');
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const sinon = require('sinon');
-const expect = Code.expect;
-const it = lab.it;
+
+const CommandExecutor = require('./command-executor');
 
 describe('CommandExecutor', () => {
     let commandExecutor;
@@ -14,11 +8,10 @@ describe('CommandExecutor', () => {
     let spawnSpy;
     let processMock;
     let spawn;
-    let doneCallBack;
 
     it('spawns a new process to run the given command', async () => {
         childProcess = require('child_process');
-        spawnSpy = sinon.spy(childProcess, "spawn");
+        spawnSpy = jest.spyOn(childProcess, "spawn").mockImplementation(jest.fn());
         commandExecutor = new CommandExecutor(childProcess);
         const executeCommand = promisify(commandExecutor.executeCommand.bind(commandExecutor));
 
@@ -29,13 +22,14 @@ describe('CommandExecutor', () => {
             //  just need to make sure that spawnSpy was called properly
         } catch (err) {}
 
-        expect(spawnSpy.calledWith(
+        expect(spawnSpy).toHaveBeenCalledWith(
             require('npm-which')(__dirname).sync('jest'),
             ['--config', 'config.js', 'xyz.js'],
             { stdio: 'inherit' },
-        )).to.equal(true);
+        );
     });
 
+    // eslint-disable-next-line jest/expect-expect
     it('resolves successfully if the process exits with a successful exit code', async () => {
         processMock = {
             on: function(event, callback) { return callback(0); },
@@ -55,13 +49,8 @@ describe('CommandExecutor', () => {
         commandExecutor = new CommandExecutor({ spawn });
         const executeCommand = promisify(commandExecutor.executeCommand.bind(commandExecutor));
 
-        let error;
-        try {
-            await executeCommand('jest', ['xyz.js'], {config: 'config.js'}, doneCallBack);
-        } catch (err) {
-            error = err;
-        }
-
-        expect(error).to.be.an.error();
+        await expect(
+            executeCommand('jest', ['xyz.js'], {config: 'config.js'}),
+        ).rejects.toThrow();
     });
 });

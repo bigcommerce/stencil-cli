@@ -8,16 +8,19 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "test": "npm run lint && npm run run-tests",
-    "run-tests": "lab bin/ server/ lib/ tasks/ -t 80 -l -e 'development' -P spec --verbose",
-    "test-cov-html": "lab bin/ server/ lib/ -r html -o coverage.html -P spec"
+    "lint-and-fix": "eslint . --fix",
+    "test": "jest",
+    "test-with-coverage": "jest --coverage --verbose"
   },
   "bin": {
-    "stencil": "./bin/stencil",
-    "stencil-init": "./bin/stencil-init",
-    "stencil-push": "./bin/stencil-push",
-    "stencil-start": "./bin/stencil-start",
-    "stencil-release": "./bin/stencil-release"
+    "stencil": "./bin/stencil.js",
+    "stencil-bundle": "./bin/stencil-bundle.js",
+    "stencil-download": "./bin/stencil-download.js",
+    "stencil-init": "./bin/stencil-init.js",
+    "stencil-push": "./bin/stencil-push.js",
+    "stencil-pull": "./bin/stencil-pull.js",
+    "stencil-start": "./bin/stencil-start.js",
+    "stencil-release": "./bin/stencil-release.js"
   },
   "config": {
     "stencil_version": "1.0"
@@ -51,6 +54,7 @@
     "commander": "^2.7.1",
     "confidence": "^4.0.2",
     "eslint": "^6.8.0",
+    "eslint-plugin-jest": "^23.20.0",
     "front-matter": "^1.0.0",
     "glob": "^7.1.6",
     "graceful-fs": "^4.2.4",
@@ -74,8 +78,6 @@
   "devDependencies": {
     "@commitlint/cli": "^10.0.0",
     "@commitlint/config-conventional": "^10.0.0",
-    "@hapi/lab": "^21.0.0",
-    "code": "^4.1.0",
     "conventional-changelog-cli": "^2.1.0",
     "gulp": "^4.0.2",
     "gulp-bump": "^3.2.0",
@@ -85,10 +87,9 @@
     "gulp-prompt": "^1.2.0",
     "gulp-util": "^3.0.8",
     "husky": "^4.2.5",
-    "jest": "^26.1.0",
+    "jest": "^26.4.2",
     "npm-which": "^3.0.1",
-    "object-to-spawn-args": "^2.0.0",
-    "sinon": "^8.1.1"
+    "object-to-spawn-args": "^2.0.0"
   },
   "husky": {
     "hooks": {

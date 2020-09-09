@@ -26,11 +26,12 @@ function ChangelogGenerator(fs, cwd, commandExecutor) {
      */
     function getOptions(customOptions) {
         customOptions = customOptions ? customOptions : {};
-        const options = Object.assign({
+        const options = {
             config: customOptions.preset ? undefined : path.join(__dirname, 'default-config.js'),
             infile: path.join(cwd, 'CHANGELOG.md'),
             sameFile: true,
-        }, customOptions);
+            ...customOptions,
+        };
 
         try {
             fs.statSync(options.infile);
