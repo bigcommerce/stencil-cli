@@ -160,6 +160,13 @@ async function startServer() {
         }
     });
 
+    Bs.watch('config.json', event => {
+        if (event === 'change') {
+            themeConfig.resetVariationSettings();
+            Bs.reload();
+        }
+    });
+
     Bs.watch('.config/storefront.json', (event, file) => {
         if (event === 'change') {
             console.log("storefront json changed");
