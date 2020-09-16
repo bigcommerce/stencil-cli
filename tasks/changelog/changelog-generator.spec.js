@@ -12,7 +12,7 @@ describe('ChangelogGenerator', () => {
 
     beforeEach( () => {
         fsMock = {
-            statSync: function() { return true; },
+            existsSync: () => true,
         };
 
         commandExecutor = new CommandExecutor(require('child_process'));
@@ -70,7 +70,10 @@ describe('ChangelogGenerator', () => {
     });
 
     it('executes `conventional-changelog` command from scratch if CHANGELOG does not exist', async() => {
-        const changelogGeneratorWithoutFs = new ChangelogGenerator({}, '/src', commandExecutor);
+        const fsMock = {
+            existsSync: () => false,
+        };
+        const changelogGeneratorWithoutFs = new ChangelogGenerator(fsMock, '/src', commandExecutor);
 
         try {
             await promisify(changelogGeneratorWithoutFs.generateChangelog.bind(changelogGeneratorWithoutFs))({});

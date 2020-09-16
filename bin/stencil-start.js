@@ -42,12 +42,12 @@ if (!versionCheck()) {
     process.exit(2);
 }
 
-if (!fileExist(dotStencilFilePath)) {
+if (!Fs.existsSync(dotStencilFilePath)) {
     console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
     process.exit(2);
 }
 
-if (!fileExist(Path.join(themePath, 'config.json'))) {
+if (!Fs.existsSync(Path.join(themePath, 'config.json'))) {
     console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
     process.exit(2);
 }
@@ -249,20 +249,6 @@ function assembleTemplates(templatePath, callback) {
             callback(null, results);
         });
     });
-}
-
-/**
- * Check if file exist synchronous
- * @param  {string} path
- * @return {boolean}
- */
-function fileExist(path) {
-    try {
-        return !!Fs.statSync(path);
-    }
-    catch (e) {
-        return false;
-    }
 }
 
 /**
