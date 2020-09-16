@@ -58,8 +58,17 @@ describe('PencilResponse', () => {
         expect(h.response).toHaveBeenCalledTimes(1);
     });
 
-    it('should default to handlebars_v3 when the template_engine doesn\'t exist', async () => {
+    it('should default to handlebars-v3 when the template_engine doesn\'t exist', async () => {
         delete data.context.template_engine;
+
+        const pencilResponse = new PencilResponse(data, assembler);
+        await pencilResponse.respond(request, h);
+
+        expect(h.response).toHaveBeenCalledTimes(1);
+    });
+
+    it('should make compatible handlbers_v3 variable', async () => {
+        data.context.template_engine = 'handlebars_v3';
 
         const pencilResponse = new PencilResponse(data, assembler);
         await pencilResponse.respond(request, h);
