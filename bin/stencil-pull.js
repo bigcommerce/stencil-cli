@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
 require('colors');
-const apiHost = 'https://api.bigcommerce.com';
-const dotStencilFilePath = './.stencil';
-const options = { dotStencilFilePath };
+
 const pkg = require('../package.json');
-const Program = require('commander');
+const program = require('../lib/commander');
 const stencilPull = require('../lib/stencil-pull');
 const versionCheck = require('../lib/version-check');
 const themeApiClient = require('../lib/theme-api-client');
 
-Program
+const dotStencilFilePath = './.stencil';
+const defaultApiHost = 'https://api.bigcommerce.com';
+
+program
     .version(pkg.version)
-    .option('--host [hostname]', 'specify the api host', apiHost)
+    .option('--host [hostname]', 'specify the api host', defaultApiHost)
     .option('--save [filename]', 'specify the filename to save the config as', 'config.json')
     .parse(process.argv);
 
@@ -20,10 +21,14 @@ if (!versionCheck()) {
     process.exit(2);
 }
 
-stencilPull(Object.assign({}, options, {
-    apiHost: Program.host || apiHost,
-    saveConfigName: Program.save,
-}), (err, result) => {
+const cliOptions = program.opts();
+const options = {
+    dotStencilFilePath,
+    apiHost: cliOptions.host || defaultApiHost,
+    saveConfigName: cliOptions.save,
+};
+
+stencilPull(options, (err, result) => {
     if (err) {
         console.log("\n\n" + 'not ok'.red + ` -- ${err} see details below:`);
         themeApiClient.printErrorMessages(err.messages);

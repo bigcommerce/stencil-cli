@@ -12,7 +12,7 @@ const Url = require('url');
 const Cycles = require('../lib/cycles');
 const templateAssembler = require('../lib/template-assembler');
 const Pkg = require('../package.json');
-const Program = require('commander');
+const program = require('../lib/commander');
 const Server = require('../server');
 const ThemeConfig = require('../lib/theme-config');
 const BuildConfigManager = require('../lib/BuildConfigManager');
@@ -24,7 +24,7 @@ const templatePath = Path.join(themePath, 'templates');
 const dotStencilFilePath = Path.join(themePath, '.stencil');
 const themeConfigPath = Path.join(themePath, 'config.json');
 
-Program
+program
     .version(Pkg.version)
     .option('-o, --open', 'Automatically open default browser')
     .option('-v, --variation [name]', 'Set which theme variation to use while developing')
@@ -32,11 +32,13 @@ Program
     .option('-n, --no-cache', 'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.')
     .parse(process.argv);
 
+const cliOptions = program.opts();
+
 // tunnel value should be true/false or a string with name
 // https://browsersync.io/docs/options#option-tunnel
-const tunnel = typeof Program.tunnel === 'string'
-    ? Program.tunnel
-    : Boolean(Program.tunnel); // convert undefined/true -> false/true
+const tunnel = typeof cliOptions.tunnel === 'string'
+    ? cliOptions.tunnel
+    : Boolean(cliOptions.tunnel); // convert undefined/true -> false/true
 
 if (!versionCheck()) {
     process.exit(2);
@@ -53,18 +55,18 @@ if (!Fs.existsSync(Path.join(themePath, 'config.json'))) {
 }
 
 // If the value is true it means that no variation was passed in.
-if (Program.variation === true) {
+if (cliOptions.variation === true) {
     console.error('Error: You have to specify a value for -v or --variation'.red);
     process.exit(2);
 }
 
 // Instantiate themeConfig
 let themeConfig = ThemeConfig.getInstance(themePath);
-if (Program.variation) {
+if (cliOptions.variation) {
     try {
-        themeConfig.setVariationByName(Program.variation);
+        themeConfig.setVariationByName(cliOptions.variation);
     } catch (err) {
-        console.error('Error: The variation '.red + Program.variation + ' does not exists in your config.json file'.red);
+        console.error('Error: The variation '.red + cliOptions.variation + ' does not exists in your config.json file'.red);
         process.exit(2);
     }
 }
@@ -134,7 +136,7 @@ async function startServer() {
     await Server.create({
         dotStencilFile: dotStencilFile,
         variationIndex: themeConfig.variationIndex || 0,
-        useCache: Program.cache,
+        useCache: cliOptions.cache,
         themePath: themePath,
     });
 
@@ -202,7 +204,7 @@ async function startServer() {
     }
 
     Bs.init({
-        open: !!Program.open,
+        open: !!cliOptions.open,
         port: browserSyncPort,
         files: watchFiles.map(val => Path.join(themePath, val)),
         watchOptions: {
