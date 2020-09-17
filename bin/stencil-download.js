@@ -52,8 +52,10 @@ async function run (opts) {
     try {
         await promisify(stencilDownload)(opts);
     } catch (err) {
-        console.log("\n\n" + 'not ok'.red + ` -- ${err} see details below:`);
-        themeApiClient.printErrorMessages(err.messages);
+        console.log('\n\n' + 'not ok'.red + ` -- ` + err);
+        if (err.messages) {
+            themeApiClient.printErrorMessages(err.messages);
+        }
         console.log('If this error persists, please visit https://github.com/bigcommerce/stencil-cli/issues and submit an issue.');
         return;
     }

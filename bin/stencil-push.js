@@ -31,8 +31,10 @@ const options = {
 };
 stencilPush(options, (err, result) => {
     if (err) {
-        console.log("\n\n" + 'not ok'.red + ` -- ${err} see details below:`);
-        themeApiClient.printErrorMessages(err.messages);
+        console.log('\n\n' + 'not ok'.red + ` -- ` + err);
+        if (err.messages) {
+            themeApiClient.printErrorMessages(err.messages);
+        }
         console.log('If this error persists, please visit https://github.com/bigcommerce/stencil-cli/issues and submit an issue.');
     } else {
         console.log('ok'.green + ` -- ${result}`);

@@ -4,7 +4,7 @@ require('colors');
 const Bs = require('browser-sync').create();
 const recursiveRead = require('recursive-readdir');
 const Async = require('async');
-const Wreck = require('wreck');
+const fetch = require('node-fetch');
 const Fs = require('fs');
 const Path = require('path');
 const Url = require('url');
@@ -84,45 +84,66 @@ if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
     process.exit(2);
 }
 
-let staplerUrl;
-const headers = {
-    'stencil-cli': PACKAGE_INFO.version,
-};
-if (dotStencilFile.staplerUrl) {
-    staplerUrl = dotStencilFile.staplerUrl;
-    headers['stencil-store-url'] = dotStencilFile.normalStoreUrl;
-} else {
-    staplerUrl = dotStencilFile.normalStoreUrl;
-}
+runAPICheck(dotStencilFile, PACKAGE_INFO.version)
+    .then(storeInfoFromAPI => {
+        dotStencilFile.storeUrl = storeInfoFromAPI.sslUrl;
+        dotStencilFile.normalStoreUrl = storeInfoFromAPI.baseUrl;
+        dotStencilFile.stencilServerPort = stencilServerPort;
+    })
+    .then(() => {
+        startServer();
+    })
+    .catch(err => console.error(err.message));
 
-Wreck.get(
-    Url.resolve(staplerUrl, '/stencil-version-check?v=' + PACKAGE_INFO.version),
-    {
-        headers: headers,
-        json: true,
-        rejectUnauthorized: false,
-    },
-    function (err, res, payload) {
-        if (err || !payload) {
-            console.error(
-                'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'.red,
-            );
-        } else if (payload.error) {
-            return console.error(payload.error.red);
-        } else if (payload.status !== 'ok') {
-            console.error(
-                'Error: You are using an outdated version of stencil-cli, please run '.red +
-                '$ npm install -g @bigcommerce/stencil-cli'.cyan,
-            );
-        } else {
-            dotStencilFile.storeUrl = payload.sslUrl;
-            dotStencilFile.normalStoreUrl = payload.baseUrl;
-            dotStencilFile.stencilServerPort = stencilServerPort;
+/**
+ *
+ * @param {object} stencilConfig
+ * @param {string} currentCliVersion
+ * @returns {Promise<object>}
+ */
+async function runAPICheck (stencilConfig, currentCliVersion) {
+    const staplerUrl = stencilConfig.staplerUrl
+        ? stencilConfig.staplerUrl
+        : stencilConfig.normalStoreUrl;
+    const reqUrl = Url.resolve(staplerUrl, '/stencil-version-check?v=' + currentCliVersion);
+    let payload;
 
-            return startServer();
+    const headers = {
+        'stencil-cli': currentCliVersion,
+    };
+    if (stencilConfig.staplerUrl) {
+        headers['stencil-store-url'] = stencilConfig.normalStoreUrl;
+    }
+
+    try {
+        const response = await fetch(reqUrl, { headers });
+        if (!response.ok) {
+            throw new Error(response.statusText);
         }
-    },
-);
+        payload = await response.json();
+        if (!payload) {
+            throw new Error(
+                'Empty payload in the server response',
+            );
+        }
+    } catch (err) {
+        throw new Error(
+            'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'.red +
+            '\nError details:\n' +
+            err.message,
+        );
+    }
+    if (payload.error) {
+        throw new Error(payload.error.red);
+    }
+    if (payload.status !== 'ok') {
+        throw new Error(
+            'Error: You are using an outdated version of stencil-cli, please run '.red +
+            '$ npm install -g @bigcommerce/stencil-cli'.cyan,
+        );
+    }
+    return payload;
+}
 
 /**
  * Starts up the local Stencil Server as well as starts up BrowserSync and sets some watch options.
@@ -262,7 +283,7 @@ function getStartUpInfo() {
     information += 'Store URL: ' + dotStencilFile.normalStoreUrl.cyan + '\n';
 
     if (dotStencilFile.staplerUrl) {
-        information += 'Stapler URL: ' + staplerUrl.cyan + '\n';
+        information += 'Stapler URL: ' + dotStencilFile.staplerUrl.cyan + '\n';
     }
 
     information += 'SSL Store URL: ' + dotStencilFile.storeUrl.cyan + '\n';
