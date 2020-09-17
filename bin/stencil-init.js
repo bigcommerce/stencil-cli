@@ -3,11 +3,11 @@
 const program = require('../lib/commander');
 
 const StencilInit = require('../lib/stencil-init');
-const pkg = require('../package.json');
+const { DOT_STENCIL_FILE_PATH, PACKAGE_INFO } = require('../constants');
 const versionCheck = require('../lib/version-check');
 
 program
-    .version(pkg.version)
+    .version(PACKAGE_INFO.version)
     .option('-u, --url [url]', 'Store URL')
     .option('-t, --token [token]', 'Access Token')
     .option('-p, --port [port]', 'Port')
@@ -17,7 +17,6 @@ if (!versionCheck()) {
     process.exit(2);
 }
 
-const dotStencilFilePath = './.stencil';
 const cliOptions = program.opts();
 
-new StencilInit().run(dotStencilFilePath, cliOptions);
+new StencilInit().run(DOT_STENCIL_FILE_PATH, cliOptions);

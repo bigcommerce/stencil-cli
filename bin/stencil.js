@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 const program = require('../lib/commander');
-const pkg = require('../package.json');
+const { PACKAGE_INFO } = require('../constants');
 
 program
-    .version(pkg.version)
+    .version(PACKAGE_INFO.version)
     .command('init', 'Interactively create a .stencil file which configures how to run a BigCommerce store locally.')
     .command('start', 'Starts up BigCommerce store using theme files in the current directory.')
     .command('bundle', 'Bundles up the theme into a zip file which can be uploaded to BigCommerce.')

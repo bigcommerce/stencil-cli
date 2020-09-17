@@ -2,18 +2,15 @@
 
 require('colors');
 
-const pkg = require('../package.json');
+const { DOT_STENCIL_FILE_PATH, PACKAGE_INFO, API_HOST } = require('../constants');
 const program = require('../lib/commander');
 const stencilPull = require('../lib/stencil-pull');
 const versionCheck = require('../lib/version-check');
 const themeApiClient = require('../lib/theme-api-client');
 
-const dotStencilFilePath = './.stencil';
-const defaultApiHost = 'https://api.bigcommerce.com';
-
 program
-    .version(pkg.version)
-    .option('--host [hostname]', 'specify the api host', defaultApiHost)
+    .version(PACKAGE_INFO.version)
+    .option('--host [hostname]', 'specify the api host', API_HOST)
     .option('--save [filename]', 'specify the filename to save the config as', 'config.json')
     .parse(process.argv);
 
@@ -23,8 +20,8 @@ if (!versionCheck()) {
 
 const cliOptions = program.opts();
 const options = {
-    dotStencilFilePath,
-    apiHost: cliOptions.host || defaultApiHost,
+    dotStencilFilePath: DOT_STENCIL_FILE_PATH,
+    apiHost: cliOptions.host || API_HOST,
     saveConfigName: cliOptions.save,
 };
 
