@@ -359,7 +359,7 @@ internals.getPencilResponse = function (data, request, response, configuration) 
     data.context.settings.theme_version_id = utils.int2uuid(1);
     data.context.settings.theme_config_id = utils.int2uuid(request.app.themeConfig.variationIndex + 1);
     data.context.settings.theme_session_id = null;
-    data.context.settings.maintenance = {secure_path: `http://localhost:${internals.options.stencilServerPort}`};
+    data.context.settings.maintenance = { secure_path: `http://localhost:${internals.options.port}` };
 
     return new responses.PencilResponse({
         template_file: internals.getTemplatePath(request.path, data),

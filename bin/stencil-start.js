@@ -75,7 +75,7 @@ try {
 }
 
 let browserSyncPort = dotStencilFile.port;
-let stencilServerPort = ++dotStencilFile.port;
+++dotStencilFile.port;
 if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
     console.error(
         'Error: Your stencil config is outdated. Please run'.red +
@@ -84,16 +84,19 @@ if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
     process.exit(2);
 }
 
-runAPICheck(dotStencilFile, PACKAGE_INFO.version)
-    .then(storeInfoFromAPI => {
+run();
+
+async function run () {
+    try {
+        const storeInfoFromAPI = await runAPICheck(dotStencilFile, PACKAGE_INFO.version);
         dotStencilFile.storeUrl = storeInfoFromAPI.sslUrl;
         dotStencilFile.normalStoreUrl = storeInfoFromAPI.baseUrl;
-        dotStencilFile.stencilServerPort = stencilServerPort;
-    })
-    .then(() => {
-        startServer();
-    })
-    .catch(err => console.error(err.message));
+
+        await startServer();
+    } catch (err) {
+        console.error(err.message);
+    }
+}
 
 /**
  *
@@ -227,7 +230,7 @@ async function startServer() {
             ignoreInitial: true,
             ignored: watchIgnored.map(val => Path.join(THEME_PATH, val)),
         },
-        proxy: "localhost:" + stencilServerPort,
+        proxy: "localhost:" + dotStencilFile.port,
         tunnel,
     });
 
