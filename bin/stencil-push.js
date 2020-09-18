@@ -5,7 +5,7 @@ const { DOT_STENCIL_FILE_PATH, PACKAGE_INFO, API_HOST } = require('../constants'
 const program = require('../lib/commander');
 const stencilPush = require('../lib/stencil-push');
 const versionCheck = require('../lib/version-check');
-const themeApiClient = require('../lib/theme-api-client');
+const { printCliResultError } = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
@@ -31,12 +31,8 @@ const options = {
 };
 stencilPush(options, (err, result) => {
     if (err) {
-        console.log('\n\n' + 'not ok'.red + ` -- ` + err);
-        if (err.messages) {
-            themeApiClient.printErrorMessages(err.messages);
-        }
-        console.log('If this error persists, please visit https://github.com/bigcommerce/stencil-cli/issues and submit an issue.');
-    } else {
-        console.log('ok'.green + ` -- ${result}`);
+        printCliResultError(err);
+        return;
     }
+    console.log('ok'.green + ` -- ${result}`);
 });

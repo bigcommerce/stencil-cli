@@ -8,7 +8,7 @@ const { promisify } = require("util");
 const { API_HOST, PACKAGE_INFO, DOT_STENCIL_FILE_PATH } = require('../constants');
 const stencilDownload = require('../lib/stencil-download');
 const versionCheck = require('../lib/version-check');
-const themeApiClient = require('../lib/theme-api-client');
+const { printCliResultError } = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
@@ -52,11 +52,7 @@ async function run (opts) {
     try {
         await promisify(stencilDownload)(opts);
     } catch (err) {
-        console.log('\n\n' + 'not ok'.red + ` -- ` + err);
-        if (err.messages) {
-            themeApiClient.printErrorMessages(err.messages);
-        }
-        console.log('If this error persists, please visit https://github.com/bigcommerce/stencil-cli/issues and submit an issue.');
+        printCliResultError(err);
         return;
     }
 
