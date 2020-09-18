@@ -2,12 +2,12 @@
 
 require('colors');
 const release = require('../lib/release/release');
-const pkg = require('../package.json');
-const Program = require('commander');
+const { PACKAGE_INFO } = require('../constants');
+const program = require('../lib/commander');
 const versionCheck = require('../lib/version-check');
 
-Program
-    .version(pkg.version)
+program
+    .version(PACKAGE_INFO.version)
     .parse(process.argv);
 
 if (!versionCheck()) {

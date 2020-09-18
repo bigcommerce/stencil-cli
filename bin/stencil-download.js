@@ -2,19 +2,17 @@
 
 require('colors');
 const inquirer = require('inquirer');
-const Program = require('commander');
+const program = require('../lib/commander');
 const { promisify } = require("util");
 
-const pkg = require('../package.json');
+const { API_HOST, PACKAGE_INFO, DOT_STENCIL_FILE_PATH } = require('../constants');
 const stencilDownload = require('../lib/stencil-download');
 const versionCheck = require('../lib/version-check');
 const themeApiClient = require('../lib/theme-api-client');
 
-const apiHost = 'https://api.bigcommerce.com';
-
-Program
-    .version(pkg.version)
-    .option('--host [hostname]', 'specify the api host', apiHost)
+program
+    .version(PACKAGE_INFO.version)
+    .option('--host [hostname]', 'specify the api host', API_HOST)
     .option('--file [filename]', 'specify the filename to download only')
     .option('--exclude [exclude]', 'specify a directory to exclude from download')
     .parse(process.argv);
@@ -23,12 +21,13 @@ if (!versionCheck()) {
     process.exit(2);
 }
 
-const extraExclude = Program.exclude ? [Program.exclude] : [];
+const cliOptions = program.opts();
+const extraExclude = cliOptions.exclude ? [cliOptions.exclude] : [];
 const options = {
-    dotStencilFilePath: './.stencil',
+    dotStencilFilePath: DOT_STENCIL_FILE_PATH,
     exclude: ['parsed', 'manifest.json', ...extraExclude],
-    apiHost: Program.host || apiHost,
-    file: Program.file,
+    apiHost: cliOptions.host || API_HOST,
+    file: cliOptions.file,
 };
 
 run(options);

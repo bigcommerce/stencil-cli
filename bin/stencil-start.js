@@ -11,67 +11,64 @@ const Url = require('url');
 
 const Cycles = require('../lib/cycles');
 const templateAssembler = require('../lib/template-assembler');
-const Pkg = require('../package.json');
-const Program = require('commander');
+const { PACKAGE_INFO, DOT_STENCIL_FILE_PATH, THEME_PATH } = require('../constants');
+const program = require('../lib/commander');
 const Server = require('../server');
 const ThemeConfig = require('../lib/theme-config');
 const BuildConfigManager = require('../lib/BuildConfigManager');
 const jsonLint = require('../lib/json-lint');
 const versionCheck = require('../lib/version-check');
 
-const themePath = process.cwd();
-const templatePath = Path.join(themePath, 'templates');
-const dotStencilFilePath = Path.join(themePath, '.stencil');
-const themeConfigPath = Path.join(themePath, 'config.json');
-
-Program
-    .version(Pkg.version)
+program
+    .version(PACKAGE_INFO.version)
     .option('-o, --open', 'Automatically open default browser')
     .option('-v, --variation [name]', 'Set which theme variation to use while developing')
     .option('--tunnel [name]', 'Create a tunnel URL which points to your local server that anyone can use.')
     .option('-n, --no-cache', 'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.')
     .parse(process.argv);
 
+const cliOptions = program.opts();
+const templatePath = Path.join(THEME_PATH, 'templates');
+const themeConfig = ThemeConfig.getInstance(THEME_PATH);
+
 // tunnel value should be true/false or a string with name
 // https://browsersync.io/docs/options#option-tunnel
-const tunnel = typeof Program.tunnel === 'string'
-    ? Program.tunnel
-    : Boolean(Program.tunnel); // convert undefined/true -> false/true
+const tunnel = typeof cliOptions.tunnel === 'string'
+    ? cliOptions.tunnel
+    : Boolean(cliOptions.tunnel); // convert undefined/true -> false/true
 
 if (!versionCheck()) {
     process.exit(2);
 }
 
-if (!Fs.existsSync(dotStencilFilePath)) {
+if (!Fs.existsSync(DOT_STENCIL_FILE_PATH)) {
     console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
     process.exit(2);
 }
 
-if (!Fs.existsSync(Path.join(themePath, 'config.json'))) {
+if (!Fs.existsSync(themeConfig.configPath)) {
     console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
     process.exit(2);
 }
 
 // If the value is true it means that no variation was passed in.
-if (Program.variation === true) {
+if (cliOptions.variation === true) {
     console.error('Error: You have to specify a value for -v or --variation'.red);
     process.exit(2);
 }
 
-// Instantiate themeConfig
-let themeConfig = ThemeConfig.getInstance(themePath);
-if (Program.variation) {
+if (cliOptions.variation) {
     try {
-        themeConfig.setVariationByName(Program.variation);
+        themeConfig.setVariationByName(cliOptions.variation);
     } catch (err) {
-        console.error('Error: The variation '.red + Program.variation + ' does not exists in your config.json file'.red);
+        console.error('Error: The variation '.red + cliOptions.variation + ' does not exists in your config.json file'.red);
         process.exit(2);
     }
 }
 
-let dotStencilFile = Fs.readFileSync(dotStencilFilePath, { encoding: 'utf-8' });
+let dotStencilFile = Fs.readFileSync(DOT_STENCIL_FILE_PATH, { encoding: 'utf-8' });
 try {
-    dotStencilFile = jsonLint.parse(dotStencilFile, dotStencilFilePath);
+    dotStencilFile = jsonLint.parse(dotStencilFile, DOT_STENCIL_FILE_PATH);
 } catch (e) {
     console.error(e.stack);
     process.exit(2);
@@ -89,7 +86,7 @@ if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
 
 let staplerUrl;
 const headers = {
-    'stencil-cli': Pkg.version,
+    'stencil-cli': PACKAGE_INFO.version,
 };
 if (dotStencilFile.staplerUrl) {
     staplerUrl = dotStencilFile.staplerUrl;
@@ -99,7 +96,7 @@ if (dotStencilFile.staplerUrl) {
 }
 
 Wreck.get(
-    Url.resolve(staplerUrl, '/stencil-version-check?v=' + Pkg.version),
+    Url.resolve(staplerUrl, '/stencil-version-check?v=' + PACKAGE_INFO.version),
     {
         headers: headers,
         json: true,
@@ -134,8 +131,8 @@ async function startServer() {
     await Server.create({
         dotStencilFile: dotStencilFile,
         variationIndex: themeConfig.variationIndex || 0,
-        useCache: Program.cache,
-        themePath: themePath,
+        useCache: cliOptions.cache,
+        themePath: THEME_PATH,
     });
 
     const buildConfigManger = new BuildConfigManager();
@@ -154,7 +151,7 @@ async function startServer() {
     console.log(getStartUpInfo());
 
     // Watch sccs directory and automatically reload all css files if a file changes
-    Bs.watch(Path.join(themePath, 'assets/scss'), event => {
+    Bs.watch(Path.join(THEME_PATH, 'assets/scss'), event => {
         if (event === 'change') {
             Bs.reload('*.css');
         }
@@ -202,12 +199,12 @@ async function startServer() {
     }
 
     Bs.init({
-        open: !!Program.open,
+        open: !!cliOptions.open,
         port: browserSyncPort,
-        files: watchFiles.map(val => Path.join(themePath, val)),
+        files: watchFiles.map(val => Path.join(THEME_PATH, val)),
         watchOptions: {
             ignoreInitial: true,
-            ignored: watchIgnored.map(val => Path.join(themePath, val)),
+            ignored: watchIgnored.map(val => Path.join(THEME_PATH, val)),
         },
         proxy: "localhost:" + stencilServerPort,
         tunnel,
@@ -260,8 +257,8 @@ function getStartUpInfo() {
 
     information += '-----------------Startup Information-------------\n'.gray;
     information += '\n';
-    information += '.stencil location: ' + dotStencilFilePath.cyan + '\n';
-    information += 'config.json location: ' + themeConfigPath.cyan + '\n';
+    information += '.stencil location: ' + DOT_STENCIL_FILE_PATH.cyan + '\n';
+    information += 'config.json location: ' + themeConfig.configPath.cyan + '\n';
     information += 'Store URL: ' + dotStencilFile.normalStoreUrl.cyan + '\n';
 
     if (dotStencilFile.staplerUrl) {

@@ -51,7 +51,7 @@
     "browser-sync": "^2.26.12",
     "cheerio": "^0.22.0",
     "colors": "^1.4.0",
-    "commander": "^2.7.1",
+    "commander": "^6.1.0",
     "confidence": "^4.0.2",
     "eslint": "^6.8.0",
     "eslint-plugin-jest": "^23.20.0",

@@ -11,7 +11,7 @@ const { promisify } = require('util');
 const Url = require('url');
 
 const LangAssembler = require('../../../lib/lang-assembler');
-const Pkg = require('../../../package.json');
+const { PACKAGE_INFO } = require('../../../constants');
 const Responses = require('./responses/responses');
 const TemplateAssembler = require('../../../lib/template-assembler');
 const Utils = require('../../lib/utils');
@@ -408,8 +408,8 @@ internals.getHeaders = function (request, options, config) {
     }
 
     const headers = {
-        'stencil-cli': Pkg.version,
-        'stencil-version': Pkg.config.stencil_version,
+        'stencil-cli': PACKAGE_INFO.version,
+        'stencil-version': PACKAGE_INFO.config.stencil_version,
         'stencil-options': JSON.stringify(_.defaultsDeep(currentOptions, options)),
         'accept-encoding': 'identity',
     };
