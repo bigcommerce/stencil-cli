@@ -9,7 +9,7 @@ const Fs = require('fs');
 const Path = require('path');
 const Url = require('url');
 
-const Cycles = require('../lib/cycles');
+const Cycles = require('../lib/Cycles');
 const templateAssembler = require('../lib/template-assembler');
 const { PACKAGE_INFO, DOT_STENCIL_FILE_PATH, THEME_PATH } = require('../constants');
 const program = require('../lib/commander');

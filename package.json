@@ -69,7 +69,7 @@
     "recursive-readdir": "^2.2.2",
     "semver": "^7.3.2",
     "simple-git": "^2.20.1",
-    "tarjan-graph": "^0.3.0",
+    "tarjan-graph": "^2.0.0",
     "tmp": "0.0.26",
     "upath": "^1.2.0",
     "uuid4": "^2.0.2",
