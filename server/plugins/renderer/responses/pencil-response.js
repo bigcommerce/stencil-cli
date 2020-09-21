@@ -60,6 +60,14 @@ const getTemplatePath = (request, data) => {
  */
 const isSupportedHandlebarsVersion = version => ['handlebars-v3', 'handlebars-v4'].includes(version);
 
+/**
+ * Node.js projects are using variables in format: handlebars-v3, handlebars-v4;
+ * Storefront and db are using format: handlebars_v3, handlebars_v4;
+ * This function converts _v3 to -v3
+ * 
+ * @param {String} version 
+ */
+const compatibilizeTemplateEngine = version => version.replace('_', '-');
 
 /**
  * Output post-processing
@@ -93,7 +101,7 @@ const makeDecorator = (request, context) => content => {
 
 module.exports = function (data, assembler) {
     this.respond = function (request, h) {
-        const templateEngine =  data.context.template_engine || "handlebars-v3";
+        const templateEngine = compatibilizeTemplateEngine(data.context.template_engine || "handlebars-v3");
 
         if (!isSupportedHandlebarsVersion(templateEngine)) {
             throw new Error('Provided Handlebars version is not supported! Please use:handlebars-v3, handlebars-v4');
