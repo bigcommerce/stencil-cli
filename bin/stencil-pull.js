@@ -6,7 +6,7 @@ const { DOT_STENCIL_FILE_PATH, PACKAGE_INFO, API_HOST } = require('../constants'
 const program = require('../lib/commander');
 const stencilPull = require('../lib/stencil-pull');
 const versionCheck = require('../lib/version-check');
-const themeApiClient = require('../lib/theme-api-client');
+const { printCliResultError}  = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
@@ -27,10 +27,8 @@ const options = {
 
 stencilPull(options, (err, result) => {
     if (err) {
-        console.log("\n\n" + 'not ok'.red + ` -- ${err} see details below:`);
-        themeApiClient.printErrorMessages(err.messages);
-        console.log('If this error persists, please visit https://github.com/bigcommerce/stencil-cli/issues and submit an issue.');
-    } else {
-        console.log('ok'.green + ` -- Pulled active theme config to ${result.saveConfigName}`);
+        printCliResultError(err);
+        return;
     }
+    console.log('ok'.green + ` -- Pulled active theme config to ${result.saveConfigName}`);
 });

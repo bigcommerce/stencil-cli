@@ -71,10 +71,25 @@ function uuid2int(uuid) {
     return match ? parseInt(match[1], 10) : 0;
 }
 
+/**
+ * @param {ReadableStream} stream
+ * @returns {Promise<string>}
+ */
+function readStream(stream) {
+    return new Promise((resolve, reject) => {
+        let data = "";
+
+        stream.on("data", chunk => data += chunk);
+        stream.on("end", () => resolve(data));
+        stream.on("error", error => reject(error));
+    });
+}
+
 module.exports = {
     stripDomainFromCookies,
     normalizeRedirectUrl,
     int2uuid,
     uuid2int,
     uuidRegExp,
+    readStream,
 };

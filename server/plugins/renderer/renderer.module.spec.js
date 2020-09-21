@@ -1,13 +1,14 @@
 'use strict';
 
-const Wreck = require('wreck');
+const fetchMock = require('node-fetch');
 const Path = require('path');
 
 const Server = require('../../../server');
 
+jest.mock('node-fetch', () => require('fetch-mock-jest').sandbox());
+
 describe('Renderer Plugin', () => {
     let server;
-    let wreckRequestStub;
 
     beforeAll(async () => {
         // Prevent littering the console
@@ -35,13 +36,11 @@ describe('Renderer Plugin', () => {
             }
             return h.continue;
         });
-
-        wreckRequestStub = jest.spyOn(Wreck, 'request').mockImplementation(jest.fn());
-        jest.spyOn(Wreck, 'read').mockImplementation(jest.fn());
     });
 
     afterEach(() => {
         jest.resetAllMocks();
+        fetchMock.mockReset();
     });
 
     afterAll(async () => {
@@ -53,7 +52,7 @@ describe('Renderer Plugin', () => {
             method: "GET",
             url: "/test",
         };
-        wreckRequestStub.mockImplementation((method, url, options, cb) => cb(new Error('failure')));
+        fetchMock.mock('*', { throws: new Error('failure') });
 
         const response = await server.inject(options);
 
@@ -65,7 +64,7 @@ describe('Renderer Plugin', () => {
             method: "GET",
             url: "/",
         };
-        wreckRequestStub.mockImplementation((method, url, options, cb) => cb(null, { statusCode: 500 }));
+        fetchMock.mock('*', 500);
 
         const response = await server.inject(options);
 
@@ -78,17 +77,17 @@ describe('Renderer Plugin', () => {
             url: "/",
         };
         const redirectResponse = {
-            statusCode: 301,
+            status: 301,
             headers: {
                 location: 'http://www.example.com/',
             },
         };
-        wreckRequestStub.mockImplementation((method, url, options, cb) => cb(null, redirectResponse));
+        fetchMock.mock('*', redirectResponse);
 
         const response = await server.inject(options);
 
         expect(response.statusCode).toEqual(301);
-        expect(response.headers.location).toEqual('http://www.example.com/');
+        expect(response.headers.location).toEqual(redirectResponse.headers.location);
     });
 
     it('should handle unauthorized in the Stapler Request', async () => {
@@ -97,12 +96,12 @@ describe('Renderer Plugin', () => {
             url: "/",
         };
         const unauthorizedResponse = {
-            statusCode: 401,
+            status: 401,
             headers: {
                 location: 'http://www.example.com/',
             },
         };
-        wreckRequestStub.mockImplementation((method, url, options, cb) => cb(null, unauthorizedResponse));
+        fetchMock.mock('*', unauthorizedResponse);
 
         const response = await server.inject(options);
 
