@@ -3,7 +3,6 @@
 require('colors');
 const inquirer = require('inquirer');
 const program = require('../lib/commander');
-const { promisify } = require("util");
 
 const { API_HOST, PACKAGE_INFO, DOT_STENCIL_FILE_PATH } = require('../constants');
 const stencilDownload = require('../lib/stencil-download');
@@ -50,7 +49,7 @@ async function run (opts) {
     console.log(`${'ok'.green} -- ${overwriteType} will be overwritten by change`);
 
     try {
-        await promisify(stencilDownload)(opts);
+        await stencilDownload(opts);
     } catch (err) {
         printCliResultError(err);
         return;
