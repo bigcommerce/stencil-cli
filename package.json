@@ -68,7 +68,7 @@
     "progress": "^2.0.3",
     "recursive-readdir": "^2.2.2",
     "semver": "^7.3.2",
-    "simple-git": "^1.65.0",
+    "simple-git": "^2.20.1",
     "tarjan-graph": "^0.3.0",
     "tmp": "0.0.26",
     "upath": "^1.2.0",
