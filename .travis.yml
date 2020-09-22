@@ -6,7 +6,8 @@ addons:
   ssh_known_hosts:
     - github.com
 node_js:
-  - 10
+  - 10.22.1
+  - 12.18.4
 
 cache:
   directories:
