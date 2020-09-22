@@ -14,6 +14,7 @@ const { PACKAGE_INFO } = require('../../../constants');
 const responses = require('./responses/responses');
 const templateAssembler = require('../../../lib/template-assembler');
 const utils = require('../../lib/utils');
+const { readFromStream } = require('../../../lib/utils/asyncUtils');
 
 const internals = {
     options: {},
@@ -76,7 +77,7 @@ internals.getResponse = async function (request) {
         },
         // Fetch will break if request body is Stream and server response is redirect,
         //  so we need to read the data first and then send the request
-        body: request.payload ? await utils.readStream(request.payload) : request.payload,
+        body: request.payload ? await readFromStream(request.payload) : request.payload,
         method: 'post',
     };
 
