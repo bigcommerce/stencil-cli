@@ -1,19 +1,25 @@
+/**
+ * These gulp tasks are used to release stencil-cli itself
+ * (in contrast with /bin/stencil-release.js which is used to release themes)
+ */
+
 'use strict';
 require('colors');
 require('path');
 const bump = require('gulp-bump');
-const changelog = require('./tasks/changelog');
-const constants = require('./constants');
-const currentVersion = constants.packageInfo.version;
 const exec = require('gulp-exec');
 const git = require('gulp-git-streamed');
 const gulp = require('gulp');
 const gulpif = require('gulp-if');
 const gutil = require('gulp-util');
-const supportedLockFileVersion = [1];
 const prompt = require('gulp-prompt');
 const semver = require('semver');
 
+const changelog = require('./tasks/changelog');
+const { PACKAGE_INFO } = require('./constants');
+
+const currentVersion = PACKAGE_INFO.version;
+const supportedLockFileVersion = [1];
 let branch;
 let remote;
 let responses;

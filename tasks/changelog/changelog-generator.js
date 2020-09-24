@@ -33,9 +33,7 @@ function ChangelogGenerator(fs, cwd, commandExecutor) {
             ...customOptions,
         };
 
-        try {
-            fs.statSync(options.infile);
-        } catch(error) {
+        if (!fs.existsSync(options.infile)) {
             options.releaseCount = 0;
         }
 

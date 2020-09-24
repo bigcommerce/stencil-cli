@@ -4,81 +4,78 @@ require('colors');
 const Bs = require('browser-sync').create();
 const recursiveRead = require('recursive-readdir');
 const Async = require('async');
-const Wreck = require('wreck');
+const fetch = require('node-fetch');
 const Fs = require('fs');
 const Path = require('path');
 const Url = require('url');
 
-const Cycles = require('../lib/cycles');
+const Cycles = require('../lib/Cycles');
 const templateAssembler = require('../lib/template-assembler');
-const Pkg = require('../package.json');
-const Program = require('commander');
+const { PACKAGE_INFO, DOT_STENCIL_FILE_PATH, THEME_PATH } = require('../constants');
+const program = require('../lib/commander');
 const Server = require('../server');
 const ThemeConfig = require('../lib/theme-config');
 const BuildConfigManager = require('../lib/BuildConfigManager');
 const jsonLint = require('../lib/json-lint');
 const versionCheck = require('../lib/version-check');
 
-const themePath = process.cwd();
-const templatePath = Path.join(themePath, 'templates');
-const dotStencilFilePath = Path.join(themePath, '.stencil');
-const themeConfigPath = Path.join(themePath, 'config.json');
-
-Program
-    .version(Pkg.version)
+program
+    .version(PACKAGE_INFO.version)
     .option('-o, --open', 'Automatically open default browser')
     .option('-v, --variation [name]', 'Set which theme variation to use while developing')
     .option('--tunnel [name]', 'Create a tunnel URL which points to your local server that anyone can use.')
     .option('-n, --no-cache', 'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.')
     .parse(process.argv);
 
+const cliOptions = program.opts();
+const templatePath = Path.join(THEME_PATH, 'templates');
+const themeConfig = ThemeConfig.getInstance(THEME_PATH);
+
 // tunnel value should be true/false or a string with name
 // https://browsersync.io/docs/options#option-tunnel
-const tunnel = typeof Program.tunnel === 'string'
-    ? Program.tunnel
-    : Boolean(Program.tunnel); // convert undefined/true -> false/true
+const tunnel = typeof cliOptions.tunnel === 'string'
+    ? cliOptions.tunnel
+    : Boolean(cliOptions.tunnel); // convert undefined/true -> false/true
 
 if (!versionCheck()) {
     process.exit(2);
 }
 
-if (!fileExist(dotStencilFilePath)) {
+if (!Fs.existsSync(DOT_STENCIL_FILE_PATH)) {
     console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
     process.exit(2);
 }
 
-if (!fileExist(Path.join(themePath, 'config.json'))) {
+if (!Fs.existsSync(themeConfig.configPath)) {
     console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
     process.exit(2);
 }
 
 // If the value is true it means that no variation was passed in.
-if (Program.variation === true) {
+if (cliOptions.variation === true) {
     console.error('Error: You have to specify a value for -v or --variation'.red);
     process.exit(2);
 }
 
-// Instantiate themeConfig
-let themeConfig = ThemeConfig.getInstance(themePath);
-if (Program.variation) {
+if (cliOptions.variation) {
     try {
-        themeConfig.setVariationByName(Program.variation);
+        themeConfig.setVariationByName(cliOptions.variation);
     } catch (err) {
-        console.error('Error: The variation '.red + Program.variation + ' does not exists in your config.json file'.red);
+        console.error('Error: The variation '.red + cliOptions.variation + ' does not exists in your config.json file'.red);
         process.exit(2);
     }
 }
 
-let dotStencilFile = Fs.readFileSync(dotStencilFilePath, { encoding: 'utf-8' });
+let dotStencilFile = Fs.readFileSync(DOT_STENCIL_FILE_PATH, { encoding: 'utf-8' });
 try {
-    dotStencilFile = jsonLint.parse(dotStencilFile, dotStencilFilePath);
+    dotStencilFile = jsonLint.parse(dotStencilFile, DOT_STENCIL_FILE_PATH);
 } catch (e) {
     console.error(e.stack);
     process.exit(2);
 }
 
 let browserSyncPort = dotStencilFile.port;
-let stencilServerPort = ++dotStencilFile.port;
+++dotStencilFile.port;
 if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
     console.error(
         'Error: Your stencil config is outdated. Please run'.red +
@@ -87,45 +84,69 @@ if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
     process.exit(2);
 }
 
-let staplerUrl;
-const headers = {
-    'stencil-cli': Pkg.version,
-};
-if (dotStencilFile.staplerUrl) {
-    staplerUrl = dotStencilFile.staplerUrl;
-    headers['stencil-store-url'] = dotStencilFile.normalStoreUrl;
-} else {
-    staplerUrl = dotStencilFile.normalStoreUrl;
+run();
+
+async function run () {
+    try {
+        const storeInfoFromAPI = await runAPICheck(dotStencilFile, PACKAGE_INFO.version);
+        dotStencilFile.storeUrl = storeInfoFromAPI.sslUrl;
+        dotStencilFile.normalStoreUrl = storeInfoFromAPI.baseUrl;
+
+        await startServer();
+    } catch (err) {
+        console.error(err.message);
+    }
 }
 
-Wreck.get(
-    Url.resolve(staplerUrl, '/stencil-version-check?v=' + Pkg.version),
-    {
-        headers: headers,
-        json: true,
-        rejectUnauthorized: false,
-    },
-    function (err, res, payload) {
-        if (err || !payload) {
-            console.error(
-                'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'.red,
-            );
-        } else if (payload.error) {
-            return console.error(payload.error.red);
-        } else if (payload.status !== 'ok') {
-            console.error(
-                'Error: You are using an outdated version of stencil-cli, please run '.red +
-                '$ npm install -g @bigcommerce/stencil-cli'.cyan,
-            );
-        } else {
-            dotStencilFile.storeUrl = payload.sslUrl;
-            dotStencilFile.normalStoreUrl = payload.baseUrl;
-            dotStencilFile.stencilServerPort = stencilServerPort;
+/**
+ *
+ * @param {object} stencilConfig
+ * @param {string} currentCliVersion
+ * @returns {Promise<object>}
+ */
+async function runAPICheck (stencilConfig, currentCliVersion) {
+    const staplerUrl = stencilConfig.staplerUrl
+        ? stencilConfig.staplerUrl
+        : stencilConfig.normalStoreUrl;
+    const reqUrl = Url.resolve(staplerUrl, '/stencil-version-check?v=' + currentCliVersion);
+    let payload;
 
-            return startServer();
+    const headers = {
+        'stencil-cli': currentCliVersion,
+    };
+    if (stencilConfig.staplerUrl) {
+        headers['stencil-store-url'] = stencilConfig.normalStoreUrl;
+    }
+
+    try {
+        const response = await fetch(reqUrl, { headers });
+        if (!response.ok) {
+            throw new Error(response.statusText);
         }
-    },
-);
+        payload = await response.json();
+        if (!payload) {
+            throw new Error(
+                'Empty payload in the server response',
+            );
+        }
+    } catch (err) {
+        throw new Error(
+            'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'.red +
+            '\nError details:\n' +
+            err.message,
+        );
+    }
+    if (payload.error) {
+        throw new Error(payload.error.red);
+    }
+    if (payload.status !== 'ok') {
+        throw new Error(
+            'Error: You are using an outdated version of stencil-cli, please run '.red +
+            '$ npm install -g @bigcommerce/stencil-cli'.cyan,
+        );
+    }
+    return payload;
+}
 
 /**
  * Starts up the local Stencil Server as well as starts up BrowserSync and sets some watch options.
@@ -134,8 +155,8 @@ async function startServer() {
     await Server.create({
         dotStencilFile: dotStencilFile,
         variationIndex: themeConfig.variationIndex || 0,
-        useCache: Program.cache,
-        themePath: themePath,
+        useCache: cliOptions.cache,
+        themePath: THEME_PATH,
     });
 
     const buildConfigManger = new BuildConfigManager();
@@ -154,9 +175,16 @@ async function startServer() {
     console.log(getStartUpInfo());
 
     // Watch sccs directory and automatically reload all css files if a file changes
-    Bs.watch(Path.join(themePath, 'assets/scss'), event => {
+    Bs.watch(Path.join(THEME_PATH, 'assets/scss'), event => {
         if (event === 'change') {
             Bs.reload('*.css');
+        }
+    });
+
+    Bs.watch('config.json', event => {
+        if (event === 'change') {
+            themeConfig.resetVariationSettings();
+            Bs.reload();
         }
     });
 
@@ -195,14 +223,14 @@ async function startServer() {
     }
 
     Bs.init({
-        open: !!Program.open,
+        open: !!cliOptions.open,
         port: browserSyncPort,
-        files: watchFiles.map(val => Path.join(themePath, val)),
+        files: watchFiles.map(val => Path.join(THEME_PATH, val)),
         watchOptions: {
             ignoreInitial: true,
-            ignored: watchIgnored.map(val => Path.join(themePath, val)),
+            ignored: watchIgnored.map(val => Path.join(THEME_PATH, val)),
         },
-        proxy: "localhost:" + stencilServerPort,
+        proxy: "localhost:" + dotStencilFile.port,
         tunnel,
     });
 
@@ -245,20 +273,6 @@ function assembleTemplates(templatePath, callback) {
 }
 
 /**
- * Check if file exist synchronous
- * @param  {string} path
- * @return {boolean}
- */
-function fileExist(path) {
-    try {
-        return !!Fs.statSync(path);
-    }
-    catch (e) {
-        return false;
-    }
-}
-
-/**
  * Displays information about your environment and configuration.
  * @return {string}
  */
@@ -267,12 +281,12 @@ function getStartUpInfo() {
 
     information += '-----------------Startup Information-------------\n'.gray;
     information += '\n';
-    information += '.stencil location: ' + dotStencilFilePath.cyan + '\n';
-    information += 'config.json location: ' + themeConfigPath.cyan + '\n';
+    information += '.stencil location: ' + DOT_STENCIL_FILE_PATH.cyan + '\n';
+    information += 'config.json location: ' + themeConfig.configPath.cyan + '\n';
     information += 'Store URL: ' + dotStencilFile.normalStoreUrl.cyan + '\n';
 
     if (dotStencilFile.staplerUrl) {
-        information += 'Stapler URL: ' + staplerUrl.cyan + '\n';
+        information += 'Stapler URL: ' + dotStencilFile.staplerUrl.cyan + '\n';
     }
 
     information += 'SSL Store URL: ' + dotStencilFile.storeUrl.cyan + '\n';
