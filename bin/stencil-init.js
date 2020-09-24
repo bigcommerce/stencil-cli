@@ -22,4 +22,9 @@ if (!versionCheck()) {
 const dotStencilFilePath = './.stencil';
 const cliOptions = _.pick(Program, ['url', 'token', 'port']);
 
-new StencilInit().run(dotStencilFilePath, cliOptions);
+new StencilInit().run(dotStencilFilePath, 
+    {
+        normalStoreUrl: cliOptions.url,
+        accessToken: cliOptions.token,
+        port: cliOptions.port,
+    });
