@@ -19,4 +19,9 @@ if (!versionCheck()) {
 
 const cliOptions = program.opts();
 
-new StencilInit().run(DOT_STENCIL_FILE_PATH, cliOptions);
+new StencilInit().run(DOT_STENCIL_FILE_PATH, 
+    {
+        normalStoreUrl: cliOptions.url,
+        accessToken: cliOptions.token,
+        port: cliOptions.port,
+    });
