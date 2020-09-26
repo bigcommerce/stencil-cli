@@ -24,10 +24,12 @@ Usage: stencil [options] [command]
 Commands:
 
   init        Interactively create a .stencil file which configures how to run a BigCommerce store locally.
-  start       Starts up BigCommerce store using theme files in the current directory.
+  start       Starts up the BigCommerce storefront local development environment, using theme files in the current directory and data from the live store.
   bundle      Bundles up the theme into a zip file which can be uploaded to BigCommerce.
   release     Create a new release in the theme's github repository.
   push        Bundles up the theme into a zip file and uploads it to your store.
+  pull        Pulls the configuration from the active theme on your live store and updates your local configuration.
+  download    Downloads the theme files from the active theme on your live store.
   help [cmd]  display help for [cmd]
 
 Options:
@@ -49,8 +51,16 @@ Run `stencil bundle` to validate your code and create a zip bundle file that can
 
 Run `stencil release` to tag a new version of your theme, create a [GitHub release](https://help.github.com/articles/about-releases/)
 in your theme repository, and upload the zip bundle file to the release assets.
-This is useful for tracking your changesin your Theme, and is the tool we use to create new releases in BigCommerce
+This is useful for tracking your changes in your Theme, and is the tool we use to create new releases in BigCommerce
 [Cornerstone](https://github.com/bigcommerce/stencil) theme.
+
+Run `stencil push` to bundle the local theme and upload it to your store, so it will be available in My Themes. 
+To push the theme and also activate it, use `stencil push -a`. To automatically delete the oldest theme if you are at 
+your theme limit, use `stencil push -d`. These can be used together, as `stencil push -a -d`.
+
+Run `stencil pull` to sync changes to your theme configuration from your live store. For example, if Page Builder has 
+been used to change certain theme settings, this will update those settings in config.json in your theme files so you
+don't overwrite them on your next upload.
 
 ## Features
 
