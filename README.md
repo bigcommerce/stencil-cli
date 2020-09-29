@@ -1,8 +1,7 @@
 # Stencil CLI
 
 [![npm (scoped)](https://img.shields.io/npm/v/@bigcommerce/stencil-cli.svg)](https://www.npmjs.com/package/@bigcommerce/stencil-cli) 
-[![Travis](https://travis-ci.org/bigcommerce/stencil-cli.svg?branch=master)](https://travis-ci.org/bigcommerce/stencil-cli) 
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/jejnlajci3dslwfx?svg=true)](https://ci.appveyor.com/project/BigCommerceEngineering/stencil-cli)
+[![Actions Status](https://github.com/bigcommerce/stencil-cli/workflows/Run Tests/badge.svg)](https://github.com/bigcommerce/stencil-cli/actions)
 
 The BigCommerce server emulator for local theme development.
 
