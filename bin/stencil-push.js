@@ -5,7 +5,7 @@ const { DOT_STENCIL_FILE_PATH, PACKAGE_INFO, API_HOST } = require('../constants'
 const program = require('../lib/commander');
 const stencilPush = require('../lib/stencil-push');
 const versionCheck = require('../lib/version-check');
-const { printCliResultError } = require('../lib/cliCommon');
+const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
@@ -31,8 +31,7 @@ const options = {
 };
 stencilPush(options, (err, result) => {
     if (err) {
-        printCliResultError(err);
-        return;
+        printCliResultErrorAndExit(err);
     }
     console.log('ok'.green + ` -- ${result}`);
 });

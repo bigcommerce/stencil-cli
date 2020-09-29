@@ -7,13 +7,14 @@ const program = require('../lib/commander');
 const { API_HOST, PACKAGE_INFO, DOT_STENCIL_FILE_PATH } = require('../constants');
 const stencilDownload = require('../lib/stencil-download');
 const versionCheck = require('../lib/version-check');
-const { printCliResultError } = require('../lib/cliCommon');
+const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
-    .option('--host [hostname]', 'specify the api host', API_HOST)
-    .option('--file [filename]', 'specify the filename to download only')
-    .option('--exclude [exclude]', 'specify a directory to exclude from download')
+    .option('-h, --host [hostname]', 'specify the api host', API_HOST)
+    .option('-f, --file [filename]', 'specify the filename to download only')
+    .option('-e, --exclude [exclude]', 'specify a directory to exclude from download')
+    .option('-c, --channel_id [channelId]', 'specify the channel ID of the storefront', parseInt)
     .parse(process.argv);
 
 if (!versionCheck()) {
@@ -26,6 +27,7 @@ const options = {
     dotStencilFilePath: DOT_STENCIL_FILE_PATH,
     exclude: ['parsed', 'manifest.json', ...extraExclude],
     apiHost: cliOptions.host || API_HOST,
+    channelId: cliOptions.channel_id || 1,
     file: cliOptions.file,
 };
 
@@ -51,7 +53,7 @@ async function run (opts) {
     try {
         await stencilDownload(opts);
     } catch (err) {
-        printCliResultError(err);
+        printCliResultErrorAndExit(err);
         return;
     }
 
