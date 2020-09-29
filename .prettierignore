@@ -1,0 +1,6 @@
+.idea/
+.vscode
+node_modules
+.coverage/
+test/_mocks/
+
