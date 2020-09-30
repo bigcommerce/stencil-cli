@@ -1,27 +1,35 @@
-const _ = require('lodash');
+class RedirectResponse {
+    /**
+     * @param {string} location
+     * @param {Object} headers
+     * @param {number} statusCode
+     */
+    constructor(location, headers, statusCode) {
+        this.location = location;
+        this.headers = headers;
+        this.statusCode = statusCode;
+    }
 
-module.exports = function (location, headers, statusCode) {
+    respond(request, h) {
+        const response = h.redirect(this.location).code(this.statusCode);
 
-    this.respond = function (request, h) {
-        const response = h.redirect(location).code(statusCode);
-
-        _.each(headers, (value, name) => {
+        for (const [name, value] of Object.entries(this.headers)) {
             switch (name) {
                 case 'transfer-encoding':
                     break;
                 case 'set-cookie':
-                    response.header('set-cookie', value.map(cookie => {
-                        // remove domain & secure attributes
-                        return cookie
-                            .replace(/; Secure$/, '')
-                            .replace(/; domain=(.+)$/, '');
-                    }));
+                    response.header(
+                        'set-cookie',
+                        value.replace(/; Secure$/, '').replace(/; domain=(.+)$/, ''),
+                    );
                     break;
                 default:
                     response.header(name, value);
             }
-        });
+        }
 
         return response;
-    };
-};
+    }
+}
+
+module.exports = RedirectResponse;

@@ -1,23 +1,28 @@
 const toSpawnArgs = require('object-to-spawn-args');
-const which = require('npm-which')(__dirname);
+const which = require('npm-which');
 
-/**
- * @param {Object} childProcess
- * @constructor
- */
-function CommandExecutor(childProcess) {
+class CommandExecutor {
+    /**
+     * @param {Object} childProcess
+     * @constructor
+     */
+    constructor(childProcess) {
+        this.childProcess = childProcess;
+    }
+
     /**
      * @param {string} executable
      * @param {string[]} argv
      * @param {Object} options
      * @param {function(error: Error?): void} done
-     * @return {void}
+     * @returns {void}
      */
-    function executeCommand(executable, argv, options, done) {
-        const command = createCommand(executable, argv, options);
-        
-        childProcess.spawn(command.executable, command.args, command.options)
-            .on('close', code => {
+    executeCommand(executable, argv, options, done) {
+        const command = this._createCommand(executable, argv, options);
+
+        this.childProcess
+            .spawn(command.executable, command.args, command.options)
+            .on('close', (code) => {
                 done(code ? new Error(`Exit code: ${code}`) : undefined);
             });
     }
@@ -27,12 +32,10 @@ function CommandExecutor(childProcess) {
      * @param {string} executable
      * @param {string[]} [argv=[]]
      * @param {Object} [options={}]
-     * @return {Object}
+     * @returns {Object}
      */
-    function createCommand(executable, argv, options) {
-        argv = argv ? argv : [];
-        options = options ? options : {};
-        const executablePath = which.sync(executable);
+    _createCommand(executable, argv = [], options = {}) {
+        const executablePath = which(__dirname).sync(executable);
         const spawnArgs = toSpawnArgs(options);
         const spawnOptions = { stdio: 'inherit' };
 
@@ -42,8 +45,6 @@ function CommandExecutor(childProcess) {
             options: spawnOptions,
         };
     }
-
-    this.executeCommand = executeCommand;
 }
 
 module.exports = CommandExecutor;

@@ -4,8 +4,8 @@
  * @param {Function} procedure
  * @returns {Promise<void>}
  */
-async function assertNoMutations (entities, procedure) {
-    const entitiesBefore = entities.map(entity => JSON.stringify(entity));
+async function assertNoMutations(entities, procedure) {
+    const entitiesBefore = entities.map((entity) => JSON.stringify(entity));
 
     await procedure();
 

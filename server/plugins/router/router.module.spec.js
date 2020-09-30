@@ -1,5 +1,6 @@
 const Hapi = require('@hapi/hapi');
-
+const inert = require('@hapi/inert');
+const h2o2 = require('@hapi/h2o2');
 const router = require('./router.module');
 
 describe('Router', () => {
@@ -14,16 +15,16 @@ describe('Router', () => {
 
     const server = new Hapi.Server(SERVER_OPTIONS);
     const RendererPluginMock = {
-        register (server) {
-            server.expose('implementation', (request, h) => h.response('RendererHandlerFired'));
+        register(_server) {
+            _server.expose('implementation', (request, h) => h.response('RendererHandlerFired'));
         },
         name: 'Renderer',
         version: '0.0.1',
     };
     const ThemeAssetsMock = {
-        register (server) {
-            server.expose('cssHandler', (request, h) => h.response('CssHandlerFired'));
-            server.expose('assetHandler', (request, h) => h.response('assetHandlerFired'));
+        register(_server) {
+            _server.expose('cssHandler', (request, h) => h.response('CssHandlerFired'));
+            _server.expose('assetHandler', (request, h) => h.response('assetHandlerFired'));
         },
         name: 'ThemeAssets',
         version: '0.0.1',
@@ -31,8 +32,8 @@ describe('Router', () => {
 
     beforeAll(async () => {
         await server.register([
-            require('@hapi/inert'),
-            require('@hapi/h2o2'),
+            inert,
+            h2o2,
             RendererPluginMock,
             ThemeAssetsMock,
             { plugin: router, options: ROUTER_OPTIONS },
@@ -85,7 +86,7 @@ describe('Router', () => {
         const options = {
             method: 'POST',
             url: '/graphql',
-            headers: { 'authorization': 'auth123' },
+            headers: { authorization: 'auth123' },
         };
 
         const response = await server.inject(options);

@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const ThemeConfig = require('../../../lib/theme-config');
+
 const internals = {
     options: {
         storeUrl: '',
@@ -19,7 +20,7 @@ const internals = {
     },
 };
 
-function register (server, options) {
+function register(server, options) {
     internals.options = _.defaultsDeep(options, internals.options);
 
     server.ext('onRequest', (request, h) => {
@@ -35,7 +36,7 @@ function register (server, options) {
     server.dependency(['inert', 'h2o2', 'Renderer', 'ThemeAssets'], internals.registerRoutes);
 }
 
-internals.registerRoutes = function(server) {
+internals.registerRoutes = (server) => {
     server.route([
         {
             method: 'GET',
@@ -153,10 +154,11 @@ internals.registerRoutes = function(server) {
             path: internals.paths.graphQL,
             handler: {
                 proxy: {
-                    mapUri: req => ({
+                    mapUri: (req) => ({
                         uri: `${internals.options.storeUrl}${req.path}`,
                         // Note, that we should modify the original req.headers to make it work
-                        headers: Object.assign( // Add 'origin' and 'host' headers to request before proxying
+                        headers: Object.assign(
+                            // Add 'origin' and 'host' headers to request before proxying
                             req.headers,
                             {
                                 origin: internals.options.storeUrl,

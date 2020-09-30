@@ -6,7 +6,7 @@ const program = require('../lib/commander');
 
 const { API_HOST, PACKAGE_INFO, DOT_STENCIL_FILE_PATH } = require('../constants');
 const stencilDownload = require('../lib/stencil-download');
-const versionCheck = require('../lib/version-check');
+const { checkNodeVersion } = require('../lib/cliCommon');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 
 program
@@ -17,9 +17,7 @@ program
     .option('-c, --channel_id [channelId]', 'specify the channel ID of the storefront', parseInt)
     .parse(process.argv);
 
-if (!versionCheck()) {
-    process.exit(2);
-}
+checkNodeVersion();
 
 const cliOptions = program.opts();
 const extraExclude = cliOptions.exclude ? [cliOptions.exclude] : [];
@@ -31,20 +29,20 @@ const options = {
     file: cliOptions.file,
 };
 
-run(options);
-
-async function run (opts) {
+async function run(opts) {
     const overwriteType = opts.file ? opts.file : 'files';
 
-    const answers = await inquirer.prompt([{
-        message: `${'Warning'.yellow} -- overwrite local with remote ${overwriteType}?`,
-        name: 'overwrite',
-        type: 'checkbox',
-        choices: ['Yes', 'No'],
-    }]);
+    const answers = await inquirer.prompt([
+        {
+            message: `${'Warning'.yellow} -- overwrite local with remote ${overwriteType}?`,
+            name: 'overwrite',
+            type: 'checkbox',
+            choices: ['Yes', 'No'],
+        },
+    ]);
 
     if (!answers.overwrite.includes('Yes')) {
-        console.log('Request cancelled by user '+ ('No'.red));
+        console.log(`Request cancelled by user ${'No'.red}`);
         return;
     }
 
@@ -54,8 +52,9 @@ async function run (opts) {
         await stencilDownload(opts);
     } catch (err) {
         printCliResultErrorAndExit(err);
-        return;
     }
 
-    console.log('ok'.green + ` -- Theme file(s) updated from remote`);
+    console.log(`${'ok'.green} -- Theme file(s) updated from remote`);
 }
+
+run(options);

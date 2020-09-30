@@ -2,8 +2,8 @@ const PencilResponse = require('./pencil-response');
 
 describe('PencilResponse', () => {
     const assembler = {
-        getTemplates: path => new Promise(resolve => resolve({ path })),
-        getTranslations: () => new Promise(resolve => resolve([])),
+        getTemplates: (path) => new Promise((resolve) => resolve({ path })),
+        getTranslations: () => new Promise((resolve) => resolve([])),
     };
 
     let data;
@@ -27,7 +27,7 @@ describe('PencilResponse', () => {
         request = {
             url: {},
             path: '/',
-            app: {themeConfig: {variationIndex: 1}},
+            app: { themeConfig: { variationIndex: 1 } },
             headers: {},
             query: {},
         };
@@ -41,14 +41,14 @@ describe('PencilResponse', () => {
         };
     });
 
-    it('should return error, when the wrong template_engine is sent', () => {
-        data.context.template_engine = "handlebars";
+    it('should return error, when the wrong template_engine is sent', async () => {
+        data.context.template_engine = 'handlebars';
 
         const pencilResponse = new PencilResponse(data, assembler);
 
-        expect(
-            () => pencilResponse.respond(request, h),
-        ).toThrow('Provided Handlebars version is not supported! Please use:handlebars-v3, handlebars-v4');
+        await expect(() => pencilResponse.respond(request, h)).rejects.toThrow(
+            'Provided Handlebars version is not supported! Please use:handlebars-v3, handlebars-v4',
+        );
     });
 
     it('should render successfully with supported template_engine', async () => {
@@ -58,7 +58,7 @@ describe('PencilResponse', () => {
         expect(h.response).toHaveBeenCalledTimes(1);
     });
 
-    it('should default to handlebars-v3 when the template_engine doesn\'t exist', async () => {
+    it("should default to handlebars-v3 when the template_engine doesn't exist", async () => {
         delete data.context.template_engine;
 
         const pencilResponse = new PencilResponse(data, assembler);

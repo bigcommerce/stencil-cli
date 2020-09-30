@@ -26,10 +26,6 @@ const manifest = {
 
 const store = new Confidence.Store(manifest);
 
-exports.get = function (key) {
-    return store.get(key, criteria);
-};
+exports.get = (key) => store.get(key, criteria);
 
-exports.meta = function (key) {
-    return store.meta(key, criteria);
-};
+exports.meta = (key) => store.meta(key, criteria);

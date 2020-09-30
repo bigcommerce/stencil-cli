@@ -9,18 +9,19 @@
 
 /**
  * @param {ChangelogGenerator} changelogGenerator
- * @return {Function}
+ * @returns {Function}
  */
 function createChangelogTask(changelogGenerator) {
     /**
      * @param {Object} options
      * @param {ChangelogOptions} options.changelog
      * @param {function(error: Error?): void} done
-     * @return {void}
+     * @returns {void}
      */
     function changelogTask(options, done) {
         if (options.bumpType === 'none') {
-            return done();
+            done();
+            return;
         }
 
         changelogGenerator.generateChangelog(options.changelog, done);

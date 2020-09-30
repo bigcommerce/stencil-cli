@@ -19,9 +19,7 @@
         }
       },
       "additionalProperties": false,
-      "required": [
-        "default"
-      ]
+      "required": ["default"]
     }
   },
   "additionalProperties": false

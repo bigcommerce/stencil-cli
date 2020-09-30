@@ -4,7 +4,7 @@
   "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
   "engines": {
-    "node": "^10 || ^12"
+    "node": "^10.17 || ^12"
   },
   "scripts": {
     "lint": "eslint . && prettier --check .",
@@ -44,7 +44,6 @@
     "@hapi/hapi": "^18.4.1",
     "@hapi/inert": "^5.2.2",
     "@octokit/rest": "^18.0.6",
-    "accept-language-parser": "^1.5.0",
     "ajv": "^6.12.5",
     "archiver": "^5.0.2",
     "async": "^3.2.0",
@@ -79,7 +78,7 @@
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
     "conventional-changelog-cli": "^2.1.0",
-    "eslint": "^7.9.0",
+    "eslint": "^7.10.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.22.0",

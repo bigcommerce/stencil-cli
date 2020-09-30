@@ -1,17 +1,17 @@
 const _ = require('lodash');
 const Boom = require('@hapi/boom');
 const StencilStyles = require('@bigcommerce/stencil-styles');
-const Path = require('path');
-const { promisify } = require("util");
+const path = require('path');
+const { promisify } = require('util');
 
-const CssAssembler = require('../../../lib/css-assembler');
-const Utils = require('../../lib/utils');
+const cssAssembler = require('../../../lib/css-assembler');
+const utils = require('../../lib/utils');
 
 const internals = {
     options: {},
 };
 
-function register (server, options) {
+function register(server, options) {
     internals.options = _.defaultsDeep(options, internals.options);
 
     server.expose('cssHandler', internals.cssHandler);
@@ -21,21 +21,21 @@ function register (server, options) {
 /**
  * Get the variation index from the "ConfigId" in the css filename
  * @param  {string} fileName
- * @return {number}
+ * @returns {number}
  */
-internals.getVariationIndex = fileName => {
-    const match = fileName.match(new RegExp(`.+-(${Utils.uuidRegExp})$`));
+internals.getVariationIndex = (fileName) => {
+    const match = fileName.match(new RegExp(`.+-(${utils.uuidRegExp})$`));
 
-    return match ? Utils.uuid2int(match[1]) - 1 : 0;
+    return match ? utils.uuid2int(match[1]) - 1 : 0;
 };
 
 /**
  * Get the original css file name
  * @param  {string} fileName
- * @return {string}
+ * @returns {string}
  */
-internals.getOriginalFileName = fileName => {
-    const match = fileName.match(new RegExp(`(.+)-${Utils.uuidRegExp}$`));
+internals.getOriginalFileName = (fileName) => {
+    const match = fileName.match(new RegExp(`(.+)-${utils.uuidRegExp}$`));
 
     return match ? match[1] : fileName;
 };
@@ -46,11 +46,11 @@ internals.getOriginalFileName = fileName => {
  * @param request
  * @param h
  */
-internals.cssHandler = async function (request, h) {
+internals.cssHandler = async (request, h) => {
     const variationIndex = internals.getVariationIndex(request.params.fileName);
 
     if (!request.app.themeConfig.variationExists(variationIndex)) {
-        throw Boom.notFound('Variation ' + (variationIndex + 1) + ' does not exist.');
+        throw Boom.notFound(`Variation ${variationIndex + 1} does not exist.`);
     }
 
     // Set the variation to get the right theme configuration
@@ -58,13 +58,13 @@ internals.cssHandler = async function (request, h) {
 
     // Get the theme configuration
     const fileName = internals.getOriginalFileName(request.params.fileName);
-    const fileParts = Path.parse(fileName);
-    const pathToFile = Path.join(fileParts.dir, fileParts.name + '.scss');
-    const basePath = Path.join(internals.getThemeAssetsPath(), 'scss');
+    const fileParts = path.parse(fileName);
+    const pathToFile = path.join(fileParts.dir, `${fileParts.name}.scss`);
+    const basePath = path.join(internals.getThemeAssetsPath(), 'scss');
 
     let files;
     try {
-        files = await promisify(CssAssembler.assemble)(pathToFile, basePath, 'scss');
+        files = await promisify(cssAssembler.assemble)(pathToFile, basePath, 'scss', {});
     } catch (err) {
         console.error(err);
         throw Boom.badData(err);
@@ -74,8 +74,8 @@ internals.cssHandler = async function (request, h) {
 
     const params = {
         data: files[pathToFile],
-        files: files,
-        dest: Path.join('/assets/css', fileName),
+        files,
+        dest: path.join('/assets/css', fileName),
         themeSettings: configuration.settings,
         sourceMap: true,
         autoprefixerOptions: {
@@ -102,15 +102,14 @@ internals.cssHandler = async function (request, h) {
  * @param request
  * @param h
  */
-internals.assetHandler = function (request, h) {
-    const filePath = Path.join(internals.getThemeAssetsPath(), request.params.fileName);
+internals.assetHandler = (request, h) => {
+    const filePath = path.join(internals.getThemeAssetsPath(), request.params.fileName);
 
     return h.file(filePath);
 };
 
-
 internals.getThemeAssetsPath = () => {
-    return Path.join(internals.options.themePath, 'assets');
+    return path.join(internals.options.themePath, 'assets');
 };
 
 module.exports = {

@@ -1,13 +1,13 @@
 class MockDB {
-    constructor () {
+    constructor() {
         this._data = {};
     }
 
-    get data () {
+    get data() {
         return this._data;
     }
 
-    set data (data) {
+    set data(data) {
         this._data = data;
     }
 }

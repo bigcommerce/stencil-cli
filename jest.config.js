@@ -3,12 +3,7 @@
 
 module.exports = {
     collectCoverage: false,
-    collectCoverageFrom: [
-        './bin/**/*.js',
-        './server/**/*.js',
-        './lib/**/*.js',
-        './tasks/**/*.js',
-    ],
+    collectCoverageFrom: ['./bin/**/*.js', './server/**/*.js', './lib/**/*.js', './tasks/**/*.js'],
     coverageDirectory: './.coverage',
     coverageThreshold: {
         global: {
@@ -18,14 +13,7 @@ module.exports = {
             statements: 47,
         },
     },
-    moduleFileExtensions: [
-        "js",
-        "json",
-        "node",
-    ],
-    testEnvironment: "node",
-    testMatch: [
-        "**/__tests__/**/*.[jt]s",
-        "**/?(*.)+(spec|test).[tj]s",
-    ],
+    moduleFileExtensions: ['js', 'json', 'node'],
+    testEnvironment: 'node',
+    testMatch: ['**/__tests__/**/*.[jt]s', '**/?(*.)+(spec|test).[tj]s'],
 };
