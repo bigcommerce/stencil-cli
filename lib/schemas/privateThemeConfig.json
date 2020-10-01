@@ -39,11 +39,7 @@
           "minItems": 0
         }
       },
-      "required": [
-        "author_name",
-        "author_email",
-        "author_support_url"
-      ]
+      "required": ["author_name", "author_email", "author_support_url"]
     },
     "settings": {
       "type": "object",
@@ -102,7 +98,38 @@
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "enum": ["arts_crafts", "animals_pets", "automotive_industrial", "electronics_computers", "fashion_jewelry", "food_beverage", "gifts_specialty", "health_beauty", "home_garden", "books_entertainment", "sports_recreation", "toys_games", "multi_purpose", "chrome_firefox_safari_ie_10", "mobile_tablet_desktop", "sales_discounts", "wholesale", "single_product", "large_catalog", "mobile", "clothing", "cosmetics", "home_appliances", "home_furnishings", "movies", "music", "digital_downloads", "outdoor_sports", "hunting_fishing", "video_games"]
+                  "enum": [
+                    "arts_crafts",
+                    "animals_pets",
+                    "automotive_industrial",
+                    "electronics_computers",
+                    "fashion_jewelry",
+                    "food_beverage",
+                    "gifts_specialty",
+                    "health_beauty",
+                    "home_garden",
+                    "books_entertainment",
+                    "sports_recreation",
+                    "toys_games",
+                    "multi_purpose",
+                    "chrome_firefox_safari_ie_10",
+                    "mobile_tablet_desktop",
+                    "sales_discounts",
+                    "wholesale",
+                    "single_product",
+                    "large_catalog",
+                    "mobile",
+                    "clothing",
+                    "cosmetics",
+                    "home_appliances",
+                    "home_furnishings",
+                    "movies",
+                    "music",
+                    "digital_downloads",
+                    "outdoor_sports",
+                    "hunting_fishing",
+                    "video_games"
+                  ]
                 },
                 "uniqueItems": true,
                 "minItems": 0
@@ -111,29 +138,34 @@
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "enum": ["arts_crafts", "animals_pets", "automotive_industrial", "electronics_computers", "fashion_jewelry", "food_beverage", "gifts_specialty", "health_beauty", "home_garden", "books_entertainment", "sports_recreation", "toys_games"]
+                  "enum": [
+                    "arts_crafts",
+                    "animals_pets",
+                    "automotive_industrial",
+                    "electronics_computers",
+                    "fashion_jewelry",
+                    "food_beverage",
+                    "gifts_specialty",
+                    "health_beauty",
+                    "home_garden",
+                    "books_entertainment",
+                    "sports_recreation",
+                    "toys_games"
+                  ]
                 },
                 "uniqueItems": true,
                 "minItems": 0
               }
             },
-            "required": [
-              "description"
-            ]
+            "required": ["description"]
           }
         },
-        "required": [
-          "name",
-          "id",
-          "meta"
-        ]
+        "required": ["name", "id", "meta"]
       },
       "minItems": 0,
       "maxItems": 4
     }
   },
-  "required": [
-    "meta"
-  ],
+  "required": ["meta"],
   "additionalProperties": true
 }

@@ -1,12 +1,12 @@
 # Stencil CLI
 
-[![npm (scoped)](https://img.shields.io/npm/v/@bigcommerce/stencil-cli.svg)](https://www.npmjs.com/package/@bigcommerce/stencil-cli) 
+[![npm (scoped)](https://img.shields.io/npm/v/@bigcommerce/stencil-cli.svg)](https://www.npmjs.com/package/@bigcommerce/stencil-cli)
 ![tests](https://github.com/bigcommerce/stencil-cli/workflows/Tests/badge.svg?branch=master)
-
 
 The BigCommerce server emulator for local theme development.
 
 ## Install
+
 _Note: Stencil requires the Node.js runtime environment,
 version 10.x and 12.x (Recommended) are supported.
 We do not yet have support for versions greater than Node 12._
@@ -44,8 +44,8 @@ Run `stencil start` to run a local server so you can start developing your theme
 
 Run with `-o` or `--open` to automatically open up a browser.
 
-- While stencil is running, you can type "rs" and then hit enter to auto-reload all browsers. This is similar to
-Nodemon's rs option.
+-   While stencil is running, you can type "rs" and then hit enter to auto-reload all browsers. This is similar to
+    Nodemon's rs option.
 
 Run `stencil bundle` to validate your code and create a zip bundle file that can be uploaded to BigCommerce.
 
@@ -54,11 +54,11 @@ in your theme repository, and upload the zip bundle file to the release assets.
 This is useful for tracking your changes in your Theme, and is the tool we use to create new releases in BigCommerce
 [Cornerstone](https://github.com/bigcommerce/stencil) theme.
 
-Run `stencil push` to bundle the local theme and upload it to your store, so it will be available in My Themes. 
-To push the theme and also activate it, use `stencil push -a`. To automatically delete the oldest theme if you are at 
+Run `stencil push` to bundle the local theme and upload it to your store, so it will be available in My Themes.
+To push the theme and also activate it, use `stencil push -a`. To automatically delete the oldest theme if you are at
 your theme limit, use `stencil push -d`. These can be used together, as `stencil push -a -d`.
 
-Run `stencil pull` to sync changes to your theme configuration from your live store. For example, if Page Builder has 
+Run `stencil pull` to sync changes to your theme configuration from your live store. For example, if Page Builder has
 been used to change certain theme settings, this will update those settings in config.json in your theme files so you
 don't overwrite them on your next upload.
 
@@ -81,8 +81,8 @@ Stencil CLI comes packaged with [Autoprefixer](https://github.com/postcss/autopr
 should be targeted, as well as if it should cascade the generated rules in the theme's config.json file with these
 options:
 
-- `autoprefixer_cascade` - Defaults to `true`.
-- `autoprefixer_browsers` - Defaults to `["> 1%", "last 2 versions", "Firefox ESR"]`.
+-   `autoprefixer_cascade` - Defaults to `true`.
+-   `autoprefixer_browsers` - Defaults to `["> 1%", "last 2 versions", "Firefox ESR"]`.
 
 ## How to get help or report a bug
 
@@ -100,6 +100,7 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
+
 1. Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright

@@ -4,7 +4,7 @@ require('colors');
 const { DOT_STENCIL_FILE_PATH, PACKAGE_INFO, API_HOST } = require('../constants');
 const program = require('../lib/commander');
 const stencilPush = require('../lib/stencil-push');
-const versionCheck = require('../lib/version-check');
+const { checkNodeVersion } = require('../lib/cliCommon');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 
 program
@@ -16,9 +16,7 @@ program
     .option('-d, --delete', 'delete oldest private theme if upload limit reached')
     .parse(process.argv);
 
-if (!versionCheck()) {
-    process.exit(2);
-}
+checkNodeVersion();
 
 const cliOptions = program.opts();
 const options = {
@@ -33,5 +31,5 @@ stencilPush(options, (err, result) => {
     if (err) {
         printCliResultErrorAndExit(err);
     }
-    console.log('ok'.green + ` -- ${result}`);
+    console.log(`${'ok'.green} -- ${result}`);
 });

@@ -1,10 +1,8 @@
-'use strict';
-
 const RawResponse = require('./raw-response');
-const Utils = require('../../../lib/utils');
+const utils = require('../../../lib/utils');
 
 describe('RawResponse', () => {
-    const data = new Buffer('<html><head></head><body>hello</body></html>');
+    const data = Buffer.from('<html><head></head><body>hello</body></html>');
 
     const headers = {
         'content-type': 'html/text',
@@ -19,7 +17,7 @@ describe('RawResponse', () => {
         request = {
             url: {},
             path: '/',
-            app: {themeConfig: {variationIndex: 1}},
+            app: { themeConfig: { variationIndex: 1 } },
         };
 
         response = {
@@ -48,7 +46,9 @@ describe('RawResponse', () => {
         it('should append checkout css if is the checkout page', () => {
             request.path = '/checkout.php?blah=blah';
             const rawResponse = new RawResponse(data, headers, statusCode);
-            const expectedCss = `<link href="/stencil/${Utils.int2uuid(1)}/${Utils.int2uuid(2)}/css/checkout.css"`;
+            const id1 = utils.int2uuid(1);
+            const id2 = utils.int2uuid(2);
+            const expectedCss = `<link href="/stencil/${id1}/${id2}/css/checkout.css"`;
 
             rawResponse.respond(request, h);
 

@@ -2,14 +2,14 @@
  * Watch options for the core watcher
  * @type {{files: string[], ignored: string[]}}
  */
-var watchOptions = {
+const watchOptions = {
     // If files in these directories change, reload the page.
     files: [
         '/templates',
         '/lang',
     ],
 
-    //Do not watch files in these directories
+    // Do not watch files in these directories
     ignored: [
         '/assets/scss',
         '/assets/css',

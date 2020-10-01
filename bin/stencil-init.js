@@ -4,7 +4,7 @@ const program = require('../lib/commander');
 
 const StencilInit = require('../lib/stencil-init');
 const { DOT_STENCIL_FILE_PATH, PACKAGE_INFO } = require('../constants');
-const versionCheck = require('../lib/version-check');
+const { checkNodeVersion } = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
@@ -13,15 +13,12 @@ program
     .option('-p, --port [port]', 'Port')
     .parse(process.argv);
 
-if (!versionCheck()) {
-    process.exit(2);
-}
+checkNodeVersion();
 
 const cliOptions = program.opts();
 
-new StencilInit().run(DOT_STENCIL_FILE_PATH, 
-    {
-        normalStoreUrl: cliOptions.url,
-        accessToken: cliOptions.token,
-        port: cliOptions.port,
-    });
+new StencilInit().run(DOT_STENCIL_FILE_PATH, {
+    normalStoreUrl: cliOptions.url,
+    accessToken: cliOptions.token,
+    port: cliOptions.port,
+});

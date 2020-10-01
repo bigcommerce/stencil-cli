@@ -5,20 +5,26 @@ require('colors');
 const { DOT_STENCIL_FILE_PATH, PACKAGE_INFO, API_HOST } = require('../constants');
 const program = require('../lib/commander');
 const stencilPull = require('../lib/stencil-pull');
-const versionCheck = require('../lib/version-check');
-const { printCliResultErrorAndExit }  = require('../lib/cliCommon');
+const { checkNodeVersion } = require('../lib/cliCommon');
+const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
     .option('-s, --saved', 'get the saved configuration instead of the active one')
     .option('-h, --host [hostname]', 'specify the api host', API_HOST)
-    .option('-f, --filename [filename]', 'specify the filename to save the config as', 'config.json')
-    .option('-c, --channel_id [channelId]', 'specify the channel ID of the storefront to pull configuration from', parseInt)
+    .option(
+        '-f, --filename [filename]',
+        'specify the filename to save the config as',
+        'config.json',
+    )
+    .option(
+        '-c, --channel_id [channelId]',
+        'specify the channel ID of the storefront to pull configuration from',
+        parseInt,
+    )
     .parse(process.argv);
 
-if (!versionCheck()) {
-    process.exit(2);
-}
+checkNodeVersion();
 
 const cliOptions = program.opts();
 const options = {
@@ -29,7 +35,7 @@ const options = {
     saved: cliOptions.saved || false,
 };
 
-stencilPull(options, err => {
+stencilPull(options, (err) => {
     if (err) {
         printCliResultErrorAndExit(err);
     }

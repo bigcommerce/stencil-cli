@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 
 require('colors');
-const Bs = require('browser-sync').create();
+const bs = require('browser-sync').create();
 const recursiveRead = require('recursive-readdir');
-const Async = require('async');
+const async = require('async');
 const fetch = require('node-fetch');
-const Fs = require('fs');
-const Path = require('path');
-const Url = require('url');
+const fs = require('fs');
+const path = require('path');
 
 const Cycles = require('../lib/Cycles');
 const templateAssembler = require('../lib/template-assembler');
@@ -16,86 +15,72 @@ const program = require('../lib/commander');
 const Server = require('../server');
 const ThemeConfig = require('../lib/theme-config');
 const BuildConfigManager = require('../lib/BuildConfigManager');
-const jsonLint = require('../lib/json-lint');
-const versionCheck = require('../lib/version-check');
+const { parseJsonFile } = require('../lib/utils/fsUtils');
+const { checkNodeVersion } = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
     .option('-o, --open', 'Automatically open default browser')
     .option('-v, --variation [name]', 'Set which theme variation to use while developing')
-    .option('--tunnel [name]', 'Create a tunnel URL which points to your local server that anyone can use.')
-    .option('-n, --no-cache', 'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.')
+    .option(
+        '--tunnel [name]',
+        'Create a tunnel URL which points to your local server that anyone can use.',
+    )
+    .option(
+        '-n, --no-cache',
+        'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.',
+    )
     .parse(process.argv);
 
 const cliOptions = program.opts();
-const templatePath = Path.join(THEME_PATH, 'templates');
+const templatePath = path.join(THEME_PATH, 'templates');
 const themeConfig = ThemeConfig.getInstance(THEME_PATH);
 
 // tunnel value should be true/false or a string with name
 // https://browsersync.io/docs/options#option-tunnel
-const tunnel = typeof cliOptions.tunnel === 'string'
-    ? cliOptions.tunnel
-    : Boolean(cliOptions.tunnel); // convert undefined/true -> false/true
+// convert undefined/true -> false/true
+const tunnel =
+    typeof cliOptions.tunnel === 'string' ? cliOptions.tunnel : Boolean(cliOptions.tunnel);
 
-if (!versionCheck()) {
-    process.exit(2);
+checkNodeVersion();
+
+if (!fs.existsSync(DOT_STENCIL_FILE_PATH)) {
+    throw new Error('Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
 }
 
-if (!Fs.existsSync(DOT_STENCIL_FILE_PATH)) {
-    console.error('Error: Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
-    process.exit(2);
-}
-
-if (!Fs.existsSync(themeConfig.configPath)) {
-    console.error('Error: You must have a '.red + 'config.json'.cyan + ' file in your top level theme directory.');
-    process.exit(2);
+if (!fs.existsSync(themeConfig.configPath)) {
+    throw new Error(
+        `${'You must have a '.red + 'config.json'.cyan} file in your top level theme directory.`,
+    );
 }
 
 // If the value is true it means that no variation was passed in.
 if (cliOptions.variation === true) {
-    console.error('Error: You have to specify a value for -v or --variation'.red);
-    process.exit(2);
+    throw new Error('You have to specify a value for -v or --variation'.red);
 }
 
 if (cliOptions.variation) {
     try {
         themeConfig.setVariationByName(cliOptions.variation);
     } catch (err) {
-        console.error('Error: The variation '.red + cliOptions.variation + ' does not exists in your config.json file'.red);
-        process.exit(2);
+        throw new Error(
+            'Error: The variation '.red +
+                cliOptions.variation +
+                ' does not exists in your config.json file'.red,
+        );
     }
 }
 
-let dotStencilFile = Fs.readFileSync(DOT_STENCIL_FILE_PATH, { encoding: 'utf-8' });
-try {
-    dotStencilFile = jsonLint.parse(dotStencilFile, DOT_STENCIL_FILE_PATH);
-} catch (e) {
-    console.error(e.stack);
-    process.exit(2);
-}
+const dotStencilFile = parseJsonFile(DOT_STENCIL_FILE_PATH);
+const browserSyncPort = dotStencilFile.port;
+dotStencilFile.port = Number(dotStencilFile.port) + 1;
 
-let browserSyncPort = dotStencilFile.port;
-++dotStencilFile.port;
-if (!(dotStencilFile.normalStoreUrl) || !(dotStencilFile.customLayouts)) {
-    console.error(
+if (!dotStencilFile.normalStoreUrl || !dotStencilFile.customLayouts) {
+    throw new Error(
         'Error: Your stencil config is outdated. Please run'.red +
-        ' $ stencil init'.cyan + ' again.'.red,
+            ' $ stencil init'.cyan +
+            ' again.'.red,
     );
-    process.exit(2);
-}
-
-run();
-
-async function run () {
-    try {
-        const storeInfoFromAPI = await runAPICheck(dotStencilFile, PACKAGE_INFO.version);
-        dotStencilFile.storeUrl = storeInfoFromAPI.sslUrl;
-        dotStencilFile.normalStoreUrl = storeInfoFromAPI.baseUrl;
-
-        await startServer();
-    } catch (err) {
-        console.error(err.message);
-    }
 }
 
 /**
@@ -104,11 +89,11 @@ async function run () {
  * @param {string} currentCliVersion
  * @returns {Promise<object>}
  */
-async function runAPICheck (stencilConfig, currentCliVersion) {
+async function runAPICheck(stencilConfig, currentCliVersion) {
     const staplerUrl = stencilConfig.staplerUrl
         ? stencilConfig.staplerUrl
         : stencilConfig.normalStoreUrl;
-    const reqUrl = Url.resolve(staplerUrl, '/stencil-version-check?v=' + currentCliVersion);
+    const reqUrl = new URL(`/stencil-version-check?v=${currentCliVersion}`, staplerUrl);
     let payload;
 
     const headers = {
@@ -125,15 +110,14 @@ async function runAPICheck (stencilConfig, currentCliVersion) {
         }
         payload = await response.json();
         if (!payload) {
-            throw new Error(
-                'Empty payload in the server response',
-            );
+            throw new Error('Empty payload in the server response');
         }
     } catch (err) {
         throw new Error(
-            'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'.red +
-            '\nError details:\n' +
-            err.message,
+            'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'
+                .red +
+                '\nError details:\n' +
+                err.message,
         );
     }
     if (payload.error) {
@@ -142,10 +126,59 @@ async function runAPICheck (stencilConfig, currentCliVersion) {
     if (payload.status !== 'ok') {
         throw new Error(
             'Error: You are using an outdated version of stencil-cli, please run '.red +
-            '$ npm install -g @bigcommerce/stencil-cli'.cyan,
+                '$ npm install -g @bigcommerce/stencil-cli'.cyan,
         );
     }
     return payload;
+}
+
+/**
+ * Assembles all the needed templates and resolves their partials.
+ * @param {string} templatesPath
+ * @param {function} callback
+ */
+function assembleTemplates(templatesPath, callback) {
+    recursiveRead(templatesPath, ['!*.html'], (err, files) => {
+        const templateNames = files.map((file) =>
+            file.replace(templatesPath + templatesPath.sep, '').replace('.html', ''),
+        );
+
+        async.map(
+            templateNames,
+            templateAssembler.assemble.bind(null, templatesPath),
+            (err2, results) => {
+                if (err2) {
+                    callback(err2);
+                }
+                callback(null, results);
+            },
+        );
+    });
+}
+
+/**
+ * Displays information about your environment and configuration.
+ * @returns {string}
+ */
+function getStartUpInfo() {
+    let information = '\n';
+
+    information += '-----------------Startup Information-------------\n'.gray;
+    information += '\n';
+    information += `.stencil location: ${DOT_STENCIL_FILE_PATH.cyan}\n`;
+    information += `config.json location: ${themeConfig.configPath.cyan}\n`;
+    information += `Store URL: ${dotStencilFile.normalStoreUrl.cyan}\n`;
+
+    if (dotStencilFile.staplerUrl) {
+        information += `Stapler URL: ${dotStencilFile.staplerUrl.cyan}\n`;
+    }
+
+    information += `SSL Store URL: ${dotStencilFile.storeUrl.cyan}\n`;
+    information += `Node Version: ${process.version.cyan}\n`;
+    information += '\n';
+    information += '-------------------------------------------------\n'.gray;
+
+    return information;
 }
 
 /**
@@ -153,57 +186,50 @@ async function runAPICheck (stencilConfig, currentCliVersion) {
  */
 async function startServer() {
     await Server.create({
-        dotStencilFile: dotStencilFile,
+        dotStencilFile,
         variationIndex: themeConfig.variationIndex || 0,
         useCache: cliOptions.cache,
         themePath: THEME_PATH,
     });
 
     const buildConfigManger = new BuildConfigManager();
-    let watchFiles = [
-        '/assets',
-        '/templates',
-        '/lang',
-        '/.config',
-    ];
-    let watchIgnored = [
-        '/assets/scss',
-        '/assets/css',
-    ];
+    let watchFiles = ['/assets', '/templates', '/lang', '/.config'];
+    let watchIgnored = ['/assets/scss', '/assets/css'];
 
     // Display Set up information
     console.log(getStartUpInfo());
 
     // Watch sccs directory and automatically reload all css files if a file changes
-    Bs.watch(Path.join(THEME_PATH, 'assets/scss'), event => {
+    bs.watch(path.join(THEME_PATH, 'assets/scss'), (event) => {
         if (event === 'change') {
-            Bs.reload('*.css');
+            bs.reload('*.css');
         }
     });
 
-    Bs.watch('config.json', event => {
+    bs.watch('config.json', (event) => {
         if (event === 'change') {
             themeConfig.resetVariationSettings();
-            Bs.reload();
+            bs.reload();
         }
     });
 
-    Bs.watch('.config/storefront.json', (event, file) => {
+    bs.watch('.config/storefront.json', (event, file) => {
         if (event === 'change') {
-            console.log("storefront json changed");
-            Bs.emitter.emit("storefront_config_file:changed", {
-                event: event,
+            console.log('storefront json changed');
+            bs.emitter.emit('storefront_config_file:changed', {
+                event,
                 path: file,
-                namespace: "",
+                namespace: '',
             });
-            Bs.reload();
+            bs.reload();
         }
     });
 
-    Bs.watch(templatePath, {ignoreInitial: true}, () => {
+    bs.watch(templatePath, { ignoreInitial: true }, () => {
         assembleTemplates(templatePath, (err, results) => {
             if (err) {
-                return console.error(err);
+                console.error(err);
+                return;
             }
 
             try {
@@ -222,15 +248,15 @@ async function startServer() {
         watchIgnored = buildConfigManger.watchOptions.ignored;
     }
 
-    Bs.init({
+    bs.init({
         open: !!cliOptions.open,
         port: browserSyncPort,
-        files: watchFiles.map(val => Path.join(THEME_PATH, val)),
+        files: watchFiles.map((val) => path.join(THEME_PATH, val)),
         watchOptions: {
             ignoreInitial: true,
-            ignored: watchIgnored.map(val => Path.join(THEME_PATH, val)),
+            ignored: watchIgnored.map((val) => path.join(THEME_PATH, val)),
         },
-        proxy: "localhost:" + dotStencilFile.port,
+        proxy: `localhost:${dotStencilFile.port}`,
         tunnel,
     });
 
@@ -238,61 +264,30 @@ async function startServer() {
     // Borrowed from https://github.com/remy/nodemon
     process.stdin.resume();
     process.stdin.setEncoding('utf8');
-    process.stdin.on('data', data => {
-        data = (data + '').trim().toLowerCase();
+    process.stdin.on('data', (data) => {
+        const normalizedData = `${data}`.trim().toLowerCase();
 
         // if the keys entered match the restartable value, then restart!
-        if (data === 'rs') {
-            Bs.reload();
+        if (normalizedData === 'rs') {
+            bs.reload();
         }
     });
 
     if (buildConfigManger.development) {
-        buildConfigManger.initWorker().development(Bs);
+        buildConfigManger.initWorker().development(bs);
     }
 }
 
-/**
- * Assembles all the needed templates and resolves their partials.
- * @param {string} templatePath
- * @param {function} callback
- */
-function assembleTemplates(templatePath, callback) {
-    recursiveRead(templatePath, ['!*.html'], (err, files) => {
-        files = files.map(function (file) {
-            return file.replace(templatePath + Path.sep, '').replace('.html', '');
-        });
+async function run() {
+    try {
+        const storeInfoFromAPI = await runAPICheck(dotStencilFile, PACKAGE_INFO.version);
+        dotStencilFile.storeUrl = storeInfoFromAPI.sslUrl;
+        dotStencilFile.normalStoreUrl = storeInfoFromAPI.baseUrl;
 
-        Async.map(files, templateAssembler.assemble.bind(null, templatePath), (err, results) => {
-            if (err) {
-                callback(err);
-            }
-            callback(null, results);
-        });
-    });
-}
-
-/**
- * Displays information about your environment and configuration.
- * @return {string}
- */
-function getStartUpInfo() {
-    let information = '\n';
-
-    information += '-----------------Startup Information-------------\n'.gray;
-    information += '\n';
-    information += '.stencil location: ' + DOT_STENCIL_FILE_PATH.cyan + '\n';
-    information += 'config.json location: ' + themeConfig.configPath.cyan + '\n';
-    information += 'Store URL: ' + dotStencilFile.normalStoreUrl.cyan + '\n';
-
-    if (dotStencilFile.staplerUrl) {
-        information += 'Stapler URL: ' + dotStencilFile.staplerUrl.cyan + '\n';
+        await startServer();
+    } catch (err) {
+        console.error(err.message);
     }
-
-    information += 'SSL Store URL: ' + dotStencilFile.storeUrl.cyan + '\n';
-    information += 'Node Version: ' + process.version.cyan + '\n';
-    information += '\n';
-    information += '-------------------------------------------------\n'.gray;
-
-    return information;
 }
+
+run();

@@ -1,23 +1,15 @@
-'use strict';
-
-const _ = require('lodash');
-const Url = require('url');
 const uuidRegExp = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-([0-9a-f]{12})';
 
 /**
- * Strip domain from cookies
+ * Strip domain from the cookies header string
  *
- * @param cookies
- * @returns {Array}
+ * @param {string} cookies
+ * @returns {string}
  */
 function stripDomainFromCookies(cookies) {
-    const fixedCookies = [];
-
-    _.forEach(cookies, function(cookie) {
-        fixedCookies.push(cookie.replace(/(?:;\s)?domain=(?:.+?)(;|$)/, '$1').replace('; SameSite=none', ''));
-    });
-
-    return fixedCookies;
+    return cookies
+        .replace(/(?:;\s)?domain=(?:.+?)(;|$)/gi, '$1')
+        .replace(new RegExp('; SameSite=none', 'gi'), '');
 }
 
 /**
@@ -28,27 +20,26 @@ function stripDomainFromCookies(cookies) {
  * @returns {string}
  */
 function normalizeRedirectUrl(request, redirectUrl) {
-    const storeHost = Url.parse(request.app.normalStoreUrl).host;
-    const secureStoreHost = Url.parse(request.app.storeUrl).host;
-    const redirectUrlObj = Url.parse(redirectUrl);
+    const storeHost = new URL(request.app.normalStoreUrl).host;
+    const secureStoreHost = new URL(request.app.storeUrl).host;
+    const redirectUrlObj = new URL(redirectUrl);
     let stripHost = false;
 
-    if (! redirectUrlObj.host || redirectUrlObj.host === storeHost || redirectUrlObj.host === secureStoreHost) {
+    if (redirectUrlObj.host === storeHost || redirectUrlObj.host === secureStoreHost) {
         stripHost = true;
     }
 
     if (stripHost) {
         return redirectUrlObj.path;
-    } else {
-        return redirectUrl;
     }
+    return redirectUrl;
 }
 
 /**
  * Convert a number to uuid
  *
- * @param {Number} number
- * @returns {String}
+ * @param {number} number
+ * @returns {string}
  */
 function int2uuid(number) {
     const id = `000000000000${number}`.substr(-12);
@@ -58,8 +49,8 @@ function int2uuid(number) {
 /**
  * Convert a uuid to int
  *
- * @param {String} uuid
- * @returns {Number}
+ * @param {string} uuid
+ * @returns {number}
  */
 function uuid2int(uuid) {
     const match = uuid.match(new RegExp(uuidRegExp));

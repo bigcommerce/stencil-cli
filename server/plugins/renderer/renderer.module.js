@@ -1,17 +1,15 @@
-'use strict';
-
-const  _ = require('lodash');
+const _ = require('lodash');
 const Boom = require('@hapi/boom');
 const cache = require('memory-cache');
 const Crypto = require('crypto');
 const Frontmatter = require('front-matter');
 const fetch = require('node-fetch');
-const Path = require('path');
-const Url = require('url');
+const path = require('path');
+const { promisify } = require('util');
 
 const langAssembler = require('../../../lib/lang-assembler');
 const { PACKAGE_INFO } = require('../../../constants');
-const responses = require('./responses/responses');
+const { RawResponse, RedirectResponse, PencilResponse } = require('./responses');
 const templateAssembler = require('../../../lib/template-assembler');
 const utils = require('../../lib/utils');
 const { readFromStream } = require('../../../lib/utils/asyncUtils');
@@ -22,7 +20,7 @@ const internals = {
     validCustomTemplatePageTypes: ['brand', 'category', 'page', 'product'],
 };
 
-function register (server, options) {
+function register(server, options) {
     internals.options = _.defaultsDeep(options, internals.options);
 
     server.expose('implementation', internals.implementation);
@@ -34,7 +32,7 @@ function register (server, options) {
  * @param request
  * @param h
  */
-internals.implementation = async function (request, h) {
+internals.implementation = async (request, h) => {
     let response;
 
     try {
@@ -56,7 +54,7 @@ internals.implementation = async function (request, h) {
  * @param {String|Object|Array} input
  * @returns String
  */
-internals.sha1sum = function (input) {
+internals.sha1sum = (input) => {
     return Crypto.createHash('sha1').update(JSON.stringify(input)).digest('hex');
 };
 
@@ -65,10 +63,10 @@ internals.sha1sum = function (input) {
  *
  * @param request
  */
-internals.getResponse = async function (request) {
+internals.getResponse = async (request) => {
     const staplerUrlObject = request.app.staplerUrl
-        ? Url.parse(request.app.staplerUrl)
-        : Url.parse(request.app.storeUrl);
+        ? new URL(request.app.staplerUrl)
+        : new URL(request.app.storeUrl);
 
     const httpOpts = {
         headers: {
@@ -81,11 +79,10 @@ internals.getResponse = async function (request) {
         method: 'post',
     };
 
-    const url = Url.format({
-        protocol: staplerUrlObject.protocol,
+    const url = Object.assign(new URL(request.url.toString()), {
+        port: staplerUrlObject.port,
         host: staplerUrlObject.host,
-        pathname: request.url.pathname,
-        search: request.url.search,
+        protocol: staplerUrlObject.protocol,
     });
 
     const responseArgs = {
@@ -96,14 +93,23 @@ internals.getResponse = async function (request) {
 
     // create request signature for caching
     const httpOptsSignature = _.omit(httpOpts.headers, ['cookie']);
-    const requestSignature = internals.sha1sum(request.method) + internals.sha1sum(url) + internals.sha1sum(httpOptsSignature);
+    const requestSignature =
+        internals.sha1sum(request.method) +
+        internals.sha1sum(url) +
+        internals.sha1sum(httpOptsSignature);
     const cachedResponse = cache.get(requestSignature);
 
     // check request signature and use cache, if available
-    if (cachedResponse && 'get' === request.method && internals.options.useCache) {
+    if (cachedResponse && request.method === 'get' && internals.options.useCache) {
         // if GET request, return with cached response
-        return await internals.parseResponse(cachedResponse.bcAppData, request, cachedResponse.response, responseArgs);
-    } else if ('get' !== request.method) {
+        return internals.parseResponse(
+            cachedResponse.bcAppData,
+            request,
+            cachedResponse.response,
+            responseArgs,
+        );
+    }
+    if (request.method !== 'get') {
         // clear when making a non-get request
         cache.clear();
     }
@@ -119,28 +125,32 @@ internals.getResponse = async function (request) {
     }
 
     if (response.headers.get('set-cookie')) {
-        response.headers.set('set-cookie', utils.stripDomainFromCookies(response.headers.get('set-cookie')));
+        response.headers.set(
+            'set-cookie',
+            utils.stripDomainFromCookies(response.headers.get('set-cookie')),
+        );
     }
 
     // Response is a redirect
     if (response.status >= 301 && response.status <= 303) {
-        return await internals.redirect(response, request);
+        return internals.redirect(response, request);
     }
 
-    // parse response
-    const bcAppData = await response.json();
+    const contentType = response.headers.get('content-type') || '';
+    const isResponseJson = contentType.toLowerCase().includes('application/json');
+    const bcAppData = isResponseJson ? await response.json() : await response.text();
 
     // cache response
     cache.put(
         requestSignature,
         {
-            bcAppData: bcAppData,
-            response: response,
+            bcAppData,
+            response,
         },
         internals.cacheTTL,
     );
 
-    return await internals.parseResponse(bcAppData, request, response, responseArgs);
+    return internals.parseResponse(bcAppData, request, response, responseArgs);
 };
 
 /**
@@ -152,18 +162,15 @@ internals.getResponse = async function (request) {
  * @param responseArgs
  * @returns {*}
  */
-internals.parseResponse = async function (bcAppData, request, response, responseArgs) {
-    let resourcesConfig;
-    let dataRequestSignature;
-    let httpOptsSignature;
+internals.parseResponse = async (bcAppData, request, response, responseArgs) => {
     const configuration = request.app.themeConfig.getConfig();
     const { httpOpts, staplerUrlObject, url } = responseArgs;
 
-    if (!('pencil_response' in bcAppData)) {
+    if (typeof bcAppData !== 'object' || !('pencil_response' in bcAppData)) {
         response.headers.delete('x-frame-options');
 
         // this is a raw response not emitted by TemplateEngine
-        return new responses.RawResponse(
+        return new RawResponse(
             bcAppData,
             _.fromPairs(response.headers.entries()), // Transform fetch.Headers map to a plain object
             response.status,
@@ -176,7 +183,7 @@ internals.parseResponse = async function (bcAppData, request, response, response
         return internals.getPencilResponse(bcAppData, request, response, configuration);
     }
 
-    resourcesConfig = internals.getResourceConfig(bcAppData, request, configuration);
+    const resourcesConfig = internals.getResourceConfig(bcAppData, request, configuration);
 
     httpOpts.headers = {
         ...internals.getHeaders(request, { get_data_only: true }, resourcesConfig),
@@ -184,11 +191,13 @@ internals.parseResponse = async function (bcAppData, request, response, response
     };
 
     // create request signature for caching
-    httpOptsSignature = _.omit(httpOpts.headers, ['cookie']);
-    dataRequestSignature = 'bcapp:' + internals.sha1sum(url) + internals.sha1sum(httpOptsSignature);
+    const httpOptsSignature = internals.sha1sum(_.omit(httpOpts.headers, ['cookie']));
+    const urlSignature = internals.sha1sum(url);
+    const dataRequestSignature = `bcapp:${urlSignature}${httpOptsSignature}`;
     const cachedResponse2 = cache.get(dataRequestSignature);
 
-    let data, response2;
+    let data;
+    let response2;
     // check request signature and use cache, if available
     if (internals.options.useCache && cachedResponse2) {
         ({ data, response2 } = cachedResponse2);
@@ -212,14 +221,13 @@ internals.parseResponse = async function (bcAppData, request, response, response
             throw new Error('The BigCommerce server responded with a 500 error');
         }
 
-        cache.put(
-            dataRequestSignature,
-            { data, response2 },
-            internals.cacheTTL,
-        );
+        cache.put(dataRequestSignature, { data, response2 }, internals.cacheTTL);
 
         if (response2.headers.get('set-cookie')) {
-            response2.headers.set('set-cookie', utils.stripDomainFromCookies(response2.headers.get('set-cookie')));
+            response2.headers.set(
+                'set-cookie',
+                utils.stripDomainFromCookies(response2.headers.get('set-cookie')),
+            );
         }
     }
 
@@ -232,9 +240,9 @@ internals.parseResponse = async function (bcAppData, request, response, response
  * @param  {Object} data
  * @param  {Object} request
  * @param  {Object} configuration
- * @return {Object}
+ * @returns {Object}
  */
-internals.getResourceConfig = function (data, request, configuration) {
+internals.getResourceConfig = (data, request, configuration) => {
     const frontmatterRegex = /---\r?\n(?:.|\s)*?\r?\n---\r?\n/g;
     const missingThemeSettingsRegex = /{{\\s*?theme_settings\\..+?\\s*?}}/g;
     let resourcesConfig = {};
@@ -243,18 +251,21 @@ internals.getResourceConfig = function (data, request, configuration) {
     // If the requested template is not an array, we parse the Frontmatter
     // If it is an array, then it's an ajax request using `render_with` with multiple components
     // which don't have Frontmatter and needs to get it's config from the `stencil-config` header.
-    if (templatePath && !_.isArray(templatePath)) {
-        let rawTemplate = templateAssembler.getTemplateContentSync(internals.getThemeTemplatesPath(), templatePath);
+    if (templatePath && !Array.isArray(templatePath)) {
+        let rawTemplate = templateAssembler.getTemplateContentSync(
+            internals.getThemeTemplatesPath(),
+            templatePath,
+        );
 
         const frontmatterMatch = rawTemplate.match(frontmatterRegex);
         if (frontmatterMatch !== null) {
             let frontmatterContent = frontmatterMatch[0];
             // Interpolate theme settings for frontmatter
-            _.forOwn(configuration.settings, function (val, key) {
-                const regex = '{{\\s*?theme_settings\\.' + key + '\\s*?}}';
+            for (const [key, val] of Object.entries(configuration.settings)) {
+                const regex = `{{\\s*?theme_settings\\.${key}\\s*?}}`;
 
                 frontmatterContent = frontmatterContent.replace(new RegExp(regex, 'g'), val);
-            });
+            }
 
             // Remove any handlebars tags that weren't interpolated because there was no setting for it
             frontmatterContent = frontmatterContent.replace(missingThemeSettingsRegex, '');
@@ -268,7 +279,6 @@ internals.getResourceConfig = function (data, request, configuration) {
         if (_.isObject(configuration.resources)) {
             resourcesConfig = _.extend({}, configuration.resources, resourcesConfig);
         }
-
     } else if (request.headers['stencil-config']) {
         try {
             resourcesConfig = JSON.parse(request.headers['stencil-config']);
@@ -287,16 +297,19 @@ internals.getResourceConfig = function (data, request, configuration) {
  * @param request
  * @returns {*}
  */
-internals.redirect = async function (response, request) {
+internals.redirect = async (response, request) => {
     if (!response.headers.get('location')) {
         throw new Error('StatusCode is set to 30x but there is no location header to redirect to.');
     }
 
-    const normalizedRedirectUrl = utils.normalizeRedirectUrl(request, response.headers.get('location'));
+    const normalizedRedirectUrl = utils.normalizeRedirectUrl(
+        request,
+        response.headers.get('location'),
+    );
     response.headers.set('location', normalizedRedirectUrl);
 
     // return a redirect response
-    return new responses.RedirectResponse(
+    return new RedirectResponse(
         response.headers.get('location'),
         _.fromPairs(response.headers.entries()), // Transform fetch.Headers map to a plain object
         response.status,
@@ -305,41 +318,41 @@ internals.redirect = async function (response, request) {
 
 /**
  *
- * @param {String} path
+ * @param {string} requestPath
  * @param {Object} data
  * @returns {string}
  */
-internals.getTemplatePath = function (path, data) {
+internals.getTemplatePath = (requestPath, data) => {
     const customLayouts = internals.options.customLayouts || {};
     const pageType = data.page_type;
     let templatePath;
 
-    if (internals.validCustomTemplatePageTypes.indexOf(pageType) >= 0 && _.isPlainObject(customLayouts[pageType])) {
-        templatePath = _.findKey(customLayouts[pageType], function(p) {
-            // normalize input to an array
-            if (typeof p === 'string') {
-                p = [p];
-            }
+    if (
+        internals.validCustomTemplatePageTypes.includes(pageType) &&
+        _.isPlainObject(customLayouts[pageType])
+    ) {
+        templatePath = _.findKey(customLayouts[pageType], (paths) => {
+            // Can be either string or Array, so normalize to Arrays
+            const normalizedPaths = typeof paths === 'string' ? [paths] : paths;
 
-            const matches = p.filter(function(url) {
+            const matches = normalizedPaths.filter((url) => {
                 // remove trailing slashes to compare
-                return url.replace(/\/$/, '') === path.replace(/\/$/, '');
+                return url.replace(/\/$/, '') === requestPath.replace(/\/$/, '');
             });
 
             return matches.length > 0;
         });
 
         if (templatePath) {
-            templatePath = Path.join('pages/custom', pageType, templatePath.replace(/\.html$/, ''));
+            templatePath = requestPath.join(
+                'pages/custom',
+                pageType,
+                templatePath.replace(/\.html$/, ''),
+            );
         }
     }
 
-    if (!templatePath) {
-        // default path
-        templatePath = data.template_file;
-    }
-
-    return templatePath;
+    return templatePath || data.template_file;
 };
 
 /**
@@ -351,29 +364,37 @@ internals.getTemplatePath = function (path, data) {
  * @param configuration
  * @returns {*}
  */
-internals.getPencilResponse = function (data, request, response, configuration) {
-    data.context.theme_settings = configuration.settings;
-    data.context.template_engine = configuration.template_engine;
+internals.getPencilResponse = (data, request, response, configuration) => {
+    const context = {
+        ...data.context,
+        theme_settings: configuration.settings,
+        template_engine: configuration.template_engine,
+        settings: {
+            ...data.context.settings,
+            // change cdn settings to serve local assets
+            cdn_url: '',
+            theme_version_id: utils.int2uuid(1),
+            theme_config_id: utils.int2uuid(request.app.themeConfig.variationIndex + 1),
+            theme_session_id: null,
+            maintenance: { secure_path: `http://localhost:${internals.options.port}` },
+        },
+    };
 
-    // change cdn settings to serve local assets
-    data.context.settings.cdn_url = '';
-    data.context.settings.theme_version_id = utils.int2uuid(1);
-    data.context.settings.theme_config_id = utils.int2uuid(request.app.themeConfig.variationIndex + 1);
-    data.context.settings.theme_session_id = null;
-    data.context.settings.maintenance = { secure_path: `http://localhost:${internals.options.port}` };
-
-    return new responses.PencilResponse({
-        template_file: internals.getTemplatePath(request.path, data),
-        templates: data.templates,
-        remote: data.remote,
-        remote_data: data.remote_data,
-        context: data.context,
-        translations: data.translations,
-        method: request.method,
-        acceptLanguage: request.headers['accept-language'],
-        headers: _.fromPairs(response.headers.entries()), // Transform fetch.Headers map to a plain object
-        statusCode: response.status,
-    }, internals.themeAssembler);
+    return new PencilResponse(
+        {
+            template_file: internals.getTemplatePath(request.path, data),
+            templates: data.templates,
+            remote: data.remote,
+            remote_data: data.remote_data,
+            context,
+            translations: data.translations,
+            method: request.method,
+            acceptLanguage: request.headers['accept-language'],
+            headers: _.fromPairs(response.headers.entries()), // Transform fetch.Headers map to a plain object
+            statusCode: response.status,
+        },
+        internals.themeAssembler,
+    );
 };
 
 /**
@@ -383,7 +404,7 @@ internals.getPencilResponse = function (data, request, response, configuration) 
  * @param {object} [stencilOptions]
  * @param {object} [stencilConfig]
  */
-internals.getHeaders = function (request, stencilOptions = {}, stencilConfig) {
+internals.getHeaders = (request, stencilOptions = {}, stencilConfig) => {
     // Merge in current stencil-options with passed in options
     const currentOptions = request.headers['stencil-options']
         ? JSON.parse(request.headers['stencil-options'])
@@ -416,23 +437,23 @@ internals.getHeaders = function (request, stencilOptions = {}, stencilConfig) {
  * @type {Object}
  */
 internals.themeAssembler = {
-    getTemplates: (path, processor) => {
-        return new Promise((resolve, reject) => {
-            templateAssembler.assemble(internals.getThemeTemplatesPath(), path, (err, templates) => {
-                if (err) {
-                    return reject(err);
-                }
-                if (templates[path]) {
-                    // Check if the string includes frontmatter configuration and remove it
-                    const match = templates[path].match(/---\r?\n[\S\s]*\r?\n---\r?\n([\S\s]*)$/);
+    async getTemplates(templatesPath, processor) {
+        const templates = await promisify(templateAssembler.assemble)(
+            internals.getThemeTemplatesPath(),
+            templatesPath,
+        );
 
-                    if (_.isObject(match) && match[1]) {
-                        templates[path] = match[1];
-                    }
-                }
-                return resolve(processor(templates));
-            });
-        });
+        if (templates[templatesPath]) {
+            // Check if the string includes frontmatter configuration and remove it
+            const match = templates[templatesPath].match(/---\r?\n[\S\s]*\r?\n---\r?\n([\S\s]*)$/);
+
+            if (match && match[1]) {
+                // eslint-disable-next-line prefer-destructuring
+                templates[templatesPath] = match[1];
+            }
+        }
+
+        return processor(templates);
     },
     getTranslations: () => {
         return new Promise((resolve, reject) => {
@@ -440,14 +461,14 @@ internals.themeAssembler = {
                 if (err) {
                     return reject(err);
                 }
-                return resolve(_.mapValues(translations, locales => JSON.parse(locales)));
+                return resolve(_.mapValues(translations, (locales) => JSON.parse(locales)));
             });
         });
     },
 };
 
 internals.getThemeTemplatesPath = () => {
-    return Path.join(internals.options.themePath, 'templates');
+    return path.join(internals.options.themePath, 'templates');
 };
 
 module.exports = {

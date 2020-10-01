@@ -5,10 +5,15 @@
       "impliedStrict": true
     }
   },
-  "plugins": ["jest"],
+  "plugins": ["jest", "node", "prettier"],
   "extends": [
+    "eslint:recommended",
+    "airbnb-base",
+    "plugin:node/recommended",
     "plugin:jest/recommended",
-    "plugin:jest/style"
+    "plugin:jest/style",
+    "prettier",
+    "plugin:prettier/recommended"
   ],
   "env": {
     "es2020": true,
@@ -16,15 +21,33 @@
     "node": true
   },
   "rules": {
-    "curly": 2,
-    "no-eq-null": 2,
-    "comma-dangle": [ 2, "always-multiline" ],
-    "no-caller": 2,
-    "dot-notation": 0,
-    "no-debugger": 2,
-    "no-undef": 2,
-    "no-unused-vars": 2,
-    "semi": 2,
-    "arrow-parens": [2, "as-needed"]
+    /////////////////////////////////////////  Our rules  /////////////////////////////////////////
+    "no-eq-null": "error",
+
+    /////////////////////////////////////////  Overrides   ////////////////////////////////////////
+    "prettier/prettier": "warn",
+    "no-console": "off",
+    "class-methods-use-this": "off",
+    "no-continue": "off",
+    // Overwrites airbnb-base because our Node version doesn't allow to use private properies syntax yet, so we use underscores
+    "no-underscore-dangle": ["error", { "allowAfterThis": true }],
+    // Overwrites airbnb-base to allow for..of:
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "ForInStatement",
+        "message": "for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array."
+      },
+      {
+        "selector": "LabeledStatement",
+        "message": "Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand."
+      },
+      {
+        "selector": "WithStatement",
+        "message": "`with` is disallowed in strict mode because it makes code impossible to predict and optimize."
+      }
+    ],
+    // Overwrites airbnb-base because woks badly with prettier making multyline strings ugly
+    "prefer-template": "off"
   }
 }

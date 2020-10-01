@@ -5,10 +5,7 @@
   "items": {
     "title": "Items",
     "type": "object",
-    "required": [
-      "name",
-      "settings"
-    ],
+    "required": ["name", "settings"],
     "properties": {
       "name": {
         "title": "Name",
@@ -59,10 +56,7 @@
             },
             "reference_default": {
               "title": "Reference",
-              "type": [
-                "string",
-                "boolean"
-              ],
+              "type": ["string", "boolean"],
               "description": "This should match parent id."
             },
             "force_reload": {
@@ -75,10 +69,7 @@
               "items": {
                 "title": "Items",
                 "type": "object",
-                "required": [
-                  "label",
-                  "value"
-                ],
+                "required": ["label", "value"],
                 "properties": {
                   "group": {
                     "title": "Group",
@@ -92,19 +83,14 @@
                   },
                   "value": {
                     "title": "Value",
-                    "type": [
-                      "string",
-                      "number"
-                    ],
+                    "type": ["string", "number"],
                     "minLength": 1
                   }
                 }
               }
             }
           },
-          "required": [
-            "type"
-          ],
+          "required": ["type"],
           "allOf": [
             {
               "if": {
@@ -126,9 +112,7 @@
                 ]
               },
               "then": {
-                "required": [
-                  "content"
-                ]
+                "required": ["content"]
               }
             },
             {
@@ -158,11 +142,7 @@
                 ]
               },
               "then": {
-                "required": [
-                  "label",
-                  "id",
-                  "options"
-                ]
+                "required": ["label", "id", "options"]
               }
             },
             {
@@ -185,10 +165,7 @@
                 ]
               },
               "then": {
-                "required": [
-                  "label",
-                  "id"
-                ]
+                "required": ["label", "id"]
               }
             }
           ]
