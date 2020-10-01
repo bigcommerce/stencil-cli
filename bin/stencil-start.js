@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 
 require('colors');
-const bs = require('browser-sync').create();
+const browserSyncInstance = require('browser-sync').create();
 const recursiveRead = require('recursive-readdir');
 const async = require('async');
-const fetch = require('node-fetch');
-const fs = require('fs');
+const fetchModule = require('node-fetch');
+const fsModule = require('fs');
 const path = require('path');
 
 const Cycles = require('../lib/Cycles');
-const templateAssembler = require('../lib/template-assembler');
+const templateAssemblerModule = require('../lib/template-assembler');
 const { PACKAGE_INFO, DOT_STENCIL_FILE_PATH, THEME_PATH } = require('../constants');
 const program = require('../lib/commander');
 const Server = require('../server');
 const ThemeConfig = require('../lib/theme-config');
 const BuildConfigManager = require('../lib/BuildConfigManager');
-const { parseJsonFile } = require('../lib/utils/fsUtils');
-const { checkNodeVersion } = require('../lib/cliCommon');
+const fsUtilsModule = require('../lib/utils/fsUtils');
+const cliCommonModule = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
@@ -32,262 +32,296 @@ program
     )
     .parse(process.argv);
 
-const cliOptions = program.opts();
-const templatePath = path.join(THEME_PATH, 'templates');
-const themeConfig = ThemeConfig.getInstance(THEME_PATH);
+const cliOpts = program.opts();
+const themeConfigManagerInstance = ThemeConfig.getInstance(THEME_PATH);
+const buildConfigManagerInstance = new BuildConfigManager({ fs: fsModule, workDir: THEME_PATH });
 
-// tunnel value should be true/false or a string with name
-// https://browsersync.io/docs/options#option-tunnel
-// convert undefined/true -> false/true
-const tunnel =
-    typeof cliOptions.tunnel === 'string' ? cliOptions.tunnel : Boolean(cliOptions.tunnel);
-
-checkNodeVersion();
-
-if (!fs.existsSync(DOT_STENCIL_FILE_PATH)) {
-    throw new Error('Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
-}
-
-if (!fs.existsSync(themeConfig.configPath)) {
-    throw new Error(
-        `${'You must have a '.red + 'config.json'.cyan} file in your top level theme directory.`,
-    );
-}
-
-// If the value is true it means that no variation was passed in.
-if (cliOptions.variation === true) {
-    throw new Error('You have to specify a value for -v or --variation'.red);
-}
-
-if (cliOptions.variation) {
-    try {
-        themeConfig.setVariationByName(cliOptions.variation);
-    } catch (err) {
-        throw new Error(
-            'Error: The variation '.red +
-                cliOptions.variation +
-                ' does not exists in your config.json file'.red,
-        );
-    }
-}
-
-const dotStencilFile = parseJsonFile(DOT_STENCIL_FILE_PATH);
-const browserSyncPort = dotStencilFile.port;
-dotStencilFile.port = Number(dotStencilFile.port) + 1;
-
-if (!dotStencilFile.normalStoreUrl || !dotStencilFile.customLayouts) {
-    throw new Error(
-        'Error: Your stencil config is outdated. Please run'.red +
-            ' $ stencil init'.cyan +
-            ' again.'.red,
-    );
-}
-
-/**
- *
- * @param {object} stencilConfig
- * @param {string} currentCliVersion
- * @returns {Promise<object>}
- */
-async function runAPICheck(stencilConfig, currentCliVersion) {
-    const staplerUrl = stencilConfig.staplerUrl
-        ? stencilConfig.staplerUrl
-        : stencilConfig.normalStoreUrl;
-    const reqUrl = new URL(`/stencil-version-check?v=${currentCliVersion}`, staplerUrl);
-    let payload;
-
-    const headers = {
-        'stencil-cli': currentCliVersion,
-    };
-    if (stencilConfig.staplerUrl) {
-        headers['stencil-store-url'] = stencilConfig.normalStoreUrl;
+class StencilStart {
+    constructor({
+        browserSync = browserSyncInstance,
+        fetch = fetchModule,
+        fs = fsModule,
+        fsUtils = fsUtilsModule,
+        cliCommon = cliCommonModule,
+        themeConfigManager = themeConfigManagerInstance,
+        buildConfigManger = buildConfigManagerInstance,
+        templateAssembler = templateAssemblerModule,
+        CyclesDetector = Cycles,
+    } = {}) {
+        this.browserSync = browserSync;
+        this.fetch = fetch;
+        this.fs = fs;
+        this.fsUtils = fsUtils;
+        this.cliCommon = cliCommon;
+        this.themeConfigManager = themeConfigManager;
+        this.buildConfigManger = buildConfigManger;
+        this.templateAssembler = templateAssembler;
+        this.CyclesDetector = CyclesDetector;
     }
 
-    try {
-        const response = await fetch(reqUrl, { headers });
-        if (!response.ok) {
-            throw new Error(response.statusText);
+    async run(cliOptions, dotStencilFilePath, stencilCliVersion) {
+        this.performChecks(cliOptions, dotStencilFilePath);
+
+        if (cliOptions.variation) {
+            await this.themeConfigManager.setVariationByName(cliOptions.variation);
         }
-        payload = await response.json();
-        if (!payload) {
-            throw new Error('Empty payload in the server response');
+
+        const stencilConfig = await this.fsUtils.parseJsonFile(dotStencilFilePath);
+        const browserSyncPort = stencilConfig.port;
+        stencilConfig.port = Number(stencilConfig.port) + 1;
+
+        if (!stencilConfig.normalStoreUrl || !stencilConfig.customLayouts) {
+            throw new Error(
+                'Error: Your stencil config is outdated. Please run'.red +
+                    ' $ stencil init'.cyan +
+                    ' again.'.red,
+            );
         }
-    } catch (err) {
-        throw new Error(
-            'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'
-                .red +
-                '\nError details:\n' +
-                err.message,
-        );
-    }
-    if (payload.error) {
-        throw new Error(payload.error.red);
-    }
-    if (payload.status !== 'ok') {
-        throw new Error(
-            'Error: You are using an outdated version of stencil-cli, please run '.red +
-                '$ npm install -g @bigcommerce/stencil-cli'.cyan,
-        );
-    }
-    return payload;
-}
 
-/**
- * Assembles all the needed templates and resolves their partials.
- * @param {string} templatesPath
- * @param {function} callback
- */
-function assembleTemplates(templatesPath, callback) {
-    recursiveRead(templatesPath, ['!*.html'], (err, files) => {
-        const templateNames = files.map((file) =>
-            file.replace(templatesPath + templatesPath.sep, '').replace('.html', ''),
-        );
+        const storeInfoFromAPI = await this.runAPICheck(stencilConfig, stencilCliVersion);
 
-        async.map(
-            templateNames,
-            templateAssembler.assemble.bind(null, templatesPath),
-            (err2, results) => {
-                if (err2) {
-                    callback(err2);
-                }
-                callback(null, results);
-            },
-        );
-    });
-}
+        const updatedStencilConfig = {
+            ...stencilConfig,
+            storeUrl: storeInfoFromAPI.sslUrl,
+            normalStoreUrl: storeInfoFromAPI.baseUrl,
+        };
 
-/**
- * Displays information about your environment and configuration.
- * @returns {string}
- */
-function getStartUpInfo() {
-    let information = '\n';
+        await this.startLocalServer(cliOptions, updatedStencilConfig);
 
-    information += '-----------------Startup Information-------------\n'.gray;
-    information += '\n';
-    information += `.stencil location: ${DOT_STENCIL_FILE_PATH.cyan}\n`;
-    information += `config.json location: ${themeConfig.configPath.cyan}\n`;
-    information += `Store URL: ${dotStencilFile.normalStoreUrl.cyan}\n`;
+        console.log(this.getStartUpInfo(updatedStencilConfig, dotStencilFilePath));
 
-    if (dotStencilFile.staplerUrl) {
-        information += `Stapler URL: ${dotStencilFile.staplerUrl.cyan}\n`;
+        await this.startBrowserSync(cliOptions, updatedStencilConfig, browserSyncPort);
     }
 
-    information += `SSL Store URL: ${dotStencilFile.storeUrl.cyan}\n`;
-    information += `Node Version: ${process.version.cyan}\n`;
-    information += '\n';
-    information += '-------------------------------------------------\n'.gray;
+    /**
+     * @param {Object} cliOptions
+     * @param {string} dotStencilFilePath
+     */
+    performChecks(cliOptions, dotStencilFilePath) {
+        this.cliCommon.checkNodeVersion();
 
-    return information;
-}
-
-/**
- * Starts up the local Stencil Server as well as starts up BrowserSync and sets some watch options.
- */
-async function startServer() {
-    await Server.create({
-        dotStencilFile,
-        variationIndex: themeConfig.variationIndex || 0,
-        useCache: cliOptions.cache,
-        themePath: THEME_PATH,
-    });
-
-    const buildConfigManger = new BuildConfigManager();
-    let watchFiles = ['/assets', '/templates', '/lang', '/.config'];
-    let watchIgnored = ['/assets/scss', '/assets/css'];
-
-    // Display Set up information
-    console.log(getStartUpInfo());
-
-    // Watch sccs directory and automatically reload all css files if a file changes
-    bs.watch(path.join(THEME_PATH, 'assets/scss'), (event) => {
-        if (event === 'change') {
-            bs.reload('*.css');
+        if (!this.fs.existsSync(dotStencilFilePath)) {
+            throw new Error('Please run'.red + ' $ stencil init'.cyan + ' first.'.red);
         }
-    });
 
-    bs.watch('config.json', (event) => {
-        if (event === 'change') {
-            themeConfig.resetVariationSettings();
-            bs.reload();
+        if (!this.fs.existsSync(this.themeConfigManager.configPath)) {
+            throw new Error(
+                'You must have a '.red +
+                    ' config.json '.cyan +
+                    'file in your top level theme directory.',
+            );
         }
-    });
 
-    bs.watch('.config/storefront.json', (event, file) => {
-        if (event === 'change') {
-            console.log('storefront json changed');
-            bs.emitter.emit('storefront_config_file:changed', {
-                event,
-                path: file,
-                namespace: '',
-            });
-            bs.reload();
+        // If the value is true it means that no variation was passed in.
+        if (cliOptions.variation === true) {
+            throw new Error('You have to specify a value for -v or --variation'.red);
         }
-    });
+    }
 
-    bs.watch(templatePath, { ignoreInitial: true }, () => {
-        assembleTemplates(templatePath, (err, results) => {
-            if (err) {
-                console.error(err);
-                return;
+    /**
+     *
+     * @param {object} stencilConfig
+     * @param {string} currentCliVersion
+     * @returns {Promise<object>}
+     */
+    async runAPICheck(stencilConfig, currentCliVersion) {
+        const staplerUrl = stencilConfig.staplerUrl
+            ? stencilConfig.staplerUrl
+            : stencilConfig.normalStoreUrl;
+        const reqUrl = new URL(`/stencil-version-check?v=${currentCliVersion}`, staplerUrl);
+        let payload;
+
+        const headers = {
+            'stencil-cli': currentCliVersion,
+        };
+        if (stencilConfig.staplerUrl) {
+            headers['stencil-store-url'] = stencilConfig.normalStoreUrl;
+        }
+
+        try {
+            const response = await this.fetch(reqUrl, { headers });
+            if (!response.ok) {
+                throw new Error(response.statusText);
             }
+            payload = await response.json();
+            if (!payload) {
+                throw new Error('Empty payload in the server response');
+            }
+        } catch (err) {
+            throw new Error(
+                'The BigCommerce Store you are pointing to either does not exist or is not available at this time.'
+                    .red +
+                    '\nError details:\n' +
+                    err.message,
+            );
+        }
+        if (payload.error) {
+            throw new Error(payload.error.red);
+        }
+        if (payload.status !== 'ok') {
+            throw new Error(
+                'Error: You are using an outdated version of stencil-cli, please run '.red +
+                    '$ npm install -g @bigcommerce/stencil-cli'.cyan,
+            );
+        }
+        return payload;
+    }
 
-            try {
-                new Cycles(results).detect();
-            } catch (e) {
-                console.error(e);
+    /**
+     * @param {Object} cliOptions
+     * @param {Object} stencilConfig
+     * @return {Promise<any>}
+     */
+    async startLocalServer(cliOptions, stencilConfig) {
+        return Server.create({
+            dotStencilFile: stencilConfig,
+            variationIndex: this.themeConfigManager.variationIndex || 0,
+            useCache: cliOptions.cache,
+            themePath: this.themeConfigManager.themePath,
+        });
+    }
+
+    async startBrowserSync(cliOptions, stencilConfig, browserSyncPort) {
+        const DEFAULT_WATCH_FILES = ['/assets', '/templates', '/lang', '/.config'];
+        const DEFAULT_WATCH_IGNORED = ['/assets/scss', '/assets/css'];
+        const { themePath, configPath } = this.themeConfigManager;
+
+        // Watch sccs directory and automatically reload all css files if a file changes
+        const stylesPath = path.join(themePath, 'assets/scss');
+        this.browserSync.watch(stylesPath, (event) => {
+            if (event === 'change') {
+                this.browserSync.reload('*.css');
             }
         });
-    });
 
-    if (buildConfigManger.watchOptions && buildConfigManger.watchOptions.files) {
-        watchFiles = buildConfigManger.watchOptions.files;
-    }
+        this.browserSync.watch(configPath, (event) => {
+            if (event === 'change') {
+                this.themeConfigManager.resetVariationSettings();
+                this.browserSync.reload();
+            }
+        });
 
-    if (buildConfigManger.watchOptions && buildConfigManger.watchOptions.ignored) {
-        watchIgnored = buildConfigManger.watchOptions.ignored;
-    }
+        const storefrontConfigPath = path.join(themePath, '.config/storefront.json');
+        this.browserSync.watch(storefrontConfigPath, (event, file) => {
+            if (event === 'change') {
+                console.log('storefront.json changed');
+                this.browserSync.emitter.emit('storefront_config_file:changed', {
+                    event,
+                    path: file,
+                    namespace: '',
+                });
+                this.browserSync.reload();
+            }
+        });
 
-    bs.init({
-        open: !!cliOptions.open,
-        port: browserSyncPort,
-        files: watchFiles.map((val) => path.join(THEME_PATH, val)),
-        watchOptions: {
-            ignoreInitial: true,
-            ignored: watchIgnored.map((val) => path.join(THEME_PATH, val)),
-        },
-        proxy: `localhost:${dotStencilFile.port}`,
-        tunnel,
-    });
+        const templatesPath = path.join(themePath, 'templates');
+        this.browserSync.watch(templatesPath, { ignoreInitial: true }, () => {
+            this.assembleTemplates(templatesPath, (err, results) => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
 
-    // Handle manual reloading of browsers by typing 'rs';
-    // Borrowed from https://github.com/remy/nodemon
-    process.stdin.resume();
-    process.stdin.setEncoding('utf8');
-    process.stdin.on('data', (data) => {
-        const normalizedData = `${data}`.trim().toLowerCase();
+                try {
+                    new this.CyclesDetector(results).detect();
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+        });
 
-        // if the keys entered match the restartable value, then restart!
-        if (normalizedData === 'rs') {
-            bs.reload();
+        // tunnel value should be true/false or a string with name
+        // https://browsersync.io/docs/options#option-tunnel
+        // convert undefined/true -> false/true
+        const tunnel =
+            typeof cliOptions.tunnel === 'string' ? cliOptions.tunnel : Boolean(cliOptions.tunnel);
+        const watchFiles =
+            (this.buildConfigManger.watchOptions && this.buildConfigManger.watchOptions.files) ||
+            DEFAULT_WATCH_FILES;
+        const watchIgnored =
+            (this.buildConfigManger.watchOptions && this.buildConfigManger.watchOptions.ignored) ||
+            DEFAULT_WATCH_IGNORED;
+
+        this.browserSync.init({
+            open: !!cliOptions.open,
+            port: browserSyncPort,
+            files: watchFiles.map((val) => path.join(themePath, val)),
+            watchOptions: {
+                ignoreInitial: true,
+                ignored: watchIgnored.map((val) => path.join(themePath, val)),
+            },
+            proxy: `localhost:${stencilConfig.port}`,
+            tunnel,
+        });
+
+        // Handle manual reloading of browsers by typing 'rs';
+        // Borrowed from https://github.com/remy/nodemon
+        process.stdin.resume();
+        process.stdin.setEncoding('utf8');
+        process.stdin.on('data', (data) => {
+            const normalizedData = `${data}`.trim().toLowerCase();
+
+            // if the keys entered match the restartable value, then restart!
+            if (normalizedData === 'rs') {
+                this.browserSync.reload();
+            }
+        });
+
+        if (this.buildConfigManger.development) {
+            this.buildConfigManger.initWorker().development(this.browserSync);
         }
-    });
+    }
 
-    if (buildConfigManger.development) {
-        buildConfigManger.initWorker().development(bs);
+    /**
+     * Assembles all the needed templates and resolves their partials.
+     * @param {string} templatesPath
+     * @param {function} callback
+     */
+    assembleTemplates(templatesPath, callback) {
+        recursiveRead(templatesPath, ['!*.html'], (err, files) => {
+            const templateNames = files.map((file) =>
+                file.replace(templatesPath + templatesPath.sep, '').replace('.html', ''),
+            );
+
+            async.map(
+                templateNames,
+                this.templateAssembler.assemble.bind(null, templatesPath),
+                (err2, results) => {
+                    if (err2) {
+                        callback(err2);
+                    }
+                    callback(null, results);
+                },
+            );
+        });
+    }
+
+    /**
+     * Displays information about your environment and configuration.
+     * @param {Object} stencilConfig
+     * @param {string} dotStencilFilePath
+     * @returns {string}
+     */
+    getStartUpInfo(stencilConfig, dotStencilFilePath) {
+        let information = '\n';
+
+        information += '-----------------Startup Information-------------\n'.gray;
+        information += '\n';
+        information += `.stencil location: ${dotStencilFilePath.cyan}\n`;
+        information += `config.json location: ${this.themeConfigManager.configPath.cyan}\n`;
+        information += `Store URL: ${stencilConfig.normalStoreUrl.cyan}\n`;
+
+        if (stencilConfig.staplerUrl) {
+            information += `Stapler URL: ${stencilConfig.staplerUrl.cyan}\n`;
+        }
+
+        information += `SSL Store URL: ${stencilConfig.storeUrl.cyan}\n`;
+        information += `Node Version: ${process.version.cyan}\n`;
+        information += '\n';
+        information += '-------------------------------------------------\n'.gray;
+
+        return information;
     }
 }
 
-async function run() {
-    try {
-        const storeInfoFromAPI = await runAPICheck(dotStencilFile, PACKAGE_INFO.version);
-        dotStencilFile.storeUrl = storeInfoFromAPI.sslUrl;
-        dotStencilFile.normalStoreUrl = storeInfoFromAPI.baseUrl;
-
-        await startServer();
-    } catch (err) {
-        console.error(err.message);
-    }
-}
-
-run();
+new StencilStart().run(cliOpts, DOT_STENCIL_FILE_PATH, PACKAGE_INFO.version);
