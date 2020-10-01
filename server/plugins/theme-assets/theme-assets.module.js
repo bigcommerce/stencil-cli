@@ -48,8 +48,9 @@ internals.getOriginalFileName = (fileName) => {
  */
 internals.cssHandler = async (request, h) => {
     const variationIndex = internals.getVariationIndex(request.params.fileName);
+    const variationExists = await request.app.themeConfig.variationExists(variationIndex);
 
-    if (!request.app.themeConfig.variationExists(variationIndex)) {
+    if (!variationExists) {
         throw Boom.notFound(`Variation ${variationIndex + 1} does not exist.`);
     }
 
@@ -70,7 +71,7 @@ internals.cssHandler = async (request, h) => {
         throw Boom.badData(err);
     }
 
-    const configuration = request.app.themeConfig.getConfig();
+    const configuration = await request.app.themeConfig.getConfig();
 
     const params = {
         data: files[pathToFile],

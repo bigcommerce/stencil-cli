@@ -6,6 +6,7 @@ const program = require('../lib/commander');
 const { THEME_PATH, PACKAGE_INFO } = require('../constants');
 const ThemeConfig = require('../lib/theme-config');
 const Bundle = require('../lib/stencil-bundle');
+const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 const { checkNodeVersion } = require('../lib/cliCommon');
 
 program
@@ -27,29 +28,35 @@ program
 const cliOptions = program.opts();
 const themeConfig = ThemeConfig.getInstance(THEME_PATH);
 
-checkNodeVersion();
+async function run() {
+    try {
+        checkNodeVersion();
 
-if (cliOptions.dest === true) {
-    throw new Error('You have to specify a value for -d or --dest'.red);
-}
+        if (cliOptions.dest === true) {
+            throw new Error('You have to specify a value for -d or --dest'.red);
+        }
 
-if (cliOptions.name === true) {
-    throw new Error('You have to specify a value for -n or --name'.red);
-}
+        if (cliOptions.name === true) {
+            throw new Error('You have to specify a value for -n or --name'.red);
+        }
 
-if (!themeConfig.configExists()) {
-    throw new Error(
-        `${'You must have a '.red + 'config.json'.cyan} file in your top level theme directory.`,
-    );
-}
+        if (!themeConfig.configExists()) {
+            throw new Error(
+                `${
+                    'You must have a '.red + 'config.json'.cyan
+                } file in your top level theme directory.`,
+            );
+        }
 
-const rawConfig = themeConfig.getRawConfig();
-const bundle = new Bundle(THEME_PATH, themeConfig, rawConfig, cliOptions);
+        const rawConfig = await themeConfig.getRawConfig();
+        const bundle = new Bundle(THEME_PATH, themeConfig, rawConfig, cliOptions);
 
-bundle.initBundle((err, bundlePath) => {
-    if (err) {
-        throw err;
+        const bundlePath = await bundle.initBundle();
+
+        console.log(`Bundled saved to: ${bundlePath.cyan}`);
+    } catch (err) {
+        printCliResultErrorAndExit(err);
     }
+}
 
-    console.log(`Bundled saved to: ${bundlePath.cyan}`);
-});
+run();
