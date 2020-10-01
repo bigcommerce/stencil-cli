@@ -163,7 +163,7 @@ internals.getResponse = async (request) => {
  * @returns {*}
  */
 internals.parseResponse = async (bcAppData, request, response, responseArgs) => {
-    const configuration = request.app.themeConfig.getConfig();
+    const configuration = await request.app.themeConfig.getConfig();
     const { httpOpts, staplerUrlObject, url } = responseArgs;
 
     if (typeof bcAppData !== 'object' || !('pencil_response' in bcAppData)) {
