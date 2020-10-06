@@ -95,7 +95,21 @@ const makeDecorator = (request, context) => (content) => {
     return updatedContent;
 };
 
-class PencilResponce {
+class PencilResponse {
+    /**
+     * @param {Object} data
+     * @param data.template_file
+     * @param data.templates
+     * @param data.remote
+     * @param data.remote_data
+     * @param data.context
+     * @param data.translations
+     * @param data.method
+     * @param data.acceptLanguage
+     * @param {{[string]: string[]}} data.headers
+     * @param data.statusCode
+     * @param assembler
+     */
     constructor(data, assembler) {
         this.data = data;
         this.assembler = assembler;
@@ -153,4 +167,4 @@ class PencilResponce {
     }
 }
 
-module.exports = PencilResponce;
+module.exports = PencilResponse;
