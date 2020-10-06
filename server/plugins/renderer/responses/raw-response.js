@@ -9,7 +9,7 @@ const internals = {
 class RawResponse {
     /**
      * @param {buffer} data
-     * @param {object} headers
+     * @param {{[string]: string[]}} headers
      * @param {string} statusCode
      * @returns {object} response
      */
@@ -42,9 +42,18 @@ class RawResponse {
 
         const response = h.response(payload).code(this.statusCode);
 
-        for (const [name, value] of Object.entries(this.headers)) {
-            if (!['transfer-encoding', 'content-length'].includes(name)) {
-                response.header(name, value);
+        for (const [name, values] of Object.entries(this.headers)) {
+            switch (name) {
+                case 'transfer-encoding':
+                case 'content-length':
+                    break;
+                case 'set-cookie':
+                    // Cookies should be an array
+                    response.header('set-cookie', values);
+                    break;
+                default:
+                    // Other headers should be strings
+                    response.header(name, values.toString());
             }
         }
 

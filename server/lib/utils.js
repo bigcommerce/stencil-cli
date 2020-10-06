@@ -3,13 +3,15 @@ const uuidRegExp = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-([0-9a-f]{12
 /**
  * Strip domain from the cookies header string
  *
- * @param {string} cookies
- * @returns {string}
+ * @param {string[]} cookies
+ * @returns {string[]}
  */
 function stripDomainFromCookies(cookies) {
-    return cookies
-        .replace(/(?:;\s)?domain=(?:.+?)(;|$)/gi, '$1')
-        .replace(new RegExp('; SameSite=none', 'gi'), '');
+    return cookies.map((val) =>
+        val
+            .replace(/(?:;\s)?domain=(?:.+?)(;|$)/gi, '$1')
+            .replace(new RegExp('; SameSite=none', 'gi'), ''),
+    );
 }
 
 /**
@@ -30,7 +32,7 @@ function normalizeRedirectUrl(request, redirectUrl) {
     }
 
     if (stripHost) {
-        return redirectUrlObj.path;
+        return redirectUrlObj.pathname + redirectUrlObj.search + redirectUrlObj.hash;
     }
     return redirectUrl;
 }

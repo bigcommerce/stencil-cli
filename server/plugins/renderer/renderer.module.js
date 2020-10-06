@@ -69,14 +69,16 @@ internals.getResponse = async (request) => {
         : new URL(request.app.storeUrl);
 
     const httpOpts = {
-        headers: {
-            ...internals.getHeaders(request, { get_template_file: true, get_data_only: true }),
-            host: staplerUrlObject.host,
-        },
+        headers: internals.buildReqHeaders({
+            request,
+            stencilOptions: { get_template_file: true, get_data_only: true },
+            extraHeaders: { host: staplerUrlObject.host },
+        }),
         // Fetch will break if request body is Stream and server response is redirect,
         //  so we need to read the data first and then send the request
         body: request.payload ? await readFromStream(request.payload) : request.payload,
-        method: 'post',
+        method: request.method,
+        redirect: 'manual',
     };
 
     const url = Object.assign(new URL(request.url.toString()), {
@@ -116,19 +118,14 @@ internals.getResponse = async (request) => {
 
     const response = await fetch(url, httpOpts);
 
+    internals.processResHeaders(response.headers);
+
     if (response.status === 401) {
         return response;
     }
 
     if (response.status === 500) {
         throw new Error('The BigCommerce server responded with a 500 error');
-    }
-
-    if (response.headers.get('set-cookie')) {
-        response.headers.set(
-            'set-cookie',
-            utils.stripDomainFromCookies(response.headers.get('set-cookie')),
-        );
     }
 
     // Response is a redirect
@@ -163,19 +160,16 @@ internals.getResponse = async (request) => {
  * @returns {*}
  */
 internals.parseResponse = async (bcAppData, request, response, responseArgs) => {
-    const configuration = await request.app.themeConfig.getConfig();
     const { httpOpts, staplerUrlObject, url } = responseArgs;
 
     if (typeof bcAppData !== 'object' || !('pencil_response' in bcAppData)) {
         response.headers.delete('x-frame-options');
 
         // this is a raw response not emitted by TemplateEngine
-        return new RawResponse(
-            bcAppData,
-            _.fromPairs(response.headers.entries()), // Transform fetch.Headers map to a plain object
-            response.status,
-        );
+        return new RawResponse(bcAppData, response.headers.raw(), response.status);
     }
+
+    const configuration = await request.app.themeConfig.getConfig();
 
     // If a remote call, no need to do a second call to get the data,
     // it has already come back
@@ -183,12 +177,12 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
         return internals.getPencilResponse(bcAppData, request, response, configuration);
     }
 
-    const resourcesConfig = internals.getResourceConfig(bcAppData, request, configuration);
-
-    httpOpts.headers = {
-        ...internals.getHeaders(request, { get_data_only: true }, resourcesConfig),
-        host: staplerUrlObject.host,
-    };
+    httpOpts.headers = internals.buildReqHeaders({
+        request,
+        stencilOptions: { get_data_only: true },
+        stencilConfig: internals.getResourceConfig(bcAppData, request, configuration),
+        extraHeaders: { host: staplerUrlObject.host },
+    });
 
     // create request signature for caching
     const httpOptsSignature = internals.sha1sum(_.omit(httpOpts.headers, ['cookie']));
@@ -204,31 +198,24 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
     } else {
         response2 = await fetch(url, httpOpts);
 
+        internals.processResHeaders(response2.headers);
+
         // Response is a redirect
         if (response2.status >= 301 && response2.status <= 303) {
             return internals.redirect(response2, request);
         }
 
-        // Response is bad
         if (response2.status === 500) {
             throw new Error('The BigCommerce server responded with a 500 error');
         }
 
         data = await response2.json();
 
-        // Data response is bad
         if (data.status && data.status === 500) {
             throw new Error('The BigCommerce server responded with a 500 error');
         }
 
         cache.put(dataRequestSignature, { data, response2 }, internals.cacheTTL);
-
-        if (response2.headers.get('set-cookie')) {
-            response2.headers.set(
-                'set-cookie',
-                utils.stripDomainFromCookies(response2.headers.get('set-cookie')),
-            );
-        }
     }
 
     return internals.getPencilResponse(data, request, response2, configuration);
@@ -298,22 +285,16 @@ internals.getResourceConfig = (data, request, configuration) => {
  * @returns {*}
  */
 internals.redirect = async (response, request) => {
-    if (!response.headers.get('location')) {
+    const location = response.headers.get('location');
+
+    if (!location) {
         throw new Error('StatusCode is set to 30x but there is no location header to redirect to.');
     }
 
-    const normalizedRedirectUrl = utils.normalizeRedirectUrl(
-        request,
-        response.headers.get('location'),
-    );
-    response.headers.set('location', normalizedRedirectUrl);
+    response.headers.set('location', utils.normalizeRedirectUrl(request, location));
 
     // return a redirect response
-    return new RedirectResponse(
-        response.headers.get('location'),
-        _.fromPairs(response.headers.entries()), // Transform fetch.Headers map to a plain object
-        response.status,
-    );
+    return new RedirectResponse(location, response.headers.raw(), response.status);
 };
 
 /**
@@ -390,7 +371,7 @@ internals.getPencilResponse = (data, request, response, configuration) => {
             translations: data.translations,
             method: request.method,
             acceptLanguage: request.headers['accept-language'],
-            headers: _.fromPairs(response.headers.entries()), // Transform fetch.Headers map to a plain object
+            headers: response.headers.raw(),
             statusCode: response.status,
         },
         internals.themeAssembler,
@@ -398,13 +379,22 @@ internals.getPencilResponse = (data, request, response, configuration) => {
 };
 
 /**
- * Generate and return headers
+ * Get headers from request and return a new object with processed headers
  *
- * @param {object} request
+ * @param {object} request - Hapi request
+ * @param {[string]: string} request.headers
+ * @param {object} request.app
  * @param {object} [stencilOptions]
  * @param {object} [stencilConfig]
+ * @param {object} [extraHeaders] - extra headers to add to the result
+ * @returns {object}
  */
-internals.getHeaders = (request, stencilOptions = {}, stencilConfig) => {
+internals.buildReqHeaders = ({
+    request,
+    stencilOptions = {},
+    stencilConfig = null,
+    extraHeaders = {},
+}) => {
     // Merge in current stencil-options with passed in options
     const currentOptions = request.headers['stencil-options']
         ? JSON.parse(request.headers['stencil-options'])
@@ -429,7 +419,23 @@ internals.getHeaders = (request, stencilOptions = {}, stencilConfig) => {
         headers['stencil-store-url'] = request.app.storeUrl;
     }
 
-    return { ...request.headers, ...headers };
+    return { ...request.headers, ...headers, ...extraHeaders };
+};
+
+/**
+ * Process headers from Fetch response
+ *
+ * @param {Headers} headers
+ * @returns {object}
+ */
+internals.processResHeaders = (headers) => {
+    if (headers.get('set-cookie')) {
+        // When there are several values for the same header headers.get() returns
+        //  an array joined with comma which is wrong for cookies, so we use the initial raw Array
+        // https://github.com/node-fetch/node-fetch/issues/251#issuecomment-428143940
+        // eslint-disable-next-line no-param-reassign
+        headers.raw()['set-cookie'] = utils.stripDomainFromCookies(headers.raw()['set-cookie']);
+    }
 };
 
 /**
