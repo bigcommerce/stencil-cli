@@ -35,6 +35,14 @@
     "url": "https://github.com/bigcommerce/stencil-cli/issues"
   },
   "homepage": "https://github.com/bigcommerce/stencil-cli",
+  "files": [
+    "/lib",
+    "/bin",
+    "/server",
+    "!**/*.spec.js",
+    "constants.js",
+    "package-lock.json"
+  ],
   "dependencies": {
     "@bigcommerce/stencil-paper": "^3.0.0-rc.31",
     "@bigcommerce/stencil-styles": "1.2.1",
