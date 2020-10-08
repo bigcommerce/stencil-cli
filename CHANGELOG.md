@@ -1,3 +1,8 @@
+## <small>3.0.1 (2020-10-08)</small>
+
+-   fix: (strf-8734) fix a typo in renderer.module -> getTemplatePath() ([de5a91b](https://github.com/bigcommerce/stencil-cli/commit/de5a91b))
+-   fix: add file list to package file to ignore tests and cli release code ([de4468f](https://github.com/bigcommerce/stencil-cli/commit/de4468f))
+
 ## 3.0.0 (2020-10-06)
 
 -   fix: (strf-5280) Multiple themes - Changes to config.json not reflected ([0b28309](https://github.com/bigcommerce/stencil-cli/commit/0b28309))
