@@ -325,11 +325,7 @@ internals.getTemplatePath = (requestPath, data) => {
         });
 
         if (templatePath) {
-            templatePath = requestPath.join(
-                'pages/custom',
-                pageType,
-                templatePath.replace(/\.html$/, ''),
-            );
+            templatePath = path.join('pages/custom', pageType, templatePath.replace(/\.html$/, ''));
         }
     }
 
