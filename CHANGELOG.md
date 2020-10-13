@@ -1,3 +1,12 @@
+## <small>3.0.2 (2020-10-13)</small>
+
+-   fix: (strf-8740) fix a typo in StencilStart.assembleTemplates() ([7f58d48](https://github.com/bigcommerce/stencil-cli/commit/7f58d48))
+-   fix: add missed linting step to github actions ([19b4012](https://github.com/bigcommerce/stencil-cli/commit/19b4012))
+-   fix: add missed test coverage check to github actions ([39d137d](https://github.com/bigcommerce/stencil-cli/commit/39d137d))
+-   fix: fix linting problems on Windows ([bcdfaa4](https://github.com/bigcommerce/stencil-cli/commit/bcdfaa4))
+-   feat: (strf-8740) cover StencilStart.assembleTemplates() with tests ([0adf1f8](https://github.com/bigcommerce/stencil-cli/commit/0adf1f8))
+-   refactor: (strf-8740) move recursiveReadDir to fsUtils ([f2e2724](https://github.com/bigcommerce/stencil-cli/commit/f2e2724))
+
 ## <small>3.0.1 (2020-10-08)</small>
 
 -   fix: (strf-8734) fix a typo in renderer.module -> getTemplatePath() ([de5a91b](https://github.com/bigcommerce/stencil-cli/commit/de5a91b))
