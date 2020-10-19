@@ -1,5 +1,6 @@
 const fetchMock = require('node-fetch');
 const path = require('path');
+const fs = require('fs');
 
 const Server = require('../../index');
 const ThemeConfig = require('../../../lib/theme-config');
@@ -11,6 +12,8 @@ const themeConfigManager = ThemeConfig.getInstance(
 
 // eslint-disable-next-line node/no-unpublished-require,global-require
 jest.mock('node-fetch', () => require('fetch-mock-jest').sandbox());
+
+fetchMock.config.sendAsJson = false;
 
 describe('Renderer Plugin', () => {
     const storeUrl = 'https://store-abc123.mybigcommerce.com';
@@ -173,7 +176,7 @@ describe('Renderer Plugin', () => {
         expect(localServerResponse.statusCode).toEqual(401);
     });
 
-    describe('when the storefront server response is Success and content-type is not JSON', () => {
+    describe('when the storefront server response is Success and content-type is "text/html"', () => {
         const browserRequest = {
             method: 'get',
             url: '/checkout.php',
@@ -261,6 +264,54 @@ describe('Renderer Plugin', () => {
                     '</body>' +
                     '</html>',
             );
+        });
+    });
+
+    describe('when the storefront server response is Success and content-type is "image"', () => {
+        const browserRequest = {
+            method: 'get',
+            url: '/content/cat_and_dog.jpeg',
+        };
+        const testImage = fs.readFileSync('./test/assets/cat_and_dog.jpeg');
+        const storefrontServerResponse = {
+            status: 200,
+            headers: new fetchMock.Headers({
+                'content-type': 'image/jpeg',
+            }),
+            body: testImage,
+        };
+        let localServerResponse;
+
+        beforeEach(async () => {
+            fetchMock.mock('*', storefrontServerResponse);
+
+            localServerResponse = await server.inject(browserRequest);
+        });
+
+        it('should send a request to the storefront server with correct url', async () => {
+            expect(fetchMock.lastUrl()).toEqual(`${storeUrl}${browserRequest.url}`);
+        });
+
+        it('should pass request method from browser request to the storefront server request', async () => {
+            expect(fetchMock.lastOptions().method).toEqual(browserRequest.method);
+        });
+
+        it('should return a correct status code', async () => {
+            expect(localServerResponse.statusCode).toEqual(200);
+        });
+
+        it('should return correct headers', async () => {
+            expect(localServerResponse.headers).toMatchObject({
+                'content-type': storefrontServerResponse.headers.get('content-type'),
+                // Beware, if our local server parsed the storefront server response wrongly -
+                // content-length will be different
+                'content-length': 6858,
+            });
+        });
+
+        it('should return a correct response body', async () => {
+            expect(localServerResponse.rawPayload).toBeInstanceOf(Buffer);
+            expect(localServerResponse.rawPayload).toEqual(testImage);
         });
     });
 });

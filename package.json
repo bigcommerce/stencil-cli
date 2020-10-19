@@ -7,8 +7,8 @@
     "node": "^10.17 || ^12"
   },
   "scripts": {
-    "lint": "eslint . && prettier --check .",
-    "lint-and-fix": "eslint . --fix && prettier --write .",
+    "lint": "eslint . && prettier --check . --ignore-unknown",
+    "lint-and-fix": "eslint . --fix && prettier --write . --ignore-unknown",
     "test": "jest",
     "test-with-coverage": "jest --coverage --verbose"
   },

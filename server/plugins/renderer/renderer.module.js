@@ -135,7 +135,7 @@ internals.getResponse = async (request) => {
 
     const contentType = response.headers.get('content-type') || '';
     const isResponseJson = contentType.toLowerCase().includes('application/json');
-    const bcAppData = isResponseJson ? await response.json() : await response.text();
+    const bcAppData = isResponseJson ? await response.json() : await response.buffer();
 
     // cache response
     cache.put(
