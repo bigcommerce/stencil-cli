@@ -1,3 +1,7 @@
+## <small>3.0.3 (2020-10-19)</small>
+
+-   fix: (strf-8746) make local server parse binary data responses right ([39dacd8](https://github.com/bigcommerce/stencil-cli/commit/39dacd8))
+
 ## <small>3.0.2 (2020-10-13)</small>
 
 -   fix: (strf-8740) fix a typo in StencilStart.assembleTemplates() ([7f58d48](https://github.com/bigcommerce/stencil-cli/commit/7f58d48))
