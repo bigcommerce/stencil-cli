@@ -4,7 +4,7 @@ require('colors');
 const inquirer = require('inquirer');
 const program = require('../lib/commander');
 
-const { API_HOST, PACKAGE_INFO, DOT_STENCIL_FILE_PATH } = require('../constants');
+const { API_HOST, PACKAGE_INFO } = require('../constants');
 const stencilDownload = require('../lib/stencil-download');
 const { checkNodeVersion } = require('../lib/cliCommon');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
@@ -22,7 +22,6 @@ checkNodeVersion();
 const cliOptions = program.opts();
 const extraExclude = cliOptions.exclude ? [cliOptions.exclude] : [];
 const options = {
-    dotStencilFilePath: DOT_STENCIL_FILE_PATH,
     exclude: ['parsed', 'manifest.json', ...extraExclude],
     apiHost: cliOptions.host || API_HOST,
     channelId: cliOptions.channel_id || 1,

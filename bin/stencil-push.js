@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 require('colors');
-const { DOT_STENCIL_FILE_PATH, PACKAGE_INFO, API_HOST } = require('../constants');
+const { PACKAGE_INFO, API_HOST } = require('../constants');
 const program = require('../lib/commander');
 const stencilPush = require('../lib/stencil-push');
 const { checkNodeVersion } = require('../lib/cliCommon');
@@ -20,7 +20,6 @@ checkNodeVersion();
 
 const cliOptions = program.opts();
 const options = {
-    dotStencilFilePath: DOT_STENCIL_FILE_PATH,
     apiHost: cliOptions.host || API_HOST,
     bundleZipPath: cliOptions.file,
     activate: cliOptions.activate,

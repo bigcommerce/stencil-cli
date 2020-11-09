@@ -2,7 +2,7 @@
 
 require('colors');
 
-const { DOT_STENCIL_FILE_PATH, PACKAGE_INFO, API_HOST } = require('../constants');
+const { PACKAGE_INFO, API_HOST } = require('../constants');
 const program = require('../lib/commander');
 const stencilPull = require('../lib/stencil-pull');
 const { checkNodeVersion } = require('../lib/cliCommon');
@@ -28,7 +28,6 @@ checkNodeVersion();
 
 const cliOptions = program.opts();
 const options = {
-    dotStencilFilePath: DOT_STENCIL_FILE_PATH,
     apiHost: cliOptions.host || API_HOST,
     saveConfigName: cliOptions.filename,
     channelId: cliOptions.channel_id || 1,

@@ -3,8 +3,8 @@
 const program = require('../lib/commander');
 
 const StencilInit = require('../lib/stencil-init');
-const { DOT_STENCIL_FILE_PATH, PACKAGE_INFO } = require('../constants');
-const { checkNodeVersion } = require('../lib/cliCommon');
+const { PACKAGE_INFO } = require('../constants');
+const { checkNodeVersion, printCliResultErrorAndExit } = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
@@ -17,8 +17,10 @@ checkNodeVersion();
 
 const cliOptions = program.opts();
 
-new StencilInit().run(DOT_STENCIL_FILE_PATH, {
-    normalStoreUrl: cliOptions.url,
-    accessToken: cliOptions.token,
-    port: cliOptions.port,
-});
+new StencilInit()
+    .run({
+        normalStoreUrl: cliOptions.url,
+        accessToken: cliOptions.token,
+        port: cliOptions.port,
+    })
+    .catch(printCliResultErrorAndExit);
