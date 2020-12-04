@@ -291,7 +291,7 @@ internals.redirect = async (response, request) => {
         throw new Error('StatusCode is set to 30x but there is no location header to redirect to.');
     }
 
-    response.headers.set('location', utils.normalizeRedirectUrl(request, location));
+    response.headers.set('location', utils.normalizeRedirectUrl(location, request.app));
 
     // return a redirect response
     return new RedirectResponse(location, response.headers.raw(), response.status);
