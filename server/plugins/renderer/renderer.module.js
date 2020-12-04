@@ -3,7 +3,6 @@ const Boom = require('@hapi/boom');
 const cache = require('memory-cache');
 const Crypto = require('crypto');
 const Frontmatter = require('front-matter');
-const fetch = require('node-fetch');
 const path = require('path');
 const { promisify } = require('util');
 
@@ -13,6 +12,7 @@ const { RawResponse, RedirectResponse, PencilResponse } = require('./responses')
 const templateAssembler = require('../../../lib/template-assembler');
 const utils = require('../../lib/utils');
 const { readFromStream } = require('../../../lib/utils/asyncUtils');
+const { sendApiRequest } = require('../../../lib/utils/networkUtils');
 
 const internals = {
     options: {},
@@ -41,10 +41,6 @@ internals.implementation = async (request, h) => {
         throw Boom.badImplementation(err);
     }
 
-    if (response.status === 401) {
-        return h.response(response).code(401);
-    }
-
     return response.respond(request, h);
 };
 
@@ -69,41 +65,35 @@ internals.getResponse = async (request) => {
         : new URL(request.app.storeUrl);
 
     const httpOpts = {
+        url: Object.assign(new URL(request.url.toString()), {
+            port: staplerUrlObject.port,
+            host: staplerUrlObject.host,
+            protocol: staplerUrlObject.protocol,
+        }).toString(),
         headers: internals.buildReqHeaders({
             request,
             stencilOptions: { get_template_file: true, get_data_only: true },
             extraHeaders: { host: staplerUrlObject.host },
         }),
-        // Fetch will break if request body is Stream and server response is redirect,
-        //  so we need to read the data first and then send the request
-        body: request.payload ? await readFromStream(request.payload) : request.payload,
+        data: request.payload,
         method: request.method,
-        redirect: 'manual',
+        maxRedirects: 0, // handle the redirects manually to handle the redirect location
+        // If the response is an image it will be parsed wrongly, so we receive a raw data (stream)
+        //  and perform it manually depending on contentType later
+        responseType: 'stream',
+        validateStatus: (status) => status >= 200 && status < 500,
     };
-
-    const url = Object.assign(new URL(request.url.toString()), {
-        port: staplerUrlObject.port,
-        host: staplerUrlObject.host,
-        protocol: staplerUrlObject.protocol,
-    });
 
     const responseArgs = {
         httpOpts,
         staplerUrlObject,
-        url,
     };
 
-    // create request signature for caching
-    const httpOptsSignature = _.omit(httpOpts.headers, ['cookie']);
-    const requestSignature =
-        internals.sha1sum(request.method) +
-        internals.sha1sum(url) +
-        internals.sha1sum(httpOptsSignature);
-    const cachedResponse = cache.get(requestSignature);
-
     // check request signature and use cache, if available
+    const httpOptsSignature = _.omit(httpOpts.headers, ['cookie']);
+    const requestSignature = internals.sha1sum(httpOpts.url) + internals.sha1sum(httpOptsSignature);
+    const cachedResponse = cache.get(requestSignature);
     if (cachedResponse && request.method === 'get' && internals.options.useCache) {
-        // if GET request, return with cached response
         return internals.parseResponse(
             cachedResponse.bcAppData,
             request,
@@ -112,30 +102,26 @@ internals.getResponse = async (request) => {
         );
     }
     if (request.method !== 'get') {
-        // clear when making a non-get request
+        // clear when making a non-get request because smth may be changed
         cache.clear();
     }
 
-    const response = await fetch(url, httpOpts);
+    const response = await sendApiRequest(httpOpts);
 
     internals.processResHeaders(response.headers);
 
-    if (response.status === 401) {
-        return response;
-    }
-
-    if (response.status === 500) {
-        throw new Error('The BigCommerce server responded with a 500 error');
-    }
-
-    // Response is a redirect
+    // Redirect
     if (response.status >= 301 && response.status <= 303) {
         return internals.redirect(response, request);
     }
+    // Else response is success (2xx), need to handle it further
+    // (5xx will be just thrown by axios)
 
-    const contentType = response.headers.get('content-type') || '';
+    const contentType = response.headers['content-type'] || '';
     const isResponseJson = contentType.toLowerCase().includes('application/json');
-    const bcAppData = isResponseJson ? await response.json() : await response.buffer();
+    const bcAppData = isResponseJson
+        ? JSON.parse(await readFromStream(response.data))
+        : response.data;
 
     // cache response
     cache.put(
@@ -160,13 +146,13 @@ internals.getResponse = async (request) => {
  * @returns {*}
  */
 internals.parseResponse = async (bcAppData, request, response, responseArgs) => {
-    const { httpOpts, staplerUrlObject, url } = responseArgs;
+    const { httpOpts, staplerUrlObject } = responseArgs;
 
     if (typeof bcAppData !== 'object' || !('pencil_response' in bcAppData)) {
-        response.headers.delete('x-frame-options');
+        delete response.headers['x-frame-options'];
 
         // this is a raw response not emitted by TemplateEngine
-        return new RawResponse(bcAppData, response.headers.raw(), response.status);
+        return new RawResponse(bcAppData, response.headers, response.status);
     }
 
     const configuration = await request.app.themeConfig.getConfig();
@@ -183,20 +169,20 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
         stencilConfig: internals.getResourceConfig(bcAppData, request, configuration),
         extraHeaders: { host: staplerUrlObject.host },
     });
+    httpOpts.responseType = 'json'; // In the second request we always expect json
 
     // create request signature for caching
     const httpOptsSignature = internals.sha1sum(_.omit(httpOpts.headers, ['cookie']));
-    const urlSignature = internals.sha1sum(url);
+    const urlSignature = internals.sha1sum(httpOpts.url);
     const dataRequestSignature = `bcapp:${urlSignature}${httpOptsSignature}`;
     const cachedResponse2 = cache.get(dataRequestSignature);
 
-    let data;
     let response2;
     // check request signature and use cache, if available
     if (internals.options.useCache && cachedResponse2) {
-        ({ data, response2 } = cachedResponse2);
+        ({ response2 } = cachedResponse2);
     } else {
-        response2 = await fetch(url, httpOpts);
+        response2 = await sendApiRequest(httpOpts);
 
         internals.processResHeaders(response2.headers);
 
@@ -205,20 +191,14 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
             return internals.redirect(response2, request);
         }
 
-        if (response2.status === 500) {
+        if (response2.data && response2.data.status === 500) {
             throw new Error('The BigCommerce server responded with a 500 error');
         }
 
-        data = await response2.json();
-
-        if (data.status && data.status === 500) {
-            throw new Error('The BigCommerce server responded with a 500 error');
-        }
-
-        cache.put(dataRequestSignature, { data, response2 }, internals.cacheTTL);
+        cache.put(dataRequestSignature, { response2 }, internals.cacheTTL);
     }
 
-    return internals.getPencilResponse(data, request, response2, configuration);
+    return internals.getPencilResponse(response2.data, request, response2, configuration);
 };
 
 /**
@@ -285,16 +265,16 @@ internals.getResourceConfig = (data, request, configuration) => {
  * @returns {*}
  */
 internals.redirect = async (response, request) => {
-    const location = response.headers.get('location');
+    const { location } = response.headers;
 
     if (!location) {
         throw new Error('StatusCode is set to 30x but there is no location header to redirect to.');
     }
 
-    response.headers.set('location', utils.normalizeRedirectUrl(location, request.app));
+    response.headers.location = utils.normalizeRedirectUrl(location, request.app);
 
     // return a redirect response
-    return new RedirectResponse(location, response.headers.raw(), response.status);
+    return new RedirectResponse(location, response.headers, response.status);
 };
 
 /**
@@ -367,7 +347,7 @@ internals.getPencilResponse = (data, request, response, configuration) => {
             translations: data.translations,
             method: request.method,
             acceptLanguage: request.headers['accept-language'],
-            headers: response.headers.raw(),
+            headers: response.headers,
             statusCode: response.status,
         },
         internals.themeAssembler,
@@ -425,12 +405,9 @@ internals.buildReqHeaders = ({
  * @returns {object}
  */
 internals.processResHeaders = (headers) => {
-    if (headers.get('set-cookie')) {
-        // When there are several values for the same header headers.get() returns
-        //  an array joined with comma which is wrong for cookies, so we use the initial raw Array
-        // https://github.com/node-fetch/node-fetch/issues/251#issuecomment-428143940
+    if (headers && headers['set-cookie']) {
         // eslint-disable-next-line no-param-reassign
-        headers.raw()['set-cookie'] = utils.stripDomainFromCookies(headers.raw()['set-cookie']);
+        headers['set-cookie'] = utils.stripDomainFromCookies(headers['set-cookie']);
     }
 };
 
