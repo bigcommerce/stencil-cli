@@ -7,12 +7,13 @@ const path = require('path');
 const { promisify } = require('util');
 
 const langAssembler = require('../../../lib/lang-assembler');
-const { PACKAGE_INFO } = require('../../../constants');
 const { RawResponse, RedirectResponse, PencilResponse } = require('./responses');
 const templateAssembler = require('../../../lib/template-assembler');
 const utils = require('../../lib/utils');
 const { readFromStream } = require('../../../lib/utils/asyncUtils');
-const { sendApiRequest } = require('../../../lib/utils/networkUtils');
+const NetworkUtils = require('../../../lib/utils/NetworkUtils');
+
+const networkUtils = new NetworkUtils();
 
 const internals = {
     options: {},
@@ -75,6 +76,7 @@ internals.getResponse = async (request) => {
             stencilOptions: { get_template_file: true, get_data_only: true },
             extraHeaders: { host: staplerUrlObject.host },
         }),
+        accessToken: internals.options.accessToken,
         data: request.payload,
         method: request.method,
         maxRedirects: 0, // handle the redirects manually to handle the redirect location
@@ -106,7 +108,7 @@ internals.getResponse = async (request) => {
         cache.clear();
     }
 
-    const response = await sendApiRequest(httpOpts);
+    const response = await networkUtils.sendApiRequest(httpOpts);
 
     internals.processResHeaders(response.headers);
 
@@ -182,7 +184,7 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
     if (internals.options.useCache && cachedResponse2) {
         ({ response2 } = cachedResponse2);
     } else {
-        response2 = await sendApiRequest(httpOpts);
+        response2 = await networkUtils.sendApiRequest(httpOpts);
 
         internals.processResHeaders(response2.headers);
 
@@ -377,18 +379,12 @@ internals.buildReqHeaders = ({
         : {};
 
     const headers = {
-        'stencil-cli': PACKAGE_INFO.version,
-        'stencil-version': PACKAGE_INFO.config.stencil_version,
         'stencil-options': JSON.stringify({ ...stencilOptions, ...currentOptions }),
         'accept-encoding': 'identity',
     };
 
     if (!request.headers['stencil-config'] && stencilConfig) {
         headers['stencil-config'] = JSON.stringify(stencilConfig);
-    }
-    if (internals.options.accessToken) {
-        headers['X-Auth-Client'] = 'stencil-cli';
-        headers['X-Auth-Token'] = internals.options.accessToken;
     }
     // Development
     if (request.app.staplerUrl) {
