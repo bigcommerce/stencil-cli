@@ -1,19 +1,18 @@
-const fetchMock = require('node-fetch');
+const axios = require('axios');
+const MockAdapter = require('axios-mock-adapter');
 const path = require('path');
 const fs = require('fs');
 
 const Server = require('../../index');
 const ThemeConfig = require('../../../lib/theme-config');
+const { readFromStream } = require('../../../lib/utils/asyncUtils');
 const { PACKAGE_INFO } = require('../../../constants');
 
 const themeConfigManager = ThemeConfig.getInstance(
     path.join(process.cwd(), 'test/_mocks/themes/valid'),
 );
 
-// eslint-disable-next-line node/no-unpublished-require,global-require
-jest.mock('node-fetch', () => require('fetch-mock-jest').sandbox());
-
-fetchMock.config.sendAsJson = false;
+const axiosMock = new MockAdapter(axios);
 
 describe('Renderer Plugin', () => {
     const storeUrl = 'https://store-abc123.mybigcommerce.com';
@@ -49,7 +48,7 @@ describe('Renderer Plugin', () => {
 
     afterEach(() => {
         jest.resetAllMocks();
-        fetchMock.mockReset();
+        axiosMock.reset();
     });
 
     afterAll(async () => {
@@ -61,7 +60,9 @@ describe('Renderer Plugin', () => {
             method: 'GET',
             url: '/test',
         };
-        fetchMock.mock('*', { throws: new Error('failure') });
+        axiosMock.onGet().reply(() => {
+            throw new Error('failure');
+        });
 
         const localServerResponse = await server.inject(browserRequest);
 
@@ -73,7 +74,7 @@ describe('Renderer Plugin', () => {
             method: 'GET',
             url: '/',
         };
-        fetchMock.mock('*', 500);
+        axiosMock.onGet().reply(500);
 
         const localServerResponse = await server.inject(browserRequest);
 
@@ -91,43 +92,40 @@ describe('Renderer Plugin', () => {
         };
 
         const redirectLocationPath = '/account.php?action=order_status#first';
-        const storefrontResponseHeaders = new fetchMock.Headers({
+        const storefrontResponseHeaders = {
             location: `${normalStoreUrl}${redirectLocationPath}`,
-        });
-        // Fetch.Headers have implementation problem that it joins headers with that same name,
-        //  so we have to set an array directly to the raw value
-        storefrontResponseHeaders.raw()['set-cookie'] = [
-            'SHOP_SESSION_TOKEN=aaaaaaaaaaaaaa; expires=Mon, 12-Oct-2020 17:40:04 GMT; path=/; Secure; HttpOnly; SameSite=none',
-            'fornax_anonymousId=bbbbbbbbbbbbbb; expires=Wed, 05-Oct-2022 17:40:04 GMT; path=/; Secure; SameSite=none',
-            'RECENTLY_VIEWED_PRODUCTS=cccccccc; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; Secure; SameSite=none',
-            'SHOP_TOKEN=dddddddddddddddddddddd; expires=Mon, 12-Oct-2020 17:40:04 GMT; path=/; Secure; HttpOnly; SameSite=none',
-        ];
+            'set-cookie': [
+                'SHOP_SESSION_TOKEN=aaaaaaaaaaaaaa; expires=Mon, 12-Oct-2020 17:40:04 GMT; path=/; Secure; HttpOnly; SameSite=none',
+                'fornax_anonymousId=bbbbbbbbbbbbbb; expires=Wed, 05-Oct-2022 17:40:04 GMT; path=/; Secure; SameSite=none',
+                'RECENTLY_VIEWED_PRODUCTS=cccccccc; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; Secure; SameSite=none',
+                'SHOP_TOKEN=dddddddddddddddddddddd; expires=Mon, 12-Oct-2020 17:40:04 GMT; path=/; Secure; HttpOnly; SameSite=none',
+            ],
+        };
+
         let localServerResponse;
 
         beforeEach(async () => {
-            fetchMock.mock('*', {
-                status: 301,
-                headers: storefrontResponseHeaders,
-            });
+            axiosMock.onPost().reply(301, undefined, storefrontResponseHeaders);
 
             localServerResponse = await server.inject(browserRequest);
         });
 
         it('should send a request to the storefront server with correct url', async () => {
-            expect(fetchMock.lastUrl()).toEqual(`${storeUrl}${browserRequest.url}`);
+            expect(axiosMock.history.post[0].url).toEqual(`${storeUrl}${browserRequest.url}`);
         });
 
         it('should pass request method from the browser request to the storefront server request', async () => {
-            expect(fetchMock.lastOptions().method).toEqual(browserRequest.method);
+            expect(axiosMock.history.post[0].method).toEqual(browserRequest.method);
         });
 
         it('should pass body from the browser request to the storefront server request', async () => {
-            expect(fetchMock.lastOptions().body).toEqual(browserRequest.payload);
+            const sentData = await readFromStream(axiosMock.history.post[0].data);
+            expect(sentData).toEqual(browserRequest.payload);
         });
 
         it('should send a request to the storefront server with correct headers', async () => {
-            expect(fetchMock.lastOptions().headers).toMatchObject({
-                'content-type': 'application/x-www-form-urlencoded',
+            expect(axiosMock.history.post[0].headers).toMatchObject({
+                'Content-Type': 'application/x-www-form-urlencoded',
                 host: new URL(storeUrl).host,
                 'stencil-cli': PACKAGE_INFO.version,
                 'stencil-options': '{"get_template_file":true,"get_data_only":true}',
@@ -137,7 +135,7 @@ describe('Renderer Plugin', () => {
         });
 
         it('should avoid automatic handling of redirects by fetch library', async () => {
-            expect(fetchMock.lastOptions().redirect).toEqual('manual');
+            expect(axiosMock.history.post[0].maxRedirects).toEqual(0);
         });
 
         it('should return a correct status code', async () => {
@@ -163,17 +161,17 @@ describe('Renderer Plugin', () => {
             method: 'GET',
             url: '/',
         };
-        const storefrontServerResponse = {
-            status: 401,
-            headers: {
-                'content-type': 'text/html',
-            },
+
+        const storefrontServerResponseData = 'Response test body';
+        const storefrontServerResponseHeaders = {
+            'content-type': 'text/html',
         };
-        fetchMock.mock('*', storefrontServerResponse);
+        axiosMock.onGet().reply(401, storefrontServerResponseData, storefrontServerResponseHeaders);
 
         const localServerResponse = await server.inject(browserRequest);
 
         expect(localServerResponse.statusCode).toEqual(401);
+        expect(localServerResponse.payload).toEqual(storefrontServerResponseData);
     });
 
     describe('when the storefront server response is Success and content-type is "text/html"', () => {
@@ -185,48 +183,43 @@ describe('Renderer Plugin', () => {
             },
         };
 
-        const storefrontResponseHeaders = new fetchMock.Headers({
+        const storefrontResponseHeaders = {
             'content-type': 'text/html; charset=utf-8',
-        });
-        // Fetch.Headers have implementation problem that it joins headers with that same name,
-        //  so we have to set an array directly to the raw value
-        storefrontResponseHeaders.raw()['set-cookie'] = [
-            'SHOP_SESSION_TOKEN=aaaaaaaaaaaaaa; expires=Mon, 12-Oct-2020 17:40:04 GMT; path=/; Secure; HttpOnly; SameSite=none',
-            'fornax_anonymousId=bbbbbbbbbbbbbb; expires=Wed, 05-Oct-2022 17:40:04 GMT; path=/; Secure; SameSite=none',
-            'RECENTLY_VIEWED_PRODUCTS=cccccccc; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; Secure; SameSite=none',
-            'SHOP_TOKEN=dddddddddddddddddddddd; expires=Mon, 12-Oct-2020 17:40:04 GMT; path=/; Secure; HttpOnly; SameSite=none',
-        ];
-        const storefrontServerResponse = {
-            status: 200,
-            headers: storefrontResponseHeaders,
-            body:
-                '<!DOCTYPE html>' +
-                '<html>' +
-                '<head>' +
-                '<title>Checkout</title>' +
-                '<body>' +
-                'Checkout page body' +
-                '</body>' +
-                '</html>',
+            'set-cookie': [
+                'SHOP_SESSION_TOKEN=aaaaaaaaaaaaaa; expires=Mon, 12-Oct-2020 17:40:04 GMT; path=/; Secure; HttpOnly; SameSite=none',
+                'fornax_anonymousId=bbbbbbbbbbbbbb; expires=Wed, 05-Oct-2022 17:40:04 GMT; path=/; Secure; SameSite=none',
+                'RECENTLY_VIEWED_PRODUCTS=cccccccc; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; Secure; SameSite=none',
+                'SHOP_TOKEN=dddddddddddddddddddddd; expires=Mon, 12-Oct-2020 17:40:04 GMT; path=/; Secure; HttpOnly; SameSite=none',
+            ],
         };
+        const storefrontResponseBody =
+            '<!DOCTYPE html>' +
+            '<html>' +
+            '<head>' +
+            '<title>Checkout</title>' +
+            '<body>' +
+            'Checkout page body' +
+            '</body>' +
+            '</html>';
+
         let localServerResponse;
 
         beforeEach(async () => {
-            fetchMock.mock('*', storefrontServerResponse);
+            axiosMock.onGet().reply(200, storefrontResponseBody, storefrontResponseHeaders);
 
             localServerResponse = await server.inject(browserRequest);
         });
 
         it('should send a request to the storefront server with correct url', async () => {
-            expect(fetchMock.lastUrl()).toEqual(`${storeUrl}${browserRequest.url}`);
+            expect(axiosMock.history.get[0].url).toEqual(`${storeUrl}${browserRequest.url}`);
         });
 
         it('should pass request method from browser request to the storefront server request', async () => {
-            expect(fetchMock.lastOptions().method).toEqual(browserRequest.method);
+            expect(axiosMock.history.get[0].method).toEqual(browserRequest.method);
         });
 
         it('should send a request to the storefront server with correct headers', async () => {
-            expect(fetchMock.lastOptions().headers).toMatchObject({
+            expect(axiosMock.history.get[0].headers).toMatchObject({
                 cookie: browserRequest.headers.cookie,
                 host: new URL(storeUrl).host,
                 'stencil-cli': PACKAGE_INFO.version,
@@ -242,7 +235,7 @@ describe('Renderer Plugin', () => {
 
         it('should return correct headers', async () => {
             expect(localServerResponse.headers).toMatchObject({
-                'content-type': storefrontServerResponse.headers.get('content-type'),
+                'content-type': storefrontResponseHeaders['content-type'],
                 'set-cookie': [
                     'SHOP_SESSION_TOKEN=aaaaaaaaaaaaaa; expires=Mon, 12-Oct-2020 17:40:04 GMT; path=/; Secure; HttpOnly',
                     'fornax_anonymousId=bbbbbbbbbbbbbb; expires=Wed, 05-Oct-2022 17:40:04 GMT; path=/; Secure',
@@ -273,27 +266,23 @@ describe('Renderer Plugin', () => {
             url: '/content/cat_and_dog.jpeg',
         };
         const testImage = fs.readFileSync('./test/assets/cat_and_dog.jpeg');
-        const storefrontServerResponse = {
-            status: 200,
-            headers: new fetchMock.Headers({
-                'content-type': 'image/jpeg',
-            }),
-            body: testImage,
+        const storefrontResponseHeaders = {
+            'content-type': 'image/jpeg',
         };
         let localServerResponse;
 
         beforeEach(async () => {
-            fetchMock.mock('*', storefrontServerResponse);
+            axiosMock.onGet().reply(200, testImage, storefrontResponseHeaders);
 
             localServerResponse = await server.inject(browserRequest);
         });
 
         it('should send a request to the storefront server with correct url', async () => {
-            expect(fetchMock.lastUrl()).toEqual(`${storeUrl}${browserRequest.url}`);
+            expect(axiosMock.history.get[0].url).toEqual(`${storeUrl}${browserRequest.url}`);
         });
 
         it('should pass request method from browser request to the storefront server request', async () => {
-            expect(fetchMock.lastOptions().method).toEqual(browserRequest.method);
+            expect(axiosMock.history.get[0].method).toEqual(browserRequest.method);
         });
 
         it('should return a correct status code', async () => {
@@ -302,7 +291,7 @@ describe('Renderer Plugin', () => {
 
         it('should return correct headers', async () => {
             expect(localServerResponse.headers).toMatchObject({
-                'content-type': storefrontServerResponse.headers.get('content-type'),
+                'content-type': storefrontResponseHeaders['content-type'],
                 // Beware, if our local server parsed the storefront server response wrongly -
                 // content-length will be different
                 'content-length': 6858,

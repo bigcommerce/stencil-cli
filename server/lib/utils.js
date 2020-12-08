@@ -17,24 +17,25 @@ function stripDomainFromCookies(cookies) {
 /**
  * Strip domain from redirectUrl if it matches the current storeUrl, if not, leave it.
  *
- * @param request
- * @param redirectUrl
+ * @param {string} redirectUrl
+ * @param {{ normalStoreUrl, storeUrl}} config
  * @returns {string}
  */
-function normalizeRedirectUrl(request, redirectUrl) {
-    const storeHost = new URL(request.app.normalStoreUrl).host;
-    const secureStoreHost = new URL(request.app.storeUrl).host;
+function normalizeRedirectUrl(redirectUrl, config) {
+    if (!redirectUrl || !redirectUrl.startsWith('http')) {
+        return redirectUrl; // already stripped, skip
+    }
+
+    const storeHost = new URL(config.normalStoreUrl).host;
+    const secureStoreHost = new URL(config.storeUrl).host;
     const redirectUrlObj = new URL(redirectUrl);
-    let stripHost = false;
 
     if (redirectUrlObj.host === storeHost || redirectUrlObj.host === secureStoreHost) {
-        stripHost = true;
-    }
-
-    if (stripHost) {
+        // Need to strip
         return redirectUrlObj.pathname + redirectUrlObj.search + redirectUrlObj.hash;
     }
-    return redirectUrl;
+
+    return redirectUrl; // Different host, shouldn't strip
 }
 
 /**
