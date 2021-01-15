@@ -1,3 +1,18 @@
+## 3.1.0 (2021-01-15)
+
+-   fix:(STRF-8909) theme variation not applied with activate flag (#679) ([6830f15](https://github.com/bigcommerce/stencil-cli/commit/6830f15))
+-   fix: (strf-8745) move common headers inside sendApiRequest and refactor NetworkUtils ([21a3522](https://github.com/bigcommerce/stencil-cli/commit/21a3522))
+-   fix: (strf-8840) add missing rejectUnauthorized parameter to the API requests ([5ee6138](https://github.com/bigcommerce/stencil-cli/commit/5ee6138))
+-   fix: add handling cases when redirect link is already stripped in normalizeRedirectUrl ([88fee5d](https://github.com/bigcommerce/stencil-cli/commit/88fee5d))
+-   fix(stencil-push): (STRF-8913) increase maxBodyLength in NetworkUtils.sendApiRequest ([f2e3918](https://github.com/bigcommerce/stencil-cli/commit/f2e3918))
+-   fix(stencil-release): (STRF-6905) add updating version in package-lock.json ([8f9ff79](https://github.com/bigcommerce/stencil-cli/commit/8f9ff79))
+-   fix(stencil-release): fix typo in the code ([e6dfbc3](https://github.com/bigcommerce/stencil-cli/commit/e6dfbc3))
+-   fix(stencil-release): fix uploading broken bundle archive to github ([0271ed4](https://github.com/bigcommerce/stencil-cli/commit/0271ed4))
+-   refactor: (strf-8745) replace fetch with axios ([946a012](https://github.com/bigcommerce/stencil-cli/commit/946a012))
+-   refactor: (strf-8747) move code dealing with .stencil file into a separate class ([7b371e8](https://github.com/bigcommerce/stencil-cli/commit/7b371e8))
+-   feat: (strf-8747) split .stencil file into 2 configs ([6f3d2dc](https://github.com/bigcommerce/stencil-cli/commit/6f3d2dc))
+-   feat: increase coverage threshold ([9dfa78c](https://github.com/bigcommerce/stencil-cli/commit/9dfa78c))
+
 ## <small>3.0.3 (2020-10-19)</small>
 
 -   fix: (strf-8746) make local server parse binary data responses right ([39dacd8](https://github.com/bigcommerce/stencil-cli/commit/39dacd8))
