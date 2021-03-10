@@ -1,3 +1,8 @@
+## <small>3.1.1 (2021-03-10)</small>
+
+-   fix: (STRF-9019) wrong reading from stream breaks stencil-download command ([eb9b082](https://github.com/bigcommerce/stencil-cli/commit/eb9b082))
+-   fix: broken changelog.md after stencil release command ([ec4a72a](https://github.com/bigcommerce/stencil-cli/commit/ec4a72a))
+
 ## 3.1.0 (2021-01-15)
 
 -   fix:(STRF-8909) theme variation not applied with activate flag (#679) ([6830f15](https://github.com/bigcommerce/stencil-cli/commit/6830f15))
