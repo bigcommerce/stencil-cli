@@ -30,8 +30,9 @@ const cliOptions = program.opts();
 const options = {
     apiHost: cliOptions.host || API_HOST,
     saveConfigName: cliOptions.filename,
-    channelId: cliOptions.channel_id || 1,
+    channelId: cliOptions.channel_id,
     saved: cliOptions.saved || false,
+    applyTheme: true, // fix to be compatible with stencil-push.utils
 };
 
 stencilPull(options, (err) => {
