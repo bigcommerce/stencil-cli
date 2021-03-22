@@ -1,3 +1,10 @@
+## 3.2.0 (2021-03-22)
+
+-   feat: strf-7651 - update push command to take into account multiple channels ([7582e7c](https://github.com/bigcommerce/stencil-cli/commit/7582e7c))
+-   feat: strf-8282 - update pull command to take into account multiple channels ([00b4571](https://github.com/bigcommerce/stencil-cli/commit/00b4571))
+-   feat: strf-8282 - use sites instead of channels API ([bf16215](https://github.com/bigcommerce/stencil-cli/commit/bf16215))
+-   feat: strf-9071 - update download command to support multiple channels ([d6a9f94](https://github.com/bigcommerce/stencil-cli/commit/d6a9f94))
+
 ## <small>3.1.1 (2021-03-10)</small>
 
 -   fix: (STRF-9019) wrong reading from stream breaks stencil-download command ([eb9b082](https://github.com/bigcommerce/stencil-cli/commit/eb9b082))
