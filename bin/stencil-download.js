@@ -24,7 +24,8 @@ const extraExclude = cliOptions.exclude ? [cliOptions.exclude] : [];
 const options = {
     exclude: ['parsed', 'manifest.json', ...extraExclude],
     apiHost: cliOptions.host || API_HOST,
-    channelId: cliOptions.channel_id || 1,
+    channelId: cliOptions.channel_id,
+    applyTheme: true, // fix to be compatible with stencil-push.utils
     file: cliOptions.file,
 };
 
@@ -45,7 +46,7 @@ async function run(opts) {
         return;
     }
 
-    console.log(`${'ok'.green} -- ${overwriteType} will be overwritten by change`);
+    console.log(`${'ok'.green} -- ${overwriteType} will be overwritten by the changes`);
 
     try {
         await stencilDownload(opts);
