@@ -61,20 +61,18 @@ internals.sha1sum = (input) => {
  * @param request
  */
 internals.getResponse = async (request) => {
-    const staplerUrlObject = request.app.staplerUrl
-        ? new URL(request.app.staplerUrl)
-        : new URL(request.app.storeUrl);
+    const storeUrlObj = new URL(request.app.storeUrl);
 
     const httpOpts = {
         url: Object.assign(new URL(request.url.toString()), {
-            port: staplerUrlObject.port,
-            host: staplerUrlObject.host,
-            protocol: staplerUrlObject.protocol,
+            port: storeUrlObj.port,
+            host: storeUrlObj.host,
+            protocol: storeUrlObj.protocol,
         }).toString(),
         headers: internals.buildReqHeaders({
             request,
             stencilOptions: { get_template_file: true, get_data_only: true },
-            extraHeaders: { host: staplerUrlObject.host },
+            extraHeaders: { host: storeUrlObj.host },
         }),
         accessToken: internals.options.accessToken,
         data: request.payload,
@@ -88,7 +86,7 @@ internals.getResponse = async (request) => {
 
     const responseArgs = {
         httpOpts,
-        staplerUrlObject,
+        storeUrlObj,
     };
 
     // check request signature and use cache, if available
@@ -148,7 +146,7 @@ internals.getResponse = async (request) => {
  * @returns {*}
  */
 internals.parseResponse = async (bcAppData, request, response, responseArgs) => {
-    const { httpOpts, staplerUrlObject } = responseArgs;
+    const { httpOpts, storeUrlObj } = responseArgs;
 
     if (typeof bcAppData !== 'object' || !('pencil_response' in bcAppData)) {
         delete response.headers['x-frame-options'];
@@ -169,7 +167,7 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
         request,
         stencilOptions: { get_data_only: true },
         stencilConfig: internals.getResourceConfig(bcAppData, request, configuration),
-        extraHeaders: { host: staplerUrlObject.host },
+        extraHeaders: { host: storeUrlObj.host },
     });
     httpOpts.responseType = 'json'; // In the second request we always expect json
 
@@ -385,10 +383,6 @@ internals.buildReqHeaders = ({
 
     if (!request.headers['stencil-config'] && stencilConfig) {
         headers['stencil-config'] = JSON.stringify(stencilConfig);
-    }
-    // Development
-    if (request.app.staplerUrl) {
-        headers['stencil-store-url'] = request.app.storeUrl;
     }
 
     return { ...request.headers, ...headers, ...extraHeaders };

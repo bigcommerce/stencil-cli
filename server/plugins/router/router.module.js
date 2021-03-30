@@ -5,7 +5,6 @@ const internals = {
     options: {
         storeUrl: '',
         apiKey: '',
-        staplerUrl: '',
         port: '',
     },
     paths: {
@@ -27,7 +26,6 @@ function register(server, options) {
         request.app.storeUrl = internals.options.storeUrl;
         request.app.normalStoreUrl = internals.options.normalStoreUrl;
         request.app.apiKey = internals.options.apiKey;
-        request.app.staplerUrl = internals.options.staplerUrl;
         request.app.themeConfig = ThemeConfig.getInstance();
 
         return h.continue;
