@@ -20,4 +20,4 @@ program
     )
     .parse(process.argv);
 
-new StencilStart().run(program.opts(), PACKAGE_INFO.version).catch(printCliResultErrorAndExit);
+new StencilStart().run(program.opts()).catch(printCliResultErrorAndExit);
