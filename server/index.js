@@ -19,7 +19,6 @@ function buildManifest(srcManifest, options) {
         parsedNormalUrl.protocol + '//' + parsedNormalUrl.host;
     pluginsByName['./plugins/router/router.module'].apiKey = options.dotStencilFile.apiKey;
     pluginsByName['./plugins/router/router.module'].port = options.dotStencilFile.port;
-    pluginsByName['./plugins/router/router.module'].staplerUrl = options.dotStencilFile.staplerUrl;
     pluginsByName['./plugins/renderer/renderer.module'].useCache = options.useCache;
     pluginsByName['./plugins/renderer/renderer.module'].username = options.dotStencilFile.username;
     pluginsByName['./plugins/renderer/renderer.module'].token = options.dotStencilFile.token;
