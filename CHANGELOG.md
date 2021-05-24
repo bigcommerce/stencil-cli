@@ -1,3 +1,10 @@
+## <small>3.2.1 (2021-05-24)</small>
+
+-   refactor: move API requests from commands to themeApiClient ([06f8d61](https://github.com/bigcommerce/stencil-cli/commit/06f8d61))
+-   feat: remove old unused field staplerUrl from local server ([a3ec69f](https://github.com/bigcommerce/stencil-cli/commit/a3ec69f))
+-   fix: (STRF-9087) set upstream=storefront to support multiple channels in start command ([3f6b8ed](https://github.com/bigcommerce/stencil-cli/commit/3f6b8ed))
+-   fix: Typo fix at StencilConfigManager.js([4c2a04d](https://github.com/bigcommerce/stencil-cli/commit/4c2a04d))
+
 ## 3.2.0 (2021-03-22)
 
 -   feat: strf-7651 - update push command to take into account multiple channels ([7582e7c](https://github.com/bigcommerce/stencil-cli/commit/7582e7c))
