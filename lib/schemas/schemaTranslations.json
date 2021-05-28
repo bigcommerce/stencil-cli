@@ -13,7 +13,24 @@
         }
       },
       "patternProperties": {
-        "^[a-z]{2}$": {
+        "[a-z]{2}(-[a-zA-Z0-9]{2,})?$": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["default"]
+    },
+    "^i18n.Bigcommerce.": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "patternProperties": {
+        "[a-z]{2}(-[a-zA-Z0-9]{2,})?$": {
           "type": "string",
           "minLength": 1
         }
