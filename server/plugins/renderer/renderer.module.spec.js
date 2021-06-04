@@ -15,6 +15,7 @@ const themeConfigManager = ThemeConfig.getInstance(
 const axiosMock = new MockAdapter(axios);
 
 describe('Renderer Plugin', () => {
+    const channelId = 5;
     const storeUrl = 'https://store-abc123.mybigcommerce.com';
     const normalStoreUrl = 'http://s123456789.mybigcommerce.com';
     const serverOptions = {
@@ -27,6 +28,7 @@ describe('Renderer Plugin', () => {
         },
         useCache: false,
         themePath: themeConfigManager.themePath,
+        channelId,
     };
     let server;
 
@@ -79,6 +81,36 @@ describe('Renderer Plugin', () => {
         const localServerResponse = await server.inject(browserRequest);
 
         expect(localServerResponse.statusCode).toEqual(500);
+    });
+
+    describe('when the channel id is passed via headers to API', () => {
+        it('should proxy browser requests with X-BC-Scope-Channel-Id header', async () => {
+            const browserRequest = {
+                method: 'GET',
+                url: '/',
+            };
+
+            axiosMock.onGet().reply((config) => {
+                expect(config.headers['X-BC-Scope-Channel-Id']).toEqual(channelId);
+                return [200, {}];
+            });
+
+            await server.inject(browserRequest);
+        });
+
+        it('should proxy storefront requests with X-BC-Scope-Channel-Id header', async () => {
+            const browserRequest = {
+                method: 'GET',
+                url: '/account.php',
+            };
+
+            axiosMock.onGet().reply((config) => {
+                expect(config.headers['X-BC-Scope-Channel-Id']).toEqual(channelId);
+                return [200, {}];
+            });
+
+            await server.inject(browserRequest);
+        });
     });
 
     describe('when the storefront server response is Redirect', () => {

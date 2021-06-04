@@ -385,6 +385,10 @@ internals.buildReqHeaders = ({
         headers['stencil-config'] = JSON.stringify(stencilConfig);
     }
 
+    if (internals.options.channelId) {
+        headers['X-BC-Scope-Channel-Id'] = internals.options.channelId;
+    }
+
     return { ...request.headers, ...headers, ...extraHeaders };
 };
 

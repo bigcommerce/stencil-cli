@@ -6,6 +6,7 @@ const internals = {
         storeUrl: '',
         apiKey: '',
         port: '',
+        channelId: null,
     },
     paths: {
         renderer: '/{url*}',
@@ -17,6 +18,24 @@ const internals = {
         favicon: '/favicon.ico',
         graphQL: '/graphql',
     },
+};
+
+const getProxiedMapUri = (req) => {
+    const headers = {
+        ...req.headers,
+        host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
+    };
+    if (internals.options.channelId) {
+        headers['X-BC-Scope-Channel-Id'] = internals.options.channelId;
+    }
+    const host = internals.options.storeUrl.replace(/http[s]?:\/\//, '');
+    const port = 443;
+    const searchParams = req.url.search || '';
+    const uri = `https://${host}:${port}${req.path}${searchParams}`;
+    return {
+        uri,
+        headers,
+    };
 };
 
 function register(server, options) {
@@ -92,10 +111,8 @@ internals.registerRoutes = (server) => {
             path: internals.paths.internalApi,
             handler: {
                 proxy: {
-                    host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
+                    mapUri: getProxiedMapUri,
                     rejectUnauthorized: false,
-                    protocol: 'https',
-                    port: 443,
                     passThrough: true,
                     xforward: true,
                 },
@@ -111,10 +128,8 @@ internals.registerRoutes = (server) => {
             path: internals.paths.storefrontAPI,
             handler: {
                 proxy: {
-                    host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
+                    mapUri: getProxiedMapUri,
                     rejectUnauthorized: false,
-                    protocol: 'https',
-                    port: 443,
                     passThrough: true,
                     xforward: true,
                 },
