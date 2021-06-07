@@ -385,8 +385,6 @@ internals.buildReqHeaders = ({
         headers['stencil-config'] = JSON.stringify(stencilConfig);
     }
 
-    console.log();
-
     return { ...request.headers, ...headers, ...extraHeaders };
 };
 

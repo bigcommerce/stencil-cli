@@ -245,8 +245,6 @@ describe('Renderer Plugin', () => {
         });
 
         it('should send a request to the storefront server with correct headers', async () => {
-            console.log('hherer');
-            console.log('hherer');
             expect(axiosMock.history.get[0].headers).toMatchObject({
                 cookie: browserRequest.headers.cookie,
                 host: new URL(storeUrl).host,
