@@ -20,23 +20,6 @@ const internals = {
     },
 };
 
-const getProxiedMapUri = (req) => {
-    const headers = {
-        ...req.headers,
-        host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
-    };
-    const host = internals.options.channelUrl
-        ? internals.options.channelUrl.replace(/http[s]?:\/\//, '')
-        : internals.options.storeUrl.replace(/http[s]?:\/\//, '');
-    const port = 443;
-    const searchParams = req.url.search || '';
-    const uri = `https://${host}:${port}${req.path}${searchParams}`;
-    return {
-        uri,
-        headers,
-    };
-};
-
 function register(server, options) {
     internals.options = _.defaultsDeep(options, internals.options);
 
@@ -110,8 +93,10 @@ internals.registerRoutes = (server) => {
             path: internals.paths.internalApi,
             handler: {
                 proxy: {
-                    mapUri: getProxiedMapUri,
+                    host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
                     rejectUnauthorized: false,
+                    protocol: 'https',
+                    port: 443,
                     passThrough: true,
                     xforward: true,
                 },
@@ -127,8 +112,10 @@ internals.registerRoutes = (server) => {
             path: internals.paths.storefrontAPI,
             handler: {
                 proxy: {
-                    mapUri: getProxiedMapUri,
+                    host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
                     rejectUnauthorized: false,
+                    protocol: 'https',
+                    port: 443,
                     passThrough: true,
                     xforward: true,
                 },

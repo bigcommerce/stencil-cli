@@ -63,19 +63,16 @@ internals.sha1sum = (input) => {
 internals.getResponse = async (request) => {
     const storeUrlObj = new URL(request.app.storeUrl);
 
-    const channeUrlHost = internals.options.channelUrl
-        ? internals.options.channelUrl.replace(/http[s]?:\/\//, '')
-        : null;
     const httpOpts = {
         url: Object.assign(new URL(request.url.toString()), {
             port: storeUrlObj.port,
-            host: internals.options.channelUrl ? channeUrlHost : storeUrlObj.host,
+            host: storeUrlObj.host,
             protocol: storeUrlObj.protocol,
         }).toString(),
         headers: internals.buildReqHeaders({
             request,
             stencilOptions: { get_template_file: true, get_data_only: true },
-            extraHeaders: { host: internals.options.channelUrl ? channeUrlHost : storeUrlObj.host },
+            extraHeaders: { host: storeUrlObj.host },
         }),
         accessToken: internals.options.accessToken,
         data: request.payload,
