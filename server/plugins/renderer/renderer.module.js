@@ -63,16 +63,19 @@ internals.sha1sum = (input) => {
 internals.getResponse = async (request) => {
     const storeUrlObj = new URL(request.app.storeUrl);
 
+    const channeUrlHost = internals.options.channelUrl
+        ? internals.options.channelUrl.replace(/http[s]?:\/\//, '')
+        : null;
     const httpOpts = {
         url: Object.assign(new URL(request.url.toString()), {
             port: storeUrlObj.port,
-            host: storeUrlObj.host,
+            host: internals.options.channelUrl ? channeUrlHost : storeUrlObj.host,
             protocol: storeUrlObj.protocol,
         }).toString(),
         headers: internals.buildReqHeaders({
             request,
             stencilOptions: { get_template_file: true, get_data_only: true },
-            extraHeaders: { host: storeUrlObj.host },
+            extraHeaders: { host: internals.options.channelUrl ? channeUrlHost : storeUrlObj.host },
         }),
         accessToken: internals.options.accessToken,
         data: request.payload,
@@ -385,9 +388,7 @@ internals.buildReqHeaders = ({
         headers['stencil-config'] = JSON.stringify(stencilConfig);
     }
 
-    if (internals.options.channelId) {
-        headers['X-BC-Scope-Channel-Id'] = internals.options.channelId;
-    }
+    console.log();
 
     return { ...request.headers, ...headers, ...extraHeaders };
 };

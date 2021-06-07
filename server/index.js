@@ -19,7 +19,7 @@ function buildManifest(srcManifest, options) {
         parsedNormalUrl.protocol + '//' + parsedNormalUrl.host;
     pluginsByName['./plugins/router/router.module'].apiKey = options.dotStencilFile.apiKey;
     pluginsByName['./plugins/router/router.module'].port = options.dotStencilFile.port;
-    pluginsByName['./plugins/router/router.module'].channelId = options.channelId;
+    pluginsByName['./plugins/router/router.module'].channelUrl = options.channelUrl;
     pluginsByName['./plugins/renderer/renderer.module'].useCache = options.useCache;
     pluginsByName['./plugins/renderer/renderer.module'].username = options.dotStencilFile.username;
     pluginsByName['./plugins/renderer/renderer.module'].token = options.dotStencilFile.token;
@@ -28,7 +28,7 @@ function buildManifest(srcManifest, options) {
     pluginsByName['./plugins/renderer/renderer.module'].customLayouts =
         options.dotStencilFile.customLayouts;
     pluginsByName['./plugins/renderer/renderer.module'].themePath = options.themePath;
-    pluginsByName['./plugins/renderer/renderer.module'].channelId = options.channelId;
+    pluginsByName['./plugins/renderer/renderer.module'].channelUrl = options.channelUrl;
     pluginsByName['./plugins/theme-assets/theme-assets.module'].themePath = options.themePath;
 
     resManifest.register.plugins = _.reduce(

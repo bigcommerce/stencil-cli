@@ -25,10 +25,9 @@ const getProxiedMapUri = (req) => {
         ...req.headers,
         host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
     };
-    if (internals.options.channelId) {
-        headers['X-BC-Scope-Channel-Id'] = internals.options.channelId;
-    }
-    const host = internals.options.storeUrl.replace(/http[s]?:\/\//, '');
+    const host = internals.options.channelUrl
+        ? internals.options.channelUrl.replace(/http[s]?:\/\//, '')
+        : internals.options.storeUrl.replace(/http[s]?:\/\//, '');
     const port = 443;
     const searchParams = req.url.search || '';
     const uri = `https://${host}:${port}${req.path}${searchParams}`;

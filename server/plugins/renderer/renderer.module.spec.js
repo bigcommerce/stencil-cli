@@ -15,9 +15,9 @@ const themeConfigManager = ThemeConfig.getInstance(
 const axiosMock = new MockAdapter(axios);
 
 describe('Renderer Plugin', () => {
-    const channelId = 5;
     const storeUrl = 'https://store-abc123.mybigcommerce.com';
     const normalStoreUrl = 'http://s123456789.mybigcommerce.com';
+    const secondStoreUrl = 'https://second-store.mybigcommerce.com';
     const serverOptions = {
         dotStencilFile: {
             storeUrl,
@@ -28,7 +28,7 @@ describe('Renderer Plugin', () => {
         },
         useCache: false,
         themePath: themeConfigManager.themePath,
-        channelId,
+        channelUrl: secondStoreUrl,
     };
     let server;
 
@@ -83,33 +83,29 @@ describe('Renderer Plugin', () => {
         expect(localServerResponse.statusCode).toEqual(500);
     });
 
-    describe('when the channel id is passed via headers to API', () => {
-        it('should proxy browser requests with X-BC-Scope-Channel-Id header', async () => {
+    describe('when the channel url is set it should be used to proxy calls to API', () => {
+        it('should proxy browser requests with host = secondStoreUrl', async () => {
             const browserRequest = {
                 method: 'GET',
                 url: '/',
             };
 
-            axiosMock.onGet().reply((config) => {
-                expect(config.headers['X-BC-Scope-Channel-Id']).toEqual(channelId);
-                return [200, {}];
-            });
+            axiosMock.onGet().reply(200, {});
 
             await server.inject(browserRequest);
+            expect(axiosMock.history.get[0].url).toEqual(`${secondStoreUrl}${browserRequest.url}`);
         });
 
-        it('should proxy storefront requests with X-BC-Scope-Channel-Id header', async () => {
+        it('should proxy storefront requests with host = secondStoreUrl', async () => {
             const browserRequest = {
                 method: 'GET',
                 url: '/account.php',
             };
 
-            axiosMock.onGet().reply((config) => {
-                expect(config.headers['X-BC-Scope-Channel-Id']).toEqual(channelId);
-                return [200, {}];
-            });
+            axiosMock.onGet().reply(200, {});
 
             await server.inject(browserRequest);
+            expect(axiosMock.history.get[0].url).toEqual(`${secondStoreUrl}${browserRequest.url}`);
         });
     });
 
@@ -143,7 +139,7 @@ describe('Renderer Plugin', () => {
         });
 
         it('should send a request to the storefront server with correct url', async () => {
-            expect(axiosMock.history.post[0].url).toEqual(`${storeUrl}${browserRequest.url}`);
+            expect(axiosMock.history.post[0].url).toEqual(`${secondStoreUrl}${browserRequest.url}`);
         });
 
         it('should pass request method from the browser request to the storefront server request', async () => {
@@ -158,7 +154,7 @@ describe('Renderer Plugin', () => {
         it('should send a request to the storefront server with correct headers', async () => {
             expect(axiosMock.history.post[0].headers).toMatchObject({
                 'Content-Type': 'application/x-www-form-urlencoded',
-                host: new URL(storeUrl).host,
+                host: new URL(secondStoreUrl).host,
                 'stencil-cli': PACKAGE_INFO.version,
                 'stencil-options': '{"get_template_file":true,"get_data_only":true}',
                 'stencil-version': PACKAGE_INFO.config.stencil_version,
@@ -243,7 +239,7 @@ describe('Renderer Plugin', () => {
         });
 
         it('should send a request to the storefront server with correct url', async () => {
-            expect(axiosMock.history.get[0].url).toEqual(`${storeUrl}${browserRequest.url}`);
+            expect(axiosMock.history.get[0].url).toEqual(`${secondStoreUrl}${browserRequest.url}`);
         });
 
         it('should pass request method from browser request to the storefront server request', async () => {
@@ -251,9 +247,11 @@ describe('Renderer Plugin', () => {
         });
 
         it('should send a request to the storefront server with correct headers', async () => {
+            console.log('hherer');
+            console.log('hherer');
             expect(axiosMock.history.get[0].headers).toMatchObject({
                 cookie: browserRequest.headers.cookie,
-                host: new URL(storeUrl).host,
+                host: new URL(secondStoreUrl).host,
                 'stencil-cli': PACKAGE_INFO.version,
                 'stencil-options': '{"get_template_file":true,"get_data_only":true}',
                 'stencil-version': PACKAGE_INFO.config.stencil_version,
@@ -310,7 +308,7 @@ describe('Renderer Plugin', () => {
         });
 
         it('should send a request to the storefront server with correct url', async () => {
-            expect(axiosMock.history.get[0].url).toEqual(`${storeUrl}${browserRequest.url}`);
+            expect(axiosMock.history.get[0].url).toEqual(`${secondStoreUrl}${browserRequest.url}`);
         });
 
         it('should pass request method from browser request to the storefront server request', async () => {
