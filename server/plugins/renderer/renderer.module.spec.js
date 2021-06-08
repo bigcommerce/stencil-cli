@@ -81,6 +81,32 @@ describe('Renderer Plugin', () => {
         expect(localServerResponse.statusCode).toEqual(500);
     });
 
+    describe('when the channel url is set it should be used to proxy calls to API', () => {
+        it('should proxy browser requests with host = secondStoreUrl', async () => {
+            const browserRequest = {
+                method: 'GET',
+                url: '/',
+            };
+
+            axiosMock.onGet().reply(200, {});
+
+            await server.inject(browserRequest);
+            expect(axiosMock.history.get[0].url).toEqual(`${storeUrl}${browserRequest.url}`);
+        });
+
+        it('should proxy storefront requests with host = secondStoreUrl', async () => {
+            const browserRequest = {
+                method: 'GET',
+                url: '/account.php',
+            };
+
+            axiosMock.onGet().reply(200, {});
+
+            await server.inject(browserRequest);
+            expect(axiosMock.history.get[0].url).toEqual(`${storeUrl}${browserRequest.url}`);
+        });
+    });
+
     describe('when the storefront server response is Redirect', () => {
         const browserRequest = {
             method: 'post',

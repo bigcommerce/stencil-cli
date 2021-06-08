@@ -6,6 +6,7 @@ const internals = {
         storeUrl: '',
         apiKey: '',
         port: '',
+        channelId: null,
     },
     paths: {
         renderer: '/{url*}',
