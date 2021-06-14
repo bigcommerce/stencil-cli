@@ -1,3 +1,7 @@
+## 3.3.0 (2021-06-14)
+
+-   feat: strf-9087 Prompt user to select channel id if multiple storefronts are enabled ([85d773](https://github.com/bigcommerce/stencil-cli/commit/85d773))
+
 ## <small>3.2.1 (2021-05-24)</small>
 
 -   refactor: move API requests from commands to themeApiClient ([06f8d61](https://github.com/bigcommerce/stencil-cli/commit/06f8d61))
