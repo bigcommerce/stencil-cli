@@ -108,6 +108,7 @@ class PencilResponse {
      * @param data.acceptLanguage
      * @param {{[string]: string[]}} data.headers
      * @param data.statusCode
+     * @param data.renderedRegions
      * @param assembler
      */
     constructor(data, assembler) {
@@ -137,6 +138,7 @@ class PencilResponse {
         this.data.context.in_production = false;
 
         paper.addDecorator(makeDecorator(request, this.data.context));
+        paper.setContent(this.data.renderedRegions);
 
         // Plugins have the opportunity to add/modify the response by using decorators
         _.each(request.app.decorators, (decorator) => {

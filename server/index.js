@@ -11,10 +11,10 @@ function buildManifest(srcManifest, options) {
 
     const parsedSecureUrl = new URL(options.dotStencilFile.storeUrl); // The url to a secure page (prompted as login page)
     const parsedNormalUrl = new URL(options.dotStencilFile.normalStoreUrl); // The host url of the homepage;
+    const storeUrl = parsedSecureUrl.protocol + '//' + parsedSecureUrl.host;
 
     resManifest.server.port = options.dotStencilFile.port;
-    pluginsByName['./plugins/router/router.module'].storeUrl =
-        parsedSecureUrl.protocol + '//' + parsedSecureUrl.host;
+    pluginsByName['./plugins/router/router.module'].storeUrl = storeUrl;
     pluginsByName['./plugins/router/router.module'].normalStoreUrl =
         parsedNormalUrl.protocol + '//' + parsedNormalUrl.host;
     pluginsByName['./plugins/router/router.module'].apiKey = options.dotStencilFile.apiKey;
@@ -27,6 +27,7 @@ function buildManifest(srcManifest, options) {
     pluginsByName['./plugins/renderer/renderer.module'].customLayouts =
         options.dotStencilFile.customLayouts;
     pluginsByName['./plugins/renderer/renderer.module'].themePath = options.themePath;
+    pluginsByName['./plugins/renderer/renderer.module'].storeUrl = storeUrl;
     pluginsByName['./plugins/theme-assets/theme-assets.module'].themePath = options.themePath;
 
     resManifest.register.plugins = _.reduce(
