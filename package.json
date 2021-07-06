@@ -44,7 +44,7 @@
     "package-lock.json"
   ],
   "dependencies": {
-    "@bigcommerce/stencil-paper": "^3.0.0-rc.31",
+    "@bigcommerce/stencil-paper": "git@github.com:bigcommerce/paper.git#af83d36ee125aba54d2176512d035a61d4d5bcf9",
     "@bigcommerce/stencil-styles": "1.2.1",
     "@hapi/boom": "^8.0.1",
     "@hapi/glue": "^6.2.0",
