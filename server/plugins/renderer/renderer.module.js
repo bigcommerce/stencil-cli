@@ -12,12 +12,15 @@ const templateAssembler = require('../../../lib/template-assembler');
 const utils = require('../../lib/utils');
 const { readFromStream } = require('../../../lib/utils/asyncUtils');
 const NetworkUtils = require('../../../lib/utils/NetworkUtils');
+const contentApiClient = require('../../../lib/content-api-client');
+const { getPageType } = require('../../lib/page-type-util');
 
 const networkUtils = new NetworkUtils();
 
 const internals = {
     options: {},
     cacheTTL: 1000 * 15, // 15 seconds
+    graphQLCacheTTL: 1000 * 300, // 5 minutes
     validCustomTemplatePageTypes: ['brand', 'category', 'page', 'product'],
 };
 
@@ -198,7 +201,53 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
         cache.put(dataRequestSignature, { response2 }, internals.cacheTTL);
     }
 
-    return internals.getPencilResponse(response2.data, request, response2, configuration);
+    const templateFile = response2.data.template_file;
+    const entityId = response2.data.entity_id;
+
+    const pageType = getPageType(templateFile);
+    let regionResponse = [];
+
+    if (pageType) {
+        // create request signature and use cache, if available
+        const graphQLUrlSignature = internals.sha1sum(internals.options.storeUrl + '/graphql');
+        const graphQLQuerySignature = internals.sha1sum(pageType + entityId);
+        const graphQLDataReqSignature = `graphql:${graphQLUrlSignature + graphQLQuerySignature}`;
+        const cachedGraphQLResponse = cache.get(graphQLDataReqSignature);
+
+        if (internals.options.useCache && cachedGraphQLResponse) {
+            ({ regionResponse } = cachedGraphQLResponse);
+        } else {
+            if (typeof entityId === 'number') {
+                regionResponse = await contentApiClient.getRenderedRegionsByPageTypeAndEntityId({
+                    accessToken: response2.data.context.settings.storefront_api.token,
+                    storeUrl: internals.options.storeUrl,
+                    pageType,
+                    entityId,
+                });
+            } else {
+                regionResponse = await contentApiClient.getRenderedRegionsByPageType({
+                    accessToken: response2.data.context.settings.storefront_api.token,
+                    storeUrl: internals.options.storeUrl,
+                    pageType,
+                });
+            }
+
+            cache.put(graphQLDataReqSignature, { regionResponse }, internals.graphQLCacheTTL);
+        }
+    }
+
+    const formattedRegions = {};
+    regionResponse.renderedRegions.forEach((region) => {
+        formattedRegions[region.name] = region.html;
+    });
+
+    return internals.getPencilResponse(
+        response2.data,
+        request,
+        response2,
+        configuration,
+        formattedRegions,
+    );
 };
 
 /**
@@ -319,9 +368,10 @@ internals.getTemplatePath = (requestPath, data) => {
  * @param request
  * @param response
  * @param configuration
+ * @param renderedRegions
  * @returns {*}
  */
-internals.getPencilResponse = (data, request, response, configuration) => {
+internals.getPencilResponse = (data, request, response, configuration, renderedRegions = {}) => {
     const context = {
         ...data.context,
         theme_settings: configuration.settings,
@@ -343,6 +393,7 @@ internals.getPencilResponse = (data, request, response, configuration) => {
             templates: data.templates,
             remote: data.remote,
             remote_data: data.remote_data,
+            renderedRegions,
             context,
             translations: data.translations,
             method: request.method,
