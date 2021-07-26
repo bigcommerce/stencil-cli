@@ -1,3 +1,9 @@
+## 3.4.0 (2021-07-27)
+
+-   feat: merc-7830 support for region translations ([a6bc312](https://github.com/bigcommerce/stencil-cli/commit/a6bc312))
+-   feat: merc-7797 added feature to render widgets ([40c410b](https://github.com/bigcommerce/stencil-cli/commit/40c410b))
+-   feat: merc-7834 validate theme variation translations ([219dc60](https://github.com/bigcommerce/stencil-cli/commit/219dc60))
+
 ## 3.3.0 (2021-06-14)
 
 -   feat: strf-9087 Prompt user to select channel id if multiple storefronts are enabled ([85d773](https://github.com/bigcommerce/stencil-cli/commit/85d773))
