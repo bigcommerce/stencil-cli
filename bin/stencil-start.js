@@ -10,7 +10,7 @@ program
     .version(PACKAGE_INFO.version)
     .option('-o, --open', 'Automatically open default browser')
     .option('-v, --variation [name]', 'Set which theme variation to use while developing')
-    .option('-c, --channelId [channelId]', 'Set the channel id for the storefront')
+    .option('-c, --channelId [channelId]', 'Set the channel id for the storefront', parseInt)
     .option('--host [hostname]', 'specify the api host')
     .option(
         '--tunnel [name]',
