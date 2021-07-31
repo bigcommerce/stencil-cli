@@ -205,7 +205,7 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
     const entityId = response2.data.entity_id;
 
     const pageType = getPageType(templateFile);
-    let regionResponse = [];
+    let regionResponse = {renderedRegions: []};
 
     if (pageType) {
         // create request signature and use cache, if available
