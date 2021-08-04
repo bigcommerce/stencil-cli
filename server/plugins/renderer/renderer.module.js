@@ -237,9 +237,12 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
     }
 
     const formattedRegions = {};
-    regionResponse.renderedRegions.forEach((region) => {
-        formattedRegions[region.name] = region.html;
-    });
+
+    if (typeof regionResponse.renderedRegions !== 'undefined') {
+        regionResponse.renderedRegions.forEach((region) => {
+            formattedRegions[region.name] = region.html;
+        });
+    }
 
     return internals.getPencilResponse(
         response2.data,
