@@ -1,3 +1,7 @@
+### 3.4.1 (2021-08-09)
+
+-   fix: merc-8038 Added check to ensure we are not looping over undefined object ([bcd2401](https://github.com/bigcommerce/stencil-cli/commit/bcd2401))
+
 ## 3.4.0 (2021-07-27)
 
 -   feat: merc-7830 support for region translations ([a6bc312](https://github.com/bigcommerce/stencil-cli/commit/a6bc312))
