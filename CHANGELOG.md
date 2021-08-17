@@ -1,3 +1,7 @@
+### 3.4.2 (2021-08-17)
+
+-   fix: strf-9257 Added check if theme version exists and release method refactoring ([a520a55](https://github.com/bigcommerce/stencil-cli/commit/a520a55))
+
 ### 3.4.1 (2021-08-09)
 
 -   fix: merc-8038 Added check to ensure we are not looping over undefined object ([bcd2401](https://github.com/bigcommerce/stencil-cli/commit/bcd2401))
