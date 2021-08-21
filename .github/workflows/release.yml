@@ -1,0 +1,16 @@
+name: Paper Handlebars Library
+on:
+    release:
+        types: [created]
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: '12.x'
+            - run: npm ci
+            # Setup .npmrc file to publish to npm registry
+            - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+            - run: npm publish
