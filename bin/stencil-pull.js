@@ -4,7 +4,7 @@ require('colors');
 
 const { PACKAGE_INFO, API_HOST } = require('../constants');
 const program = require('../lib/commander');
-const stencilPull = require('../lib/stencil-pull');
+const StencilPull = require('../lib/stencil-pull');
 const { checkNodeVersion } = require('../lib/cliCommon');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 
@@ -22,6 +22,7 @@ program
         'specify the channel ID of the storefront to pull configuration from',
         parseInt,
     )
+    .option('-a, --activate [variationname]', 'specify the variation of the theme to activate')
     .parse(process.argv);
 
 checkNodeVersion();
@@ -32,11 +33,8 @@ const options = {
     saveConfigName: cliOptions.filename,
     channelId: cliOptions.channel_id,
     saved: cliOptions.saved || false,
-    applyTheme: true, // fix to be compatible with stencil-push.utils
+    applyTheme: true,
+    activate: cliOptions.activate,
 };
 
-stencilPull(options, (err) => {
-    if (err) {
-        printCliResultErrorAndExit(err);
-    }
-});
+new StencilPull().run(options).catch(printCliResultErrorAndExit);
