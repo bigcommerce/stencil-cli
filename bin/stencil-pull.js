@@ -2,7 +2,7 @@
 
 require('colors');
 
-const { PACKAGE_INFO, API_HOST } = require('../constants');
+const { PACKAGE_INFO } = require('../constants');
 const program = require('../lib/commander');
 const stencilPull = require('../lib/stencil-pull');
 const { checkNodeVersion } = require('../lib/cliCommon');
@@ -11,7 +11,7 @@ const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 program
     .version(PACKAGE_INFO.version)
     .option('-s, --saved', 'get the saved configuration instead of the active one')
-    .option('-h, --host [hostname]', 'specify the api host', API_HOST)
+    .option('-h, --host [hostname]', 'specify the api host')
     .option(
         '-f, --filename [filename]',
         'specify the filename to save the config as',
@@ -27,8 +27,9 @@ program
 checkNodeVersion();
 
 const cliOptions = program.opts();
+
 const options = {
-    apiHost: cliOptions.host || API_HOST,
+    apiHost: cliOptions.host,
     saveConfigName: cliOptions.filename,
     channelId: cliOptions.channel_id,
     saved: cliOptions.saved || false,
