@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 require('colors');
-const { PACKAGE_INFO, API_HOST } = require('../constants');
+const { PACKAGE_INFO } = require('../constants');
 const program = require('../lib/commander');
 const StencilStart = require('../lib/stencil-start');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
@@ -28,7 +28,7 @@ const options = {
     open: cliOptions.open,
     variation: cliOptions.variation,
     channelId: cliOptions.channelId,
-    apiHost: cliOptions.host || API_HOST,
+    apiHost: cliOptions.host,
     tunnel: cliOptions.tunnel,
     cache: cliOptions.cache,
 };

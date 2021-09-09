@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 require('colors');
-const { PACKAGE_INFO, API_HOST } = require('../constants');
+const { PACKAGE_INFO } = require('../constants');
 const program = require('../lib/commander');
 const stencilPush = require('../lib/stencil-push');
 const { checkNodeVersion } = require('../lib/cliCommon');
@@ -25,7 +25,7 @@ checkNodeVersion();
 
 const cliOptions = program.opts();
 const options = {
-    apiHost: cliOptions.host || API_HOST,
+    apiHost: cliOptions.host,
     channelId: cliOptions.channel_id,
     bundleZipPath: cliOptions.file,
     activate: cliOptions.activate,
