@@ -1,4 +1,4 @@
-name: Paper Handlebars Library
+name: Stencil CLI
 on:
     release:
         types: [created]
