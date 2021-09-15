@@ -98,7 +98,7 @@ internals.registerRoutes = (server) => {
                     protocol: 'https',
                     port: 443,
                     passThrough: true,
-                    xforward: true,
+                    xforward: false,
                 },
             },
             options: {
@@ -117,7 +117,7 @@ internals.registerRoutes = (server) => {
                     protocol: 'https',
                     port: 443,
                     passThrough: true,
-                    xforward: true,
+                    xforward: false,
                 },
             },
             options: {
