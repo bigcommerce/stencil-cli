@@ -1,3 +1,11 @@
+### 3.5.0 (2021-09-15)
+
+-   fix: STRF-9351 Stop sending "X-Forwarded-..." headers as it causes remote store to redirect ([36f5663da](https://github.com/bigcommerce/stencil-cli/commit/36f5663da))
+-   feat: strf-9303 Replaced jsonlint with parse-json ([b5f16db85](https://github.com/bigcommerce/stencil-cli/commit/b5f16db85))
+-   feat: strf-9345: Log api host ([51b08a9b2](https://github.com/bigcommerce/stencil-cli/commit/51b08a9b2))
+-   feat: strf-9345 Infer apiHost from storeUrl ([5b132e90b6](https://github.com/bigcommerce/stencil-cli/commit/5b132e90b6))
+-   feat: strf-9319 Github Release for stencil-cli ([22949011](https://github.com/bigcommerce/stencil-cli/commit/22949011))
+
 ### 3.4.2 (2021-08-17)
 
 -   fix: strf-9257 Added check if theme version exists and release method refactoring ([a520a55](https://github.com/bigcommerce/stencil-cli/commit/a520a55))
