@@ -1,3 +1,7 @@
+### 3.5.1 (2021-09-15)
+
+-   fix: strf-9345: Fallback to API_HOST constant in the absense of a provided one ([d138536c8](https://github.com/bigcommerce/stencil-cli/commit/d138536c8))
+
 ### 3.5.0 (2021-09-15)
 
 -   fix: STRF-9351 Stop sending "X-Forwarded-..." headers as it causes remote store to redirect ([36f5663da](https://github.com/bigcommerce/stencil-cli/commit/36f5663da))
