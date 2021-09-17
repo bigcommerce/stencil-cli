@@ -1,3 +1,7 @@
+### 3.5.2 (2021-09-17)
+
+-   fix: strf-9356 Support npm 7 for stencil cli ([d67747d5384](https://github.com/bigcommerce/stencil-cli/commit/d67747d5384))
+
 ### 3.5.1 (2021-09-15)
 
 -   fix: strf-9345: Fallback to API_HOST constant in the absense of a provided one ([d138536c8](https://github.com/bigcommerce/stencil-cli/commit/d138536c8))
