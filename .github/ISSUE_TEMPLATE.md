@@ -5,10 +5,11 @@
 ### Steps to reproduce behavior
 
 ### Environment
-Stencil-cli version `stencil --version`: 
+
+Stencil-cli version `stencil --version`:
 
 Node version `node -v`:
 
-NPM version `npm -v`: 
+NPM version `npm -v`:
 
-OS: 
+OS:
