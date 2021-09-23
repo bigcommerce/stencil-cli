@@ -5,6 +5,7 @@ const { PACKAGE_INFO } = require('../constants');
 const program = require('../lib/commander');
 const StencilStart = require('../lib/stencil-start');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
+const BuildConfigManager = require('../lib/BuildConfigManager');
 
 program
     .version(PACKAGE_INFO.version)
@@ -20,6 +21,7 @@ program
         '-n, --no-cache',
         'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.',
     )
+    .option('-t, --timeout', 'Set a timeout for the bundle operation. Default is 20 secs', '60')
     .parse(process.argv);
 
 const cliOptions = program.opts();
@@ -33,4 +35,6 @@ const options = {
     cache: cliOptions.cache,
 };
 
-new StencilStart().run(options).catch(printCliResultErrorAndExit);
+const timeout = cliOptions.timeout * 1000; // seconds
+const buildConfigManager = new BuildConfigManager({ timeout });
+new StencilStart({ buildConfigManager }).run(options).catch(printCliResultErrorAndExit);

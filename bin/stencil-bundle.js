@@ -8,6 +8,7 @@ const ThemeConfig = require('../lib/theme-config');
 const Bundle = require('../lib/stencil-bundle');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 const { checkNodeVersion } = require('../lib/cliCommon');
+const BuildConfigManager = require('../lib/BuildConfigManager');
 
 program
     .version(PACKAGE_INFO.version)
@@ -22,6 +23,11 @@ program
     .option(
         '-m, --marketplace',
         'Runs extra bundle validations for partners who can create marketplace themes',
+    )
+    .option(
+        '-t, --timeout [timeout]',
+        'Set a timeout for the bundle operation. Default is 20 secs',
+        '60',
     )
     .parse(process.argv);
 
@@ -49,7 +55,15 @@ async function run() {
         }
 
         const rawConfig = await themeConfig.getRawConfig();
-        const bundle = new Bundle(THEME_PATH, themeConfig, rawConfig, cliOptions);
+        const timeout = cliOptions.timeout * 1000; // seconds
+        const buildConfigManager = new BuildConfigManager({ timeout });
+        const bundle = new Bundle(
+            THEME_PATH,
+            themeConfig,
+            rawConfig,
+            cliOptions,
+            buildConfigManager,
+        );
 
         const bundlePath = await bundle.initBundle();
 
