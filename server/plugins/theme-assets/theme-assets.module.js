@@ -84,17 +84,15 @@ internals.cssHandler = async (request, h) => {
             browsers: configuration.autoprefixer_browsers,
         },
     };
-    const stencilStyles = new StencilStyles();
+    const stencilStyles = new StencilStyles(console);
 
-    let css;
     try {
-        css = await promisify(stencilStyles.compileCss.bind(stencilStyles))('scss', params);
+        const css = await stencilStyles.compileCss('scss', params);
+        return h.response(css).type('text/css');
     } catch (err) {
         console.error(err);
         throw Boom.badData(err);
     }
-
-    return h.response(css).type('text/css');
 };
 
 /**
