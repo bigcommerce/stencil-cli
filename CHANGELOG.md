@@ -1,3 +1,8 @@
+### 3.6.0 (2021-09-28)
+
+-   feat: strf-9332 added timeout parameter for stencil bundle command ([9c762fa0aa1](https://github.com/bigcommerce/stencil-cli/commit/9c762fa0aa1))
+-   feat: strf-9040 Support dart-sass as primary engine for css rendering ([514ea778eda](https://github.com/bigcommerce/stencil-cli/commit/514ea778eda))
+
 ### 3.5.2 (2021-09-17)
 
 -   fix: strf-9356 Support npm 7 for stencil cli ([d67747d5384](https://github.com/bigcommerce/stencil-cli/commit/d67747d5384))
