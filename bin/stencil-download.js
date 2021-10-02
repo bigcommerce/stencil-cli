@@ -34,16 +34,16 @@ const options = {
 async function run(opts) {
     const overwriteType = opts.file ? opts.file : 'files';
 
-    const answers =
-        opts.overwrite ||
-        (await inquirer.prompt([
-            {
-                message: `${'Warning'.yellow} -- overwrite local with remote ${overwriteType}?`,
-                name: 'overwrite',
-                type: 'checkbox',
-                choices: ['Yes', 'No'],
-            },
-        ]));
+    const answers = opts.overwrite
+        ? [opts.overwrite]
+        : await inquirer.prompt([
+              {
+                  message: `${'Warning'.yellow} -- overwrite local with remote ${overwriteType}?`,
+                  name: 'overwrite',
+                  type: 'checkbox',
+                  choices: ['Yes', 'No'],
+              },
+          ]);
 
     if (!answers.overwrite.includes('Yes')) {
         console.log(`Request cancelled by user ${'No'.red}`);
