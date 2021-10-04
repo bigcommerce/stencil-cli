@@ -1,3 +1,7 @@
+### 3.6.1 (2021-10-04)
+
+-   fix: strf-9375 Fix custom release tag selection ([f41d6dd44fb](https://github.com/bigcommerce/stencil-cli/commit/f41d6dd44fb))
+
 ### 3.6.0 (2021-09-28)
 
 -   feat: strf-9332 added timeout parameter for stencil bundle command ([9c762fa0aa1](https://github.com/bigcommerce/stencil-cli/commit/9c762fa0aa1))
