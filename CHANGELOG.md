@@ -1,3 +1,7 @@
+### 3.6.2 (2021-10-06)
+
+-   feat: Add overwrite option to download command ([785](https://github.com/bigcommerce/stencil-cli/pull/785))
+
 ### 3.6.1 (2021-10-04)
 
 -   fix: strf-9375 Fix custom release tag selection ([f41d6dd44fb](https://github.com/bigcommerce/stencil-cli/commit/f41d6dd44fb))
