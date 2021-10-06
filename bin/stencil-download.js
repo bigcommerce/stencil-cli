@@ -15,6 +15,7 @@ program
     .option('-f, --file [filename]', 'specify the filename to download only')
     .option('-e, --exclude [exclude]', 'specify a directory to exclude from download')
     .option('-c, --channel_id [channelId]', 'specify the channel ID of the storefront', parseInt)
+    .option('-o, --overwrite', 'overwrite local with remote files')
     .parse(process.argv);
 
 checkNodeVersion();
@@ -25,6 +26,7 @@ const options = {
     exclude: ['parsed', 'manifest.json', ...extraExclude],
     apiHost: cliOptions.host,
     channelId: cliOptions.channel_id,
+    overwrite: cliOptions.overwrite,
     applyTheme: true, // fix to be compatible with stencil-push.utils
     file: cliOptions.file,
 };
@@ -32,16 +34,23 @@ const options = {
 async function run(opts) {
     const overwriteType = opts.file ? opts.file : 'files';
 
-    const answers = await inquirer.prompt([
+    const promptAnswers = await inquirer.prompt([
         {
             message: `${'Warning'.yellow} -- overwrite local with remote ${overwriteType}?`,
             name: 'overwrite',
-            type: 'checkbox',
-            choices: ['Yes', 'No'],
+            type: 'confirm',
+            when() {
+                return !opts.overwrite;
+            },
         },
     ]);
 
-    if (!answers.overwrite.includes('Yes')) {
+    const answers = {
+        ...opts,
+        ...promptAnswers,
+    };
+
+    if (!answers.overwrite) {
         console.log(`Request cancelled by user ${'No'.red}`);
         return;
     }
