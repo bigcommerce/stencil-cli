@@ -98,7 +98,6 @@ internals.registerRoutes = (server) => {
                     protocol: 'https',
                     port: 443,
                     passThrough: true,
-                    xforward: false,
                 },
             },
             options: {
@@ -112,12 +111,18 @@ internals.registerRoutes = (server) => {
             path: internals.paths.storefrontAPI,
             handler: {
                 proxy: {
-                    host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
                     rejectUnauthorized: false,
-                    protocol: 'https',
-                    port: 443,
+                    mapUri: (req) => {
+                        const host = `https://${internals.options.storeUrl.replace(
+                            /http[s]?:\/\//,
+                            '',
+                        )}`;
+                        const urlParams = req.url.search || '';
+                        const uri = `${host}${req.path}${urlParams}`;
+                        const headers = { 'stencil-cli': internals.options.stencilCliVersion };
+                        return { uri, headers };
+                    },
                     passThrough: true,
-                    xforward: false,
                 },
             },
             options: {
