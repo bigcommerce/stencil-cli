@@ -1,3 +1,8 @@
+### 3.6.3 (2021-10-22)
+
+-   Bump paper to rc51
+-   fix: strf-8846 Send stencil-cli header to storefront api ([789](https://github.com/bigcommerce/stencil-cli/pull/789))
+
 ### 3.6.2 (2021-10-06)
 
 -   feat: Add overwrite option to download command ([785](https://github.com/bigcommerce/stencil-cli/pull/785))
