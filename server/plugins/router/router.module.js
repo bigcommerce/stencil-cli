@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const Wreck = require('@hapi/wreck');
 const ThemeConfig = require('../../../lib/theme-config');
 
 const internals = {
@@ -123,6 +124,40 @@ internals.registerRoutes = (server) => {
                         return { uri, headers };
                     },
                     passThrough: true,
+                    async onResponse(err, res, request, h) {
+                        const payload = await Wreck.read(res, { json: true });
+                        const response = h.response(payload);
+                        for (const prop of Object.keys(res.headers)) {
+                            switch (prop.toLowerCase()) {
+                                case 'connection':
+                                case 'keep-alive':
+                                case 'proxy-authenticate':
+                                case 'proxy-authorization':
+                                case 'te':
+                                case 'trailer':
+                                case 'transfer-encoding':
+                                case 'upgrade':
+                                    break;
+                                case 'set-cookie':
+                                    response.header(
+                                        prop,
+                                        res.headers[prop].map((header) => {
+                                            return header
+                                                .replace(
+                                                    new RegExp('; SameSite=none', 'gi'),
+                                                    '; SameSite=Lax',
+                                                )
+                                                .replace(new RegExp('; Secure', 'gi'), '');
+                                        }),
+                                    );
+                                    break;
+                                default:
+                                    response.header(prop, res.headers[prop]);
+                                    break;
+                            }
+                        }
+                        return response;
+                    },
                 },
             },
             options: {
