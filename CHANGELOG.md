@@ -1,3 +1,7 @@
+### 3.6.4 (2021-11-5)
+
+-   fix: strf-9474 Removed "git+" prefix from package-lock ([794](https://github.com/bigcommerce/stencil-cli/pull/794))
+
 ### 3.6.3 (2021-10-22)
 
 -   Bump paper to rc51
