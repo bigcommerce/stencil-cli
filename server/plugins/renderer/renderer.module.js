@@ -14,6 +14,11 @@ const { readFromStream } = require('../../../lib/utils/asyncUtils');
 const NetworkUtils = require('../../../lib/utils/NetworkUtils');
 const contentApiClient = require('../../../lib/content-api-client');
 const { getPageType } = require('../../lib/page-type-util');
+const {
+    frontmatterRegex,
+    getFrontmatterContent,
+    interpolateThemeSettings,
+} = require('../../../lib/utils/frontmatter');
 
 const networkUtils = new NetworkUtils();
 
@@ -262,7 +267,6 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
  * @returns {Object}
  */
 internals.getResourceConfig = (data, request, configuration) => {
-    const frontmatterRegex = /---\r?\n(?:.|\s)*?\r?\n---\r?\n/g;
     const missingThemeSettingsRegex = /{{\\s*?theme_settings\\..+?\\s*?}}/g;
     let resourcesConfig = {};
     const templatePath = data.template_file;
@@ -276,16 +280,12 @@ internals.getResourceConfig = (data, request, configuration) => {
             templatePath,
         );
 
-        const frontmatterMatch = rawTemplate.match(frontmatterRegex);
-        if (frontmatterMatch !== null) {
-            let frontmatterContent = frontmatterMatch[0];
-            // Interpolate theme settings for frontmatter
-            for (const [key, val] of Object.entries(configuration.settings)) {
-                const regex = `{{\\s*?theme_settings\\.${key}\\s*?}}`;
-
-                frontmatterContent = frontmatterContent.replace(new RegExp(regex, 'g'), val);
-            }
-
+        let frontmatterContent = getFrontmatterContent(rawTemplate);
+        if (frontmatterContent !== null) {
+            frontmatterContent = interpolateThemeSettings(
+                frontmatterContent,
+                configuration.settings,
+            );
             // Remove any handlebars tags that weren't interpolated because there was no setting for it
             frontmatterContent = frontmatterContent.replace(missingThemeSettingsRegex, '');
             // Replace the frontmatter with the newly interpolated version
