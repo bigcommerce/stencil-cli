@@ -1,0 +1,18 @@
+---
+front_matter_options:
+    setting_x: {{theme_settings.front_matter_value}},
+---
+<!DOCTYPE html>
+<html>
+<head>
+    <title>page.html</title>
+    {{head.scripts}}
+</head>
+<body>
+    {{#if theme_settings.display_that}}
+        <div>That</div>
+        {{> components/a}}
+    {{/if}}
+    {{footer.scripts}}
+</body>
+</html>

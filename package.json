@@ -67,6 +67,7 @@
     "graceful-fs": "^4.2.4",
     "image-size": "^0.9.1",
     "inquirer": "^8.1.5",
+    "js-yaml": "^4.1.0",
     "lodash": "^4.17.20",
     "memory-cache": "^0.2.0",
     "npm-which": "^3.0.1",
