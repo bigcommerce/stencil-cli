@@ -29,6 +29,8 @@ function buildManifest(srcManifest, options) {
         options.dotStencilFile.customLayouts;
     pluginsByName['./plugins/renderer/renderer.module'].themePath = options.themePath;
     pluginsByName['./plugins/renderer/renderer.module'].storeUrl = storeUrl;
+    pluginsByName['./plugins/renderer/renderer.module'].storeSettingsLocale =
+        options.storeSettingsLocale;
     pluginsByName['./plugins/theme-assets/theme-assets.module'].themePath = options.themePath;
 
     resManifest.register.plugins = _.reduce(
