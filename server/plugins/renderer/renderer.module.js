@@ -364,6 +364,16 @@ internals.getTemplatePath = (requestPath, data) => {
     return templatePath || data.template_file;
 };
 
+function getAcceptLanguageHeader(request) {
+    if (
+        internals.options.storeSettingsLocale.shopper_language_selection_method ===
+        'default_shopper_language'
+    ) {
+        return internals.options.storeSettingsLocale.default_shopper_language;
+    }
+    return request.headers['accept-language'];
+}
+
 /**
  * Creates a new Pencil Response object and returns it.
  *
@@ -400,7 +410,7 @@ internals.getPencilResponse = (data, request, response, configuration, renderedR
             context,
             translations: data.translations,
             method: request.method,
-            acceptLanguage: request.headers['accept-language'],
+            acceptLanguage: getAcceptLanguageHeader(request),
             headers: response.headers,
             statusCode: response.status,
         },
