@@ -1,3 +1,7 @@
+### 3.6.5 (2021-11-22)
+
+-   fix: strf-4307 Frontmatter/yaml validation and trailing symbols checks ([798](https://github.com/bigcommerce/stencil-cli/pull/798))
+
 ### 3.6.4 (2021-11-5)
 
 -   fix: strf-9474 Removed "git+" prefix from package-lock ([794](https://github.com/bigcommerce/stencil-cli/pull/794))
