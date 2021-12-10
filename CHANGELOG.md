@@ -1,3 +1,12 @@
+### 3.7.0 (2021-12-08)
+
+-   fix: strf-9535 Add fallback for shopper language default ([804](https://github.com/bigcommerce/stencil-cli/pull/804))
+-   feat: strf-9245 Warn user if shopper default language file is missing or has missing keys ([802](https://github.com/bigcommerce/stencil-cli/pull/802))
+-   Bump paper to rc52
+
+Note: BREAKING CHANGE!
+In order to get stencil cli working with this version, new Stencil CLI token should be created
+
 ### 3.6.5 (2021-11-22)
 
 -   fix: strf-4307 Frontmatter/yaml validation and trailing symbols checks ([798](https://github.com/bigcommerce/stencil-cli/pull/798))
