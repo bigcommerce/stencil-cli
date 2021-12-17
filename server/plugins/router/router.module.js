@@ -170,6 +170,7 @@ internals.registerRoutes = (server) => {
                             },
                         ),
                     }),
+                    rejectUnauthorized: false,
                     passThrough: true,
                 },
             },
