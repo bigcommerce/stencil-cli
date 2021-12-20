@@ -1,3 +1,8 @@
+### 3.7.1 (2021-12-20)
+
+-   fix: strf-9576 Fix graphql queries ([810](https://github.com/bigcommerce/stencil-cli/pull/810))
+-   fix: strf-9553 bundled lang.json has lowercase lang keys ([808](https://github.com/bigcommerce/stencil-cli/pull/808))
+
 ### 3.7.0 (2021-12-08)
 
 -   fix: strf-9535 Add fallback for shopper language default ([804](https://github.com/bigcommerce/stencil-cli/pull/804))
