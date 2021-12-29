@@ -47,10 +47,7 @@ Unsure where to begin contributing to Stencil CLI? Check our [forums](https://fo
 
 ### Release stencil-cli
 
-In order to release stencil-cli you should first use the `Squash and merge` option on GitHub, This step is important
-for generating the `CHANGELOG.md` file with the PR link attached (if not using `Squash and merge`, the changes will
-be logged only with links to the commits). After the changes are merged to master, pull the latest to your local
-environment, run `gulp release` and follow the prompts.
+In order to release stencil-cli you should create a release PR to master branch with updated `CHANGELOG.md` and versions. After PR is merged, you should go to https://github.com/bigcommerce/stencil-cli/releases/new, create a tag and describe the release. Click `Publish` and Github Actions will publish new version to npm.
 
 ## Styleguides
 
