@@ -1,3 +1,9 @@
+### 3.8.0 (2021-12-30)
+
+-   build(deps): bump axios from 0.21.4 to 0.24.0 ([821](https://github.com/bigcommerce/stencil-cli/pull/821))
+-   fix: strf-9581 Update cheerio version ([819](https://github.com/bigcommerce/stencil-cli/pull/819))
+-   fix: strf-9581 Remove gulp tasks, that are not used anymore ([817](https://github.com/bigcommerce/stencil-cli/pull/817))
+
 ### 3.7.1 (2021-12-20)
 
 -   fix: strf-9576 Fix graphql queries ([810](https://github.com/bigcommerce/stencil-cli/pull/810))
