@@ -15,9 +15,8 @@ program
     .option('-a, --activate [variationname]', 'specify the variation of the theme to activate')
     .option('-d, --delete', 'delete oldest private theme if upload limit reached')
     .option(
-        '-c, --channel_id [channelId]',
-        'specify the channel ID of the storefront to push the theme to',
-        parseInt,
+        '-c, --channel_ids <channelIds...>',
+        'specify the channel IDs of the storefront to push the theme to',
     )
     .parse(process.argv);
 
@@ -26,7 +25,7 @@ checkNodeVersion();
 const cliOptions = program.opts();
 const options = {
     apiHost: cliOptions.host,
-    channelId: cliOptions.channel_id,
+    channelIds: cliOptions.channel_ids,
     bundleZipPath: cliOptions.file,
     activate: cliOptions.activate,
     saveBundleName: cliOptions.save,
