@@ -18,6 +18,7 @@ program
         '-c, --channel_ids <channelIds...>',
         'specify the channel IDs of the storefront to push the theme to',
     )
+    .option('-allc, --all_channels', 'push a theme to all available channels')
     .parse(process.argv);
 
 checkNodeVersion();
@@ -30,6 +31,7 @@ const options = {
     activate: cliOptions.activate,
     saveBundleName: cliOptions.save,
     deleteOldest: cliOptions.delete,
+    allChannels: cliOptions.all_channels,
 };
 stencilPush(options, (err, result) => {
     if (err) {
