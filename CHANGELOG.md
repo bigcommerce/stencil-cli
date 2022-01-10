@@ -1,3 +1,7 @@
+### 3.8.1 (2022-01-10)
+
+-   fix: Updated package.json to use colors 1.4.0 ([827](https://github.com/bigcommerce/stencil-cli/pull/827))
+
 ### 3.8.0 (2021-12-30)
 
 -   build(deps): bump axios from 0.21.4 to 0.24.0 ([821](https://github.com/bigcommerce/stencil-cli/pull/821))
