@@ -1,3 +1,7 @@
+### 3.8.2 (2022-01-11)
+
+-   fix: strf-9600 bump stencil styles version ([832](https://github.com/bigcommerce/stencil-cli/pull/832))
+
 ### 3.8.1 (2022-01-10)
 
 -   fix: Updated package.json to use colors 1.4.0 ([827](https://github.com/bigcommerce/stencil-cli/pull/827))
