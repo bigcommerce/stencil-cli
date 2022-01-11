@@ -45,7 +45,7 @@
   ],
   "dependencies": {
     "@bigcommerce/stencil-paper": "^3.0.0-rc.52",
-    "@bigcommerce/stencil-styles": "2.1.0",
+    "@bigcommerce/stencil-styles": "2.1.1",
     "@hapi/boom": "^8.0.1",
     "@hapi/glue": "^6.2.0",
     "@hapi/h2o2": "^8.3.2",
