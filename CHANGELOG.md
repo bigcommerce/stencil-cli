@@ -1,3 +1,7 @@
+### 3.8.3 (2022-01-12)
+
+-   fix: add activate sass engine name logic ([837](https://github.com/bigcommerce/stencil-cli/pull/837))
+
 ### 3.8.2 (2022-01-11)
 
 -   fix: strf-9600 bump stencil styles version ([832](https://github.com/bigcommerce/stencil-cli/pull/832))
