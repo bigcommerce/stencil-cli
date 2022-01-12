@@ -11,6 +11,8 @@ const internals = {
     options: {},
 };
 
+const SASS_ENGINE_NAME = 'node-sass-fork';
+
 function register(server, options) {
     internals.options = _.defaultsDeep(options, internals.options);
 
@@ -85,6 +87,7 @@ internals.cssHandler = async (request, h) => {
         },
     };
     const stencilStyles = new StencilStyles(console);
+    stencilStyles.activateEngine(SASS_ENGINE_NAME);
 
     try {
         const css = await stencilStyles.compileCss('scss', params);
