@@ -11,6 +11,7 @@ program
     .option('-u, --url [url]', 'Store URL')
     .option('-t, --token [token]', 'Access Token')
     .option('-p, --port [port]', 'Port')
+    .option('-h, --apiHost [host]', 'API Host')
     .parse(process.argv);
 
 checkNodeVersion();
@@ -22,5 +23,6 @@ new StencilInit()
         normalStoreUrl: cliOptions.url,
         accessToken: cliOptions.token,
         port: cliOptions.port,
+        apiHost: cliOptions.apiHost,
     })
     .catch(printCliResultErrorAndExit);
