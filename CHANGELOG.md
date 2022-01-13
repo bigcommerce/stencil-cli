@@ -1,3 +1,8 @@
+### 3.8.4 (2022-01-13)
+
+-   fix: `stencil init` command including `apiHost` option is now recognized ([830](https://github.com/bigcommerce/stencil-cli/pull/830))
+-   feat: `stencil push` command allows to push a theme to multiple channels ([825](https://github.com/bigcommerce/stencil-cli/pull/825))
+
 ### 3.8.3 (2022-01-12)
 
 -   fix: add activate sass engine name logic ([837](https://github.com/bigcommerce/stencil-cli/pull/837))
