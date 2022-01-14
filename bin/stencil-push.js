@@ -15,10 +15,10 @@ program
     .option('-a, --activate [variationname]', 'specify the variation of the theme to activate')
     .option('-d, --delete', 'delete oldest private theme if upload limit reached')
     .option(
-        '-c, --channel_id [channelId]',
-        'specify the channel ID of the storefront to push the theme to',
-        parseInt,
+        '-c, --channel_ids <channelIds...>',
+        'specify the channel IDs of the storefront to push the theme to',
     )
+    .option('-allc, --all_channels', 'push a theme to all available channels')
     .parse(process.argv);
 
 checkNodeVersion();
@@ -26,11 +26,12 @@ checkNodeVersion();
 const cliOptions = program.opts();
 const options = {
     apiHost: cliOptions.host,
-    channelId: cliOptions.channel_id,
+    channelIds: cliOptions.channel_ids,
     bundleZipPath: cliOptions.file,
     activate: cliOptions.activate,
     saveBundleName: cliOptions.save,
     deleteOldest: cliOptions.delete,
+    allChannels: cliOptions.all_channels,
 };
 stencilPush(options, (err, result) => {
     if (err) {

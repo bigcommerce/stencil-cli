@@ -56,7 +56,9 @@ This is useful for tracking your changes in your Theme, and is the tool we use t
 
 Run `stencil push` to bundle the local theme and upload it to your store, so it will be available in My Themes.
 To push the theme and also activate it, use `stencil push -a`. To automatically delete the oldest theme if you are at
-your theme limit, use `stencil push -d`. These can be used together, as `stencil push -a -d`.
+your theme limit, use `stencil push -d`. These can be used together, as `stencil push -a -d`. You can apply the theme to
+multiple storefronts, just specify ids of desired storefronts/channels after `-c` option `stencil push -a -c 123 456 789`.
+If you want to apply theme to all available storefronts, just use `-allc` option: `stencil push -a -allc`.
 
 Run `stencil pull` to sync changes to your theme configuration from your live store. For example, if Page Builder has
 been used to change certain theme settings, this will update those settings in config.json in your theme files so you
