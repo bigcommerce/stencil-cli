@@ -1,3 +1,7 @@
+### 3.8.5 (2022-01-18)
+
+-   fix(storefront): strf-9594 loosed frontmatter refex ([841](https://github.com/bigcommerce/stencil-cli/pull/841))
+
 ### 3.8.4 (2022-01-13)
 
 -   fix: `stencil init` command including `apiHost` option is now recognized ([830](https://github.com/bigcommerce/stencil-cli/pull/830))
