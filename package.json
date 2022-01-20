@@ -4,7 +4,8 @@
   "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
   "engines": {
-    "node": "^10.17 || ^12"
+    "node": "^10.17 || ^12",
+    "npm": ">=v6.11.3 <7.0.0"
   },
   "scripts": {
     "lint": "eslint . && prettier --check . --ignore-unknown",
