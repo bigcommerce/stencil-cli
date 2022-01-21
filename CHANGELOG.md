@@ -1,3 +1,8 @@
+### 3.9.0 (2022-01-21)
+
+-   fix: return channel id as an iterable when a store only has a single storefront ([849](https://github.com/bigcommerce/stencil-cli/pull/849))
+-   feat: warn npm users if npm is above 7 version ([846](https://github.com/bigcommerce/stencil-cli/pull/846))
+
 ### 3.8.5 (2022-01-18)
 
 -   fix(storefront): strf-9594 loosed frontmatter refex ([841](https://github.com/bigcommerce/stencil-cli/pull/841))
