@@ -1,3 +1,7 @@
+### 3.9.1 (2022-01-25)
+
+-   fix: strf-9612 Fix stencil pull when there is 1 channel ([859](https://github.com/bigcommerce/stencil-cli/pull/859))
+
 ### 3.9.0 (2022-01-21)
 
 -   fix: return channel id as an iterable when a store only has a single storefront ([849](https://github.com/bigcommerce/stencil-cli/pull/849))
