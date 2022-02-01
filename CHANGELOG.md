@@ -1,3 +1,7 @@
+### 3.9.2 (2022-01-31)
+
+-   chore: bump paper to latest ([863](https://github.com/bigcommerce/stencil-cli/pull/863))
+
 ### 3.9.1 (2022-01-25)
 
 -   fix: strf-9612 Fix stencil pull when there is 1 channel ([859](https://github.com/bigcommerce/stencil-cli/pull/859))
