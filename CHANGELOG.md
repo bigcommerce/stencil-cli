@@ -1,3 +1,7 @@
+### draft
+
+-   chore: bump stencil styles ([865](https://github.com/bigcommerce/stencil-cli/pull/865))
+
 ### 3.9.2 (2022-01-31)
 
 -   chore: bump paper to latest ([863](https://github.com/bigcommerce/stencil-cli/pull/863))
