@@ -1,11 +1,11 @@
 {
   "name": "@bigcommerce/stencil-cli",
-  "version": "3.9.2",
+  "version": "3.9.3",
   "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
   "engines": {
-    "node": "^10.17 || ^12",
-    "npm": ">=v6.11.3 <7.0.0"
+    "node": ">=12.0.0 <15.0.0",
+    "npm": ">=v6.11.3 <9.0.0"
   },
   "scripts": {
     "lint": "eslint . && prettier --check . --ignore-unknown",
@@ -46,7 +46,7 @@
   ],
   "dependencies": {
     "@bigcommerce/stencil-paper": "3.0.0-rc.54",
-    "@bigcommerce/stencil-styles": "2.1.1",
+    "@bigcommerce/stencil-styles": "2.2.0",
     "@hapi/boom": "^8.0.1",
     "@hapi/glue": "^6.2.0",
     "@hapi/h2o2": "^8.3.2",
