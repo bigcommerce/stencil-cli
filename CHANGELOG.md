@@ -1,4 +1,4 @@
-### draft
+### 3.9.3 (2022-02-02)
 
 -   chore: bump stencil styles ([865](https://github.com/bigcommerce/stencil-cli/pull/865))
 
