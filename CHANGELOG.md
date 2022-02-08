@@ -1,6 +1,7 @@
 ### Draft
 
 -   fix(storefront): bctheme-1000 handle regular css in stencil ([845](https://github.com/bigcommerce/stencil-cli/pull/845))
+-   chore: bump paper to 3.0.0 ([868](https://github.com/bigcommerce/stencil-cli/pull/868))
 
 ### 3.9.2 (2022-01-31)
 
