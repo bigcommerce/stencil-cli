@@ -60,20 +60,20 @@ internals.cssHandler = async (request, h) => {
     request.app.themeConfig.setVariation(variationIndex);
 
     // Get the theme configuration
+    const configuration = await request.app.themeConfig.getConfig();
     const fileName = internals.getOriginalFileName(request.params.fileName);
     const fileParts = path.parse(fileName);
-    const pathToFile = path.join(fileParts.dir, `${fileParts.name}.scss`);
-    const basePath = path.join(internals.getThemeAssetsPath(), 'scss');
+    const ext = configuration.css_compiler === 'css' ? configuration.css_compiler : 'scss';
+    const pathToFile = path.join(fileParts.dir, `${fileParts.name}.${ext}`);
+    const basePath = path.join(internals.getThemeAssetsPath(), `${ext}`);
 
     let files;
     try {
-        files = await promisify(cssAssembler.assemble)(pathToFile, basePath, 'scss', {});
+        files = await promisify(cssAssembler.assemble)(pathToFile, basePath, `${ext}`, {});
     } catch (err) {
         console.error(err);
         throw Boom.badData(err);
     }
-
-    const configuration = await request.app.themeConfig.getConfig();
 
     const params = {
         data: files[pathToFile],

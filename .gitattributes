@@ -1,2 +1,4 @@
 # Set a consistent line-ending styles across different OS to avoid problems with linters
 * text eol=lf
+*.png binary
+*.jpg binary
