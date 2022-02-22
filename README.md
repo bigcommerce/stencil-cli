@@ -11,7 +11,7 @@ _Note: Stencil requires the Node.js runtime environment,
 version 10.x and 12.x (Recommended) are supported.
 We do not yet have support for versions greater than Node 12._
 
-_Review package.json for the required npm version, <7.0.0 at the time of writing_
+_Review package.json for the required npm version, [>=v6.11.3 <7.0.0](https://github.com/bigcommerce/stencil-cli/blob/14d6781d4973e5458224aa0f2b236a16625cc5cf/package.json#L8) at the time of writing_
 
 Run `npm install -g @bigcommerce/stencil-cli`.
 
