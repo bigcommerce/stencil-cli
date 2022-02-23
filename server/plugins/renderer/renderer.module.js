@@ -371,7 +371,7 @@ function getAcceptLanguageHeader(request) {
     ) {
         return internals.options.storeSettingsLocale.default_shopper_language;
     }
-    return request.headers['accept-language'];
+    return request.headers['accept-language'].toLowerCase();
 }
 
 /**
