@@ -1,5 +1,10 @@
 ### Draft
 
+### 3.10.1 (2022-02-24)
+
+-   fix: when there's no regions on the page ([878](https://github.com/bigcommerce/stencil-cli/pull/878))
+-   fix: STRF-9667 Storefront fallback logic works incorrectly on store with Stencil CLI ([877](https://github.com/bigcommerce/stencil-cli/pull/877))
+
 ### 3.10.0 (2022-02-08)
 
 -   fix(storefront): bctheme-1000 handle regular css in stencil ([845](https://github.com/bigcommerce/stencil-cli/pull/845))
