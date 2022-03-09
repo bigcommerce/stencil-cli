@@ -1,17 +1,12 @@
 const _ = require('lodash');
 const Boom = require('@hapi/boom');
-const StencilStyles = require('@bigcommerce/stencil-styles');
 const path = require('path');
-const { promisify } = require('util');
-
-const cssAssembler = require('../../../lib/css-assembler');
 const utils = require('../../lib/utils');
+const cssCompiler = require('../../../lib/css/compile');
 
 const internals = {
     options: {},
 };
-
-const SASS_ENGINE_NAME = 'node-sass-fork';
 
 function register(server, options) {
     internals.options = _.defaultsDeep(options, internals.options);
@@ -62,35 +57,10 @@ internals.cssHandler = async (request, h) => {
     // Get the theme configuration
     const configuration = await request.app.themeConfig.getConfig();
     const fileName = internals.getOriginalFileName(request.params.fileName);
-    const fileParts = path.parse(fileName);
-    const ext = configuration.css_compiler === 'css' ? configuration.css_compiler : 'scss';
-    const pathToFile = path.join(fileParts.dir, `${fileParts.name}.${ext}`);
-    const basePath = path.join(internals.getThemeAssetsPath(), `${ext}`);
-
-    let files;
-    try {
-        files = await promisify(cssAssembler.assemble)(pathToFile, basePath, `${ext}`, {});
-    } catch (err) {
-        console.error(err);
-        throw Boom.badData(err);
-    }
-
-    const params = {
-        data: files[pathToFile],
-        files,
-        dest: path.join('/assets/css', fileName),
-        themeSettings: configuration.settings,
-        sourceMap: true,
-        autoprefixerOptions: {
-            cascade: configuration.autoprefixer_cascade,
-            browsers: configuration.autoprefixer_browsers,
-        },
-    };
-    const stencilStyles = new StencilStyles(console);
-    stencilStyles.activateEngine(SASS_ENGINE_NAME);
+    const themeAssetsPath = internals.getThemeAssetsPath();
 
     try {
-        const css = await stencilStyles.compileCss('scss', params);
+        const css = await cssCompiler.compile(configuration, themeAssetsPath, fileName);
         return h.response(css).type('text/css');
     } catch (err) {
         console.error(err);
