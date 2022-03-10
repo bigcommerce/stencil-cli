@@ -1,5 +1,9 @@
 ### Draft
 
+### 3.11.0 (2022-03-10)
+
+-   feat: strf-9440 Stencil Bundle: fail on scss failure compilation ([884](https://github.com/bigcommerce/stencil-cli/pull/884))
+
 ### 3.10.1 (2022-02-24)
 
 -   fix: when there's no regions on the page ([878](https://github.com/bigcommerce/stencil-cli/pull/878))
