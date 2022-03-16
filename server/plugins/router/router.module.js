@@ -119,8 +119,7 @@ internals.registerRoutes = (server) => {
                         )}`;
                         const urlParams = req.url.search || '';
                         const uri = `${host}${req.path}${urlParams}`;
-                        const headers = { 'stencil-cli': internals.options.stencilCliVersion };
-                        return { uri, headers };
+                        return { uri };
                     },
                     passThrough: true,
                 },
