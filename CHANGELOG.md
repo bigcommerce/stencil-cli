@@ -1,5 +1,8 @@
 ### Draft
 
+-   feat: allow .css-files imports within SCSS files ([882](https://github.com/bigcommerce/stencil-cli/pull/882))
+-   bump paper version ([x](https://github.com/bigcommerce/stencil-cli/pull/x))
+
 ### 3.11.0 (2022-03-10)
 
 -   feat: strf-9440 Stencil Bundle: fail on scss failure compilation ([884](https://github.com/bigcommerce/stencil-cli/pull/884))
