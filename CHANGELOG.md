@@ -1,7 +1,9 @@
 ### Draft
 
+### 3.12.0 (2022-03-29)
+
 -   feat: allow .css-files imports within SCSS files ([882](https://github.com/bigcommerce/stencil-cli/pull/882))
--   bump paper version ([x](https://github.com/bigcommerce/stencil-cli/pull/x))
+-   bump paper version ([897](https://github.com/bigcommerce/stencil-cli/pull/897))
 
 ### 3.11.0 (2022-03-10)
 
