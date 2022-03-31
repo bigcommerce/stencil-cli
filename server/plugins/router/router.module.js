@@ -119,7 +119,10 @@ internals.registerRoutes = (server) => {
                         )}`;
                         const urlParams = req.url.search || '';
                         const uri = `${host}${req.path}${urlParams}`;
-                        const headers = { 'stencil-cli': internals.options.stencilCliVersion };
+                        const headers = {
+                            'stencil-cli': internals.options.stencilCliVersion,
+                            'x-auth-token': internals.options.accessToken,
+                        };
                         return { uri, headers };
                     },
                     passThrough: true,
@@ -167,6 +170,8 @@ internals.registerRoutes = (server) => {
                             {
                                 origin: internals.options.storeUrl,
                                 host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
+                                'stencil-cli': internals.options.stencilCliVersion,
+                                'x-auth-token': internals.options.accessToken,
                             },
                         ),
                     }),

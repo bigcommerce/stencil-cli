@@ -20,6 +20,8 @@ function buildManifest(srcManifest, options) {
     pluginsByName['./plugins/router/router.module'].apiKey = options.dotStencilFile.apiKey;
     pluginsByName['./plugins/router/router.module'].port = options.dotStencilFile.port;
     pluginsByName['./plugins/router/router.module'].stencilCliVersion = options.stencilCliVersion;
+    pluginsByName['./plugins/router/router.module'].accessToken =
+        options.dotStencilFile.accessToken;
     pluginsByName['./plugins/renderer/renderer.module'].useCache = options.useCache;
     pluginsByName['./plugins/renderer/renderer.module'].username = options.dotStencilFile.username;
     pluginsByName['./plugins/renderer/renderer.module'].token = options.dotStencilFile.token;
