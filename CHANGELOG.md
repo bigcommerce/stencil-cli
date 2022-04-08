@@ -1,5 +1,9 @@
 ### Draft
 
+### 3.13.0 (2022-04-08)
+
+-   feat: strf-9718 Add OAuth token to headers ([903](https://github.com/bigcommerce/stencil-cli/pull/903))
+
 ### 3.12.0 (2022-03-29)
 
 -   feat: allow .css-files imports within SCSS files ([882](https://github.com/bigcommerce/stencil-cli/pull/882))
