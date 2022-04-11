@@ -1,5 +1,9 @@
 ### Draft
 
+### 4.0.0 (2022-04-11)
+
+-   Added support for node 14 and drop node 10
+
 ### 3.13.0 (2022-04-08)
 
 -   feat: strf-9718 Add OAuth token to headers ([903](https://github.com/bigcommerce/stencil-cli/pull/903))
