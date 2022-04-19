@@ -4,19 +4,16 @@ const program = require('../lib/commander');
 
 const StencilInit = require('../lib/stencil-init');
 const { PACKAGE_INFO } = require('../constants');
-const { checkNodeVersion, printCliResultErrorAndExit } = require('../lib/cliCommon');
+const { prepareCommand, printCliResultErrorAndExit } = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
     .option('-u, --url [url]', 'Store URL')
     .option('-t, --token [token]', 'Access Token')
     .option('-p, --port [port]', 'Port')
-    .option('-h, --apiHost [host]', 'API Host')
-    .parse(process.argv);
+    .option('-h, --apiHost [host]', 'API Host');
 
-checkNodeVersion();
-
-const cliOptions = program.opts();
+const cliOptions = prepareCommand(program);
 
 new StencilInit()
     .run({

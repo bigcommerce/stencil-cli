@@ -6,21 +6,17 @@ const program = require('../lib/commander');
 
 const { PACKAGE_INFO } = require('../constants');
 const stencilDownload = require('../lib/stencil-download');
-const { checkNodeVersion } = require('../lib/cliCommon');
+const { prepareCommand } = require('../lib/cliCommon');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
-    .option('-h, --host [hostname]', 'specify the api host')
     .option('-f, --file [filename]', 'specify the filename to download only')
     .option('-e, --exclude [exclude]', 'specify a directory to exclude from download')
     .option('-c, --channel_id [channelId]', 'specify the channel ID of the storefront', parseInt)
-    .option('-o, --overwrite', 'overwrite local with remote files')
-    .parse(process.argv);
+    .option('-o, --overwrite', 'overwrite local with remote files');
 
-checkNodeVersion();
-
-const cliOptions = program.opts();
+const cliOptions = prepareCommand(program);
 const extraExclude = cliOptions.exclude ? [cliOptions.exclude] : [];
 const options = {
     exclude: ['parsed', 'manifest.json', ...extraExclude],
