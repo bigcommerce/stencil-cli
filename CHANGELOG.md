@@ -1,5 +1,10 @@
 ### Draft
 
+-   feat: STRF-9757 Introduced "stencil debug" ([x](https://github.com/bigcommerce/stencil-cli/pull/x))
+
+Available options: --output [filename] (-o)
+If not provided, will be logged to std
+
 ### 4.0.0 (2022-04-11)
 
 -   Added support for node 14 and drop node 10
