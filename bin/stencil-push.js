@@ -4,12 +4,11 @@ require('colors');
 const { PACKAGE_INFO } = require('../constants');
 const program = require('../lib/commander');
 const stencilPush = require('../lib/stencil-push');
-const { checkNodeVersion } = require('../lib/cliCommon');
+const { prepareCommand } = require('../lib/cliCommon');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 
 program
     .version(PACKAGE_INFO.version)
-    .option('--host [hostname]', 'specify the api host')
     .option('-f, --file [filename]', 'specify the filename of the bundle to upload')
     .option('-s, --save [filename]', 'specify the filename to save the bundle as')
     .option('-a, --activate [variationname]', 'specify the variation of the theme to activate')
@@ -18,12 +17,9 @@ program
         '-c, --channel_ids <channelIds...>',
         'specify the channel IDs of the storefront to push the theme to',
     )
-    .option('-allc, --all_channels', 'push a theme to all available channels')
-    .parse(process.argv);
+    .option('-allc, --all_channels', 'push a theme to all available channels');
 
-checkNodeVersion();
-
-const cliOptions = program.opts();
+const cliOptions = prepareCommand(program);
 const options = {
     apiHost: cliOptions.host,
     channelIds: cliOptions.channel_ids,

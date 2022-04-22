@@ -7,7 +7,7 @@ const { THEME_PATH, PACKAGE_INFO } = require('../constants');
 const ThemeConfig = require('../lib/theme-config');
 const Bundle = require('../lib/stencil-bundle');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
-const { checkNodeVersion } = require('../lib/cliCommon');
+const { prepareCommand } = require('../lib/cliCommon');
 const BuildConfigManager = require('../lib/BuildConfigManager');
 
 program
@@ -28,16 +28,13 @@ program
         '-t, --timeout [timeout]',
         'Set a timeout for the bundle operation. Default is 20 secs',
         '60',
-    )
-    .parse(process.argv);
+    );
 
-const cliOptions = program.opts();
+const cliOptions = prepareCommand(program);
 const themeConfig = ThemeConfig.getInstance(THEME_PATH);
 
 async function run() {
     try {
-        checkNodeVersion();
-
         if (cliOptions.dest === true) {
             throw new Error('You have to specify a value for -d or --dest'.red);
         }
