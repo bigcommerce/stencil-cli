@@ -1,10 +1,15 @@
 ### Draft
 
+-   feat: strf-9749 Update Stencil Cli to use node-sass latest by default ([923](https://github.com/bigcommerce/stencil-cli/pull/923))
+    New option:` --use-old-node-sass-fork` to bypass error warning (in case it exist) using latest node-sass version.
+    Soon, it node sass fork will be deprecated and it won't be possible to compile with it.
+
 -   feat: STRF-9757 Introduced "stencil debug" ([918](https://github.com/bigcommerce/stencil-cli/pull/918))
 
 Available options: --output [filename] (-o)
 If not provided, will be logged to std
--   feat: STRF-9741 Verbose network requests logging in Stencil CLI by default ([x](https://github.com/bigcommerce/stencil-cli/pull/x))
+
+-   feat: STRF-9741 Verbose network requests logging in Stencil CLI by default ([914](https://github.com/bigcommerce/stencil-cli/pull/914))
     Introduced `--no-verbose` option on all commands to supress verbose network requests logging.
 
 ### 4.0.0 (2022-04-11)

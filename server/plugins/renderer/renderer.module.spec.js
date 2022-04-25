@@ -34,6 +34,7 @@ describe('Renderer Plugin', () => {
         // Prevent littering the console
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
+        jest.spyOn(console, 'info').mockImplementation(jest.fn());
 
         server = await Server.create(serverOptions);
 
