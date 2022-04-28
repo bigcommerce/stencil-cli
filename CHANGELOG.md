@@ -1,7 +1,9 @@
 ### Draft
 
+### 4.1.0 (2022-04-28)
+
 -   feat: strf-9749 Update Stencil Cli to use node-sass latest by default ([923](https://github.com/bigcommerce/stencil-cli/pull/923))
-    New option:` --use-old-node-sass-fork` to bypass error warning (in case it exist) using latest node-sass version.
+    New option:`--use-old-node-sass-fork (--oldn)` to bypass error warning (in case it exist) using latest node-sass version.
     Soon, it node sass fork will be deprecated and it won't be possible to compile with it.
 
 -   feat: STRF-9757 Introduced "stencil debug" ([918](https://github.com/bigcommerce/stencil-cli/pull/918))
