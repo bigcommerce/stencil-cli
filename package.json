@@ -21,7 +21,8 @@
     "stencil-push": "./bin/stencil-push.js",
     "stencil-pull": "./bin/stencil-pull.js",
     "stencil-start": "./bin/stencil-start.js",
-    "stencil-release": "./bin/stencil-release.js"
+    "stencil-release": "./bin/stencil-release.js",
+    "stencil-debug": "./bin/stencil-debug.js"
   },
   "config": {
     "stencil_version": "1.0"
@@ -77,7 +78,7 @@
     "progress": "^2.0.3",
     "recursive-readdir": "^2.2.2",
     "semver": "^7.3.2",
-    "simple-git": "^2.20.1",
+    "simple-git": "^3.7.1",
     "tarjan-graph": "^2.0.0",
     "tmp-promise": "^3.0.2",
     "upath": "^1.2.0",
