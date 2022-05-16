@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 require('colors');
 const program = require('../lib/commander');
 
