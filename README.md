@@ -95,6 +95,20 @@ If you need any help or experience any bugs, please create a GitHub issue in thi
 If you would like to improve this project check out the [Contributing Guide](./CONTRIBUTING.md). Also, you can find
 the implementation details there.
 
+## Running in docker
+
+There is possibility to run stencil-cli in docker.
+Here are steps to have this functionality.
+First of all, build a docker image, let's name it `bc/stencil-cli`
+Run `docker build . -t bc/stencil-cli` in stencil-cli repo directory.
+
+Then, after the image is built, you want to run some commands against your theme.
+
+For example
+`docker run -p 3005:3005 -v /bigcommerce/cornerstone:/usr/src/app -it bc/stencil-cli stencil init`, where `3005` is port number definded in `config.stencil.json` and `/bigcommerce/cornerstone` path to where theme is located.
+
+`docker run -p 3005:3005 -v /bigcommerce/cornerstone:/usr/src/app -it bc/stencil-cli stencil start` and so on
+
 ## License
 
 Copyright (c) 2015-present, BigCommerce Inc.
