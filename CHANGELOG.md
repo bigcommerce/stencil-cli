@@ -1,5 +1,12 @@
 ### Draft
 
+### 4.1.1 (2022-05-24)
+
+-   fix: strf-9781 Bump dev packages for linting ([932](https://github.com/bigcommerce/stencil-cli/pull/932))
+-   fix: STRF-9781 Bump axios, @ocktokit/rest and browser-sync ([931](https://github.com/bigcommerce/stencil-cli/pull/931))
+-   fix: STRF-9781 Bump async and confidence ([929](https://github.com/bigcommerce/stencil-cli/pull/929))
+-   fix: STRF-9781 Bump simple-git ([928](https://github.com/bigcommerce/stencil-cli/pull/928))
+
 ### 4.1.0 (2022-04-28)
 
 -   feat: strf-9749 Update Stencil Cli to use node-sass latest by default ([923](https://github.com/bigcommerce/stencil-cli/pull/923))
