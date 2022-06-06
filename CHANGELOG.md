@@ -1,5 +1,9 @@
 ### Draft
 
+### 5.0.0 (2022-06-06)
+
+-   feat: strf-9791 Drop Node 12 Support ([x](https://github.com/bigcommerce/stencil-cli/pull/x))
+
 ### 4.1.1 (2022-05-24)
 
 -   fix: strf-9781 Bump dev packages for linting ([932](https://github.com/bigcommerce/stencil-cli/pull/932))
