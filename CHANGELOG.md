@@ -1,8 +1,11 @@
 ### Draft
 
-### 5.0.0 (2022-06-06)
+### 5.0.0 (2022-06-07)
 
--   feat: strf-9791 Drop Node 12 Support ([x](https://github.com/bigcommerce/stencil-cli/pull/x))
+-   fix: STRF-9835 Bump paper ([947](https://github.com/bigcommerce/stencil-cli/pull/947))
+-   feat: strf-9791 Drop Node 12 Support ([945](https://github.com/bigcommerce/stencil-cli/pull/945))
+-   feat: STRF-9807 Dockerize stencil cli ([938]https://github.com/bigcommerce/stencil-cli/pull/938)
+-   merc-8592 Fix stencil CLI Push resulting in intermittent failures ([935]https://github.com/bigcommerce/stencil-cli/pull/935)
 
 ### 4.1.1 (2022-05-24)
 
