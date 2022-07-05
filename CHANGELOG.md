@@ -1,5 +1,7 @@
 ### Draft
 
+-   fix: bctheme-1145 Enable using of external lib nested into organization for templates ([954](https://github.com/bigcommerce/stencil-cli/pull/954))
+
 ### 5.0.0 (2022-06-07)
 
 -   fix: STRF-9835 Bump paper ([947](https://github.com/bigcommerce/stencil-cli/pull/947))
