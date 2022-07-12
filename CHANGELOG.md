@@ -1,5 +1,9 @@
 ### Draft
 
+### 5.0.1 (2022-13-07)
+
+-   feat: paypal-1514 add sort type to schema ([960](https://github.com/bigcommerce/stencil-cli/pull/960))
+
 ### 5.0.0 (2022-06-07)
 
 -   fix: STRF-9835 Bump paper ([947](https://github.com/bigcommerce/stencil-cli/pull/947))

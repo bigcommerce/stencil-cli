@@ -33,7 +33,8 @@
                 "imageDimension",
                 "text",
                 "optimizedCheckout-image",
-                "input"
+                "input",
+                "sort"
               ]
             },
             "content": {
