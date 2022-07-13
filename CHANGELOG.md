@@ -2,12 +2,17 @@
 
 -   fix: bctheme-1145 Enable using of external lib nested into organization for templates ([954](https://github.com/bigcommerce/stencil-cli/pull/954))
 
+### 5.0.1 (2022-13-07)
+
+-   feat: paypal-1514 add sort type to schema ([960](https://github.com/bigcommerce/stencil-cli/pull/960))
+
 ### 5.0.0 (2022-06-07)
 
 -   fix: STRF-9835 Bump paper ([947](https://github.com/bigcommerce/stencil-cli/pull/947))
 -   feat: strf-9791 Drop Node 12 Support ([945](https://github.com/bigcommerce/stencil-cli/pull/945))
--   feat: STRF-9807 Dockerize stencil cli ([938]https://github.com/bigcommerce/stencil-cli/pull/938)
--   merc-8592 Fix stencil CLI Push resulting in intermittent failures ([935]https://github.com/bigcommerce/stencil-cli/pull/935)
+-   feat: STRF-9807 Dockerize stencil cli ([938](https://github.com/bigcommerce/stencil-cli/pull/938))
+-   merc-8592 Fix stencil CLI Push resulting in intermittent failures ([935](https://github.com/bigcommerce/stencil-cli/pull/935))
+-   feat: strf-9923 CLI should not ask users for which API hostname to use ([955](https://github.com/bigcommerce/stencil-cli/pull/955))
 
 ### 4.1.1 (2022-05-24)
 
