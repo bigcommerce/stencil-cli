@@ -1,5 +1,7 @@
 ### Draft
 
+-   fix: bctheme-1145 Enable using of external lib nested into organization for templates ([954](https://github.com/bigcommerce/stencil-cli/pull/954))
+
 ### 5.0.1 (2022-13-07)
 
 -   feat: paypal-1514 add sort type to schema ([960](https://github.com/bigcommerce/stencil-cli/pull/960))
