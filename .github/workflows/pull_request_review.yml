@@ -9,40 +9,75 @@ on:
     push:
         branches: [master, main]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
-    build:
-        strategy:
-            matrix:
-                node: [14.x]
-                os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
+    build-and-push-image:
+      runs-on: ubuntu-latest
+      permissions:
+        # contents: read
+        packages: write
 
-        runs-on: ${{ matrix.os }}
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v3
+        - name: Log in to the Container registry
+          uses: docker/login-action@v2
+          with:
+            registry: ${{ env.REGISTRY }}
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Use Node.js ${{ matrix.node }}
-              uses: actions/setup-node@v3
-              with:
-                  node-version: ${{ matrix.node }}
+        - name: Extract metadata (tags, labels) for Docker
+          id: meta
+          uses: docker/metadata-action@v4
+          with:
+            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-            - name: Get npm cache directory
-              id: npm-cache
-              run: |
-                  echo "::set-output name=dir::$(npm config get cache)"
-            - uses: actions/cache@v2
-              with:
-                  path: ${{ steps.npm-cache.outputs.dir }}
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-
+        - name: Build and push Docker image
+          uses: docker/build-push-action@v3
+          with:
+            context: .
+            push: true
+          # push: ${{ github.event_name != 'pull_request' }}
+            tags: ${{ steps.meta.outputs.tags }}
+            labels: ${{ steps.meta.outputs.labels }}
+    # build:
+    #     strategy:
+    #         matrix:
+    #             node: [14.x]
+    #             os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
 
-            - name: Install Dependencies
-              run: npm ci
+    #     runs-on: ${{ matrix.os }}
 
-            - name: Lint the code
-              run: npm run lint
+    #     steps:
+    #         - name: Checkout code
+    #           uses: actions/checkout@v3
 
-            - name: Run tests
-              run: npm run test-with-coverage
+    #         - name: Use Node.js ${{ matrix.node }}
+    #           uses: actions/setup-node@v3
+    #           with:
+    #               node-version: ${{ matrix.node }}
+
+    #         - name: Get npm cache directory
+    #           id: npm-cache
+    #           run: |
+    #               echo "::set-output name=dir::$(npm config get cache)"
+    #         - uses: actions/cache@v2
+    #           with:
+    #               path: ${{ steps.npm-cache.outputs.dir }}
+    #               key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+    #               restore-keys: |
+    #                   ${{ runner.os }}-node-
+
+    #         - name: Install Dependencies
+    #           run: npm ci
+
+    #         - name: Lint the code
+    #           run: npm run lint
+
+    #         - name: Run tests
+    #           run: npm run test-with-coverage
