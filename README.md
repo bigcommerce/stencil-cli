@@ -30,6 +30,7 @@ Commands:
   push        Bundles up the theme into a zip file and uploads it to your store.
   pull        Pulls the configuration from the active theme on your live store and updates your local configuration.
   download    Downloads the theme files from the active theme on your live store.
+  debug       Prints environment and theme settings for debug purposes.
   help [cmd]  display help for [cmd]
 
 Options:
@@ -63,6 +64,8 @@ If you want to apply theme to all available storefronts, just use `-allc` option
 Run `stencil pull` to sync changes to your theme configuration from your live store. For example, if Page Builder has
 been used to change certain theme settings, this will update those settings in config.json in your theme files so you
 don't overwrite them on your next upload.
+
+Run `stencil debug` to get information about runtime environment and the configuration
 
 ## Features
 

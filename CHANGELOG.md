@@ -1,5 +1,7 @@
 ### Draft
 
+-   fix: debug command ([x](https://github.com/bigcommerce/stencil-cli/pull/x))
+
 ### 5.1.0 (2022-07-14)
 
 -   fix: STRF-9883 Interm fix to grab 1st variation ([951](https://github.com/bigcommerce/stencil-cli/pull/951))
