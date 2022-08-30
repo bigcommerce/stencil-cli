@@ -1,6 +1,9 @@
 ### Draft
 
--   fix: debug command ([x](https://github.com/bigcommerce/stencil-cli/pull/x))
+### 5.2.0 (2022-08-30)
+
+-   feat: STRF-9877 Publish stencil cli docker image ([972](https://github.com/bigcommerce/stencil-cli/pull/972))
+-   fix: debug command ([970](https://github.com/bigcommerce/stencil-cli/pull/970))
 
 ### 5.1.0 (2022-07-14)
 
