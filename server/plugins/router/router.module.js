@@ -13,6 +13,7 @@ const internals = {
         staticAssets: '/assets/{path*}',
         internalApi: '/internalapi/{path*}',
         storefrontAPI: '/api/storefront/{path*}',
+        checkoutAPI: '/checkout/{path*}',
         cdnAssets: '/stencil/{versionId}/{fileName*}',
         cssFiles: '/stencil/{versionId}/css/{fileName}.css',
         favicon: '/favicon.ico',
@@ -109,6 +110,34 @@ internals.registerRoutes = (server) => {
         {
             method: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
             path: internals.paths.storefrontAPI,
+            handler: {
+                proxy: {
+                    rejectUnauthorized: false,
+                    mapUri: (req) => {
+                        const host = `https://${internals.options.storeUrl.replace(
+                            /http[s]?:\/\//,
+                            '',
+                        )}`;
+                        const urlParams = req.url.search || '';
+                        const uri = `${host}${req.path}${urlParams}`;
+                        const headers = {
+                            'stencil-cli': internals.options.stencilCliVersion,
+                            'x-auth-token': internals.options.accessToken,
+                        };
+                        return { uri, headers };
+                    },
+                    passThrough: true,
+                },
+            },
+            options: {
+                state: {
+                    failAction: 'log',
+                },
+            },
+        },
+        {
+            method: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+            path: internals.paths.checkoutAPI,
             handler: {
                 proxy: {
                     rejectUnauthorized: false,
