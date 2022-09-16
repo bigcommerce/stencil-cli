@@ -33,6 +33,8 @@ function buildManifest(srcManifest, options) {
     pluginsByName['./plugins/renderer/renderer.module'].storeUrl = storeUrl;
     pluginsByName['./plugins/renderer/renderer.module'].storeSettingsLocale =
         options.storeSettingsLocale;
+    pluginsByName['./plugins/renderer/renderer.module'].customLayouts =
+        options.dotStencilFile.customLayouts;
     pluginsByName['./plugins/theme-assets/theme-assets.module'].themePath = options.themePath;
 
     resManifest.register.plugins = _.reduce(
