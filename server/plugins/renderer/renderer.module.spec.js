@@ -24,6 +24,14 @@ describe('Renderer Plugin', () => {
             port: 4000,
             username: 'testUser',
             token: '6832b1c755bb9de13aa8990216a69a7623043fd7',
+            customLayouts: {
+                brand: {
+                    a: '/abc/',
+                },
+                category: {},
+                page: {},
+                product: {},
+            },
         },
         useCache: false,
         themePath: themeConfigManager.themePath,
@@ -92,6 +100,7 @@ describe('Renderer Plugin', () => {
             axiosMock.onGet().reply(200, {});
 
             await server.inject(browserRequest);
+
             expect(axiosMock.history.get[0].url).toEqual(`${storeUrl}${browserRequest.url}`);
         });
 
@@ -158,6 +167,8 @@ describe('Renderer Plugin', () => {
                 'stencil-options': '{"get_template_file":true,"get_data_only":true}',
                 'stencil-version': PACKAGE_INFO.config.stencil_version,
                 'accept-encoding': 'identity',
+                'stencil-custom-templates':
+                    '{"brand":{"a":"/abc/"},"category":{},"page":{},"product":{}}',
             });
         });
 
@@ -253,6 +264,8 @@ describe('Renderer Plugin', () => {
                 'stencil-options': '{"get_template_file":true,"get_data_only":true}',
                 'stencil-version': PACKAGE_INFO.config.stencil_version,
                 'accept-encoding': 'identity',
+                'stencil-custom-templates':
+                    '{"brand":{"a":"/abc/"},"category":{},"page":{},"product":{}}',
             });
         });
 

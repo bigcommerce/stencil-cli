@@ -21,6 +21,7 @@ const {
 } = require('../../../lib/utils/frontmatter');
 
 const networkUtils = new NetworkUtils();
+const { DEFAULT_CUSTOM_LAYOUTS_CONFIG } = require('../../../constants');
 
 const internals = {
     options: {},
@@ -70,6 +71,7 @@ internals.sha1sum = (input) => {
  */
 internals.getResponse = async (request) => {
     const storeUrlObj = new URL(request.app.storeUrl);
+    const { customLayouts } = internals.options;
 
     const httpOpts = {
         url: Object.assign(new URL(request.url.toString()), {
@@ -80,7 +82,7 @@ internals.getResponse = async (request) => {
         headers: internals.buildReqHeaders({
             request,
             stencilOptions: { get_template_file: true, get_data_only: true },
-            extraHeaders: { host: storeUrlObj.host },
+            extraHeaders: { host: storeUrlObj.host, stencil_custom_templates: customLayouts },
         }),
         accessToken: internals.options.accessToken,
         data: request.payload,
@@ -140,7 +142,6 @@ internals.getResponse = async (request) => {
         },
         internals.cacheTTL,
     );
-
     return internals.parseResponse(bcAppData, request, response, responseArgs);
 };
 
@@ -151,10 +152,13 @@ internals.getResponse = async (request) => {
  * @param request
  * @param response
  * @param responseArgs
+ * @param customLayouts
  * @returns {*}
  */
 internals.parseResponse = async (bcAppData, request, response, responseArgs) => {
     const { httpOpts, storeUrlObj } = responseArgs;
+    // eslint-disable-next-line camelcase
+    const { stencil_custom_templates } = httpOpts.headers;
 
     if (typeof bcAppData !== 'object' || !('pencil_response' in bcAppData)) {
         delete response.headers['x-frame-options'];
@@ -175,7 +179,10 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
         request,
         stencilOptions: { get_data_only: true },
         stencilConfig: internals.getResourceConfig(bcAppData, request, configuration),
-        extraHeaders: { host: storeUrlObj.host },
+        extraHeaders: {
+            host: storeUrlObj.host,
+            stencil_custom_templates,
+        },
     });
     httpOpts.responseType = 'json'; // In the second request we always expect json
 
@@ -440,14 +447,21 @@ internals.buildReqHeaders = ({
         ? JSON.parse(request.headers['stencil-options'])
         : {};
 
+    const templates =
+        JSON.stringify(extraHeaders.stencil_custom_templates) ||
+        JSON.stringify(DEFAULT_CUSTOM_LAYOUTS_CONFIG);
+
     const headers = {
         'stencil-options': JSON.stringify({ ...stencilOptions, ...currentOptions }),
         'accept-encoding': 'identity',
+        'stencil-custom-templates': templates,
     };
 
     if (!request.headers['stencil-config'] && stencilConfig) {
         headers['stencil-config'] = JSON.stringify(stencilConfig);
     }
+    // eslint-disable-next-line no-param-reassign
+    delete extraHeaders.stencil_custom_templates;
 
     return { ...request.headers, ...headers, ...extraHeaders };
 };
