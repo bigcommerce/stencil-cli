@@ -1,9 +1,5 @@
 ### Draft
 
-### 5.2.1 (2022-09-30)
-
--   fix: STRF-9832 custom template frontmatter is prioritized over default one ([983](https://github.com/bigcommerce/stencil-cli/pull/983))
-
 ### 5.2.0 (2022-08-30)
 
 -   feat: STRF-9877 Publish stencil cli docker image ([972](https://github.com/bigcommerce/stencil-cli/pull/972))
