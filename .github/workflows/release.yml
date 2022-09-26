@@ -3,10 +3,6 @@ on:
     release:
         types: [created]
 
-env:
-    REGISTRY: ghcr.io
-    IMAGE_NAME: ${{ github.repository }}
-
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -21,6 +17,9 @@ jobs:
             - run: npm publish
 
     build-and-push-image:
+        env:
+            REGISTRY: ghcr.io
+            IMAGE_NAME: ${{ github.repository }}
         runs-on: ubuntu-latest
         permissions:
             packages: write
