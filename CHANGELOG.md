@@ -1,5 +1,9 @@
 ### Draft
 
+### 5.2.2 (2022-09-29)
+
+-   fix: STRF-9174 review section is shown on quick-view page ([991](https://github.com/bigcommerce/stencil-cli/pull/991))
+
 ### 5.2.1 (2022-09-30)
 
 -   fix: STRF-9832 custom template frontmatter is prioritized over default one ([983](https://github.com/bigcommerce/stencil-cli/pull/983))
