@@ -457,7 +457,9 @@ internals.buildReqHeaders = ({
         'stencil-custom-templates': templates,
     };
 
-    if (!request.headers['stencil-config'] && stencilConfig) {
+    const config = request.headers['stencil-config'];
+
+    if ((!config || config === '{}') && stencilConfig) {
         headers['stencil-config'] = JSON.stringify(stencilConfig);
     }
     // eslint-disable-next-line no-param-reassign
