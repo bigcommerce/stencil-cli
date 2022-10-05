@@ -1,5 +1,7 @@
 ### Draft
 
+-   fix: STRF-10049 npm 8 install fix ([x](https://github.com/bigcommerce/stencil-cli/pull/x))
+
 ### 5.2.2 (2022-09-29)
 
 -   fix: STRF-9174 review section is shown on quick-view page ([991](https://github.com/bigcommerce/stencil-cli/pull/991))
