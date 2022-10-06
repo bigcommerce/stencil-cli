@@ -1,5 +1,7 @@
 ### Draft
 
+### 5.2.3 (2022-09-29)
+
 -   fix: STRF-10049 npm 8 install fix ([x](https://github.com/bigcommerce/stencil-cli/pull/x))
 
 ### 5.2.2 (2022-09-29)
