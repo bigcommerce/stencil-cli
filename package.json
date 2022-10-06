@@ -50,7 +50,7 @@
     "@bigcommerce/stencil-styles": "4.0.0",
     "@hapi/boom": "^8.0.1",
     "@hapi/glue": "^6.2.0",
-    "@hapi/h2o2": "^8.3.2",
+    "@hapi/h2o2": "^10.0.0",
     "@hapi/hapi": "^18.4.1",
     "@hapi/inert": "^5.2.2",
     "@octokit/rest": "^18.0.6",
