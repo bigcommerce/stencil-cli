@@ -16,6 +16,7 @@ class RedirectResponse {
         for (const [name, values] of Object.entries(this.headers)) {
             switch (name) {
                 case 'transfer-encoding':
+                case 'content-length':
                     break;
                 case 'set-cookie':
                     // Cookies should be an array
