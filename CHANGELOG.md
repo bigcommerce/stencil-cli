@@ -1,5 +1,7 @@
 ### Draft
 
+-   fix: BCTHEME-1284 fix error on using scoped nested external templates ([1003](https://github.com/bigcommerce/stencil-cli/pull/1003))
+
 ### 5.2.4 (2022-10-10)
 
 -   fix: STRF-10118 fix redirects stalling locally ([1000](https://github.com/bigcommerce/stencil-cli/pull/1000))
