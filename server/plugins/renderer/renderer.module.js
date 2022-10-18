@@ -71,14 +71,18 @@ internals.sha1sum = (input) => {
  */
 internals.getResponse = async (request) => {
     const storeUrlObj = new URL(request.app.storeUrl);
+    const fullUrl = Object.assign(new URL(request.url.toString()), {
+        port: storeUrlObj.port,
+        host: storeUrlObj.host,
+        protocol: storeUrlObj.protocol,
+    });
+    const withoutPageQuery = new URL(fullUrl.toString());
+    withoutPageQuery.searchParams.delete('page');
+
     const { customLayouts } = internals.options;
 
     const httpOpts = {
-        url: Object.assign(new URL(request.url.toString()), {
-            port: storeUrlObj.port,
-            host: storeUrlObj.host,
-            protocol: storeUrlObj.protocol,
-        }).toString(),
+        url: withoutPageQuery.toString(),
         headers: internals.buildReqHeaders({
             request,
             stencilOptions: { get_template_file: true, get_data_only: true },
@@ -95,7 +99,7 @@ internals.getResponse = async (request) => {
     };
 
     const responseArgs = {
-        httpOpts,
+        httpOpts: { ...httpOpts, url: fullUrl.toString() },
         storeUrlObj,
     };
 
