@@ -1,5 +1,7 @@
 ### Draft
 
+-   fix: BCTHEME-1284 fix error on using scoped nested external templates ([1003](https://github.com/bigcommerce/stencil-cli/pull/1003))
+
 ### 5.2.5 (2022-10-18)
 
 -   fix: STRF-10130 fix 404s on pagination in brands/categories ([1004](https://github.com/bigcommerce/stencil-cli/pull/1004))
