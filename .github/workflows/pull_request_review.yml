@@ -30,6 +30,12 @@ jobs:
             - name: Install Dependencies
               run: npm ci
 
+            - name: Verify Github PR Title
+              run: echo "${{ github.event.pull_request.title }}" | npx commitlint
+
+            - name: Verify Git Commit Name
+              run: git log -1 --pretty=format:"%s" |  npx commitlint
+
             - name: Lint the code
               run: npm run lint
 
