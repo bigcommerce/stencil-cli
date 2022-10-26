@@ -7,14 +7,21 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
                   node-version: '14.x'
             - run: npm ci
+            - name: Check Git Commit name
+              run: git log -1 --pretty=format:"%s" |  npx commitlint
             # Setup .npmrc file to publish to npm registry
             - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-            - run: npm publish
+            - name: Deploy to npm and git
+              run: npm config list && npm run release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GA_USERNAME: ${{ secrets.PAT_USERNAME }}
+                  GA_TOKEN: ${{ secrets.PAT_TOKEN }}
 
     build-and-push-image:
         env:
