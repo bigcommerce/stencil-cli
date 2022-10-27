@@ -6,8 +6,6 @@ name: Tests
 on:
     pull_request:
         branches: [master, main]
-    push:
-        branches: [master, main]
 
 jobs:
     build:
@@ -20,10 +18,10 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Use Node.js ${{ matrix.node }}
-              uses: actions/setup-node@v2
+              uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node }}
 
