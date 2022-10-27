@@ -1,7 +1,8 @@
-name: Stencil CLI
+name: Stencil CLI Release
+
 on:
-    release:
-        types: [created]
+    push:
+        branches: [master, main]
 
 jobs:
     build:
@@ -11,7 +12,7 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: '14.x'
-            - run: npm ci
+            - run: npm i
             - name: Check Git Commit name
               run: git log -1 --pretty=format:"%s" |  npx commitlint
             # Setup .npmrc file to publish to npm registry
@@ -22,36 +23,3 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GA_USERNAME: ${{ secrets.PAT_USERNAME }}
                   GA_TOKEN: ${{ secrets.PAT_TOKEN }}
-
-    build-and-push-image:
-        env:
-            REGISTRY: ghcr.io
-            IMAGE_NAME: ${{ github.repository }}
-        runs-on: ubuntu-latest
-        permissions:
-            packages: write
-
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
-
-            - name: Log in to the Container registry
-              uses: docker/login-action@v2
-              with:
-                  registry: ${{ env.REGISTRY }}
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Extract metadata (tags, labels) for Docker
-              id: meta
-              uses: docker/metadata-action@v4
-              with:
-                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
-            - name: Build and push Docker image
-              uses: docker/build-push-action@v3
-              with:
-                  context: .
-                  push: ${{ github.event_name != 'pull_request' }}
-                  tags: ${{ steps.meta.outputs.tags }}
-                  labels: ${{ steps.meta.outputs.labels }}
