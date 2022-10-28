@@ -1,3 +1,18 @@
+# [5.3.0](https://github.com/bigcommerce/stencil-cli/compare/5.2.5...5.3.0) (2022-10-28)
+
+
+### Bug Fixes
+
+* **storefront:** bctheme-1284 Fix error on using scoped nested external templates ([#1003](https://github.com/bigcommerce/stencil-cli/issues/1003)) ([1964ff5](https://github.com/bigcommerce/stencil-cli/commit/1964ff58ebebce3a43d79df51b159dbf0b57301d))
+* STRF-10157 Added missing dependency ([#1013](https://github.com/bigcommerce/stencil-cli/issues/1013)) ([ebc3bdd](https://github.com/bigcommerce/stencil-cli/commit/ebc3bdd18dfdce066fa92224940d5351c75498e3))
+* STRF-10157 Divide docker image release and semantic ([#1012](https://github.com/bigcommerce/stencil-cli/issues/1012)) ([7a2f869](https://github.com/bigcommerce/stencil-cli/commit/7a2f869e59255310dc5dcff06642a56e2cafc3bc))
+* update changelog and add tag format w/o 'v' ([#1014](https://github.com/bigcommerce/stencil-cli/issues/1014)) ([26af8fa](https://github.com/bigcommerce/stencil-cli/commit/26af8fadcf47de16f80c1e2560b58857671679cc))
+
+
+### Features
+
+* STRF-10157 Introduce Semantic Release ([#1008](https://github.com/bigcommerce/stencil-cli/issues/1008)) ([085684d](https://github.com/bigcommerce/stencil-cli/commit/085684dae7afef55b1681f6bf3236777fde1df4d))
+
 ### 5.2.5 (2022-10-18)
 
 -   fix: BCTHEME-1284 fix error on using scoped nested external templates ([1003](https://github.com/bigcommerce/stencil-cli/pull/1003))
