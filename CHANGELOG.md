@@ -1,3 +1,10 @@
+## [5.3.1](https://github.com/bigcommerce/stencil-cli/compare/5.3.0...5.3.1) (2022-10-28)
+
+
+### Bug Fixes
+
+* STRF-9781 Bump hapi dependencies ([#930](https://github.com/bigcommerce/stencil-cli/issues/930)) ([05cb607](https://github.com/bigcommerce/stencil-cli/commit/05cb6077497e3fee68578d04f95ab86f0b522c4d))
+
 # [5.3.0](https://github.com/bigcommerce/stencil-cli/compare/5.2.5...5.3.0) (2022-10-28)
 
 
