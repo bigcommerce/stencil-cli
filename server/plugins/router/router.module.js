@@ -32,7 +32,10 @@ function register(server, options) {
         return h.continue;
     });
 
-    server.dependency(['inert', 'h2o2', 'Renderer', 'ThemeAssets'], internals.registerRoutes);
+    server.dependency(
+        ['@hapi/inert', '@hapi/h2o2', 'Renderer', 'ThemeAssets'],
+        internals.registerRoutes,
+    );
 }
 
 internals.registerRoutes = (server) => {
