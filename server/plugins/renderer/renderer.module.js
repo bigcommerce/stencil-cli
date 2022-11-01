@@ -21,7 +21,6 @@ const {
 } = require('../../../lib/utils/frontmatter');
 
 const networkUtils = new NetworkUtils();
-const { DEFAULT_CUSTOM_LAYOUTS_CONFIG } = require('../../../constants');
 
 const internals = {
     options: {},
@@ -79,14 +78,12 @@ internals.getResponse = async (request) => {
     const withoutPageQuery = new URL(fullUrl.toString());
     withoutPageQuery.searchParams.delete('page');
 
-    const { customLayouts } = internals.options;
-
     const httpOpts = {
         url: withoutPageQuery.toString(),
         headers: internals.buildReqHeaders({
             request,
             stencilOptions: { get_template_file: true, get_data_only: true },
-            extraHeaders: { host: storeUrlObj.host, stencil_custom_templates: customLayouts },
+            extraHeaders: { host: storeUrlObj.host },
         }),
         accessToken: internals.options.accessToken,
         data: request.payload,
@@ -119,7 +116,6 @@ internals.getResponse = async (request) => {
         // clear when making a non-get request because smth may be changed
         cache.clear();
     }
-
     const response = await networkUtils.sendApiRequest(httpOpts);
 
     internals.processResHeaders(response.headers);
@@ -137,6 +133,7 @@ internals.getResponse = async (request) => {
         ? JSON.parse(await readFromStream(response.data))
         : response.data;
 
+    internals.getTemplatePath(request.path, bcAppData);
     // cache response
     cache.put(
         requestSignature,
@@ -156,13 +153,10 @@ internals.getResponse = async (request) => {
  * @param request
  * @param response
  * @param responseArgs
- * @param customLayouts
  * @returns {*}
  */
 internals.parseResponse = async (bcAppData, request, response, responseArgs) => {
     const { httpOpts, storeUrlObj } = responseArgs;
-    // eslint-disable-next-line camelcase
-    const { stencil_custom_templates } = httpOpts.headers;
 
     if (typeof bcAppData !== 'object' || !('pencil_response' in bcAppData)) {
         delete response.headers['x-frame-options'];
@@ -185,7 +179,6 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
         stencilConfig: internals.getResourceConfig(bcAppData, request, configuration),
         extraHeaders: {
             host: storeUrlObj.host,
-            stencil_custom_templates,
         },
     });
     httpOpts.responseType = 'json'; // In the second request we always expect json
@@ -344,7 +337,7 @@ internals.redirect = async (response, request) => {
  *
  * @param {string} requestPath
  * @param {Object} data
- * @returns {string}
+ * @returns {void}
  */
 internals.getTemplatePath = (requestPath, data) => {
     const customLayouts = internals.options.customLayouts || {};
@@ -369,10 +362,10 @@ internals.getTemplatePath = (requestPath, data) => {
 
         if (templatePath) {
             templatePath = path.join('pages/custom', pageType, templatePath.replace(/\.html$/, ''));
+            // eslint-disable-next-line no-param-reassign
+            data.template_file = templatePath;
         }
     }
-
-    return templatePath || data.template_file;
 };
 
 function getAcceptLanguageHeader(request) {
@@ -413,7 +406,7 @@ internals.getPencilResponse = (data, request, response, configuration, renderedR
 
     return new PencilResponse(
         {
-            template_file: internals.getTemplatePath(request.path, data),
+            template_file: data.template_file,
             templates: data.templates,
             remote: data.remote,
             remote_data: data.remote_data,
@@ -451,14 +444,9 @@ internals.buildReqHeaders = ({
         ? JSON.parse(request.headers['stencil-options'])
         : {};
 
-    const templates =
-        JSON.stringify(extraHeaders.stencil_custom_templates) ||
-        JSON.stringify(DEFAULT_CUSTOM_LAYOUTS_CONFIG);
-
     const headers = {
         'stencil-options': JSON.stringify({ ...stencilOptions, ...currentOptions }),
         'accept-encoding': 'identity',
-        'stencil-custom-templates': templates,
     };
 
     const config = request.headers['stencil-config'];
@@ -466,8 +454,6 @@ internals.buildReqHeaders = ({
     if ((!config || config === '{}') && stencilConfig) {
         headers['stencil-config'] = JSON.stringify(stencilConfig);
     }
-    // eslint-disable-next-line no-param-reassign
-    delete extraHeaders.stencil_custom_templates;
 
     return { ...request.headers, ...headers, ...extraHeaders };
 };
