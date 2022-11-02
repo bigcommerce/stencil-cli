@@ -133,7 +133,7 @@ internals.getResponse = async (request) => {
         ? JSON.parse(await readFromStream(response.data))
         : response.data;
 
-    internals.getTemplatePath(request.path, bcAppData);
+    internals.updateTemplatePath(request.path, bcAppData);
     // cache response
     cache.put(
         requestSignature,
@@ -339,7 +339,7 @@ internals.redirect = async (response, request) => {
  * @param {Object} data
  * @returns {void}
  */
-internals.getTemplatePath = (requestPath, data) => {
+internals.updateTemplatePath = (requestPath, data) => {
     const customLayouts = internals.options.customLayouts || {};
     const pageType = data.page_type;
     let templatePath;
