@@ -5,6 +5,13 @@
 
 * **storefront:** strf-10193 Bad request for custom front matter: ([#1019](https://github.com/bigcommerce/stencil-cli/issues/1019)) ([b7aefca](https://github.com/bigcommerce/stencil-cli/commit/b7aefca859184737e315e8bb3c49890a25d20e99))
 
+## [5.3.2](https://github.com/bigcommerce/stencil-cli/compare/5.3.1...5.3.2) (2022-11-02)
+
+
+### Bug Fixes
+
+* disable checking changelog, that was auto-generated ([#1020](https://github.com/bigcommerce/stencil-cli/issues/1020)) ([127cde2](https://github.com/bigcommerce/stencil-cli/commit/127cde2f9ff74c3bd2150f201629a1410fedd77e))
+
 ## [5.3.1](https://github.com/bigcommerce/stencil-cli/compare/5.3.0...5.3.1) (2022-10-28)
 
 
