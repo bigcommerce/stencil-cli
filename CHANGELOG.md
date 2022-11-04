@@ -1,3 +1,10 @@
+## [5.3.3](https://github.com/bigcommerce/stencil-cli/compare/5.3.2...5.3.3) (2022-11-04)
+
+
+### Bug Fixes
+
+* **storefront:** strf-10193 Bad request for custom front matter: ([#1019](https://github.com/bigcommerce/stencil-cli/issues/1019)) ([b7aefca](https://github.com/bigcommerce/stencil-cli/commit/b7aefca859184737e315e8bb3c49890a25d20e99))
+
 ## [5.3.2](https://github.com/bigcommerce/stencil-cli/compare/5.3.1...5.3.2) (2022-11-02)
 
 
