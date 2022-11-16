@@ -133,7 +133,6 @@ internals.getResponse = async (request) => {
         ? JSON.parse(await readFromStream(response.data))
         : response.data;
 
-    internals.updateTemplatePath(request.path, bcAppData);
     // cache response
     cache.put(
         requestSignature,
@@ -273,7 +272,7 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
 internals.getResourceConfig = (data, request, configuration) => {
     const missingThemeSettingsRegex = /{{\\s*?theme_settings\\..+?\\s*?}}/g;
     let resourcesConfig = {};
-    const templatePath = data.template_file;
+    const templatePath = internals.getTemplatePath(request.path, data);
 
     // If the requested template is not an array, we parse the Frontmatter
     // If it is an array, then it's an ajax request using `render_with` with multiple components
@@ -337,9 +336,9 @@ internals.redirect = async (response, request) => {
  *
  * @param {string} requestPath
  * @param {Object} data
- * @returns {void}
+ * @returns {string}
  */
-internals.updateTemplatePath = (requestPath, data) => {
+internals.getTemplatePath = (requestPath, data) => {
     const customLayouts = internals.options.customLayouts || {};
     const pageType = data.page_type;
     let templatePath;
@@ -362,10 +361,9 @@ internals.updateTemplatePath = (requestPath, data) => {
 
         if (templatePath) {
             templatePath = path.join('pages/custom', pageType, templatePath.replace(/\.html$/, ''));
-            // eslint-disable-next-line no-param-reassign
-            data.template_file = templatePath;
         }
     }
+    return templatePath || data.template_file;
 };
 
 function getAcceptLanguageHeader(request) {
@@ -406,7 +404,7 @@ internals.getPencilResponse = (data, request, response, configuration, renderedR
 
     return new PencilResponse(
         {
-            template_file: data.template_file,
+            template_file: internals.getTemplatePath(request.path, data),
             templates: data.templates,
             remote: data.remote,
             remote_data: data.remote_data,
