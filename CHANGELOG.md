@@ -1,3 +1,10 @@
+## [5.3.4](https://github.com/bigcommerce/stencil-cli/compare/5.3.3...5.3.4) (2022-12-07)
+
+
+### Bug Fixes
+
+* **storefront:** bctheme-1331 Incorrect handling of nested external templates with params ([#1031](https://github.com/bigcommerce/stencil-cli/issues/1031)) ([51903de](https://github.com/bigcommerce/stencil-cli/commit/51903de21d65577b2204f9dce8032b14cd0fdd83))
+
 ## [5.3.3](https://github.com/bigcommerce/stencil-cli/compare/5.3.2...5.3.3) (2022-11-04)
 
 
