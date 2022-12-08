@@ -1,3 +1,10 @@
+## [5.3.5](https://github.com/bigcommerce/stencil-cli/compare/5.3.4...5.3.5) (2022-12-08)
+
+
+### Bug Fixes
+
+* **storefront:** strf-10231 Mapped URLs do not use their respective templates: ([#1028](https://github.com/bigcommerce/stencil-cli/issues/1028)) ([3066d30](https://github.com/bigcommerce/stencil-cli/commit/3066d30eff1f71165d9d45e846fa00ef0a1a09d6))
+
 ## [5.3.4](https://github.com/bigcommerce/stencil-cli/compare/5.3.3...5.3.4) (2022-12-07)
 
 
