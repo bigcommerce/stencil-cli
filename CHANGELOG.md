@@ -1,3 +1,15 @@
+# [6.0.0](https://github.com/bigcommerce/stencil-cli/compare/5.3.5...6.0.0) (2022-12-08)
+
+
+### Features
+
+* **storefront:** strf-9921 Hide logging for successful internal API calls in Stencil CLI: ([#1033](https://github.com/bigcommerce/stencil-cli/issues/1033)) ([d8c2492](https://github.com/bigcommerce/stencil-cli/commit/d8c2492097c49de93f1640c93a393d6df3d2a322))
+
+
+### BREAKING CHANGES
+
+* **storefront:** logging for successful internal API calls has been removed.
+
 ## [5.3.5](https://github.com/bigcommerce/stencil-cli/compare/5.3.4...5.3.5) (2022-12-08)
 
 
