@@ -4,8 +4,8 @@
   "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
   "engines": {
-    "node": ">=14.0.0 <15.0.0",
-    "npm": ">=v6.11.3 <9.0.0"
+    "node": ">=16.0.0 <17.0.0",
+    "npm": ">=8.0.0 <10.0.0"
   },
   "scripts": {
     "lint": "eslint . && prettier --check . --ignore-unknown",
@@ -48,7 +48,7 @@
   ],
   "dependencies": {
     "@bigcommerce/stencil-paper": "4.2.1",
-    "@bigcommerce/stencil-styles": "4.0.0",
+    "@bigcommerce/stencil-styles": "5.0.0",
     "@hapi/boom": "^10.0.0",
     "@hapi/glue": "^8.0.0",
     "@hapi/h2o2": "^9.1.0",
