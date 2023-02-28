@@ -1,3 +1,10 @@
+## [6.1.1](https://github.com/bigcommerce/stencil-cli/compare/6.1.0...6.1.1) (2023-02-28)
+
+
+### Reverts
+
+* "feat: strf-10437 Autofix script: conditional file import ([#1064](https://github.com/bigcommerce/stencil-cli/issues/1064))" ([#1068](https://github.com/bigcommerce/stencil-cli/issues/1068)) ([060b713](https://github.com/bigcommerce/stencil-cli/commit/060b7132859550f9ae8594d3312198498c224640))
+
 # [6.0.0](https://github.com/bigcommerce/stencil-cli/compare/5.3.5...6.0.0) (2022-12-08)
 
 
