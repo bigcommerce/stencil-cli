@@ -16,5 +16,4 @@ program
     .command('pull', 'Pulls currently active theme config files and overwrites local copy')
     .command('download', 'Downloads all the theme files')
     .command('debug', 'Prints environment and theme settings for debug purposes')
-    .command('scss autofix', 'Prints environment and theme settings for debug purposes')
     .parse(process.argv);
