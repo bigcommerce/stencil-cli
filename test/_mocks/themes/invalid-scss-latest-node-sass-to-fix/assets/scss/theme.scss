@@ -1,0 +1,9 @@
+h1 {
+    color: #0000AA;
+}
+
+$font: "Arial";
+
+@if not contains($font, "'Clear Sans', sans-serif") {
+    @import "test";
+}
