@@ -4,7 +4,7 @@ require('colors');
 const program = require('../lib/commander');
 
 const ThemeConfig = require('../lib/theme-config');
-const NodeSassAutoFixer = require('../lib/NodeSassAutoFixer');
+const NodeSassAutoFixer = require('../lib/nodeSass/AutoFixer');
 const { THEME_PATH, PACKAGE_INFO } = require('../constants');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 
