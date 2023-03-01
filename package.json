@@ -23,7 +23,8 @@
     "stencil-pull": "./bin/stencil-pull.js",
     "stencil-start": "./bin/stencil-start.js",
     "stencil-release": "./bin/stencil-release.js",
-    "stencil-debug": "./bin/stencil-debug.js"
+    "stencil-debug": "./bin/stencil-debug.js",
+    "stencil-scss-autofix": "./bin/stencil-scss-autofix.js"
   },
   "config": {
     "stencil_version": "1.0"
@@ -77,6 +78,8 @@
     "npm-which": "^3.0.1",
     "object-to-spawn-args": "^2.0.0",
     "parse-json": "^5.2.0",
+    "postcss": "^8.4.21",
+    "postcss-scss": "^4.0.6",
     "progress": "^2.0.3",
     "recursive-readdir": "^2.2.2",
     "semver": "^7.3.2",
