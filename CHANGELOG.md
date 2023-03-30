@@ -1,3 +1,28 @@
+# [7.0.0](https://github.com/bigcommerce/stencil-cli/compare/6.1.1...7.0.0) (2023-03-30)
+
+
+### Bug Fixes
+
+* update scss autofix cmd name ([de977a4](https://github.com/bigcommerce/stencil-cli/commit/de977a4d0ac526ffa404d44572f8baef951cb4cf))
+
+
+### Features
+
+* **storefront:** strf-10292 Node 16 Support ([#1048](https://github.com/bigcommerce/stencil-cli/issues/1048)) ([c754933](https://github.com/bigcommerce/stencil-cli/commit/c754933a70672e7741e2c1566dcb664071eed3cf))
+* **storefront:** strf-10292 Node 18 Support ([#1048](https://github.com/bigcommerce/stencil-cli/issues/1048)) ([#1058](https://github.com/bigcommerce/stencil-cli/issues/1058)) ([48c912c](https://github.com/bigcommerce/stencil-cli/commit/48c912c563d8eea9c8830b19ed5c4923d565789e))
+* strf-10366 beta version ([e7887ea](https://github.com/bigcommerce/stencil-cli/commit/e7887ea9c5e82a2fb98f5fad196f3d10cdfdadac))
+* strf-10437 Autofix script: conditional file import ([#1071](https://github.com/bigcommerce/stencil-cli/issues/1071)) ([e4d084c](https://github.com/bigcommerce/stencil-cli/commit/e4d084cc28c6108950701385e09c157d9c6e79ec))
+* strf-10457 Conditional multi import ([483c752](https://github.com/bigcommerce/stencil-cli/commit/483c752e7b58dd9f231e8f214743ed9e751a814a))
+* strf-10477, strf-10457 Base-level rules and conditional multi file import ([037c4d5](https://github.com/bigcommerce/stencil-cli/commit/037c4d51c0fdba61fc6149d0fc37ea612177c508))
+* strf-10482 Bad comma in the selectors ([14f4f79](https://github.com/bigcommerce/stencil-cli/commit/14f4f790afcd098c32b96dfb1b71570b9d05106e))
+* STRF-10485 Nested multi file import ([5507b5e](https://github.com/bigcommerce/stencil-cli/commit/5507b5ed60b6a7b93555a70f0c22a724b07aeab4))
+* STRF-10507 Scss autofix issue: Undefined variable ([4991e6f](https://github.com/bigcommerce/stencil-cli/commit/4991e6f7febab80619256909d8c97afbcfb0dcd1))
+
+
+### BREAKING CHANGES
+
+* **storefront:** Drop Node 14 Support
+
 ## [6.1.1](https://github.com/bigcommerce/stencil-cli/compare/6.1.0...6.1.1) (2023-02-28)
 
 
