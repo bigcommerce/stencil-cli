@@ -1,3 +1,10 @@
+## [7.0.1](https://github.com/bigcommerce/stencil-cli/compare/7.0.0...7.0.1) (2023-04-13)
+
+
+### Bug Fixes
+
+* **storefront:** fix typo in AutoFixer ([#1091](https://github.com/bigcommerce/stencil-cli/issues/1091)) ([4f550e1](https://github.com/bigcommerce/stencil-cli/commit/4f550e1218368d3dcb1d4f9dc90f29f840cee726))
+
 ## [6.1.1](https://github.com/bigcommerce/stencil-cli/compare/6.1.0...6.1.1) (2023-02-28)
 
 
