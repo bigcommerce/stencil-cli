@@ -1,3 +1,10 @@
+# [7.1.0](https://github.com/bigcommerce/stencil-cli/compare/7.0.1...7.1.0) (2023-04-27)
+
+
+### Features
+
+* add codewoners ([#1097](https://github.com/bigcommerce/stencil-cli/issues/1097)) ([e671f6b](https://github.com/bigcommerce/stencil-cli/commit/e671f6b00eda8de6a13e46e6dfdfd3e4dea19fe8))
+
 ## [7.0.1](https://github.com/bigcommerce/stencil-cli/compare/7.0.0...7.0.1) (2023-04-13)
 
 
