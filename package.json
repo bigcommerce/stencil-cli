@@ -102,7 +102,7 @@
     "axios-mock-adapter": "^1.21.2",
     "conventional-changelog-cli": "^2.2.2",
     "eslint": "^7.10.0",
-    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^24.0.2",
