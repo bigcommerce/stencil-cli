@@ -1,9 +1,15 @@
-## [7.0.1](https://github.com/bigcommerce/stencil-cli/compare/7.0.0...7.0.1) (2023-04-13)
+# [7.1.0](https://github.com/bigcommerce/stencil-cli/compare/7.0.1...7.1.0) (2023-04-27)
+
 
 ### Features
 
-* add codewoners ([#1097](https://github.com/bigcommerce/stencil-cli/issues/1097)) ([e671f6b](https://github.com/bigcommerce/stencil-cli/commit/e671f6b00eda8de6a13e46e6dfdfd3e4dea19fe8))
+* add codeowners ([#1097](https://github.com/bigcommerce/stencil-cli/issues/1097)) ([e671f6b](https://github.com/bigcommerce/stencil-cli/commit/e671f6b00eda8de6a13e46e6dfdfd3e4dea19fe8))
 
+### Bug Fixes
+
+* fix(storefront): MERC-9452 Return variation id when activating theme ([#1094](https://github.com/bigcommerce/stencil-cli/issues/1094)) ([027b5c0](https://github.com/bigcommerce/stencil-cli/commit/027b5c0788f2778080bd5b4ede725ee8e034a48f))
+
+## [7.0.1](https://github.com/bigcommerce/stencil-cli/compare/7.0.0...7.0.1) (2023-04-13)
 
 ### Bug Fixes
 
