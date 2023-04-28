@@ -1,3 +1,15 @@
+## [7.0.1](https://github.com/bigcommerce/stencil-cli/compare/7.0.0...7.0.1) (2023-04-13)
+
+### Features
+
+* add codewoners ([#1097](https://github.com/bigcommerce/stencil-cli/issues/1097)) ([e671f6b](https://github.com/bigcommerce/stencil-cli/commit/e671f6b00eda8de6a13e46e6dfdfd3e4dea19fe8))
+
+
+### Bug Fixes
+
+* **storefront:** fix typo in AutoFixer ([#1091](https://github.com/bigcommerce/stencil-cli/issues/1091)) ([4f550e1](https://github.com/bigcommerce/stencil-cli/commit/4f550e1218368d3dcb1d4f9dc90f29f840cee726))
+
+
 # [7.0.0](https://github.com/bigcommerce/stencil-cli/compare/6.1.1...7.0.0) (2023-03-30)
 
 
@@ -22,6 +34,7 @@
 ### BREAKING CHANGES
 
 * **storefront:** Drop Node 14 Support
+
 
 ## [6.1.1](https://github.com/bigcommerce/stencil-cli/compare/6.1.0...6.1.1) (2023-02-28)
 
