@@ -55,20 +55,51 @@ Unsure where to begin contributing to Stencil CLI? Check our [forums](https://fo
 -   Fill in [the required template](https://github.com/bigcommerce/stencil-cli/pull/new/master)
 -   Include screenshots and animated GIFs in your pull request whenever possible.
 -   End files with a newline.
-
-### Release stencil-cli
-
-In order to release stencil-cli you should create a release PR to master branch with updated `CHANGELOG.md` and versions. After PR is merged, you should go to https://github.com/bigcommerce/stencil-cli/releases/new, create a tag and describe the release. Click `Publish` and Github Actions will publish new version to npm.
-
-## Styleguides
+-   Follow [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
 
 ### Git Commit Messages
 
--   Commit message should follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) structure
+-   Commit message should follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) structure
 -   Use the present tense ("Add feature" not "Added feature")
 -   Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
 -   Limit the first line to 72 characters or less
 -   Reference pull requests and external links liberally
+
+### Convential Commits
+
+The Conventional Commits specification is a lightweight convention on top of commit messages. It provides an easy set of rules for creating an explicit commit history; which makes it easier to write automated tools on top of. This convention dovetails with [SemVer](http://semver.org/), by describing the features, fixes, and breaking changes made in commit messages.
+
+The commit message should be structured as follows:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+The commit can contain the following types:
+
+-   **fix**: patches a bug in the codebase, creates `PATCH` version.
+-   **feat**: introduces a new feature in the codebase, creates `MINOR` version.
+-   **perf**: A code change that improves performance, creates `MINOR` version.
+
+Other allowed types, that **doesn't** trigger release:
+
+-   **build**: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
+-   **ci**: Changes to our CI configuration files and scripts (example scopes: Github Actions, CircleCI)
+-   **docs**: Documentation only changes
+-   **refactor**: A code change that neither fixes a bug nor adds a feature
+-   **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+-   **test**: Adding missing tests or correcting existing tests
+
+A commit that has a footer `BREAKING CHANGE:`, or appends a `!` after the type/scope, introduces a breaking API change (creates a `MAJOR` version)
+
+### Release
+
+In order to release stencil-cli you should merge a PR with commit message that matches PR title. After PR is merged, Semantic Release
+will take care of creating [Github Release](https://github.com/bigcommerce/stencil-cli/releases) and publishing a new version to npm registry.
 
 ### JavaScript Styleguide
 
