@@ -1,3 +1,10 @@
+## [7.1.1](https://github.com/bigcommerce/stencil-cli/compare/7.1.0...7.1.1) (2023-05-12)
+
+
+### Bug Fixes
+
+* STRF-10768 Stencil bundle fails on some ([#1101](https://github.com/bigcommerce/stencil-cli/issues/1101)) ([968e5e6](https://github.com/bigcommerce/stencil-cli/commit/968e5e6723b00021f5adcabdb8a812b3fb0add6a))
+
 # [7.1.0](https://github.com/bigcommerce/stencil-cli/compare/7.0.1...7.1.0) (2023-04-27)
 
 
