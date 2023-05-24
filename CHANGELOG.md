@@ -1,3 +1,10 @@
+## [7.1.2](https://github.com/bigcommerce/stencil-cli/compare/7.1.1...7.1.2) (2023-05-24)
+
+
+### Bug Fixes
+
+* STRF-10081 stencil pull overrides only variation config ([#1105](https://github.com/bigcommerce/stencil-cli/issues/1105)) ([c0e1097](https://github.com/bigcommerce/stencil-cli/commit/c0e10976f4dd28b63ec4701e5e6dd4fd70ffac12))
+
 ## [7.1.1](https://github.com/bigcommerce/stencil-cli/compare/7.1.0...7.1.1) (2023-05-12)
 
 
