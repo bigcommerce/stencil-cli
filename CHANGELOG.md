@@ -1,3 +1,10 @@
+# [7.2.0](https://github.com/bigcommerce/stencil-cli/compare/7.1.2...7.2.0) (2023-06-15)
+
+
+### Features
+
+* STRF-10840 Provide optional --branch to release command ([#1111](https://github.com/bigcommerce/stencil-cli/issues/1111)) ([d5b9103](https://github.com/bigcommerce/stencil-cli/commit/d5b910377774f6aebc11c5ef9c49f027febc3f2c))
+
 ## [7.1.2](https://github.com/bigcommerce/stencil-cli/compare/7.1.1...7.1.2) (2023-05-24)
 
 
