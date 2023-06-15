@@ -7,7 +7,16 @@ const program = require('../lib/commander');
 const { checkNodeVersion } = require('../lib/cliCommon');
 const { printCliResultErrorAndExit } = require('../lib/cliCommon');
 
-program.version(PACKAGE_INFO.version).parse(process.argv);
+program
+    .version(PACKAGE_INFO.version)
+    .option('-b, --branch [name]', 'specify the main branch name')
+    .parse(process.argv);
 
 checkNodeVersion();
-new StencilRelease().run().catch(printCliResultErrorAndExit);
+
+const cliOptions = program.opts();
+const options = {
+    branch: cliOptions.branch || 'master',
+};
+
+new StencilRelease().run(options).catch(printCliResultErrorAndExit);
