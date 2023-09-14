@@ -1,3 +1,10 @@
+## [7.2.1](https://github.com/bigcommerce/stencil-cli/compare/7.2.0...7.2.1) (2023-09-14)
+
+
+### Bug Fixes
+
+* print cli errors to stderr ([#1133](https://github.com/bigcommerce/stencil-cli/issues/1133)) ([d369a00](https://github.com/bigcommerce/stencil-cli/commit/d369a0006545a0424e8eaff542660e4ed9418b92))
+
 # [7.2.0](https://github.com/bigcommerce/stencil-cli/compare/7.1.2...7.2.0) (2023-06-15)
 
 
