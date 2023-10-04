@@ -48,7 +48,7 @@
     "package-lock.json"
   ],
   "dependencies": {
-    "@bigcommerce/stencil-paper": "4.2.1",
+    "@bigcommerce/stencil-paper": "4.10.4",
     "@bigcommerce/stencil-styles": "5.1.0",
     "@hapi/boom": "^10.0.0",
     "@hapi/glue": "^8.0.0",
@@ -79,6 +79,7 @@
     "object-to-spawn-args": "^2.0.0",
     "parse-json": "^5.2.0",
     "postcss": "^8.4.21",
+    "postcss-safe-parser": "^6.0.0",
     "postcss-scss": "^4.0.6",
     "progress": "^2.0.3",
     "recursive-readdir": "^2.2.2",
