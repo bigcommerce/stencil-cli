@@ -1,3 +1,10 @@
+## [7.2.2](https://github.com/bigcommerce/stencil-cli/compare/7.2.1...7.2.2) (2023-10-04)
+
+
+### Bug Fixes
+
+* strf-11280 Exclude any css files from scss validation ([#1137](https://github.com/bigcommerce/stencil-cli/issues/1137)) ([e40c9f9](https://github.com/bigcommerce/stencil-cli/commit/e40c9f972269dfdf423df888ca24690d2f894df7))
+
 ## [7.2.1](https://github.com/bigcommerce/stencil-cli/compare/7.2.0...7.2.1) (2023-09-14)
 
 
