@@ -1,3 +1,10 @@
+## [7.2.3](https://github.com/bigcommerce/stencil-cli/compare/7.2.2...7.2.3) (2023-10-06)
+
+
+### Bug Fixes
+
+* STRF-11281 Narrow comma separation cases and Improve Base Rules Error ([#1139](https://github.com/bigcommerce/stencil-cli/issues/1139)) ([3879486](https://github.com/bigcommerce/stencil-cli/commit/3879486c07589aca561b92cdca04582198df0aa8))
+
 ## [7.2.2](https://github.com/bigcommerce/stencil-cli/compare/7.2.1...7.2.2) (2023-10-04)
 
 
