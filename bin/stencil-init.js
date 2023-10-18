@@ -11,7 +11,8 @@ program
     .option('-u, --url [url]', 'Store URL')
     .option('-t, --token [token]', 'Access Token')
     .option('-p, --port [port]', 'Port')
-    .option('-h, --apiHost [host]', 'API Host');
+    .option('-h, --apiHost [host]', 'API Host')
+    .option('-e, --envFile [file]', 'Env Vars File');
 
 const cliOptions = prepareCommand(program);
 
@@ -21,5 +22,6 @@ new StencilInit()
         accessToken: cliOptions.token,
         port: cliOptions.port,
         apiHost: cliOptions.apiHost,
+        envFile: cliOptions.envFile,
     })
     .catch(printCliResultErrorAndExit);

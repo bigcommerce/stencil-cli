@@ -20,6 +20,10 @@ program
         '-n, --no-cache',
         'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.',
     )
+    .option(
+        '-e, --envFile [envFile]',
+        'Load config from provided env file, prioritizing system vars.',
+    )
     .option('-t, --timeout', 'Set a timeout for the bundle operation. Default is 20 secs', '60');
 
 const cliOptions = prepareCommand(program);
@@ -30,6 +34,7 @@ const options = {
     apiHost: cliOptions.host,
     tunnel: cliOptions.tunnel,
     cache: cliOptions.cache,
+    envFile: cliOptions.envFile,
 };
 
 const timeout = cliOptions.timeout * 1000; // seconds

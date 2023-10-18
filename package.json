@@ -65,6 +65,7 @@
     "colors": "1.4.0",
     "commander": "^6.1.0",
     "confidence": "^5.0.1",
+    "dotenv": "^16.3.1",
     "form-data": "^3.0.0",
     "front-matter": "^4.0.2",
     "glob": "^7.1.6",
