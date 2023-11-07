@@ -1,3 +1,10 @@
+# [7.3.0](https://github.com/bigcommerce/stencil-cli/compare/7.2.3...7.3.0) (2023-11-07)
+
+
+### Features
+
+* STRF-10101 Check translation rows compilation on stencil bundle/start ([#1145](https://github.com/bigcommerce/stencil-cli/issues/1145)) ([92b760a](https://github.com/bigcommerce/stencil-cli/commit/92b760a7d4a1a1fe38467c1d5213b85a00e95975))
+
 ## [7.2.3](https://github.com/bigcommerce/stencil-cli/compare/7.2.2...7.2.3) (2023-10-06)
 
 
