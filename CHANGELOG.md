@@ -1,3 +1,10 @@
+## [7.3.1](https://github.com/bigcommerce/stencil-cli/compare/7.3.0...7.3.1) (2023-11-28)
+
+
+### Bug Fixes
+
+* STRF-11419 Move scss file matching logic to stencil-styles ([#1149](https://github.com/bigcommerce/stencil-cli/issues/1149)) ([2d21f69](https://github.com/bigcommerce/stencil-cli/commit/2d21f69c3c50c372e35fc25e0b27ce6f34a48e7c))
+
 # [7.3.0](https://github.com/bigcommerce/stencil-cli/compare/7.2.3...7.3.0) (2023-11-07)
 
 
