@@ -1,3 +1,11 @@
+## [7.3.2](https://github.com/bigcommerce/stencil-cli/compare/7.3.1...7.3.2) (2024-02-16)
+
+
+### Bug Fixes
+
+* noop PR ([#1158](https://github.com/bigcommerce/stencil-cli/issues/1158)) ([7a7ee74](https://github.com/bigcommerce/stencil-cli/commit/7a7ee74fe26a8e373b2c1b8f2c9881fbd8bf27e0))
+* STRF-11740 Inconsistent responses in Stencil CLI Bundle and Theme Editor for scss compilation ([#1157](https://github.com/bigcommerce/stencil-cli/issues/1157)) ([b0c7538](https://github.com/bigcommerce/stencil-cli/commit/b0c75383a80521ffa99c6d692c341002d695f51d))
+
 ## [7.3.1](https://github.com/bigcommerce/stencil-cli/compare/7.3.0...7.3.1) (2023-11-28)
 
 
