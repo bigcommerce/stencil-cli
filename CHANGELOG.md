@@ -1,3 +1,10 @@
+## [7.3.3](https://github.com/bigcommerce/stencil-cli/compare/7.3.2...7.3.3) (2024-02-19)
+
+
+### Bug Fixes
+
+* strf-11740 bump stencil-styles ([#1161](https://github.com/bigcommerce/stencil-cli/issues/1161)) ([1c75d45](https://github.com/bigcommerce/stencil-cli/commit/1c75d4507c55b09e7282a5680de298b31c79f448))
+
 ## [7.3.2](https://github.com/bigcommerce/stencil-cli/compare/7.3.1...7.3.2) (2024-02-16)
 
 
