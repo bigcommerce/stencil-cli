@@ -20,6 +20,18 @@ const internals = {
     },
 };
 
+function mapUri(req) {
+    const host = `https://${internals.options.storeUrl.replace(/http[s]?:\/\//, '')}`;
+    const urlParams = req.url.search || '';
+    const uri = `${host}${req.path}${urlParams}`;
+    const headers = {
+        'stencil-cli': internals.options.stencilCliVersion,
+        'x-auth-token': internals.options.accessToken,
+    };
+
+    return { uri, headers };
+}
+
 function register(server, options) {
     internals.options = _.defaultsDeep(options, internals.options);
 
@@ -96,10 +108,8 @@ internals.registerRoutes = (server) => {
             path: internals.paths.internalApi,
             handler: {
                 proxy: {
-                    host: internals.options.storeUrl.replace(/http[s]?:\/\//, ''),
+                    mapUri,
                     rejectUnauthorized: false,
-                    protocol: 'https',
-                    port: 443,
                     passThrough: true,
                 },
             },
@@ -114,20 +124,8 @@ internals.registerRoutes = (server) => {
             path: internals.paths.storefrontAPI,
             handler: {
                 proxy: {
+                    mapUri,
                     rejectUnauthorized: false,
-                    mapUri: (req) => {
-                        const host = `https://${internals.options.storeUrl.replace(
-                            /http[s]?:\/\//,
-                            '',
-                        )}`;
-                        const urlParams = req.url.search || '';
-                        const uri = `${host}${req.path}${urlParams}`;
-                        const headers = {
-                            'stencil-cli': internals.options.stencilCliVersion,
-                            'x-auth-token': internals.options.accessToken,
-                        };
-                        return { uri, headers };
-                    },
                     passThrough: true,
                 },
             },
