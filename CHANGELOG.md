@@ -1,3 +1,11 @@
+## [7.3.4](https://github.com/bigcommerce/stencil-cli/compare/7.3.3...7.3.4) (2024-02-27)
+
+
+### Bug Fixes
+
+* Properly add stencil-cli headers to internalapi requests ([15e1202](https://github.com/bigcommerce/stencil-cli/commit/15e12029b007932231a08ec218ea39cc2e671e4b))
+* Properly add stencil-cli headers to internalapi requests ([#1164](https://github.com/bigcommerce/stencil-cli/issues/1164)) ([24ae309](https://github.com/bigcommerce/stencil-cli/commit/24ae3093bbc100fc45bd37488aa58db032af33f6))
+
 ## [7.3.3](https://github.com/bigcommerce/stencil-cli/compare/7.3.2...7.3.3) (2024-02-19)
 
 
