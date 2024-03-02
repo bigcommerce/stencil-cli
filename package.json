@@ -60,7 +60,7 @@
     "archiver": "^5.0.2",
     "async": "^3.2.3",
     "axios": "^1.6.5",
-    "browser-sync": "^2.27.9",
+    "browser-sync": "^3.0.2",
     "cheerio": "^1.0.0-rc.12",
     "colors": "1.4.0",
     "commander": "^6.1.0",
