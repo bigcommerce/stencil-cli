@@ -1,3 +1,10 @@
+# [7.4.0](https://github.com/bigcommerce/stencil-cli/compare/7.3.4...7.4.0) (2024-03-29)
+
+
+### Features
+
+* STRF-11523 Add the ability to use Handlebar Partial Blocks ([#1167](https://github.com/bigcommerce/stencil-cli/issues/1167)) ([39a7fbc](https://github.com/bigcommerce/stencil-cli/commit/39a7fbcad5a45f95fddeecc463a207818bfd8db2))
+
 ## [7.3.4](https://github.com/bigcommerce/stencil-cli/compare/7.3.3...7.3.4) (2024-02-27)
 
 
