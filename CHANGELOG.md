@@ -1,3 +1,10 @@
+## [7.4.1](https://github.com/bigcommerce/stencil-cli/compare/7.4.0...7.4.1) (2024-04-04)
+
+
+### Bug Fixes
+
+* STRF-11898 fix undefined variable stencil scss autofix ([#1174](https://github.com/bigcommerce/stencil-cli/issues/1174)) ([2f70840](https://github.com/bigcommerce/stencil-cli/commit/2f70840b3d97dd51c37134e1c5484343c33391bf))
+
 # [7.4.0](https://github.com/bigcommerce/stencil-cli/compare/7.3.4...7.4.0) (2024-03-29)
 
 
