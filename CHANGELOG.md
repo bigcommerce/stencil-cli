@@ -1,3 +1,11 @@
+## [7.4.2](https://github.com/bigcommerce/stencil-cli/compare/7.4.1...7.4.2) (2024-04-05)
+
+
+### Bug Fixes
+
+* STRF-11856 - Filter list of channels from getStoreChannels() to storefront channels ([#1180](https://github.com/bigcommerce/stencil-cli/issues/1180)) ([0a0d229](https://github.com/bigcommerce/stencil-cli/commit/0a0d2298adb76718671f8e7fb0a89a4532b12e07))
+* STRF-11856 - Filter the response for getStoreChannels() to only include type 'storefront' channels. ([4376c9e](https://github.com/bigcommerce/stencil-cli/commit/4376c9e51387c9743dc184330f3416bbb230f6f8))
+
 ## [7.4.1](https://github.com/bigcommerce/stencil-cli/compare/7.4.0...7.4.1) (2024-04-04)
 
 
