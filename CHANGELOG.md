@@ -1,3 +1,10 @@
+# [7.5.0](https://github.com/bigcommerce/stencil-cli/compare/7.4.2...7.5.0) (2024-04-09)
+
+
+### Features
+
+* STRF-11741 Stencil init: auto install dependencies ([#1183](https://github.com/bigcommerce/stencil-cli/issues/1183)) ([ca4221b](https://github.com/bigcommerce/stencil-cli/commit/ca4221bdb4756352b537b8dc06989c0361e43628))
+
 ## [7.4.2](https://github.com/bigcommerce/stencil-cli/compare/7.4.1...7.4.2) (2024-04-05)
 
 
