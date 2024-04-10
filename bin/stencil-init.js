@@ -11,7 +11,9 @@ program
     .option('-u, --url [url]', 'Store URL')
     .option('-t, --token [token]', 'Access Token')
     .option('-p, --port [port]', 'Port')
-    .option('-h, --apiHost [host]', 'API Host');
+    .option('-h, --apiHost [host]', 'API Host')
+    .option('-pm, --packageManager [pm]', 'Package manager')
+    .option('-skip, --skipInstall', 'Skip packages installation');
 
 const cliOptions = prepareCommand(program);
 
@@ -21,5 +23,7 @@ new StencilInit()
         accessToken: cliOptions.token,
         port: cliOptions.port,
         apiHost: cliOptions.apiHost,
+        packageManager: cliOptions.packageManager,
+        skipInstall: cliOptions.skipInstall,
     })
     .catch(printCliResultErrorAndExit);
