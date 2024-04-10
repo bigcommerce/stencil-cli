@@ -1,3 +1,10 @@
+## [7.5.2](https://github.com/bigcommerce/stencil-cli/compare/7.5.1...7.5.2) (2024-04-10)
+
+
+### Bug Fixes
+
+* STRF-11741 Provide stencil init options to set up package manager and skip packages install ([#1190](https://github.com/bigcommerce/stencil-cli/issues/1190)) ([2fb7b7d](https://github.com/bigcommerce/stencil-cli/commit/2fb7b7d45425970a72a92c94431f0cc4a5c37f70))
+
 ## [7.5.1](https://github.com/bigcommerce/stencil-cli/compare/7.5.0...7.5.1) (2024-04-10)
 
 
