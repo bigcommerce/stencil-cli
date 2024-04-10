@@ -1,3 +1,11 @@
+## [7.5.1](https://github.com/bigcommerce/stencil-cli/compare/7.5.0...7.5.1) (2024-04-10)
+
+
+### Bug Fixes
+
+* STRF-11923 - Handle Missing a New Channels Permission Requirement in Auth Token ([#1191](https://github.com/bigcommerce/stencil-cli/issues/1191)) ([20e5fcb](https://github.com/bigcommerce/stencil-cli/commit/20e5fcb5845570a18329f4d6e6ab6239cbea4fb0))
+* STRF-11923 - Handle missing Channels auth permission in getStoreChannels() method. ([73703a4](https://github.com/bigcommerce/stencil-cli/commit/73703a4dbc7243a54e564dfb3c726250f0ece2ee))
+
 # [7.5.0](https://github.com/bigcommerce/stencil-cli/compare/7.4.2...7.5.0) (2024-04-09)
 
 
