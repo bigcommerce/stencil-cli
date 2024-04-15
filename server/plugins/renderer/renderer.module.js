@@ -112,7 +112,7 @@ internals.getResponse = async (request) => {
             responseArgs,
         );
     }
-    if (request.method !== 'get') {
+    if (request.method !== 'get' || request.path === '/cart.php') {
         // clear when making a non-get request because smth may be changed
         cache.clear();
     }
