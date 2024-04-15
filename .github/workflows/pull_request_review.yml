@@ -13,6 +13,8 @@ jobs:
             matrix:
                 node: [16.x, 18.x]
                 os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
+        env:
+            TITLE: ${{ github.event.pull_request.title }}
 
         runs-on: ${{ matrix.os }}
 
@@ -28,8 +30,11 @@ jobs:
             - name: Install Dependencies
               run: npm ci
 
+            - name: Verify Github PR Title TEST
+              run: echo '${{ env.TITLE }}'
+
             - name: Verify Github PR Title
-              run: echo "${{ github.event.pull_request.title }}" | npx commitlint
+              run: echo '${{ env.TITLE }}' | npx commitlint
 
             - name: Verify Git Commit Name
               run: git log -1 --pretty=format:"%s" |  npx commitlint
