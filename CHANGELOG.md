@@ -1,3 +1,10 @@
+## [7.5.3](https://github.com/bigcommerce/stencil-cli/compare/7.5.2...7.5.3) (2024-04-15)
+
+
+### Bug Fixes
+
+* STRF-11934 Move PR Title to env ([#1196](https://github.com/bigcommerce/stencil-cli/issues/1196)) ([1560f4e](https://github.com/bigcommerce/stencil-cli/commit/1560f4e45dd3c987d6cdd90683e60e28b1363746))
+
 ## [7.5.2](https://github.com/bigcommerce/stencil-cli/compare/7.5.1...7.5.2) (2024-04-10)
 
 
