@@ -1,3 +1,10 @@
+## [7.5.5](https://github.com/bigcommerce/stencil-cli/compare/7.5.4...7.5.5) (2024-04-16)
+
+
+### Bug Fixes
+
+* STRF-11899 Update cart when multiple coupons are removed ([#1197](https://github.com/bigcommerce/stencil-cli/issues/1197)) ([13a31ba](https://github.com/bigcommerce/stencil-cli/commit/13a31ba21b2eea46cf8c8fdb2087a74a6cc3acdc))
+
 ## [7.5.4](https://github.com/bigcommerce/stencil-cli/compare/7.5.3...7.5.4) (2024-04-16)
 
 
