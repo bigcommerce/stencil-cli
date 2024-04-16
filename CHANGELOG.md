@@ -1,3 +1,10 @@
+## [7.5.4](https://github.com/bigcommerce/stencil-cli/compare/7.5.3...7.5.4) (2024-04-16)
+
+
+### Bug Fixes
+
+* STRF-11934 Separate Github PR Title check  ([#1199](https://github.com/bigcommerce/stencil-cli/issues/1199)) ([345f698](https://github.com/bigcommerce/stencil-cli/commit/345f698f4ff8ac7dca41c308602af8bdc48263cd))
+
 ## [7.5.3](https://github.com/bigcommerce/stencil-cli/compare/7.5.2...7.5.3) (2024-04-15)
 
 
