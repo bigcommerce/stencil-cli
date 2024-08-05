@@ -1,3 +1,15 @@
+# [8.0.0](https://github.com/bigcommerce/stencil-cli/compare/7.5.5...8.0.0) (2024-08-05)
+
+
+### Features
+
+* STRF-12315 Bump stencil-paper version; BREAKING CHANGE: Drop Node 16 Support ([#1217](https://github.com/bigcommerce/stencil-cli/issues/1217)) ([cfbb706](https://github.com/bigcommerce/stencil-cli/commit/cfbb7064f1f1ff128dad1c4e29c4a89f48c117c8))
+
+
+### BREAKING CHANGES
+
+* Drop Node 16 Support
+
 ## [7.5.5](https://github.com/bigcommerce/stencil-cli/compare/7.5.4...7.5.5) (2024-04-16)
 
 
