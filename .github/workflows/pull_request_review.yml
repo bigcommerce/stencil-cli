@@ -8,14 +8,21 @@ jobs:
     build:
         strategy:
             matrix:
-                node: [16.x, 18.x]
+                node: [18.x, 20.x, 22.x]
                 os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
+                exclude:
+                    - os: windows-2019
+                      node: 22.x
         env:
             TITLE: ${{ github.event.pull_request.title }}
 
         runs-on: ${{ matrix.os }}
 
         steps:
+            - name: Install python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: '3.10'
             - name: Checkout code
               uses: actions/checkout@v4
 
@@ -23,7 +30,6 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node }}
-                  cache: 'npm'
 
             - name: Install Dependencies
               run: npm ci
