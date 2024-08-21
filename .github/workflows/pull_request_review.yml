@@ -9,9 +9,9 @@ jobs:
         strategy:
             matrix:
                 node: [18.x, 20.x, 22.x]
-                os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
+                os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
                 exclude:
-                    - os: windows-2019
+                    - os: windows-latest
                       node: 22.x
         env:
             TITLE: ${{ github.event.pull_request.title }}
