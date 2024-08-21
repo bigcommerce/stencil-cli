@@ -1,3 +1,10 @@
+# [8.1.0](https://github.com/bigcommerce/stencil-cli/compare/8.0.0...8.1.0) (2024-08-21)
+
+
+### Features
+
+* STRF-11900 Bump paper and handlebars for node 20 ([#1219](https://github.com/bigcommerce/stencil-cli/issues/1219)) ([72758ef](https://github.com/bigcommerce/stencil-cli/commit/72758ef6228ba9a8be9db830dc5a0c2b37732f22))
+
 # [8.0.0](https://github.com/bigcommerce/stencil-cli/compare/7.5.5...8.0.0) (2024-08-05)
 
 
