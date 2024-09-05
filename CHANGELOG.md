@@ -1,9 +1,17 @@
+# [8.2.0](https://github.com/bigcommerce/stencil-cli/compare/8.1.1...8.2.0) (2024-08-29)
+
+
+### Features
+
+* Show channel IDs in channel prompt when starting dev server ([#1225](https://github.com/bigcommerce/stencil-cli/issues/1225)) ([df23a36](https://github.com/bigcommerce/stencil-cli/commit/df23a3639e2020cdfff1a0ce92181b34f8048820))
+
 ## [8.1.1](https://github.com/bigcommerce/stencil-cli/compare/8.1.0...8.1.1) (2024-08-29)
 
 
 ### Reverts
 
 * Revert "Show channel IDs in channel prompt when starting dev server" (#1223) ([5872c13](https://github.com/bigcommerce/stencil-cli/commit/5872c13c267e60e3520c1fca9d10fb395984be6a)), closes [#1223](https://github.com/bigcommerce/stencil-cli/issues/1223) [#1222](https://github.com/bigcommerce/stencil-cli/issues/1222)
+
 
 # [8.1.0](https://github.com/bigcommerce/stencil-cli/compare/8.0.0...8.1.0) (2024-08-21)
 
