@@ -1,14 +1,11 @@
 #!/usr/bin/env node
-
-require('colors');
-
-const program = require('../lib/commander');
-const { THEME_PATH, PACKAGE_INFO } = require('../constants');
-const ThemeConfig = require('../lib/theme-config');
-const Bundle = require('../lib/stencil-bundle');
-const { printCliResultErrorAndExit } = require('../lib/cliCommon');
-const { prepareCommand } = require('../lib/cliCommon');
-const BuildConfigManager = require('../lib/BuildConfigManager');
+import 'colors';
+import program from '../lib/commander.js';
+import { THEME_PATH, PACKAGE_INFO } from '../constants.js';
+import ThemeConfig from '../lib/theme-config.js';
+import Bundle from '../lib/stencil-bundle.js';
+import { printCliResultErrorAndExit, prepareCommand } from '../lib/cliCommon.js';
+import BuildConfigManager from '../lib/BuildConfigManager.js';
 
 program
     .version(PACKAGE_INFO.version)
@@ -29,20 +26,16 @@ program
         'Set a timeout for the bundle operation. Default is 20 secs',
         '60',
     );
-
 const cliOptions = prepareCommand(program);
 const themeConfig = ThemeConfig.getInstance(THEME_PATH);
-
 async function run() {
     try {
         if (cliOptions.dest === true) {
             throw new Error('You have to specify a value for -d or --dest'.red);
         }
-
         if (cliOptions.name === true) {
             throw new Error('You have to specify a value for -n or --name'.red);
         }
-
         if (!themeConfig.configExists()) {
             throw new Error(
                 `${
@@ -50,7 +43,6 @@ async function run() {
                 } file in your top level theme directory.`,
             );
         }
-
         const rawConfig = await themeConfig.getRawConfig();
         const timeout = cliOptions.timeout * 1000; // seconds
         const buildConfigManager = new BuildConfigManager({ timeout });
@@ -61,13 +53,10 @@ async function run() {
             cliOptions,
             buildConfigManager,
         );
-
         const bundlePath = await bundle.initBundle();
-
         console.log(`Bundled saved to: ${bundlePath.cyan}`);
     } catch (err) {
         printCliResultErrorAndExit(err);
     }
 }
-
 run();

@@ -40,7 +40,6 @@ const PageTypes = {
     SUBSCRIBED: 'SUBSCRIBED',
     UNSUBSCRIBE: 'UNSUBSCRIBE',
 };
-
 const templateFileToPageTypeMap = {
     'pages/page': PageTypes.PAGE,
     'pages/product': PageTypes.PRODUCT,
@@ -83,7 +82,6 @@ const templateFileToPageTypeMap = {
     'pages/subscribed': PageTypes.SUBSCRIBED,
     'pages/unsubscribe': PageTypes.UNSUBSCRIBE,
 };
-
 /**
  * Convert a templateFile to pageType
  *
@@ -92,10 +90,9 @@ const templateFileToPageTypeMap = {
  */
 function getPageType(templateFile) {
     const pageType = templateFileToPageTypeMap[templateFile];
-
     return pageType;
 }
-
-module.exports = {
+export { getPageType };
+export default {
     getPageType,
 };

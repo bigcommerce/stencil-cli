@@ -1,4 +1,4 @@
-const Confidence = require('confidence');
+import Confidence from 'confidence';
 
 const config = {
     $meta: 'Config file',
@@ -7,13 +7,9 @@ const config = {
         port: 3000,
     },
 };
-
 const criteria = {
     env: process.env.NODE_ENV || 'development',
 };
-
 const store = new Confidence.Store(config);
-
-exports.get = (key) => store.get(key, criteria);
-
-exports.meta = (key) => store.meta(key, criteria);
+export const get = (key) => store.get(key, criteria);
+export const meta = (key) => store.meta(key, criteria);

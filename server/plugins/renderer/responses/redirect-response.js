@@ -12,7 +12,6 @@ class RedirectResponse {
 
     respond(request, h) {
         const response = h.redirect(this.location).code(this.statusCode);
-
         for (const [name, values] of Object.entries(this.headers)) {
             switch (name) {
                 case 'transfer-encoding':
@@ -34,9 +33,7 @@ class RedirectResponse {
                     response.header(name, values.toString());
             }
         }
-
         return response;
     }
 }
-
-module.exports = RedirectResponse;
+export default RedirectResponse;

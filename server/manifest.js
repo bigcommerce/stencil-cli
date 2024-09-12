@@ -1,10 +1,9 @@
-const Confidence = require('confidence');
-const config = require('./config');
+import Confidence from 'confidence';
+import * as config from './config.js';
 
 const criteria = {
     env: process.env.NODE_ENV,
 };
-
 const manifest = {
     $meta: 'Stencil',
     server: {
@@ -17,15 +16,12 @@ const manifest = {
             '@hapi/inert': {},
             '@hapi/h2o2': {},
             // First Party Plugins
-            './plugins/renderer/renderer.module': {},
-            './plugins/router/router.module': {},
-            './plugins/theme-assets/theme-assets.module': {},
+            './plugins/renderer/renderer.module.js': {},
+            './plugins/router/router.module.js': {},
+            './plugins/theme-assets/theme-assets.module.js': {},
         },
     },
 };
-
 const store = new Confidence.Store(manifest);
-
-exports.get = (key) => store.get(key, criteria);
-
-exports.meta = (key) => store.meta(key, criteria);
+export const get = (key) => store.get(key, criteria);
+export const meta = (key) => store.meta(key, criteria);

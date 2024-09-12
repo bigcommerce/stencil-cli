@@ -1,7 +1,7 @@
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 
-module.exports = {
+export default {
     collectCoverage: false,
     collectCoverageFrom: ['./bin/**/*.js', './server/**/*.js', './lib/**/*.js', './tasks/**/*.js'],
     coverageDirectory: './.coverage',
@@ -14,6 +14,7 @@ module.exports = {
         },
     },
     moduleFileExtensions: ['js', 'json', 'node'],
-    testEnvironment: 'node',
+    testEnvironment: 'jest-environment-node',
     testMatch: ['**/__tests__/**/*.[jt]s', '**/?(*.)+(spec|test).[tj]s'],
+    // transform: {},
 };

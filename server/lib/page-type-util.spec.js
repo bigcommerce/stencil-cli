@@ -1,4 +1,4 @@
-const { getPageType } = require('./page-type-util');
+import { getPageType } from './page-type-util.js';
 
 describe('page-type-util', () => {
     describe('getPageType', () => {
@@ -6,7 +6,6 @@ describe('page-type-util', () => {
             expect(getPageType('pages/page')).toEqual('PAGE');
             expect(getPageType('pages/brand')).toEqual('BRAND');
         });
-
         it('should should return a null value', () => {
             expect(getPageType('pages/something')).toBeUndefined();
         });
