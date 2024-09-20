@@ -1,3 +1,10 @@
+# [8.3.0](https://github.com/bigcommerce/stencil-cli/compare/8.2.0...8.3.0) (2024-09-20)
+
+
+### Features
+
+* STRF-11834 Consolidate css assembing logic ([#1231](https://github.com/bigcommerce/stencil-cli/issues/1231)) ([94e97d9](https://github.com/bigcommerce/stencil-cli/commit/94e97d90f0e6bd3a6243a4ba93d6ec3e04437f6b))
+
 # [8.2.0](https://github.com/bigcommerce/stencil-cli/compare/8.1.1...8.2.0) (2024-08-29)
 
 
