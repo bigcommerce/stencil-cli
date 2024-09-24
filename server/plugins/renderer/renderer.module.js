@@ -1,40 +1,35 @@
-const _ = require('lodash');
-const Boom = require('@hapi/boom');
-const cache = require('memory-cache');
-const Crypto = require('crypto');
-const Frontmatter = require('front-matter');
-const path = require('path');
-const { promisify } = require('util');
-
-const langAssembler = require('../../../lib/lang-assembler');
-const { RawResponse, RedirectResponse, PencilResponse } = require('./responses');
-const templateAssembler = require('../../../lib/template-assembler');
-const utils = require('../../lib/utils');
-const { readFromStream } = require('../../../lib/utils/asyncUtils');
-const NetworkUtils = require('../../../lib/utils/NetworkUtils');
-const contentApiClient = require('../../../lib/content-api-client');
-const { getPageType } = require('../../lib/page-type-util');
-const {
+import { defaultsDeep, omit, isObject, extend, isPlainObject, mapValues, findKey } from 'lodash-es';
+import Boom from '@hapi/boom';
+import cache from 'memory-cache';
+import Crypto from 'crypto';
+import Frontmatter from 'front-matter';
+import path from 'path';
+import { promisify } from 'util';
+import langAssembler from '../../../lib/lang-assembler.js';
+import { RawResponse, RedirectResponse, PencilResponse } from './responses/index.js';
+import templateAssembler from '../../../lib/template-assembler.js';
+import { int2uuid, stripDomainFromCookies, normalizeRedirectUrl } from '../../lib/utils.js';
+import { readFromStream } from '../../../lib/utils/asyncUtils.js';
+import NetworkUtils from '../../../lib/utils/NetworkUtils.js';
+import contentApiClient from '../../../lib/content-api-client.js';
+import { getPageType } from '../../lib/page-type-util.js';
+import {
     frontmatterRegex,
     getFrontmatterContent,
     interpolateThemeSettings,
-} = require('../../../lib/utils/frontmatter');
+} from '../../../lib/utils/frontmatter.js';
 
 const networkUtils = new NetworkUtils();
-
 const internals = {
     options: {},
-    cacheTTL: 1000 * 15, // 15 seconds
-    graphQLCacheTTL: 1000 * 300, // 5 minutes
+    cacheTTL: 1000 * 15,
+    graphQLCacheTTL: 1000 * 300,
     validCustomTemplatePageTypes: ['brand', 'category', 'page', 'product'],
 };
-
 function register(server, options) {
-    internals.options = _.defaultsDeep(options, internals.options);
-
+    internals.options = defaultsDeep(options, internals.options);
     server.expose('implementation', internals.implementation);
 }
-
 /**
  * Renderer Route Handler
  *
@@ -43,16 +38,13 @@ function register(server, options) {
  */
 internals.implementation = async (request, h) => {
     let response;
-
     try {
         response = await internals.getResponse(request);
     } catch (err) {
         throw Boom.badImplementation(err);
     }
-
     return response.respond(request, h);
 };
-
 /**
  * Creates a hash
  *
@@ -62,7 +54,6 @@ internals.implementation = async (request, h) => {
 internals.sha1sum = (input) => {
     return Crypto.createHash('sha1').update(JSON.stringify(input)).digest('hex');
 };
-
 /**
  * Fetches data from Stapler
  *
@@ -77,7 +68,6 @@ internals.getResponse = async (request) => {
     });
     const withoutPageQuery = new URL(fullUrl.toString());
     withoutPageQuery.searchParams.delete('page');
-
     const httpOpts = {
         url: withoutPageQuery.toString(),
         headers: internals.buildReqHeaders({
@@ -88,20 +78,18 @@ internals.getResponse = async (request) => {
         accessToken: internals.options.accessToken,
         data: request.payload,
         method: request.method,
-        maxRedirects: 0, // handle the redirects manually to handle the redirect location
+        maxRedirects: 0,
         // If the response is an image it will be parsed wrongly, so we receive a raw data (stream)
         //  and perform it manually depending on contentType later
         responseType: 'stream',
         validateStatus: (status) => status >= 200 && status < 500,
     };
-
     const responseArgs = {
         httpOpts: { ...httpOpts, url: fullUrl.toString() },
         storeUrlObj,
     };
-
     // check request signature and use cache, if available
-    const httpOptsSignature = _.omit(httpOpts.headers, ['cookie']);
+    const httpOptsSignature = omit(httpOpts.headers, ['cookie']);
     const requestSignature = internals.sha1sum(httpOpts.url) + internals.sha1sum(httpOptsSignature);
     const cachedResponse = cache.get(requestSignature);
     if (cachedResponse && request.method === 'get' && internals.options.useCache) {
@@ -117,22 +105,18 @@ internals.getResponse = async (request) => {
         cache.clear();
     }
     const response = await networkUtils.sendApiRequest(httpOpts);
-
     internals.processResHeaders(response.headers);
-
     // Redirect
     if (response.status >= 301 && response.status <= 303) {
         return internals.redirect(response, request);
     }
     // Else response is success (2xx), need to handle it further
     // (5xx will be just thrown by axios)
-
     const contentType = response.headers['content-type'] || '';
     const isResponseJson = contentType.toLowerCase().includes('application/json');
     const bcAppData = isResponseJson
         ? JSON.parse(await readFromStream(response.data))
         : response.data;
-
     // cache response
     cache.put(
         requestSignature,
@@ -144,7 +128,6 @@ internals.getResponse = async (request) => {
     );
     return internals.parseResponse(bcAppData, request, response, responseArgs);
 };
-
 /**
  * parses the response from bc app
  *
@@ -156,22 +139,17 @@ internals.getResponse = async (request) => {
  */
 internals.parseResponse = async (bcAppData, request, response, responseArgs) => {
     const { httpOpts, storeUrlObj } = responseArgs;
-
     if (typeof bcAppData !== 'object' || !('pencil_response' in bcAppData)) {
         delete response.headers['x-frame-options'];
-
         // this is a raw response not emitted by TemplateEngine
         return new RawResponse(bcAppData, response.headers, response.status);
     }
-
     const configuration = await request.app.themeConfig.getConfig();
-
     // If a remote call, no need to do a second call to get the data,
     // it has already come back
     if (bcAppData.remote) {
         return internals.getPencilResponse(bcAppData, request, response, configuration);
     }
-
     httpOpts.headers = internals.buildReqHeaders({
         request,
         stencilOptions: { get_data_only: true },
@@ -181,47 +159,37 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
         },
     });
     httpOpts.responseType = 'json'; // In the second request we always expect json
-
     // create request signature for caching
-    const httpOptsSignature = internals.sha1sum(_.omit(httpOpts.headers, ['cookie']));
+    const httpOptsSignature = internals.sha1sum(omit(httpOpts.headers, ['cookie']));
     const urlSignature = internals.sha1sum(httpOpts.url);
     const dataRequestSignature = `bcapp:${urlSignature}${httpOptsSignature}`;
     const cachedResponse2 = cache.get(dataRequestSignature);
-
     let response2;
     // check request signature and use cache, if available
     if (internals.options.useCache && cachedResponse2) {
         ({ response2 } = cachedResponse2);
     } else {
         response2 = await networkUtils.sendApiRequest(httpOpts);
-
         internals.processResHeaders(response2.headers);
-
         // Response is a redirect
         if (response2.status >= 301 && response2.status <= 303) {
             return internals.redirect(response2, request);
         }
-
         if (response2.data && response2.data.status === 500) {
             throw new Error('The BigCommerce server responded with a 500 error');
         }
-
         cache.put(dataRequestSignature, { response2 }, internals.cacheTTL);
     }
-
     const templateFile = response2.data.template_file;
     const entityId = response2.data.entity_id;
-
     const pageType = getPageType(templateFile);
     let regionResponse = [];
-
     if (pageType) {
         // create request signature and use cache, if available
         const graphQLUrlSignature = internals.sha1sum(internals.options.storeUrl + '/graphql');
         const graphQLQuerySignature = internals.sha1sum(pageType + entityId);
         const graphQLDataReqSignature = `graphql:${graphQLUrlSignature + graphQLQuerySignature}`;
         const cachedGraphQLResponse = cache.get(graphQLDataReqSignature);
-
         if (internals.options.useCache && cachedGraphQLResponse) {
             ({ regionResponse } = cachedGraphQLResponse);
         } else {
@@ -239,19 +207,15 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
                     pageType,
                 });
             }
-
             cache.put(graphQLDataReqSignature, { regionResponse }, internals.graphQLCacheTTL);
         }
     }
-
     const formattedRegions = {};
-
     if (typeof regionResponse.renderedRegions !== 'undefined') {
         regionResponse.renderedRegions.forEach((region) => {
             formattedRegions[region.name] = region.html;
         });
     }
-
     return internals.getPencilResponse(
         response2.data,
         request,
@@ -260,7 +224,6 @@ internals.parseResponse = async (bcAppData, request, response, responseArgs) => 
         formattedRegions,
     );
 };
-
 /**
  * Get the resource configuration (front-matter) from the main template
  * or from the header stencil-config for ajax requests
@@ -273,7 +236,6 @@ internals.getResourceConfig = (data, request, configuration) => {
     const missingThemeSettingsRegex = /{{\\s*?theme_settings\\..+?\\s*?}}/g;
     let resourcesConfig = {};
     const templatePath = internals.getTemplatePath(request.path, data);
-
     // If the requested template is not an array, we parse the Frontmatter
     // If it is an array, then it's an ajax request using `render_with` with multiple components
     // which don't have Frontmatter and needs to get it's config from the `stencil-config` header.
@@ -282,7 +244,6 @@ internals.getResourceConfig = (data, request, configuration) => {
             internals.getThemeTemplatesPath(),
             templatePath,
         );
-
         let frontmatterContent = getFrontmatterContent(rawTemplate);
         if (frontmatterContent !== null) {
             frontmatterContent = interpolateThemeSettings(
@@ -294,12 +255,11 @@ internals.getResourceConfig = (data, request, configuration) => {
             // Replace the frontmatter with the newly interpolated version
             rawTemplate = rawTemplate.replace(frontmatterRegex, frontmatterContent);
         }
-
         const frontmatter = Frontmatter(rawTemplate); // Set the config
         resourcesConfig = frontmatter.attributes;
         // Merge the frontmatter config  with the global resource config
-        if (_.isObject(configuration.resources)) {
-            resourcesConfig = _.extend({}, configuration.resources, resourcesConfig);
+        if (isObject(configuration.resources)) {
+            resourcesConfig = extend({}, configuration.resources, resourcesConfig);
         }
     } else if (request.headers['stencil-config']) {
         try {
@@ -308,10 +268,8 @@ internals.getResourceConfig = (data, request, configuration) => {
             resourcesConfig = {};
         }
     }
-
     return resourcesConfig;
 };
-
 /**
  * Redirects based on the response & request
  *
@@ -321,17 +279,13 @@ internals.getResourceConfig = (data, request, configuration) => {
  */
 internals.redirect = async (response, request) => {
     const { location } = response.headers;
-
     if (!location) {
         throw new Error('StatusCode is set to 30x but there is no location header to redirect to.');
     }
-
-    response.headers.location = utils.normalizeRedirectUrl(location, request.app);
-
+    response.headers.location = normalizeRedirectUrl(location, request.app);
     // return a redirect response
     return new RedirectResponse(location, response.headers, response.status);
 };
-
 /**
  *
  * @param {string} requestPath
@@ -342,30 +296,25 @@ internals.getTemplatePath = (requestPath, data) => {
     const customLayouts = internals.options.customLayouts || {};
     const pageType = data.page_type;
     let templatePath;
-
     if (
         internals.validCustomTemplatePageTypes.includes(pageType) &&
-        _.isPlainObject(customLayouts[pageType])
+        isPlainObject(customLayouts[pageType])
     ) {
-        templatePath = _.findKey(customLayouts[pageType], (paths) => {
+        templatePath = findKey(customLayouts[pageType], (paths) => {
             // Can be either string or Array, so normalize to Arrays
             const normalizedPaths = typeof paths === 'string' ? [paths] : paths;
-
             const matches = normalizedPaths.filter((url) => {
                 // remove trailing slashes to compare
                 return url.replace(/\/$/, '') === requestPath.replace(/\/$/, '');
             });
-
             return matches.length > 0;
         });
-
         if (templatePath) {
             templatePath = path.join('pages/custom', pageType, templatePath.replace(/\.html$/, ''));
         }
     }
     return templatePath || data.template_file;
 };
-
 function getAcceptLanguageHeader(request) {
     if (
         internals.options.storeSettingsLocale.shopper_language_selection_method ===
@@ -375,7 +324,6 @@ function getAcceptLanguageHeader(request) {
     }
     return request.headers['accept-language'].toLowerCase();
 }
-
 /**
  * Creates a new Pencil Response object and returns it.
  *
@@ -395,13 +343,12 @@ internals.getPencilResponse = (data, request, response, configuration, renderedR
             ...data.context.settings,
             // change cdn settings to serve local assets
             cdn_url: '',
-            theme_version_id: utils.int2uuid(1),
-            theme_config_id: utils.int2uuid(request.app.themeConfig.variationIndex + 1),
+            theme_version_id: int2uuid(1),
+            theme_config_id: int2uuid(request.app.themeConfig.variationIndex + 1),
             theme_session_id: null,
             maintenance: { secure_path: `http://localhost:${internals.options.port}` },
         },
     };
-
     return new PencilResponse(
         {
             template_file: internals.getTemplatePath(request.path, data),
@@ -419,7 +366,6 @@ internals.getPencilResponse = (data, request, response, configuration, renderedR
         internals.themeAssembler,
     );
 };
-
 /**
  * Get headers from request and return a new object with processed headers
  *
@@ -441,21 +387,16 @@ internals.buildReqHeaders = ({
     const currentOptions = request.headers['stencil-options']
         ? JSON.parse(request.headers['stencil-options'])
         : {};
-
     const headers = {
         'stencil-options': JSON.stringify({ ...stencilOptions, ...currentOptions }),
         'accept-encoding': 'identity',
     };
-
     const config = request.headers['stencil-config'];
-
     if ((!config || config === '{}') && stencilConfig) {
         headers['stencil-config'] = JSON.stringify(stencilConfig);
     }
-
     return { ...request.headers, ...headers, ...extraHeaders };
 };
-
 /**
  * Process headers from Fetch response
  *
@@ -465,10 +406,9 @@ internals.buildReqHeaders = ({
 internals.processResHeaders = (headers) => {
     if (headers && headers['set-cookie']) {
         // eslint-disable-next-line no-param-reassign
-        headers['set-cookie'] = utils.stripDomainFromCookies(headers['set-cookie']);
+        headers['set-cookie'] = stripDomainFromCookies(headers['set-cookie']);
     }
 };
-
 /**
  * Theme assembler interface for paper
  * @type {Object}
@@ -479,17 +419,14 @@ internals.themeAssembler = {
             internals.getThemeTemplatesPath(),
             templatesPath,
         );
-
         if (templates[templatesPath]) {
             // Check if the string includes frontmatter configuration and remove it
             const match = templates[templatesPath].match(/---\r?\n[\S\s]*\r?\n---\r?\n([\S\s]*)$/);
-
             if (match && match[1]) {
                 // eslint-disable-next-line prefer-destructuring
                 templates[templatesPath] = match[1];
             }
         }
-
         return processor(templates);
     },
     getTranslations: () => {
@@ -498,18 +435,19 @@ internals.themeAssembler = {
                 if (err) {
                     return reject(err);
                 }
-                return resolve(_.mapValues(translations, (locales) => JSON.parse(locales)));
+                return resolve(mapValues(translations, (locales) => JSON.parse(locales)));
             });
         });
     },
 };
-
 internals.getThemeTemplatesPath = () => {
     return path.join(internals.options.themePath, 'templates');
 };
-
-module.exports = {
+export const name = 'Renderer';
+export const version = '0.0.1';
+export { register };
+export default {
     register,
-    name: 'Renderer',
-    version: '0.0.1',
+    name,
+    version,
 };

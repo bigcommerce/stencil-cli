@@ -1,8 +1,11 @@
-const PencilResponse = require('./pencil-response');
-const RawResponse = require('./raw-response');
-const RedirectResponse = require('./redirect-response');
+import PencilResponse from './pencil-response.js';
+import RawResponse from './raw-response.js';
+import RedirectResponse from './redirect-response.js';
 
-module.exports = {
+export { PencilResponse };
+export { RawResponse };
+export { RedirectResponse };
+export default {
     PencilResponse,
     RawResponse,
     RedirectResponse,

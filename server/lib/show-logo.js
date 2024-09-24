@@ -1,5 +1,6 @@
-require('colors');
+import 'colors';
 
+// eslint-disable-next-line import/no-mutable-exports
 let logo = '\n';
 logo += '                                     `+h\n'.blue;
 logo += '                                   `+ddd\n'.blue;
@@ -24,5 +25,4 @@ logo += '_________________________\n'.white;
 logo += '\n';
 logo += 'BigCommerce Stencil \n'.yellow;
 logo += '_________________________\n'.white;
-
-module.exports = logo;
+export default logo;

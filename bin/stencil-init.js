@@ -1,10 +1,8 @@
 #!/usr/bin/env node
-
-const program = require('../lib/commander');
-
-const StencilInit = require('../lib/stencil-init');
-const { PACKAGE_INFO } = require('../constants');
-const { prepareCommand, printCliResultErrorAndExit } = require('../lib/cliCommon');
+import program from '../lib/commander.js';
+import StencilInit from '../lib/stencil-init.js';
+import { PACKAGE_INFO } from '../constants.js';
+import { prepareCommand, printCliResultErrorAndExit } from '../lib/cliCommon.js';
 
 program
     .version(PACKAGE_INFO.version)
@@ -14,9 +12,7 @@ program
     .option('-h, --apiHost [host]', 'API Host')
     .option('-pm, --packageManager [pm]', 'Package manager')
     .option('-skip, --skipInstall', 'Skip packages installation');
-
 const cliOptions = prepareCommand(program);
-
 new StencilInit()
     .run({
         normalStoreUrl: cliOptions.url,
