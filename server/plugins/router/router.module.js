@@ -1,5 +1,5 @@
-const _ = require('lodash');
-const ThemeConfig = require('../../../lib/theme-config');
+import { defaultsDeep } from 'lodash-es';
+import ThemeConfig from '../../../lib/theme-config.js';
 
 const internals = {
     options: {
@@ -19,7 +19,6 @@ const internals = {
         graphQL: '/graphql',
     },
 };
-
 function mapUri(req) {
     const host = `https://${internals.options.storeUrl.replace(/http[s]?:\/\//, '')}`;
     const urlParams = req.url.search || '';
@@ -28,28 +27,22 @@ function mapUri(req) {
         'stencil-cli': internals.options.stencilCliVersion,
         'x-auth-token': internals.options.accessToken,
     };
-
     return { uri, headers };
 }
-
 function register(server, options) {
-    internals.options = _.defaultsDeep(options, internals.options);
-
+    internals.options = defaultsDeep(options, internals.options);
     server.ext('onRequest', (request, h) => {
         request.app.storeUrl = internals.options.storeUrl;
         request.app.normalStoreUrl = internals.options.normalStoreUrl;
         request.app.apiKey = internals.options.apiKey;
         request.app.themeConfig = ThemeConfig.getInstance();
-
         return h.continue;
     });
-
     server.dependency(
         ['@hapi/inert', '@hapi/h2o2', 'Renderer', 'ThemeAssets'],
         internals.registerRoutes,
     );
 }
-
 internals.registerRoutes = (server) => {
     server.route([
         {
@@ -188,9 +181,11 @@ internals.registerRoutes = (server) => {
         },
     ]);
 };
-
-module.exports = {
+export const name = 'Router';
+export const version = '0.0.1';
+export { register };
+export default {
     register,
-    name: 'Router',
-    version: '0.0.1',
+    name,
+    version,
 };

@@ -1,12 +1,10 @@
 #!/usr/bin/env node
-
-require('colors');
-const program = require('../lib/commander');
-
-const ThemeConfig = require('../lib/theme-config');
-const NodeSassAutoFixer = require('../lib/nodeSass/AutoFixer');
-const { THEME_PATH, PACKAGE_INFO } = require('../constants');
-const { printCliResultErrorAndExit } = require('../lib/cliCommon');
+import 'colors';
+import program from '../lib/commander.js';
+import ThemeConfig from '../lib/theme-config.js';
+import NodeSassAutoFixer from '../lib/nodeSass/AutoFixer.js';
+import { THEME_PATH, PACKAGE_INFO } from '../constants.js';
+import { printCliResultErrorAndExit } from '../lib/cliCommon.js';
 
 program
     .version(PACKAGE_INFO.version)
@@ -15,9 +13,6 @@ program
         'will not write any changes to the file system, instead it will print the changes to the console',
     )
     .parse(process.argv);
-
 const cliOptions = program.opts();
-
 const themeConfig = ThemeConfig.getInstance(THEME_PATH);
-
 new NodeSassAutoFixer(THEME_PATH, themeConfig, cliOptions).run().catch(printCliResultErrorAndExit);

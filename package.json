@@ -1,6 +1,7 @@
 {
   "name": "@bigcommerce/stencil-cli",
   "version": "8.3.0",
+  "type": "module",
   "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
   "engines": {
@@ -10,8 +11,8 @@
   "scripts": {
     "lint": "eslint . && prettier --check . --ignore-unknown",
     "lint-and-fix": "eslint . --fix && prettier --write . --ignore-unknown",
-    "test": "jest",
-    "test-with-coverage": "jest --coverage --verbose",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test-with-coverage": "npm run test --coverage --verbose",
     "release": "semantic-release"
   },
   "bin": {
@@ -51,11 +52,12 @@
     "@bigcommerce/stencil-paper": "5.0.0",
     "@bigcommerce/stencil-styles": "^6.1.1",
     "@hapi/boom": "^10.0.0",
-    "@hapi/glue": "^8.0.0",
+    "@hapi/glue": "^9.0.1",
     "@hapi/h2o2": "^9.1.0",
     "@hapi/hapi": "^20.2.2",
     "@hapi/inert": "^6.0.5",
-    "@octokit/rest": "^18.0.6",
+    "@jest/globals": "^29.7.0",
+    "@octokit/rest": "^21.0.2",
     "ajv": "^6.12.5",
     "archiver": "^5.0.2",
     "async": "^3.2.3",
@@ -74,6 +76,7 @@
     "inquirer": "^8.1.5",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.20",
+    "lodash-es": "^4.17.21",
     "memory-cache": "^0.2.0",
     "npm-which": "^3.0.1",
     "nypm": "^0.3.8",
@@ -86,7 +89,7 @@
     "progress": "^2.0.3",
     "recursive-readdir": "^2.2.2",
     "semver": "^7.3.2",
-    "simple-git": "^3.7.1",
+    "simple-git": "^3.26.0",
     "tarjan-graph": "^2.0.0",
     "tmp-promise": "^3.0.2",
     "upath": "^1.2.0",

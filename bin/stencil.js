@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-
-const program = require('../lib/commander');
-const { PACKAGE_INFO } = require('../constants');
+import program from '../lib/commander.js';
+import { PACKAGE_INFO } from '../constants.js';
 
 program
     .version(PACKAGE_INFO.version)

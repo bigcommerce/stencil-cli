@@ -1,11 +1,10 @@
-const cheerio = require('cheerio');
-const utils = require('../../../lib/utils');
+import * as cheerio from 'cheerio';
+import { int2uuid } from '../../../lib/utils.js';
 
 const internals = {
-    stubActiveVersion: utils.int2uuid(1),
-    stubActiveConfig: utils.int2uuid(1),
+    stubActiveVersion: int2uuid(1),
+    stubActiveConfig: int2uuid(1),
 };
-
 class RawResponse {
     /**
      * @param {buffer} data
@@ -21,15 +20,13 @@ class RawResponse {
 
     respond(request, h) {
         let payload = this.data;
-        internals.stubActiveConfig = utils.int2uuid(request.app.themeConfig.variationIndex + 1);
-
+        internals.stubActiveConfig = int2uuid(request.app.themeConfig.variationIndex + 1);
         if (
             request.path.startsWith('/checkout.php') ||
             request.path.startsWith('/finishorder.php')
         ) {
             payload = this._appendCss(payload.toString('utf8'));
         }
-
         // To be removed when we go to Phase 3
         if (request.path.startsWith('/checkout')) {
             payload = payload
@@ -39,9 +36,7 @@ class RawResponse {
                     `/stencil/${internals.stubActiveVersion}/${internals.stubActiveConfig}/css/optimized-checkout.css`,
                 );
         }
-
         const response = h.response(payload).code(this.statusCode);
-
         for (const [name, values] of Object.entries(this.headers)) {
             switch (name) {
                 case 'transfer-encoding':
@@ -56,7 +51,6 @@ class RawResponse {
                     response.header(name, values.toString());
             }
         }
-
         return response;
     }
 
@@ -69,10 +63,8 @@ class RawResponse {
     _appendCss(payload) {
         const dom = cheerio.load(payload);
         const url = `/stencil/${internals.stubActiveVersion}/${internals.stubActiveConfig}/css/checkout.css`;
-
         dom('head').append(`<link href="${url}" type="text/css" rel="stylesheet">`);
         return dom.html();
     }
 }
-
-module.exports = RawResponse;
+export default RawResponse;

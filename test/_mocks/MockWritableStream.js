@@ -1,5 +1,6 @@
-const { Writable } = require('stream');
+import stream from "stream";
 
+const { Writable } = stream;
 class MockWritableStream extends Writable {
     constructor() {
         super();
@@ -15,5 +16,4 @@ class MockWritableStream extends Writable {
         this.buffer = '';
     }
 }
-
-module.exports = MockWritableStream;
+export default MockWritableStream;

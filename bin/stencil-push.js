@@ -1,11 +1,9 @@
 #!/usr/bin/env node
-
-require('colors');
-const { PACKAGE_INFO } = require('../constants');
-const program = require('../lib/commander');
-const stencilPush = require('../lib/stencil-push');
-const { prepareCommand } = require('../lib/cliCommon');
-const { printCliResultErrorAndExit } = require('../lib/cliCommon');
+import 'colors';
+import { PACKAGE_INFO } from '../constants.js';
+import program from '../lib/commander.js';
+import stencilPush from '../lib/stencil-push.js';
+import { prepareCommand, printCliResultErrorAndExit } from '../lib/cliCommon.js';
 
 program
     .version(PACKAGE_INFO.version)
@@ -18,7 +16,6 @@ program
         'specify the channel IDs of the storefront to push the theme to',
     )
     .option('-allc, --all_channels', 'push a theme to all available channels');
-
 const cliOptions = prepareCommand(program);
 const options = {
     apiHost: cliOptions.host,

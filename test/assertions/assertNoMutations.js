@@ -4,7 +4,7 @@
  * @param {Function} procedure
  * @returns {Promise<void>}
  */
-async function assertNoMutations(entities, procedure) {
+export async function assertNoMutations(entities, procedure) {
     const entitiesBefore = entities.map((entity) => JSON.stringify(entity));
 
     await procedure();
@@ -14,6 +14,4 @@ async function assertNoMutations(entities, procedure) {
     });
 }
 
-module.exports = {
-    assertNoMutations,
-};
+export default { assertNoMutations };

@@ -1,5 +1,4 @@
 const uuidRegExp = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-([0-9a-f]{12})';
-
 /**
  * Strip domain from the cookies header string
  *
@@ -13,7 +12,6 @@ function stripDomainFromCookies(cookies) {
             .replace(new RegExp('; SameSite=none', 'gi'), ''),
     );
 }
-
 /**
  * Strip domain from redirectUrl if it matches the current storeUrl, if not, leave it.
  *
@@ -25,19 +23,15 @@ function normalizeRedirectUrl(redirectUrl, config) {
     if (!redirectUrl || !redirectUrl.startsWith('http')) {
         return redirectUrl; // already stripped, skip
     }
-
     const storeHost = new URL(config.normalStoreUrl).host;
     const secureStoreHost = new URL(config.storeUrl).host;
     const redirectUrlObj = new URL(redirectUrl);
-
     if (redirectUrlObj.host === storeHost || redirectUrlObj.host === secureStoreHost) {
         // Need to strip
         return redirectUrlObj.pathname + redirectUrlObj.search + redirectUrlObj.hash;
     }
-
     return redirectUrl; // Different host, shouldn't strip
 }
-
 /**
  * Convert a number to uuid
  *
@@ -48,7 +42,6 @@ function int2uuid(number) {
     const id = `000000000000${number}`.substr(-12);
     return `00000000-0000-0000-0000-${id}`;
 }
-
 /**
  * Convert a uuid to int
  *
@@ -57,15 +50,17 @@ function int2uuid(number) {
  */
 function uuid2int(uuid) {
     const match = uuid.match(new RegExp(uuidRegExp));
-
     if (!match) {
         throw new Error(`Not uuid match for ${uuid}`);
     }
-
     return match ? parseInt(match[1], 10) : 0;
 }
-
-module.exports = {
+export { stripDomainFromCookies };
+export { normalizeRedirectUrl };
+export { int2uuid };
+export { uuid2int };
+export { uuidRegExp };
+export default {
     stripDomainFromCookies,
     normalizeRedirectUrl,
     int2uuid,
