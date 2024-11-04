@@ -6,6 +6,7 @@ on:
 
 jobs:
     check-pr-title:
+        name: Pull Request Title Check
         env:
             TITLE: ${{ github.event.pull_request.title }}
 
