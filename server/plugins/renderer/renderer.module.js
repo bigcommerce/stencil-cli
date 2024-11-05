@@ -322,7 +322,8 @@ function getAcceptLanguageHeader(request) {
     ) {
         return internals.options.storeSettingsLocale.default_shopper_language;
     }
-    return request.headers['accept-language'].toLowerCase();
+
+    return request.headers['accept-language']?.toLowerCase() || '';
 }
 /**
  * Creates a new Pencil Response object and returns it.
