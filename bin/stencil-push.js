@@ -18,7 +18,7 @@ program
     .option(
         '-S, --source-maps',
         'Include source-maps in the bundle. This is useful for debugging',
-    )     
+    )
     .option(
         '-a, --activate [variationname]',
         'specify the variation of the theme to activate'

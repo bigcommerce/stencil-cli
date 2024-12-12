@@ -16,7 +16,7 @@ program
     .option(
         '-S, --source-maps',
         'Include source-maps in the bundle. This is useful for debugging',
-    ) 
+    )
     .option(
         '-n, --name  [filename]',
         'What do you want to call the zip file. It defaults to stencil-bundle.zip',
