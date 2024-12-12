@@ -7,19 +7,34 @@ import { prepareCommand, printCliResultErrorAndExit } from '../lib/cliCommon.js'
 
 program
     .version(PACKAGE_INFO.version)
-    .option('-f, --file [filename]', 'specify the filename of the bundle to upload')
-    .option('-s, --save [filename]', 'specify the filename to save the bundle as')
+    .option(
+        '-f, --file [filename]',
+        'specify the filename of the bundle to upload'
+    )
+    .option(
+        '-s, --save [filename]',
+        'specify the filename to save the bundle as'
+    )
     .option(
         '-S, --source-maps',
         'Include source-maps in the bundle. This is useful for debugging',
     )     
-    .option('-a, --activate [variationname]', 'specify the variation of the theme to activate')
-    .option('-d, --delete', 'delete oldest private theme if upload limit reached')
+    .option(
+        '-a, --activate [variationname]',
+        'specify the variation of the theme to activate'
+    )
+    .option(
+        '-d, --delete',
+        'delete oldest private theme if upload limit reached'
+    )
     .option(
         '-c, --channel_ids <channelIds...>',
         'specify the channel IDs of the storefront to push the theme to',
     )
-    .option('-allc, --all_channels', 'push a theme to all available channels');
+    .option(
+        '-allc, --all_channels',
+        'push a theme to all available channels'
+    );
 const cliOptions = prepareCommand(program);
 const options = {
     apiHost: cliOptions.host,
