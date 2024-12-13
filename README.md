@@ -15,23 +15,6 @@ Run `npm install -g @bigcommerce/stencil-cli`.
 Visit the [installation guide](https://developer.bigcommerce.com/stencil-docs/getting-started/installing-stencil)
 for more details.
 
-## Usage
-
-```text
-Usage: stencil [options] [command]
-
-Commands:
-
-  init        Interactively create a .stencil file which configures how to run a BigCommerce store locally.
-  start       Starts up the BigCommerce storefront local development environment, using theme files in the current directory and data from the live store.
-  bundle      Bundles up the theme into a zip file which can be uploaded to BigCommerce.
-  release     Create a new release in the theme's github repository.
-  push        Bundles up the theme into a zip file and uploads it to your store.
-  pull        Pulls the configuration from the active theme on your live store and updates your local configuration.
-  download    Downloads the theme files from the active theme on your live store.
-  debug       Prints environment and theme settings for debug purposes.
-  help [cmd]  display help for [cmd]
-
 Options:
 
   -h, --help     output usage information
