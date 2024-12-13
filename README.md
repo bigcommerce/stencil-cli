@@ -17,8 +17,9 @@ for more details.
 
 Options:
 
-  -h, --help     output usage information
-  -V, --version  output the version number
+-h, --help output usage information
+-V, --version output the version number
+
 ```
 
 Run `stencil init` at the top level of your Stencil Theme. It will ask you a few questions to get your started.
@@ -125,3 +126,4 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
