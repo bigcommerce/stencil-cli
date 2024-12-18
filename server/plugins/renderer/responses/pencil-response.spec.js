@@ -1,9 +1,12 @@
 import { jest } from '@jest/globals';
+import path from 'path';
+import { promisify } from 'util';
 import PencilResponse from './pencil-response.js';
+import templateAssembler from '../../../../lib/template-assembler.js';
 
 describe('PencilResponse', () => {
     const assembler = {
-        getTemplates: (path) => new Promise((resolve) => resolve({ path })),
+        getTemplates: (p) => new Promise((resolve) => resolve({ path: p })),
         getTranslations: () => new Promise((resolve) => resolve([])),
     };
     let data;
@@ -13,7 +16,10 @@ describe('PencilResponse', () => {
     beforeEach(() => {
         data = {
             context: {
-                settings: {},
+                settings: {
+                    base_url: 'http://localhost:3000',
+                    secure_base_url: 'https://localhost:3000',
+                },
                 theme_settings: {},
                 template_engine: 'handlebars-v3',
             },
@@ -59,5 +65,50 @@ describe('PencilResponse', () => {
         const pencilResponse = new PencilResponse(data, assembler);
         await pencilResponse.respond(request, h);
         expect(h.response).toHaveBeenCalledTimes(1);
+    });
+
+    describe('it should successfully render a tempalte with dynamic partials', () => {
+        it('should render a template with dynamic partials', async () => {
+            let result = '';
+            data.template_file = 'pages/page3';
+            data.context.template_engine = 'handlebars-v4';
+
+            h.response = (output) => {
+                result = output;
+                return response;
+            };
+            const themeAssembler = {
+                async getTemplates(templatesPath, processor) {
+                    const templates = await promisify(templateAssembler.assemble)(
+                        path.join(process.cwd(), 'test/_mocks/themes/valid', 'templates'),
+                        templatesPath,
+                    );
+                    return processor(templates);
+                },
+                getTranslations: async () => {
+                    return {};
+                },
+            };
+            const pencilResponse = new PencilResponse(data, themeAssembler);
+            await pencilResponse.respond(request, h);
+            expect(result.content).toEqual(`<!DOCTYPE html>
+<html>
+<head>
+    <title>page3.html</title>
+    
+</head>
+<body>
+    <h1></h1>
+    Here is the list:
+<ul>
+        <li>
+    <a href="item_link_1">Item 1</a>
+</li>    <li>
+    <a href="item_link_2">Item 2</a>
+</li>    <li>
+    <a href="item_link_3">Item 3</a>
+</li><ul></body>
+</html>`);
+        });
     });
 });
