@@ -19,7 +19,9 @@ program
         '-n, --no-cache',
         'Turns off caching for API resource data per storefront page. The cache lasts for 5 minutes before automatically refreshing.',
     )
-    .option('-t, --timeout', 'Set a timeout for the bundle operation. Default is 20 secs', '60');
+    .option('-t, --timeout', 'Set a timeout for the bundle operation. Default is 20 secs', '60')
+    .option('-p --port [portnumber]', 'Set port number to listen dev server');
+
 const cliOptions = prepareCommand(program);
 const options = {
     open: cliOptions.open,
@@ -28,6 +30,7 @@ const options = {
     apiHost: cliOptions.host,
     tunnel: cliOptions.tunnel,
     cache: cliOptions.cache,
+    port: cliOptions.port,
 };
 const timeout = cliOptions.timeout * 1000; // seconds
 const buildConfigManager = new BuildConfigManager({ timeout });
