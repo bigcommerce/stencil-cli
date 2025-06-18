@@ -1,4 +1,4 @@
-name: Stencil CLI Release
+name: Stencil CLI Release 2
 
 on:
     push:
