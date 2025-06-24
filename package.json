@@ -25,7 +25,8 @@
     "stencil-start": "./bin/stencil-start.js",
     "stencil-release": "./bin/stencil-release.js",
     "stencil-debug": "./bin/stencil-debug.js",
-    "stencil-scss-autofix": "./bin/stencil-scss-autofix.js"
+    "stencil-scss-autofix": "./bin/stencil-scss-autofix.js",
+    "stencil-attributes-analyzer": "./bin/stencil-attributes-analyzer.js"
   },
   "config": {
     "stencil_version": "1.0"
