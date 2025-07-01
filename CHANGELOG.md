@@ -1,3 +1,132 @@
+## [8.8.0](https://github.com/bigcommerce/stencil-cli/compare/8.7.0...8.8.0) (2025-06-27)
+
+
+### Features
+
+* STRF-13399 If theme doesn't have stencil.conf.js, download it from cornerstone ([#1271](https://github.com/bigcommerce/stencil-cli/issues/1271)) ([8041754](https://github.com/bigcommerce/stencil-cli/commit/80417541f809f4a14cf8b6b2566e58407cbd7cc6))
+
+
+
+## [8.7.0](https://github.com/bigcommerce/stencil-cli/compare/8.6.7...8.7.0) (2025-06-27)
+
+
+### Features
+
+* STRF-13396 Stencil Context Attributes Usage Analyzer ([#1264](https://github.com/bigcommerce/stencil-cli/issues/1264)) ([b329fbc](https://github.com/bigcommerce/stencil-cli/commit/b329fbcb4656bf6c36e6b38bf4f27f29b0271d1b))
+
+
+
+## [8.6.7](https://github.com/bigcommerce/stencil-cli/compare/8.6.6...8.6.7) (2025-06-26)
+
+
+### Bug Fixes
+
+* STRF-12935 Update nodejs Docker version and CI job env var names ([#1269](https://github.com/bigcommerce/stencil-cli/issues/1269)) ([555f58b](https://github.com/bigcommerce/stencil-cli/commit/555f58b6ff63e7d602b7db79625bc722cef1cd78))
+
+
+
+## [8.6.6](https://github.com/bigcommerce/stencil-cli/compare/8.6.5...8.6.6) (2025-06-19)
+
+
+### Bug Fixes
+
+* STRF-12935 Update docker CI actions versions ([#1268](https://github.com/bigcommerce/stencil-cli/issues/1268)) ([ea8e831](https://github.com/bigcommerce/stencil-cli/commit/ea8e831a8168f1f6f60c6b3b12d1ecf8a0b590fa))
+
+
+
+## [8.6.5](https://github.com/bigcommerce/stencil-cli/compare/8.6.4...8.6.5) (2025-06-18)
+
+
+### Bug Fixes
+
+* move release image CI job to relase workflow ([#1266](https://github.com/bigcommerce/stencil-cli/issues/1266)) ([16a4539](https://github.com/bigcommerce/stencil-cli/commit/16a45394d4bfebd9d68076e278f11e22c017f8cd))
+
+
+
+## [8.6.4](https://github.com/bigcommerce/stencil-cli/compare/8.6.3...8.6.4) (2025-06-18)
+
+
+### Bug Fixes
+
+* STRF-12935 Fix docker image publishing ([#1265](https://github.com/bigcommerce/stencil-cli/issues/1265)) ([64afbce](https://github.com/bigcommerce/stencil-cli/commit/64afbcea2d63b6c7ea948fc83a6858623a3916e7))
+
+
+
+## [8.6.3](https://github.com/bigcommerce/stencil-cli/compare/8.6.2...8.6.3) (2025-05-28)
+
+
+### Bug Fixes
+
+* bump paper to 5.1.6; fix chrono-node version ([#1263](https://github.com/bigcommerce/stencil-cli/issues/1263)) ([a32a36b](https://github.com/bigcommerce/stencil-cli/commit/a32a36b4d1343b7d7683ec02d637a941e80f8658))
+
+
+
+## [8.6.2](https://github.com/bigcommerce/stencil-cli/compare/8.6.1...8.6.2) (2025-05-14)
+
+
+### Bug Fixes
+
+* bump paper to 5.1.4 ([#1260](https://github.com/bigcommerce/stencil-cli/issues/1260)) ([1b78b72](https://github.com/bigcommerce/stencil-cli/commit/1b78b725bf431fede0269625d48d722f681480de))
+
+
+
+## [8.6.1](https://github.com/bigcommerce/stencil-cli/compare/8.6.0...8.6.1) (2025-04-14)
+
+
+### Bug Fixes
+
+* Add new stencil config file to zip bundle ([#1259](https://github.com/bigcommerce/stencil-cli/issues/1259)) ([4f66d71](https://github.com/bigcommerce/stencil-cli/commit/4f66d71e0b77ca967e29766751604138733af95b))
+
+
+
+# [8.6.0](https://github.com/bigcommerce/stencil-cli/compare/8.5.2...8.6.0) (2025-01-17)
+
+
+### Features
+
+* STRF-12941 Add channelUrl parameter to stencil start ([#1254](https://github.com/bigcommerce/stencil-cli/issues/1254)) ([988c787](https://github.com/bigcommerce/stencil-cli/commit/988c7878bf8d3838955478b67dd7938ab90fc0eb))
+
+
+
+## [8.5.2](https://github.com/bigcommerce/stencil-cli/compare/8.5.1...8.5.2) (2025-01-09)
+
+
+### Bug Fixes
+
+* STRF-12941 Fix stencil release in case of having .git extension in the remote name ([#1252](https://github.com/bigcommerce/stencil-cli/issues/1252)) ([15195aa](https://github.com/bigcommerce/stencil-cli/commit/15195aaf82644e6680c7859d087f7117fbf5cfd0))
+
+
+## [8.5.1](https://github.com/bigcommerce/stencil-cli/compare/8.5.0...8.5.1) (2024-12-18)
+
+
+### Bug Fixes
+
+* STRF-11523 Enable dynamic partials ([#1248](https://github.com/bigcommerce/stencil-cli/issues/1248)) ([4fab613](https://github.com/bigcommerce/stencil-cli/commit/4fab61385b076ffe6105bb1196aace787143ef9b))
+
+
+
+# [8.5.0](https://github.com/bigcommerce/stencil-cli/compare/8.4.1...8.5.0) (2024-12-13)
+
+
+### Features
+
+* Add source maps option to bundle and push process ([#1245](https://github.com/bigcommerce/stencil-cli/issues/1245)) ([2604750](https://github.com/bigcommerce/stencil-cli/commit/2604750209d5784a1117329acacb0df9d860abeb))
+
+
+# [8.4.0](https://github.com/bigcommerce/stencil-cli/compare/8.3.0...8.4.0) (2024-09-26)
+
+
+### Bug Fixes
+
+* semantic release deploy to npm ([#1233](https://github.com/bigcommerce/stencil-cli/issues/1233)) ([5ed0cf3](https://github.com/bigcommerce/stencil-cli/commit/5ed0cf359f9f3101898cea075ad98600ad9e320b))
+* set node 20 for release ([#1234](https://github.com/bigcommerce/stencil-cli/issues/1234)) ([250bb07](https://github.com/bigcommerce/stencil-cli/commit/250bb076942dfc70b3b6a3f69654a7c4f0a8dfd6))
+
+
+### Features
+
+* STRF-11903 Migrate to ESM ([#1230](https://github.com/bigcommerce/stencil-cli/issues/1230)) ([9e462ea](https://github.com/bigcommerce/stencil-cli/commit/9e462ea44967e60c8003519154301d1c96a949b0))
+
+
 # [8.3.0](https://github.com/bigcommerce/stencil-cli/compare/8.2.0...8.3.0) (2024-09-20)
 
 

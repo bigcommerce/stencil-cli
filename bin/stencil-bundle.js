@@ -47,6 +47,7 @@ async function run() {
         const rawConfig = await themeConfig.getRawConfig();
         const timeout = cliOptions.timeout * 1000; // seconds
         const buildConfigManager = new BuildConfigManager({ timeout });
+        await buildConfigManager.initConfig();
         const bundle = new Bundle(
             THEME_PATH,
             themeConfig,
