@@ -34,6 +34,12 @@ const options = {
     cache: cliOptions.cache,
     channelUrl: cliOptions.channelUrl,
 };
-const timeout = cliOptions.timeout * 1000; // seconds
-const buildConfigManager = new BuildConfigManager({ timeout });
-new StencilStart({ buildConfigManager }).run(options).catch(printCliResultErrorAndExit);
+
+async function run() {
+    const timeout = cliOptions.timeout * 1000; // seconds
+    const buildConfigManager = new BuildConfigManager({ timeout });
+    await buildConfigManager.initConfig();
+    new StencilStart({ buildConfigManager }).run(options).catch(printCliResultErrorAndExit);
+}
+
+run();
