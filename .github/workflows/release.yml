@@ -35,7 +35,12 @@ jobs:
               id: meta
               uses: docker/metadata-action@v4
               with:
-                  images: ghcr.io/bigcommerce/stencil-cli
+                  images: ghcr.io/${{ github.repository_owner }}/stencil-cli
+                  tags: |
+                      type=semver,pattern={{version}}
+                      type=semver,pattern={{major}}.{{minor}}
+                      type=semver,pattern={{major}}
+                      type=raw,pattern=latest
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
 
@@ -43,4 +48,4 @@ jobs:
               uses: docker/build-push-action@v6
               with:
                   push: true
-                  tags: ghcr.io/${{ github.repository_owner }}/stencil-cli:latest
+                  tags: ${{ steps.meta.outputs.tags }}
