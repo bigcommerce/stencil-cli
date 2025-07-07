@@ -1,3 +1,10 @@
+## [8.8.4](https://github.com/bigcommerce/stencil-cli/compare/8.8.3...8.8.4) (2025-07-02)
+
+
+### Bug Fixes
+
+* STRF-13442 Fix semantic release PR creation and update docker tags ([#1282](https://github.com/bigcommerce/stencil-cli/issues/1282)) ([fbfcd8d](https://github.com/bigcommerce/stencil-cli/commit/fbfcd8dfdcbc154773286d9c455329103d757aa0))
+
 ## [8.8.0](https://github.com/bigcommerce/stencil-cli/compare/8.7.0...8.8.0) (2025-06-27)
 
 
