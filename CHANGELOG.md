@@ -1,3 +1,10 @@
+## [8.8.6](https://github.com/bigcommerce/stencil-cli/compare/8.8.5...8.8.6) (2025-07-10)
+
+
+### Bug Fixes
+
+* fix stencil push command from skipping theme task ([#1286](https://github.com/bigcommerce/stencil-cli/issues/1286)) ([e729ef4](https://github.com/bigcommerce/stencil-cli/commit/e729ef43d0815b194a74cfa97afe3be3bf0d3aa3))
+
 ## [8.8.5](https://github.com/bigcommerce/stencil-cli/compare/8.8.4...8.8.5) (2025-07-03)
 
 
