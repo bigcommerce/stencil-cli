@@ -1,3 +1,10 @@
+## [8.9.1](https://github.com/bigcommerce/stencil-cli/compare/8.9.0...8.9.1) (2025-07-24)
+
+
+### Bug Fixes
+
+* explicitly set port for hapi server ([#1291](https://github.com/bigcommerce/stencil-cli/issues/1291)) ([2fc9df1](https://github.com/bigcommerce/stencil-cli/commit/2fc9df140c32fd72038fe4c3d491c7d23f7c980e))
+
 # [8.9.0](https://github.com/bigcommerce/stencil-cli/compare/8.8.6...8.9.0) (2025-07-17)
 
 
