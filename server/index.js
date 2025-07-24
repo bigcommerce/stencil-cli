@@ -14,7 +14,7 @@ function buildManifest(srcManifest, options) {
     const parsedSecureUrl = new URL(options.dotStencilFile.storeUrl); // The url to a secure page (prompted as login page)
     const parsedNormalUrl = new URL(options.dotStencilFile.normalStoreUrl); // The host url of the homepage;
     const storeUrl = parsedSecureUrl.protocol + '//' + parsedSecureUrl.host;
-    resManifest.server.port = options.dotStencilFile.port;
+    resManifest.server.port = parseInt(options.dotStencilFile.port, 10) + 1;
     pluginsByName['./plugins/router/router.module.js'].storeUrl = storeUrl;
     pluginsByName['./plugins/router/router.module.js'].normalStoreUrl =
         parsedNormalUrl.protocol + '//' + parsedNormalUrl.host;
