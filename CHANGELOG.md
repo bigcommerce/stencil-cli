@@ -1,3 +1,10 @@
+## [8.9.2](https://github.com/bigcommerce/stencil-cli/compare/8.9.1...8.9.2) (2025-08-04)
+
+
+### Bug Fixes
+
+* STRF-13427 Bump axios, semantic release and commitlint packages ([#1293](https://github.com/bigcommerce/stencil-cli/issues/1293)) ([b9e15cb](https://github.com/bigcommerce/stencil-cli/commit/b9e15cb79492c2b60f390071e8e2d128fed67d20))
+
 ## [8.9.1](https://github.com/bigcommerce/stencil-cli/compare/8.9.0...8.9.1) (2025-07-24)
 
 
