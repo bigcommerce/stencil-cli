@@ -1,3 +1,10 @@
+## [8.9.3](https://github.com/bigcommerce/stencil-cli/compare/8.9.2...8.9.3) (2025-08-05)
+
+
+### Bug Fixes
+
+* STRF-13427 bump eslint-config-airbnb-base ([#1295](https://github.com/bigcommerce/stencil-cli/issues/1295)) ([58eba8d](https://github.com/bigcommerce/stencil-cli/commit/58eba8dbfdfcf322b0705607d67af3a0ade355f2))
+
 ## [8.9.2](https://github.com/bigcommerce/stencil-cli/compare/8.9.1...8.9.2) (2025-08-04)
 
 
