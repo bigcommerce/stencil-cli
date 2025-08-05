@@ -7,9 +7,7 @@ const uuidRegExp = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-([0-9a-f]{12
  */
 function stripDomainFromCookies(cookies) {
     return cookies.map((val) =>
-        val
-            .replace(/(?:;\s)?domain=(?:.+?)(;|$)/gi, '$1')
-            .replace(new RegExp('; SameSite=none', 'gi'), ''),
+        val.replace(/(?:;\s)?domain=(?:.+?)(;|$)/gi, '$1').replace(/; SameSite=none/gi, ''),
     );
 }
 /**

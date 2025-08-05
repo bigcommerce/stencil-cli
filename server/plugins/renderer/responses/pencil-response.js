@@ -73,7 +73,7 @@ const makeDecorator = (request, context) => (content) => {
     if (request.query.debug === 'bar') {
         const contextStr = escapeHtml(JSON.stringify(context, null, 2));
         const debugBar = `<pre style="background-color:#EEE; word-wrap:break-word;"> ${contextStr} </pre>`;
-        const bodyRegex = new RegExp('</body>');
+        const bodyRegex = /<\/body>/;
         updatedContent = content.replace(bodyRegex, `${debugBar}\n</body>`);
     }
     return updatedContent;

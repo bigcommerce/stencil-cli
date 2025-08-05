@@ -6,8 +6,14 @@ import templateAssembler from '../../../../lib/template-assembler.js';
 
 describe('PencilResponse', () => {
     const assembler = {
-        getTemplates: (p) => new Promise((resolve) => resolve({ path: p })),
-        getTranslations: () => new Promise((resolve) => resolve([])),
+        getTemplates: (p) =>
+            new Promise((resolve) => {
+                resolve({ path: p });
+            }),
+        getTranslations: () =>
+            new Promise((resolve) => {
+                resolve([]);
+            }),
     };
     let data;
     let request;
