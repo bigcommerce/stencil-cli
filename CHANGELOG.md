@@ -1,3 +1,10 @@
+## [8.9.4](https://github.com/bigcommerce/stencil-cli/compare/8.9.3...8.9.4) (2025-08-05)
+
+
+### Bug Fixes
+
+* STRF-13427 bump hapi server to v21 ([#1297](https://github.com/bigcommerce/stencil-cli/issues/1297)) ([a0f968c](https://github.com/bigcommerce/stencil-cli/commit/a0f968c49680019dbf31eb882a4c06afb3a92ccd))
+
 ## [8.9.3](https://github.com/bigcommerce/stencil-cli/compare/8.9.2...8.9.3) (2025-08-05)
 
 
