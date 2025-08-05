@@ -84,7 +84,7 @@
     "nypm": "^0.3.8",
     "object-to-spawn-args": "^2.0.0",
     "ora": "^8.0.1",
-    "parse-json": "^5.2.0",
+    "parse-json": "^8.3.0",
     "postcss": "^8.4.21",
     "postcss-safe-parser": "^6.0.0",
     "postcss-scss": "^4.0.6",
