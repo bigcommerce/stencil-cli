@@ -1,3 +1,10 @@
+# [8.9.0](https://github.com/bigcommerce/stencil-cli/compare/8.8.6...8.9.0) (2025-07-17)
+
+
+### Features
+
+* STRF-13448 Support --port for stencil start ([#1288](https://github.com/bigcommerce/stencil-cli/issues/1288)) ([9da243a](https://github.com/bigcommerce/stencil-cli/commit/9da243a04837094f35f846ad77283a203c83367a))
+
 ## [8.8.6](https://github.com/bigcommerce/stencil-cli/compare/8.8.5...8.8.6) (2025-07-10)
 
 
