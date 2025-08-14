@@ -1,3 +1,10 @@
+# [8.10.0](https://github.com/bigcommerce/stencil-cli/compare/8.9.4...8.10.0) (2025-08-14)
+
+
+### Features
+
+* Bump eslint to v8 ([#1308](https://github.com/bigcommerce/stencil-cli/issues/1308)) ([4e9e303](https://github.com/bigcommerce/stencil-cli/commit/4e9e303a28f5069a5945123fa63f5ffa72e269f7))
+
 ## [8.9.4](https://github.com/bigcommerce/stencil-cli/compare/8.9.3...8.9.4) (2025-08-05)
 
 
