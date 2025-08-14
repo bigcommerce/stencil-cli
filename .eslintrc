@@ -50,6 +50,8 @@
     ],
     // Overwrites airbnb-base because woks badly with prettier making multyline strings ugly
     "prefer-template": "off",
-    "import/extensions": "off"
+    "import/extensions": "off",
+    "camelcase": "off",
+    "jest/prefer-to-be": "off"
   }
 }
