@@ -128,7 +128,7 @@ class PencilResponse {
             return this.data.context;
         }
         try {
-            await paper.loadTheme(templatePath, this.data.acceptLanguage);
+            await paper.loadTheme(templatePath, this.data.acceptLanguage?.toLowerCase());
             const output = await paper.renderTheme(templatePath, this.data);
             const response = h.response(output).code(this.data.statusCode);
             if (this.data.headers['set-cookie']) {
