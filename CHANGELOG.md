@@ -1,3 +1,10 @@
+## [8.10.1](https://github.com/bigcommerce/stencil-cli/compare/8.10.0...8.10.1) (2025-09-17)
+
+
+### Bug Fixes
+
+* STRF-13605 Support local to be channel-specific ([#1318](https://github.com/bigcommerce/stencil-cli/issues/1318)) ([d260eef](https://github.com/bigcommerce/stencil-cli/commit/d260eef0e6ebbde17fb26a93da3903e4953704f9))
+
 # [8.10.0](https://github.com/bigcommerce/stencil-cli/compare/8.9.4...8.10.0) (2025-08-14)
 
 
