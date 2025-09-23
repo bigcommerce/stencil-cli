@@ -1,3 +1,10 @@
+## [8.10.2](https://github.com/bigcommerce/stencil-cli/compare/8.10.1...8.10.2) (2025-09-23)
+
+
+### Bug Fixes
+
+* STRF-13605 Fix case-sensitive lang store setting ([#1322](https://github.com/bigcommerce/stencil-cli/issues/1322)) ([358c0a7](https://github.com/bigcommerce/stencil-cli/commit/358c0a704e952cd98b00873a7b372dd29822bfe7))
+
 ## [8.10.1](https://github.com/bigcommerce/stencil-cli/compare/8.10.0...8.10.1) (2025-09-17)
 
 
