@@ -315,14 +315,19 @@ internals.getTemplatePath = (requestPath, data) => {
     }
     return templatePath || data.template_file;
 };
-function getAcceptLanguageHeader(request) {
+function getRawAcceptLanguageHeader(request) {
     if (
         internals.options.storeSettingsLocale.shopper_language_selection_method ===
         'default_shopper_language'
     ) {
         return internals.options.storeSettingsLocale.default_shopper_language;
     }
-    return request.headers['accept-language'].toLowerCase();
+    return request.headers['accept-language'];
+}
+
+function getAcceptLanguageHeader(request) {
+    const rawHeader = getRawAcceptLanguageHeader(request);
+    return rawHeader.toLowerCase();
 }
 /**
  * Creates a new Pencil Response object and returns it.
