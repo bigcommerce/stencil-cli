@@ -9,7 +9,7 @@ import langAssembler from '../../../lib/lang-assembler.js';
 import { RawResponse, RedirectResponse, PencilResponse } from './responses/index.js';
 import templateAssembler from '../../../lib/template-assembler.js';
 import { int2uuid, stripDomainFromCookies, normalizeRedirectUrl } from '../../lib/utils.js';
-import { readFromStream } from '../../../lib/utils/asyncUtils.js';
+import { readFromStream, readStream, tapStream } from '../../../lib/utils/asyncUtils.js';
 import NetworkUtils from '../../../lib/utils/NetworkUtils.js';
 import contentApiClient from '../../../lib/content-api-client.js';
 import { getPageType } from '../../lib/page-type-util.js';
@@ -114,9 +114,17 @@ internals.getResponse = async (request) => {
     // (5xx will be just thrown by axios)
     const contentType = response.headers['content-type'] || '';
     const isResponseJson = contentType.toLowerCase().includes('application/json');
-    const bcAppData = isResponseJson
-        ? JSON.parse(await readFromStream(response.data))
-        : response.data;
+    const isWebDavRequest = request.path.startsWith('/content');
+    let bcAppData = response.data;
+
+    if (isResponseJson) {
+        bcAppData = JSON.parse(await readFromStream(response.data));
+    } else if (isWebDavRequest) {
+        const tappedStream = tapStream(response.data, (body) => {
+            return body;
+        });
+        bcAppData = await readStream(tappedStream);
+    }
     // cache response
     cache.put(
         requestSignature,
