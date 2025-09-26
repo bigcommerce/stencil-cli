@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import path from 'path';
 import fs from 'fs';
 import { jest } from '@jest/globals';
+import { PassThrough } from 'stream';
 import Server from '../../index.js';
 import ThemeConfig from '../../../lib/theme-config.js';
 import { readFromStream } from '../../../lib/utils/asyncUtils.js';
@@ -242,7 +243,7 @@ describe('Renderer Plugin', () => {
     describe('when the storefront server response is Success and content-type is "image"', () => {
         const browserRequest = {
             method: 'get',
-            url: '/content/cat_and_dog.jpeg',
+            url: '/images/cat_and_dog.jpeg',
         };
         const testImage = fs.readFileSync('./test/assets/cat_and_dog.jpeg');
         const storefrontResponseHeaders = {
@@ -273,6 +274,23 @@ describe('Renderer Plugin', () => {
         it('should return a correct response body', async () => {
             expect(localServerResponse.rawPayload).toBeInstanceOf(Buffer);
             expect(localServerResponse.rawPayload).toEqual(testImage);
+        });
+    });
+
+    describe('WebDav /content requests', () => {
+        it('should return plain text response for /content path', async () => {
+            const browserRequest = {
+                method: 'GET',
+                url: '/content/test.txt',
+            };
+            const testString = 'webdav test content';
+            // Simulate a stream response for /content path
+            const stream = new PassThrough();
+            stream.end(testString);
+            axiosMock.onGet().reply(200, stream, { 'content-type': 'text/plain' });
+            const localServerResponse = await server.inject(browserRequest);
+            expect(localServerResponse.statusCode).toEqual(200);
+            expect(localServerResponse.payload).toEqual(testString);
         });
     });
 });
