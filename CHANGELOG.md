@@ -1,3 +1,10 @@
+## [8.10.3](https://github.com/bigcommerce/stencil-cli/compare/8.10.2...8.10.3) (2025-10-02)
+
+
+### Bug Fixes
+
+* STRF-13624 Fix intermintment failing for webdav content ([#1324](https://github.com/bigcommerce/stencil-cli/issues/1324)) ([20e1143](https://github.com/bigcommerce/stencil-cli/commit/20e1143e54c0ccfb2197c16b654ee5b098399ec9))
+
 ## [8.10.2](https://github.com/bigcommerce/stencil-cli/compare/8.10.1...8.10.2) (2025-09-23)
 
 
