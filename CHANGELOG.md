@@ -1,3 +1,10 @@
+## [8.10.4](https://github.com/bigcommerce/stencil-cli/compare/8.10.3...8.10.4) (2025-10-13)
+
+
+### Bug Fixes
+
+* STRF-13809 set stencil styles to a specific version ([#1329](https://github.com/bigcommerce/stencil-cli/issues/1329)) ([c3e0d4f](https://github.com/bigcommerce/stencil-cli/commit/c3e0d4fdc0cef6be986a78cbec92c9b1857eba8e))
+
 ## [8.10.3](https://github.com/bigcommerce/stencil-cli/compare/8.10.2...8.10.3) (2025-10-02)
 
 
