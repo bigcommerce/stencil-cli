@@ -115,15 +115,24 @@ internals.getResponse = async (request) => {
     const contentType = response.headers['content-type'] || '';
     const isResponseJson = contentType.toLowerCase().includes('application/json');
     const isWebDavRequest = request.path.startsWith('/content');
+    const isBinaryContent = contentType
+        .toLowerCase()
+        .match(/^(image|video|audio|application\/octet-stream|application\/pdf)/);
     let bcAppData = response.data;
 
     if (isResponseJson) {
         bcAppData = JSON.parse(await readFromStream(response.data));
     } else if (isWebDavRequest) {
-        const tappedStream = tapStream(response.data, (body) => {
-            return body;
-        });
-        bcAppData = await readStream(tappedStream);
+        if (isBinaryContent) {
+            // For binary content, don't read the stream - pass it through as-is
+            bcAppData = response.data;
+        } else {
+            // For text content, read as string
+            const tappedStream = tapStream(response.data, (body) => {
+                return body;
+            });
+            bcAppData = await readStream(tappedStream, false);
+        }
     }
     // cache response
     cache.put(
