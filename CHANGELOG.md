@@ -1,3 +1,10 @@
+## [8.10.5](https://github.com/bigcommerce/stencil-cli/compare/8.10.4...8.10.5) (2025-10-28)
+
+
+### Bug Fixes
+
+* handle binary content properly in WebDAV requests ([#1332](https://github.com/bigcommerce/stencil-cli/issues/1332)) ([092781d](https://github.com/bigcommerce/stencil-cli/commit/092781d8ef1d27bd4384f7579d602b2f36ddeafc))
+
 ## [8.10.4](https://github.com/bigcommerce/stencil-cli/compare/8.10.3...8.10.4) (2025-10-13)
 
 
