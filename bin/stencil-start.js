@@ -24,7 +24,12 @@ program
         '-cu, --channelUrl [channelUrl]',
         'Set a custom domain url to bypass dns/proxy protection',
     )
-    .option('-p --port [portnumber]', 'Set port number to listen dev server');
+    .option('-p --port [portnumber]', 'Set port number to listen dev server')
+    .option(
+        '--serverHost [serverHost]',
+        'Set the hostname for the dev server (default: localhost)',
+        'localhost',
+    );
 const cliOptions = prepareCommand(program);
 const options = {
     open: cliOptions.open,
@@ -35,6 +40,7 @@ const options = {
     cache: cliOptions.cache,
     channelUrl: cliOptions.channelUrl,
     port: cliOptions.port,
+    host: cliOptions.serverHost,
 };
 
 async function run() {
