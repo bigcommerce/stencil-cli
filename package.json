@@ -5,7 +5,7 @@
   "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
   "engines": {
-    "node": ">=18",
+    "node": ">=20",
     "npm": ">=8.0.0"
   },
   "scripts": {

@@ -23,5 +23,3 @@ export default {
     DEFAULT_CUSTOM_LAYOUTS_CONFIG,
     API_HOST,
 };
-
-// sdfsdf
