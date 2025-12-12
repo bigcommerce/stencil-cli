@@ -17,6 +17,8 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version: '22.x'
+            - name: Update npm
+              run: npm install -g npm@latest
             - run: npm i
             - name: Check Git Commit name
               run: git log -1 --pretty=format:"%s" |  npx commitlint
