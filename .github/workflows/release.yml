@@ -12,6 +12,7 @@ jobs:
             issues: write # to be able to comment on released issues
             pull-requests: write # to be able to comment on released pull requests
             id-token: write # to enable use of OIDC for trusted publishing and npm provenance
+            packages: write # docker images publishing to github container registry
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
