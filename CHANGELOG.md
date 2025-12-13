@@ -1,3 +1,25 @@
+# [9.0.0](https://github.com/bigcommerce/stencil-cli/compare/8.10.5...9.0.0) (2025-12-13)
+
+
+### Bug Fixes
+
+* ensure npm is latest to support trusted publishing flow ([#1345](https://github.com/bigcommerce/stencil-cli/issues/1345)) ([12226c8](https://github.com/bigcommerce/stencil-cli/commit/12226c8739aeeb954e87b803a8d1f58c196ece55))
+* ghr publish ([#1346](https://github.com/bigcommerce/stencil-cli/issues/1346)) ([cd4e5dd](https://github.com/bigcommerce/stencil-cli/commit/cd4e5dd80d0b6a34e1b1934c5f795e2ba04bcc27))
+* npm release ([#1341](https://github.com/bigcommerce/stencil-cli/issues/1341)) ([d02e53d](https://github.com/bigcommerce/stencil-cli/commit/d02e53d97df1e9241ddab99e0a78287b55c25307))
+* remove explicit npm token usage during release ([#1344](https://github.com/bigcommerce/stencil-cli/issues/1344)) ([d9fbb60](https://github.com/bigcommerce/stencil-cli/commit/d9fbb606a4a5de9bb0181b45290313bf903abd1d))
+* update @semantic-release/npm which has trusted publishing flow ([#1342](https://github.com/bigcommerce/stencil-cli/issues/1342)) ([968745f](https://github.com/bigcommerce/stencil-cli/commit/968745ffb7f02565233532ea054ebf999d7a0a69))
+* update semantic release ([#1343](https://github.com/bigcommerce/stencil-cli/issues/1343)) ([b40027a](https://github.com/bigcommerce/stencil-cli/commit/b40027a9fc4f9279c79fd14348ab414601f5c18c))
+
+
+### Features
+
+* STRF-13943 Enable node 22; drop node 18; BREAKING CHANGE: Drop Node 18 Support  ([#1339](https://github.com/bigcommerce/stencil-cli/issues/1339)) ([7f46f65](https://github.com/bigcommerce/stencil-cli/commit/7f46f65bdb33856f0b68a637daf819768ce8e476))
+
+
+### BREAKING CHANGES
+
+* Drop Node 18 Support
+
 ## [8.10.5](https://github.com/bigcommerce/stencil-cli/compare/8.10.4...8.10.5) (2025-10-28)
 
 
