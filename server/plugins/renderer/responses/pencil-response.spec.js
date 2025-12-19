@@ -23,8 +23,8 @@ describe('PencilResponse', () => {
         data = {
             context: {
                 settings: {
-                    base_url: 'http://localhost:3000',
-                    secure_base_url: 'https://localhost:3000',
+                    base_url: 'http://0.0.0.0:3000',
+                    secure_base_url: 'https://0.0.0.0:3000',
                 },
                 theme_settings: {},
                 template_engine: 'handlebars-v3',
