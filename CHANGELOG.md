@@ -1,3 +1,10 @@
+## [9.0.1](https://github.com/bigcommerce/stencil-cli/compare/9.0.0...9.0.1) (2026-04-01)
+
+
+### Bug Fixes
+
+* **deps:** TRAC-308: bump @bigcommerce/stencil-paper to 5.4.1 ([#1355](https://github.com/bigcommerce/stencil-cli/issues/1355)) ([41edb61](https://github.com/bigcommerce/stencil-cli/commit/41edb612b444c42cba1b6001d8da63c71554f00b))
+
 # [9.0.0](https://github.com/bigcommerce/stencil-cli/compare/8.10.5...9.0.0) (2025-12-13)
 
 

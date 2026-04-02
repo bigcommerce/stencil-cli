@@ -1,6 +1,6 @@
 {
   "name": "@bigcommerce/stencil-cli",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "type": "module",
   "description": "CLI tool to run BigCommerce Stores locally for theme development.",
   "main": "index.js",
