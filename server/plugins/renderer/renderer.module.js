@@ -357,6 +357,7 @@ function getAcceptLanguageHeader(request) {
  * @returns {*}
  */
 internals.getPencilResponse = (data, request, response, configuration, renderedRegions = {}) => {
+    const serverHost = internals.options.serverHost || 'localhost';
     const context = {
         ...data.context,
         theme_settings: configuration.settings,
@@ -368,7 +369,7 @@ internals.getPencilResponse = (data, request, response, configuration, renderedR
             theme_version_id: int2uuid(1),
             theme_config_id: int2uuid(request.app.themeConfig.variationIndex + 1),
             theme_session_id: null,
-            maintenance: { secure_path: `http://localhost:${internals.options.port}` },
+            maintenance: { secure_path: `http://${serverHost}:${internals.options.port}` },
         },
     };
     return new PencilResponse(
