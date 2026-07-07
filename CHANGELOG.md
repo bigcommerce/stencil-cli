@@ -1,3 +1,10 @@
+## [9.0.3](https://github.com/bigcommerce/stencil-cli/compare/9.0.2...9.0.3) (2026-07-07)
+
+
+### Bug Fixes
+
+* TRAC-896 - avoid archiveManager readEntry stall on Windows/Node 24 CI ([#1390](https://github.com/bigcommerce/stencil-cli/issues/1390)) ([a427260](https://github.com/bigcommerce/stencil-cli/commit/a42726005da1859f2d0fd7aa73ab5b1f83bcbc99))
+
 ## [9.0.2](https://github.com/bigcommerce/stencil-cli/compare/9.0.1...9.0.2) (2026-06-17)
 
 
