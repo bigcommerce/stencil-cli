@@ -27,6 +27,7 @@ jobs:
               run: npm config list && npm run release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_TOKEN_RELEASE: ${{ secrets.PAT_TOKEN }}
                   GA_USERNAME: ${{ secrets.PAT_USERNAME }}
                   GA_TOKEN: ${{ secrets.PAT_TOKEN }}
 
