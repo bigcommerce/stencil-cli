@@ -1,3 +1,15 @@
+# [9.1.0](https://github.com/bigcommerce/stencil-cli/compare/9.0.3...9.1.0) (2026-07-23)
+
+
+### Bug Fixes
+
+* TRAC-514 - accept ticket-first commit format in release flow and use PAT for release PRs ([#1394](https://github.com/bigcommerce/stencil-cli/issues/1394)) ([4d672be](https://github.com/bigcommerce/stencil-cli/commit/4d672be6ef810c76f9811a41f42aa5c771bdfb10))
+
+
+### Features
+
+* support esm in stencil-cli ([#1392](https://github.com/bigcommerce/stencil-cli/issues/1392)) ([0af9f24](https://github.com/bigcommerce/stencil-cli/commit/0af9f2436be6941def18a35527f374d3cb3280db))
+
 ## [9.0.3](https://github.com/bigcommerce/stencil-cli/compare/9.0.2...9.0.3) (2026-07-07)
 
 
