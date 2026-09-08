@@ -8,7 +8,7 @@ The BigCommerce server emulator for local theme development.
 ## Install
 
 Note: Stencil requires the Node.js runtime environment,
-versions 20.x, 22.x are supported.
+version 24.x or later is required.
 
 Run `npm install -g @bigcommerce/stencil-cli`.
 
@@ -96,6 +96,28 @@ If you need any help or experience any bugs, please create a GitHub issue in thi
 
 If you would like to improve this project check out the [Contributing Guide](./CONTRIBUTING.md). Also, you can find
 the implementation details there.
+
+## Versioning and releases
+
+Stencil CLI uses [Semantic Release](https://semantic-release.gitbook.io/semantic-release/). The commit message used when a pull
+request is merged determines the next version.
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) for pull request titles and merge commit
+messages:
+
+-   `fix:` creates a patch release.
+-   `feat:` creates a minor release.
+-   A breaking change creates a major release. Add `BREAKING CHANGE:` as a commit footer, or append `!` to the
+    commit type (for example, `feat!:`).
+
+For example:
+
+```text
+feat!: require Node.js 24
+```
+
+After the pull request is merged, Semantic Release creates the GitHub release and publishes the new version to npm.
+See the [Contributing Guide](./CONTRIBUTING.md) for more information.
 
 ## Running in docker
 
