@@ -1,3 +1,20 @@
+# [10.0.0](https://github.com/bigcommerce/stencil-cli/compare/9.2.0...10.0.0) (2026-09-08)
+
+
+### Features
+
+* require Node 24; drop support for Node 20 and 22 ([#1404](https://github.com/bigcommerce/stencil-cli/issues/1404)) ([1016793](https://github.com/bigcommerce/stencil-cli/commit/10167935798cfc4232fff3188de9325ab66e1e12))
+
+
+### Reverts
+
+* require Node 24; drop support for Node 20 and 22 ([#1403](https://github.com/bigcommerce/stencil-cli/issues/1403)) ([c35b798](https://github.com/bigcommerce/stencil-cli/commit/c35b798ccd886226266de5656607caabc59f45bb))
+
+
+### BREAKING CHANGES
+
+* Node 20 and Node 22 are no longer supported. Node 24 or later is required.
+
 # [9.1.0](https://github.com/bigcommerce/stencil-cli/compare/9.0.3...9.1.0) (2026-07-23)
 
 
