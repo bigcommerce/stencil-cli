@@ -3,7 +3,7 @@ import Confidence from 'confidence';
 const config = {
     $meta: 'Config file',
     server: {
-        host: 'localhost',
+        host: process.env.STENCIL_SERVER_HOST || 'localhost',
         port: 3000,
     },
 };

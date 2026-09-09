@@ -36,6 +36,7 @@ function buildManifest(srcManifest, options) {
     pluginsByName['./plugins/renderer/renderer.module.js'].storeUrl = storeUrl;
     pluginsByName['./plugins/renderer/renderer.module.js'].storeSettingsLocale =
         options.storeSettingsLocale;
+    pluginsByName['./plugins/renderer/renderer.module.js'].serverHost = options.serverHost;
     pluginsByName['./plugins/theme-assets/theme-assets.module.js'].themePath = options.themePath;
     resManifest.register.plugins = _.reduce(
         pluginsByName,
