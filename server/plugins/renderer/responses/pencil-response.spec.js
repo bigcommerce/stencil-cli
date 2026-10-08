@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import * as Hapi from '@hapi/hapi';
 import path from 'path';
 import { promisify } from 'util';
 import PencilResponse from './pencil-response.js';
@@ -71,6 +72,29 @@ describe('PencilResponse', () => {
         const pencilResponse = new PencilResponse(data, assembler);
         await pencilResponse.respond(request, h);
         expect(h.response).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return the Makeswift page headers from the storefront response', async () => {
+        data.statusCode = 200;
+        data.headers = {
+            'x-makeswift-stable-page-reference': 'product-12',
+            'x-makeswift-page-locale': 'fr',
+            'x-makeswift-storefront-token': 'token',
+            'x-frame-options': 'DENY',
+        };
+        const server = Hapi.server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: (req, toolkit) => new PencilResponse(data, assembler).respond(req, toolkit),
+        });
+        const { headers } = await server.inject('/');
+        expect(headers).toMatchObject({
+            'x-makeswift-stable-page-reference': 'product-12',
+            'x-makeswift-page-locale': 'fr',
+            'x-makeswift-storefront-token': 'token',
+        });
+        expect(headers).not.toHaveProperty('x-frame-options');
     });
 
     describe('it should successfully render a tempalte with dynamic partials', () => {
