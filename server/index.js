@@ -8,7 +8,7 @@ import 'colors';
 
 const getDirname = dirname(fileURLToPath(import.meta.url));
 
-function buildManifest(srcManifest, options) {
+export function buildManifest(srcManifest, options) {
     const resManifest = _.cloneDeep(srcManifest);
     const pluginsByName = resManifest.register.plugins;
     const parsedSecureUrl = new URL(options.dotStencilFile.storeUrl); // The url to a secure page (prompted as login page)
@@ -42,6 +42,12 @@ function buildManifest(srcManifest, options) {
         (pluginsArr, opts, plugin) => [...pluginsArr, { plugin, options: opts }],
         [],
     );
+    if (options.previewSecret) {
+        resManifest.register.plugins.unshift({
+            plugin: './plugins/preview-auth/preview-auth.module.js',
+            options: { secret: options.previewSecret },
+        });
+    }
     return resManifest;
 }
 async function create(options) {
