@@ -57,6 +57,15 @@ const isSupportedHandlebarsVersion = (version) =>
  */
 const compatibilizeTemplateEngine = (version) => version.replace('_', '-');
 /**
+ * Storefront headers that the Makeswift worker reads from the rendered page to find its
+ * Makeswift content.
+ */
+const MAKESWIFT_PAGE_HEADERS = [
+    'x-makeswift-stable-page-reference',
+    'x-makeswift-page-locale',
+    'x-makeswift-storefront-token',
+];
+/**
  * Output post-processing
  *
  * @param {Object} request
@@ -133,6 +142,11 @@ class PencilResponse {
             const response = h.response(output).code(this.data.statusCode);
             if (this.data.headers['set-cookie']) {
                 response.header('set-cookie', this.data.headers['set-cookie']);
+            }
+            for (const name of MAKESWIFT_PAGE_HEADERS) {
+                if (this.data.headers[name]) {
+                    response.header(name, this.data.headers[name]);
+                }
             }
             return response;
         } catch (err) {
