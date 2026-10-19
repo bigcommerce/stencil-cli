@@ -1,3 +1,17 @@
+# [10.1.0](https://github.com/bigcommerce/stencil-cli/compare/10.0.0...10.1.0) (2026-10-19)
+
+
+### Features
+
+* auto-detect Makeswift and start a Cloudflare Quick Tunnel ([#1407](https://github.com/bigcommerce/stencil-cli/issues/1407)) ([e06ec30](https://github.com/bigcommerce/stencil-cli/commit/e06ec30b327968ae4da31e1c7a020189b3668064))
+* Heartbeat the Makeswift preview session ([#1415](https://github.com/bigcommerce/stencil-cli/issues/1415)) ([df4fd46](https://github.com/bigcommerce/stencil-cli/commit/df4fd4600c3cdd6702eeab3103f21b00df51eaa8))
+* Register the Makeswift preview session ([#1408](https://github.com/bigcommerce/stencil-cli/issues/1408)) ([a7aefc3](https://github.com/bigcommerce/stencil-cli/commit/a7aefc3b7e2c7cc9febf01a4049a215ab40dbdbb))
+* Require x-stencil-preview-secret on tunnel requests ([#1409](https://github.com/bigcommerce/stencil-cli/issues/1409)) ([11f9329](https://github.com/bigcommerce/stencil-cli/commit/11f9329d08a1fc46ff2bbc780f48fc1cc26e2dd9))
+* Return Makeswift page identity headers from the local renderer ([#1419](https://github.com/bigcommerce/stencil-cli/issues/1419)) ([319927c](https://github.com/bigcommerce/stencil-cli/commit/319927c7f5ae80cf2d9545d98c1e20c9e99922f8)), closes [#1420](https://github.com/bigcommerce/stencil-cli/issues/1420)
+* Revoke the Makeswift preview session and stop the tunnel on exit ([#1416](https://github.com/bigcommerce/stencil-cli/issues/1416)) ([5432b2b](https://github.com/bigcommerce/stencil-cli/commit/5432b2bf993b17379db8a787575d9286d2e8259b))
+* rewrite Makeswift storefront links to localhost ([#1418](https://github.com/bigcommerce/stencil-cli/issues/1418)) ([4241766](https://github.com/bigcommerce/stencil-cli/commit/4241766d409c73f541efcf712c6e5559c2c3dd0d))
+* Sign every proxied request with an HMAC proof ([#1413](https://github.com/bigcommerce/stencil-cli/issues/1413)) ([c145d00](https://github.com/bigcommerce/stencil-cli/commit/c145d00015508370f250416b2a8019cda3e7f755))
+
 # [10.0.0](https://github.com/bigcommerce/stencil-cli/compare/9.2.0...10.0.0) (2026-09-08)
 
 
