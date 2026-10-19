@@ -47,6 +47,18 @@ Run with `-o` or `--open` to automatically open up a browser.
 -   While stencil is running, you can type "rs" and then hit enter to auto-reload all browsers. This is similar to
     Nodemon's rs option.
 
+#### Makeswift preview
+
+If Makeswift is enabled for the storefront, `stencil start` opens a Cloudflare quick tunnel with
+[cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/).
+If `cloudflared` is not on your PATH (or is too old), Stencil CLI asks if it can download a pinned, checksum-verified
+release. If you agree, it caches the release in `<cache dir>/stencil-cli/cloudflared/<version>/`. If you decline, or
+the terminal is not interactive, `stencil start` continues without Makeswift preview. The cache dir is `~/Library/Caches` on
+macOS, `%LOCALAPPDATA%` on Windows, and `$XDG_CACHE_HOME` or `~/.cache` on other systems.
+
+To use your own binary and turn off the download (for example, offline), set `STENCIL_CLOUDFLARED_PATH` to the path
+of `cloudflared`.
+
 Run `stencil bundle` to validate your code and create a zip bundle file that can be uploaded to BigCommerce.
 
 Run `stencil release` to tag a new version of your theme, create a [GitHub release](https://help.github.com/articles/about-releases/)
