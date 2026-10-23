@@ -1,3 +1,10 @@
+## [10.1.1](https://github.com/bigcommerce/stencil-cli/compare/10.1.0...10.1.1) (2026-10-23)
+
+
+### Bug Fixes
+
+* Pin Node.js to 24.22.1 security patch release ([#1423](https://github.com/bigcommerce/stencil-cli/issues/1423)) ([f17ef04](https://github.com/bigcommerce/stencil-cli/commit/f17ef048e3f9b87ebe0eb95a8c636da2f38884ff))
+
 # [10.1.0](https://github.com/bigcommerce/stencil-cli/compare/10.0.0...10.1.0) (2026-10-19)
 
 
