@@ -1,3 +1,10 @@
+## [10.1.2](https://github.com/bigcommerce/stencil-cli/compare/10.1.1...10.1.2) (2026-11-05)
+
+
+### Bug Fixes
+
+* Preview the Stencil storefront of headless channels ([#1425](https://github.com/bigcommerce/stencil-cli/issues/1425)) ([f016305](https://github.com/bigcommerce/stencil-cli/commit/f0163059fcbf3e0ea87931fd232c21e7f0199a3b))
+
 ## [10.1.1](https://github.com/bigcommerce/stencil-cli/compare/10.1.0...10.1.1) (2026-10-23)
 
 
