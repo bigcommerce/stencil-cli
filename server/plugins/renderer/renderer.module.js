@@ -332,19 +332,18 @@ internals.getTemplatePath = (requestPath, data) => {
     }
     return templatePath || data.template_file;
 };
-function getRawAcceptLanguageHeader(request) {
-    if (
-        internals.options.storeSettingsLocale.shopper_language_selection_method ===
-        'default_shopper_language'
-    ) {
-        return internals.options.storeSettingsLocale.default_shopper_language;
+function resolveAcceptLanguage(storefrontHeader, browserHeader, storeSettingsLocale) {
+    if (storefrontHeader?.trim()) {
+        return storefrontHeader.toLowerCase();
     }
-    return request.headers['accept-language'];
-}
-
-function getAcceptLanguageHeader(request) {
-    const rawHeader = getRawAcceptLanguageHeader(request);
-    return rawHeader.toLowerCase();
+    const browserLanguage = (browserHeader ?? '').toLowerCase();
+    if (
+        storeSettingsLocale?.shopper_language_selection_method !== 'default_shopper_language' &&
+        browserLanguage.trim()
+    ) {
+        return browserLanguage;
+    }
+    return (storeSettingsLocale?.default_shopper_language ?? '').toLowerCase();
 }
 /**
  * Creates a new Pencil Response object and returns it.
@@ -381,7 +380,11 @@ internals.getPencilResponse = (data, request, response, configuration, renderedR
             context,
             translations: data.translations,
             method: request.method,
-            acceptLanguage: getAcceptLanguageHeader(request),
+            acceptLanguage: resolveAcceptLanguage(
+                response.headers['x-bc-stencil-accept-language'],
+                request.headers['accept-language'],
+                internals.options.storeSettingsLocale,
+            ),
             headers: response.headers,
             statusCode: response.status,
         },

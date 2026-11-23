@@ -1,10 +1,12 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import cache from 'memory-cache';
 import path from 'path';
 import fs from 'fs';
 import { jest } from '@jest/globals';
 import { PassThrough } from 'stream';
 import Server from '../../index.js';
+import langAssembler from '../../../lib/lang-assembler.js';
 import ThemeConfig from '../../../lib/theme-config.js';
 import { readFromStream } from '../../../lib/utils/asyncUtils.js';
 import { PACKAGE_INFO } from '../../../constants.js';
@@ -26,6 +28,10 @@ describe('Renderer Plugin', () => {
         },
         useCache: false,
         themePath: themeConfigManager.themePath,
+        storeSettingsLocale: {
+            shopper_language_selection_method: 'default_shopper_language',
+            default_shopper_language: 'en',
+        },
     };
     let server;
     beforeAll(async () => {
@@ -274,6 +280,114 @@ describe('Renderer Plugin', () => {
         it('should return a correct response body', async () => {
             expect(localServerResponse.rawPayload).toBeInstanceOf(Buffer);
             expect(localServerResponse.rawPayload).toEqual(testImage);
+        });
+    });
+
+    describe('theme language with a fixed English store locale', () => {
+        const url = '/localized';
+        const storefrontUrl = `${storeUrl}${url}`;
+        const jsonHeaders = { 'content-type': 'application/json' };
+        const localeHeader = 'x-bc-stencil-accept-language';
+        const page = { pencil_response: true, template_file: 'pages/localized' };
+        const settings = { base_url: normalStoreUrl, secure_base_url: storeUrl };
+        const jsonStream = (data) => {
+            const stream = new PassThrough();
+            stream.end(JSON.stringify(data));
+            return stream;
+        };
+
+        let assembleTranslations;
+        beforeEach(() => {
+            assembleTranslations = jest
+                .spyOn(langAssembler, 'assemble')
+                .mockImplementation((callback) => {
+                    callback(null, {
+                        en: JSON.stringify({ home: { heading: 'Home' } }),
+                        da: JSON.stringify({ home: { heading: 'Hjem' } }),
+                        'da-dk': JSON.stringify({ home: { heading: 'Hjem' } }),
+                    });
+                });
+        });
+        afterEach(() => {
+            assembleTranslations.mockRestore();
+            cache.clear();
+        });
+
+        it.each([
+            {
+                description:
+                    'uses the final Storefront header even when it matches the first browser tag',
+                browserLanguage: 'da,en;q=0.9',
+                legacyLocale: 'da',
+                storefrontLanguage: 'da',
+                language: 'da',
+                greeting: 'Hjem',
+            },
+            {
+                description:
+                    'ignores the legacy JSON locale and the first response header when the final header is missing',
+                browserLanguage: 'da,en;q=0.9',
+                legacyLocale: 'da-DK',
+                language: 'en',
+                greeting: 'Home',
+            },
+            {
+                description: 'uses the next supported language in the final Storefront header',
+                browserLanguage: 'en',
+                storefrontLanguage: 'fr,da;q=0.9,en;q=0.8',
+                language: 'da',
+                greeting: 'Hjem',
+            },
+        ])(
+            '$description',
+            async ({ browserLanguage, legacyLocale, storefrontLanguage, language, greeting }) => {
+                axiosMock
+                    .onGet(storefrontUrl)
+                    .replyOnce(200, jsonStream(page), { ...jsonHeaders, [localeHeader]: 'da-dk' });
+                axiosMock.onGet(storefrontUrl).replyOnce(
+                    200,
+                    {
+                        ...page,
+                        context: {
+                            settings: {
+                                ...settings,
+                                request: legacyLocale === undefined ? {} : { locale: legacyLocale },
+                            },
+                        },
+                    },
+                    storefrontLanguage === undefined
+                        ? jsonHeaders
+                        : { ...jsonHeaders, [localeHeader]: storefrontLanguage },
+                );
+
+                const response = await server.inject({
+                    method: 'GET',
+                    url,
+                    headers: { 'accept-language': browserLanguage },
+                });
+                expect(axiosMock.history.get).toHaveLength(2);
+                expect(response.statusCode).toEqual(200);
+                expect(response.payload).toContain(`<html lang="${language}">`);
+                expect(response.payload).toContain(`<h1>${greeting}</h1>`);
+            },
+        );
+
+        it('uses the Storefront header from the single remote response', async () => {
+            const remotePage = { ...page, remote: true, remote_data: {}, context: { settings } };
+            axiosMock
+                .onGet(storefrontUrl)
+                .replyOnce(200, jsonStream(remotePage), { ...jsonHeaders, [localeHeader]: 'da' });
+
+            const response = await server.inject({
+                method: 'GET',
+                url,
+                headers: { 'accept-language': 'en' },
+            });
+            expect(axiosMock.history.get).toHaveLength(1);
+            expect(response.statusCode).toEqual(200);
+            const { content } = response.result;
+            expect(content).toContain('<html lang="da">');
+            expect(content).toContain('<h1>Hjem</h1>');
         });
     });
 
